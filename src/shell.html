@@ -164,6 +164,10 @@ label.fld{display:grid;gap:3px;font-size:12px;color:var(--ink-2)}
 .qtot .big{font-size:17px;font-weight:600}
 .modtabs{display:flex;gap:2px;background:var(--surface-2);border:1px solid var(--line);border-radius:999px;padding:3px}
 .modtabs button{border:0;background:transparent;border-radius:999px;padding:6px 14px;cursor:pointer;font-weight:500;color:var(--ink-2)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:2px;background:var(--surface-2)}
+.seg button{border:0;background:transparent;border-radius:999px;padding:4px 10px;cursor:pointer;font:600 12px var(--f-ui);color:var(--ink-2)}
+.seg button.on{background:var(--accent);color:var(--accent-ink)}
+#btnTheme{white-space:nowrap}
 .modtabs button.on{background:var(--ink);color:var(--surface)}
 @media (max-width:760px){.modtabs{overflow-x:auto;max-width:100%;min-width:0;flex:1 1 100%;scrollbar-width:none}.modtabs button{white-space:nowrap;padding:6px 10px;flex:0 0 auto}.top{min-width:0}}
 .bhead{display:flex;flex-wrap:wrap;gap:8px;align-items:end;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);padding:10px 12px}
@@ -216,8 +220,8 @@ label.fld{display:grid;gap:3px;font-size:12px;color:var(--ink-2)}
 .exports{display:flex;gap:8px;flex-wrap:wrap}
 .gcd{margin-top:12px;border:1px solid var(--line-2);border-radius:var(--r);padding:8px 10px}.gcd summary{cursor:pointer;font-weight:500}
 textarea.inp{width:100%;border:1px solid var(--line);background:var(--surface-2);border-radius:var(--r);padding:6px 8px;color:var(--ink);font-size:12.5px}
-.rtabs{display:flex;gap:2px;border-bottom:1px solid var(--line)}
-.rtabs button{border:0;background:transparent;padding:8px 12px;border-bottom:2px solid transparent;cursor:pointer;color:var(--ink-2);font-weight:500}
+.rtabs{display:flex;gap:2px;border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none;min-width:0}
+.rtabs button{white-space:nowrap;flex:0 0 auto;border:0;background:transparent;padding:8px 12px;border-bottom:2px solid transparent;cursor:pointer;color:var(--ink-2);font-weight:500}
 .rtabs button.on{color:var(--ink);border-bottom-color:var(--accent)}
 .tblwrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
 table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
@@ -309,6 +313,8 @@ table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
     </nav>
     <span id="updBadge" class="pill rem" hidden></span>
     <div class="top-actions">
+      <div class="seg notr" id="langSeg" role="group" aria-label="Language"><button data-lang="mn" title="Монгол">МН</button><button data-lang="en" title="English">EN</button></div>
+      <button id="btnTheme" class="btn ghost sm notr" type="button">☾ Night</button>
       <input id="jobName" class="job" aria-label="Ажлын нэр">
       <button id="btnOpenProj" class="btn ghost sm">Төсөл нээх</button>
       <button id="btnSaveProj" class="btn ghost sm">Төсөл хадгалах</button>

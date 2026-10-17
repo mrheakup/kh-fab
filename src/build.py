@@ -1,6 +1,7 @@
-import re
+import re, os
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 shell=open('shell.html').read()
-w=open('geom_exact.js').read()+'\n'+open('worker.js').read(); core=open('core.js').read()+'\n'+open('geom_exact.js').read()+'\n'+open('import_formats.js').read()+'\n'+open('fonts.js').read()+'\n'+open('text_tool.js').read(); app=open('app.js').read()
+w=open('geom_exact.js').read()+'\n'+open('worker.js').read(); core='const I18N_EN = '+open('i18n_en.json').read()+';\n'+open('i18n.js').read()+'\n'+open('core.js').read()+'\n'+open('geom_exact.js').read()+'\n'+open('import_formats.js').read()+'\n'+open('fonts.js').read()+'\n'+open('text_tool.js').read(); app=open('app.js').read()
 import json
 vbjs='const VB_GEOM = '+json.dumps(open('ilogic/kh_geom.vb').read())+';\nconst VB_INV = '+json.dumps(open('ilogic/kh_inv.vb').read())+';'
 page=shell.replace('{{WORKER}}',w).replace('{{APP}}',core+'\n'+open('laser.js').read()+'\n'+open('cutting.js').read()+'\n'+app+'\n'+open('jobs.js').read()+'\n'+open('bend.js').read()+'\n'+open('bend_ui.js').read()+'\n'+open('bucket.js').read()+'\n'+open('roll.js').read()+'\n'+open('bom.js').read()+'\n'+open('trace.js').read()+'\n'+open('info_data.js').read()+'\n'+open('templates.js').read()+'\n'+open('cad3d.js').read()+'\n'+vbjs+'\n'+open('ilogic.js').read()+'\n'+open('info.js').read())
@@ -36,3 +37,6 @@ for cdn,loc in [('https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.
 assert 'https://' not in re.sub(r'https://(fonts\.google|www\.w3\.org|github\.com|electron)[^"\' ]*','',dp) or True
 open(D+'/index.html','w').write('<!doctype html>\n<html lang="mn">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width,initial-scale=1">\n</head>\n<body>\n'+dp+'\n</body>\n</html>\n')
 print('desktop app ok')
+
+shutil.copy('KH_Nesting.html','../web/KH_Fab_web.html'); shutil.copy('kh-nesting.html','../web/kh-nesting.html')
+print('web ok')

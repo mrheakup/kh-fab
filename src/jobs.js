@@ -306,7 +306,7 @@ async function labelsPdf(items, fileName) {
     x.font = `400 2.3px ${F}`; x.fillStyle = '#6a7684'; x.fillText(fit(it.small, tw), X + pad, Y + LH - pad);
   });
   if (!pages.length) { toast('Хэвлэх шошго алга'); return; }
-  const pdf = new window.jspdf.jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true });
+  const pdf = i18nPdf(new window.jspdf.jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true }));
   pages.forEach((c, i) => { if (i) pdf.addPage(); pdf.addImage(c.toDataURL('image/png'), 'PNG', 0, 0, PW, PH); });
   saveFile(safeName(fileName) + '.pdf', pdf.output('blob'), 'application/pdf');
 }
@@ -382,7 +382,7 @@ async function jobCardPdf(job) {
   need(40); y += 6;
   x.font = `400 3.2px ${F}`; x.fillStyle = '#10161c';
   [['Бэлтгэсэн', 15], ['Хянасан (ЧХ)', 80], ['Хүлээн авсан', 145]].forEach(([t, X]) => { x.fillText(t, X, y); x.strokeStyle = '#8a95a1'; x.lineWidth = 0.25; x.beginPath(); x.moveTo(X, y + 12); x.lineTo(X + 50, y + 12); x.stroke(); x.font = `400 2.6px ${F}`; x.fillStyle = '#6a7684'; x.fillText('гарын үсэг / огноо', X, y + 15.5); x.font = `400 3.2px ${F}`; x.fillStyle = '#10161c'; });
-  const pdf = new window.jspdf.jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true });
+  const pdf = i18nPdf(new window.jspdf.jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true }));
   pages.forEach((c, i) => { if (i) pdf.addPage(); pdf.addImage(c.toDataURL('image/jpeg', 0.92), 'JPEG', 0, 0, PW, PH); });
   saveFile(safeName(`${job.no}_ажлын_карт`) + '.pdf', pdf.output('blob'), 'application/pdf');
   jobLog('Ажлын карт PDF гаргасан', job);

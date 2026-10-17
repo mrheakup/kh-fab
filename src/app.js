@@ -1134,6 +1134,7 @@ function hoverAt(mx, my) {
 const DL = (window.claude && typeof window.claude.use === 'function') ? Promise.resolve(window.claude.use('downloads')).catch(() => null) : Promise.resolve(null);
 const inHost = !!(window.claude && typeof window.claude.use === 'function');
 async function saveFile(name, data, mime) {
+  if (LANG === 'en' && !/\.json$/i.test(name)) { name = tr(name); if (typeof data === 'string') data = tr(data); }
   if (window.kh) {
     try { const buf = data instanceof Blob ? await data.arrayBuffer() : data; const p = await window.kh.saveFile(name, buf); if (p) toast('Хадгалагдлаа: ' + p, 4000); }
     catch (err) { toast('Файл хадгалж чадсангүй'); }
@@ -1316,7 +1317,7 @@ $('#xPdf').addEventListener('click', async () => {
   toast('PDF бэлтгэж байна…');
   try { await document.fonts.ready; } catch (e) { }
   const pages = reportPages();
-  const pdf = new window.jspdf.jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4', compress: true });
+  const pdf = i18nPdf(new window.jspdf.jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4', compress: true }));
   pages.forEach((c, i) => { if (i) pdf.addPage(); pdf.addImage(c.toDataURL('image/jpeg', 0.9), 'JPEG', 0, 0, 297, 210); });
   saveFile(safeName(S.jobName) + '_тайлан.pdf', pdf.output('blob'), 'application/pdf');
 });
@@ -1386,7 +1387,7 @@ async function quotePdf() {
   if (q.note) wrapText(x, q.note, PW - 30).forEach(t => { x.fillText(t, 15, y); y += 4.6; });
   y = Math.max(y + 14, PH - 35);
   x.fillStyle = '#10161c'; x.font = `400 3.3px ${F}`; x.fillText('Бэлтгэсэн: ____________________  / ' + (q.by || '') + ' /', 15, y);
-  const pdf = new window.jspdf.jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true });
+  const pdf = i18nPdf(new window.jspdf.jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true }));
   pages.forEach((c, i) => { if (i) pdf.addPage(); pdf.addImage(c.toDataURL('image/jpeg', 0.92), 'JPEG', 0, 0, PW, PH); });
   saveFile(safeName(`Үнийн_санал_${q.no}_${q.customer || S.jobName}`) + '.pdf', pdf.output('blob'), 'application/pdf');
 }
