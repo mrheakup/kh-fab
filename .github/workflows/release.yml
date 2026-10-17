@@ -16,6 +16,6 @@ jobs:
         with:
           node-version: 20
       - run: npm ci
-      - run: npx electron-builder --win nsis --publish always -c.publish.owner=${{ github.repository_owner }} -c.publish.repo=${{ github.event.repository.name }}
+      - run: npx electron-builder --win nsis --publish always
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
