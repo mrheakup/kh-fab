@@ -80,6 +80,13 @@ h3:first-child{margin-top:4px}
 .libit canvas{width:100%;height:90px;display:block}
 .libit .t{font-weight:600;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.libit .m{font-size:11.5px;color:var(--ink-2)}
 @media (max-width:820px){.v3d{height:300px}}
+.altgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.altc{border:1px solid var(--line);border-radius:var(--r);background:var(--surface);padding:10px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.altc.on{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset;background:var(--accent-soft)}
+.altc canvas{width:100%;height:120px;display:block;background:var(--view);border-radius:6px}
+.altc .h{display:flex;align-items:center;gap:6px;font-weight:600}.altc .h .sp{flex:1}
+.altc dl{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;margin:0;font-size:12.5px}.altc dt{color:var(--ink-3)}.altc dd{margin:0;font-family:var(--f-mono);text-align:right}
+.altc .best{color:var(--ok,#16a34a)}.altc .worse{color:var(--bad)}
 .linkbtn{background:none;border:0;padding:0;color:var(--accent);text-decoration:underline;cursor:pointer;font:inherit}
 .defaults{display:grid;grid-template-columns:1fr 110px;gap:8px;margin:12px 0 6px}
 label.fld{display:grid;gap:3px;font-size:12px;color:var(--ink-2)}
@@ -592,6 +599,7 @@ table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
     </div>
     <div class="rtabs" role="tablist">
       <button data-r="sheets" class="on">Листүүд</button>
+      <button data-r="alts">Хувилбарууд</button>
       <button data-r="parts">Партууд</button>
       <button data-r="rem">Үлдэгдэл</button>
       <button data-r="quote">Үнийн санал</button>

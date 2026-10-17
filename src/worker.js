@@ -391,10 +391,13 @@ function nestGroup(g, S, budgetMs, progress, gi, gn, wid, nw, rnd) {
   const opt = { keep: S.keep, trim: S.trim, trimAll: S.trimScope === 'all', margin: S.margin };
   const t0 = nowMs();
   let best = null, bestScore = Infinity, bestStd = null, bestOrder = null, bestStrat = null;
+  const alts = new Map(); // best layout per (sheet size, strategy) — offered to the user as alternatives
   const tryRun = (order, strat, std) => {
     const run = runNest(order, strat, { rems: g.stock.rems, std }, opt);
     const sc = scoreRun(run, opt);
     if (sc < bestScore) { best = extract(run); bestScore = sc; bestStd = std; bestOrder = order; bestStrat = strat; }
+    const ak = `${std ? std.L + 'x' + std.W : 'rem'}|${strat.mode}|${strat.lock ? 1 : 0}`, a = alts.get(ak);
+    if (!a || sc < a.sc) alts.set(ak, { sc, std, strat, ex: sc === bestScore ? best : extract(run) });
     releaseRun(run);
     return sc;
   };
@@ -440,7 +443,15 @@ function nestGroup(g, S, budgetMs, progress, gi, gn, wid, nw, rnd) {
   if (wid === 0) progress(`${g.label}: партуудыг нарийн шахаж байна`, (gi + 0.93) / gn);
   compactExtract(best, typeMap, S);
   const score = scoreExtract(best, opt);
-  return { key: g.key, std: bestStd, res: RES, runs, score, ...best };
+  // alternatives: other sheet sizes / strategies, compacted too (time-boxed)
+  const out = [], seen = new Set(), tA = nowMs();
+  [...alts.values()].sort((a, b) => a.sc - b.sc).forEach(a => {
+    if (a.ex === best || out.length >= 7 || nowMs() - tA > Math.max(400, budgetMs * 0.25) || (a.sc >= 1e13 && score < 1e13)) return;
+    const sig = `${a.std ? a.std.L + 'x' + a.std.W : 'rem'}|${a.ex.sheets.length}|${Math.round(a.sc / 5e3)}`; if (seen.has(sig)) return; seen.add(sig);
+    compactExtract(a.ex, typeMap, S);
+    out.push({ std: a.std, strat: a.strat, score: scoreExtract(a.ex, opt), ...a.ex });
+  });
+  return { key: g.key, std: bestStd, strat: bestStrat, res: RES, runs, score, ...best, alts: out };
 }
 
 self.onmessage = e => {

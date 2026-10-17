@@ -367,13 +367,21 @@ function runNesting(quick) {
     if (++doneN < nw) return;
     finishRun(); stopWorkers(); URL.revokeObjectURL(url);
     if (!results.length) { $('#progMsg').textContent = 'Алдаа: ' + (lastErr || 'тооцоолол зогслоо'); return; }
-    const groups = built.job.groups.map((g, gi) => results.map(r => r[gi]).sort((a, b) => a.score - b.score)[0]);
-    R = { raw: groups, parts: built.snapshot, blocks: built.blocks, remShapes: built.remShapes, meta: built.meta, opt: { gap: built.job.S.gap, margin: built.job.S.margin }, time: (performance.now() - t0) / 1000, date: new Date(), undo: [] };
+    // every worker returns its best + alternatives; keep a ranked, de-duplicated list per group
+    const alts = built.job.groups.map((g, gi) => {
+      const all = results.flatMap(r => [r[gi], ...(r[gi].alts || []).map(x => ({ ...x, key: r[gi].key, res: r[gi].res }))]).sort((a, b) => a.score - b.score), seen = new Set(), out = [];
+      for (const x of all) { const sig = `${x.std ? x.std.L + 'x' + x.std.W : 'rem'}|${x.sheets.length}|${Math.round(x.score / 2e3)}`; if (seen.has(sig)) continue; seen.add(sig); const c = JSON.parse(JSON.stringify(x)); delete c.alts; out.push(c); if (out.length >= 12) break; }
+      return out;
+    });
+    const groups = alts.map(l => JSON.parse(JSON.stringify(l[0])));
+    R = { raw: groups, alts, altSel: alts.map(() => 0), parts: built.snapshot, blocks: built.blocks, remShapes: built.remShapes, meta: built.meta, opt: { gap: built.job.S.gap, margin: built.job.S.margin }, time: (performance.now() - t0) / 1000, date: new Date(), undo: [] };
     explodeBlocks();
     V.g = 0; V.l = 0; V.k = 1; V.px = V.py = 0; V.sel = null;
     recomputeResult();
     const runs = results.reduce((a, r) => a + r.reduce((b, g) => b + g.runs, 0), 0);
-    $('#progMsg').textContent = `Дууслаа · ${nf(R.time, 1)} сек · ${runs} хувилбар туршсан`;
+    const nAlt = alts.reduce((s, l) => s + l.length, 0);
+    $('#progMsg').innerHTML = `Дууслаа · ${nf(R.time, 1)} сек · ${runs} хувилбар туршсан · <button class="linkbtn" id="goAlts">${nAlt} шилдэг хувилбараас сонгох</button>`;
+    $('#goAlts').addEventListener('click', () => { V.rtab = 'alts'; $$('.rtabs button').forEach(x => x.classList.toggle('on', x.dataset.r === 'alts')); renderTable(); $('#rtable').scrollIntoView({ behavior: 'smooth', block: 'start' }); });
   };
   for (let w = 0; w < nw; w++) {
     const wk = new Worker(url); workers.push(wk);
@@ -387,8 +395,8 @@ function runNesting(quick) {
     wk.postMessage({ job: built.job, wid: w, nw, seed: ((Date.now() & 0xffffff) * (w + 7) + w * 2654435761) >>> 0 });
   }
 }
-function explodeBlocks() {
-  R.raw.forEach(g => {
+function explodeBlocks(only) {
+  (only ? [only] : R.raw).forEach(g => {
     g.sheets.forEach(sh => {
       const pl = [], blocks = [];
       sh.pl.forEach(p => {
@@ -630,6 +638,74 @@ function recomputeResult() {
   if (typeof jobsOnResult === 'function') jobsOnResult();
 }
 
+/* ---------- alternatives: every distinct good layout the workers found ---------- */
+const STRAT_NM = { len: 'уртын дагуу', left: 'зүүн тийш шахсан', low: 'доош шахсан' };
+function altMetrics(alt, gi) {
+  const meta = R.meta.find(m => m.key === alt.key) || R.meta[gi], mat = matOf(meta.mat), thk = +meta.thk, st = S.s, step = Math.max(1, +st.trimStep || 1);
+  let area = 0, sheetArea = 0, cut = 0, pierce = 0, left = 0; const sizes = {};
+  alt.sheets.forEach((s, i) => {
+    for (const p of s.pl) {
+      const b = R.blocks.get(p.id), id = b ? b.partId : p.id, q = R.parts.get(id), n = b ? b.r * b.c : 1;
+      if (!q) continue; area += q.info.area * n; cut += q.info.cut * n; pierce += q.info.pierce * n;
+    }
+    const last = i === alt.sheets.length - 1, trim = !!st.trim && s.kind === 'std' && (st.trimScope === 'all' || last);
+    const L = trim ? Math.min(s.L, Math.ceil((s.rightMM + (+st.margin || 0)) / step) * step) : s.L;
+    if (trim && s.L - L >= (+st.minRem || 0)) left += (s.L - L) * s.W;
+    const shp = s.kind === 'rem' && s.remId ? R.remShapes.get(s.remId) : null;
+    sheetArea += shp ? shp.area : L * s.W;
+    const k = (s.kind === 'rem' ? 'үлд. ' : '') + `${s.L}×${s.W}`; sizes[k] = (sizes[k] || 0) + 1;
+  });
+  let un = 0; for (const k in alt.unplaced || {}) un += alt.unplaced[k];
+  const kg = sheetArea * thk * mat.rho / 1e6;
+  return { n: alt.sheets.length, util: sheetArea ? area / sheetArea : 0, kg, cost: kg * mat.price + cut / 1000 * S.cut.cutPrice + pierce * S.cut.piercePrice, cut, left, sizes, un };
+}
+function drawAltThumb(cv, sheets) {
+  const dpr = window.devicePixelRatio || 1, w = cv.clientWidth, h = cv.clientHeight; cv.width = w * dpr; cv.height = h * dpr;
+  const x = cv.getContext('2d'); x.setTransform(dpr, 0, 0, dpr, 0, 0); x.clearRect(0, 0, w, h);
+  const ss = sheets.slice(0, 4), gap = 0.06 * Math.max(...ss.map(s => s.W)), TL = ss.reduce((t, s) => t + s.L, 0) + gap * (ss.length - 1), TW = Math.max(...ss.map(s => s.W));
+  const k = Math.min((w - 8) / TL, (h - 8) / TW); let cx = (w - TL * k) / 2;
+  ss.forEach(s => { drawAltSheet(x, s, k, cx, (h + TW * k) / 2); cx += (s.L + gap) * k; });
+  if (sheets.length > 4) { x.fillStyle = cssv('--ink-2'); x.font = '600 11px IBM Plex Sans, sans-serif'; x.fillText(`+${sheets.length - 4}`, w - 24, 14); }
+}
+function drawAltSheet(x, s, k, ox, oy) {
+  const dark = isDark();
+  x.fillStyle = cssv('--sheet'); x.fillRect(ox, oy - s.W * k, s.L * k, s.W * k); x.strokeStyle = cssv('--sheet-edge'); x.strokeRect(ox, oy - s.W * k, s.L * k, s.W * k);
+  for (const p of s.pl) {
+    const b = R.blocks.get(p.id);
+    if (b) { const q = R.parts.get(b.partId); x.fillStyle = partColor(q ? q.idx : 0, dark, 0.9); x.fillRect(ox + (p.tx - b.bx) * k, oy - (p.ty - b.by + b.r * b.ch) * k, b.c * b.cw * k, b.r * b.ch * k); continue; }
+    const q = R.parts.get(p.id); if (!q) continue;
+    const pts = xformPts(q.flat.outer, p.ang, p.mir, p.tx, p.ty);
+    x.beginPath(); pts.forEach((v, i) => i ? x.lineTo(ox + v[0] * k, oy - v[1] * k) : x.moveTo(ox + v[0] * k, oy - v[1] * k)); x.closePath();
+    x.fillStyle = partColor(q.idx, dark, 0.9); x.fill();
+  }
+}
+function renderAlts(el) {
+  const gi = V.g, list = R && R.alts && R.alts[gi];
+  if (!list || !list.length) { el.innerHTML = '<p class="note">Хувилбар алга — дахин өрнө үү.</p>'; return; }
+  const ms = list.map(a => altMetrics(a, gi)), b0 = ms[0];
+  const dlt = (v, ref, d, u, lowGood) => { if (v === ref) return ''; const better = lowGood ? v < ref : v > ref; return ` <span class="${better ? 'best' : 'worse'}">${v > ref ? '+' : '−'}${nf(Math.abs(v - ref), d)}${u}</span>`; };
+  el.innerHTML = `<p class="note" style="margin:0 0 10px">Тооцоолол ${list.length} өөр шилдэг хувилбар олсон (листийн хэмжээ, өрөх арга өөр). Эхнийх нь хамгийн бага материал зарцуулалттай. Хувилбар бүрийн жин, өртөг ойролцоо — сонгосны дараа зүсэлтийн замаар нарийн тооцогдоно.</p>
+    <div class="altgrid">${list.map((a, i) => { const m = ms[i], on = R.altSel[gi] === i; return `<div class="altc${on ? ' on' : ''}">
+      <div class="h"><span>№${i + 1}${i === 0 ? ' · <span class="best">шилдэг</span>' : ''}</span><span class="sp"></span>${on ? '<span class="pill ok">сонгосон</span>' : `<button class="btn sm primary" data-alt="${i}">Сонгох</button>`}</div>
+      <canvas data-i="${i}"></canvas>
+      <dl>
+        <dt>Лист</dt><dd>${m.n}${dlt(m.n, b0.n, 0, '', true)}</dd>
+        <dt>Хэмжээ</dt><dd>${esc(Object.entries(m.sizes).map(([k, n]) => `${k}×${n}`).join(', '))}</dd>
+        <dt>Ашиглалт</dt><dd>${nf(m.util * 100, 1)}%${dlt(+(m.util * 100).toFixed(1), +(b0.util * 100).toFixed(1), 1, '%', false)}</dd>
+        <dt>Материал</dt><dd>${nf(m.kg, 1)} кг${dlt(Math.round(m.kg), Math.round(b0.kg), 0, ' кг', true)}</dd>
+        <dt>Өртөг ≈</dt><dd>${nf(m.cost / 1000, 0)} мян₮</dd>
+        <dt>Шинэ үлдэгдэл</dt><dd>${m.left ? nf(m.left / 1e6, 2) + ' м²' : '—'}</dd>
+        <dt>Арга</dt><dd>${esc(a.strat ? STRAT_NM[a.strat.mode] + (a.strat.lock ? ', ижил чиглэл' : '') : '—')}</dd>
+        ${m.un ? `<dt>Багтаагүй</dt><dd class="worse">${m.un} ш</dd>` : ''}
+      </dl></div>`; }).join('')}</div>`;
+  el.querySelectorAll('.altc canvas').forEach(c => drawAltThumb(c, list[+c.dataset.i].sheets));
+  el.querySelectorAll('[data-alt]').forEach(b => b.addEventListener('click', () => {
+    const i = +b.dataset.alt, g = JSON.parse(JSON.stringify(list[i]));
+    explodeBlocks(g); R.raw[gi] = g; R.altSel[gi] = i; R.undo = []; V.l = 0; V.k = 1; V.px = V.py = 0; V.sel = null;
+    recomputeResult(); toast(`Хувилбар №${i + 1} сонгогдлоо`);
+  }));
+}
+
 /* ---------- results UI ---------- */
 function curG() { return R && R.groups[V.g]; }
 function curL() { const g = curG(); return g && g.lays[V.l]; }
@@ -679,6 +755,7 @@ function renderTable() {
   const g = curG(), el = $('#rtable');
   if (!g) { el.innerHTML = ''; return; }
   if (V.rtab === 'quote') { renderQuote(el); return; }
+  if (V.rtab === 'alts') { renderAlts(el); return; }
   const dark = isDark();
   if (V.rtab === 'sheets') {
     el.innerHTML = `<div class="tblwrap"><table class="dt"><thead><tr><th>№</th><th>Хэмжээ, мм</th><th>Төрөл</th><th class="r">Давталт</th><th class="r">Парт</th><th class="r">Ашиглалт</th><th class="r">Зарцуулах урт</th><th class="r">Зүсэлт, м</th><th class="r">Цоолт</th><th class="r">Хоосон явалт, м</th><th class="r">Хугацаа</th><th class="r">Жин, кг</th></tr></thead><tbody>${g.lays.map(l => { const s = l.sheet; return `<tr><td><b>${l.no}</b></td><td class="num">${s.L} × ${s.W}</td><td>${s.kind === 'rem' ? `<span class="pill rem">${s.shapeInfo ? 'хэлбэртэй ' : ''}үлдэгдэл</span>` : '<span class="pill">стандарт</span>'}${(s.blocks || []).length ? ' <span class="pill ok">хамтын шугам</span>' : ''}${s.trimmed ? ' <span class="pill ok">тайрна</span>' : ''}</td><td class="r num">×${l.count}</td><td class="r num">${s.n}</td><td class="r num">${nf(s.util * 100, 1)}%</td><td class="r num">${nf(s.cL)}${s.trimmed ? ` <span class="muted">/ ${nf(s.L)}</span>` : ''}</td><td class="r num">${nf(s.cut / 1000, 2)}</td><td class="r num">${s.pierce}</td><td class="r num">${nf(s.travel / 1000, 1)}</td><td class="r num">${fmtTime(s.time)}</td><td class="r num">${nf(s.kg, 1)}</td></tr>`; }).join('')}
