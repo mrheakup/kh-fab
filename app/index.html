@@ -75,6 +75,7 @@ h3:first-child{margin-top:4px}
 #progMsg{font-size:12.5px;min-height:18px}
 
 .ptools{display:flex;gap:8px;flex-wrap:wrap}
+.linkbtn{background:none;border:0;padding:0;color:var(--accent);text-decoration:underline;cursor:pointer;font:inherit}
 .defaults{display:grid;grid-template-columns:1fr 110px;gap:8px;margin:12px 0 6px}
 label.fld{display:grid;gap:3px;font-size:12px;color:var(--ink-2)}
 .fld input,.fld select,.inp{border:1px solid var(--line);background:var(--surface-2);border-radius:var(--r);padding:6px 8px;width:100%;min-width:0;color:var(--ink)}
@@ -189,6 +190,15 @@ label.fld{display:grid;gap:3px;font-size:12px;color:var(--ink-2)}
 .cmpv .d{font-size:12px;font-family:var(--f-mono)}
 .d-up{color:var(--bad)}.d-dn{color:var(--ok)}
 .dt input,.dt select{border:1px solid var(--line);background:var(--surface-2);border-radius:4px;padding:3px 5px;font-size:12.5px;min-width:0;width:100%}
+.gantt{display:flex;flex-direction:column;gap:6px}
+.gantt .grow{display:grid;grid-template-columns:110px minmax(0,1fr) 130px;gap:10px;align-items:center;cursor:pointer}
+.gantt .gl{font-size:12.5px;font-weight:600}.gantt .gd{font-size:12px;text-align:right;color:var(--ink-2)}
+.gantt .gt{position:relative;height:14px;background:var(--line-2);border-radius:7px}
+.gantt .gb{position:absolute;top:0;bottom:0;border-radius:7px;background:var(--accent);opacity:.75}
+.gantt .gb.gl8{background:var(--bad);opacity:.9}
+.gantt .gn{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--ink)}
+.jprog{display:block;height:3px;background:var(--line-2);border-radius:2px;margin-top:4px;max-width:120px}.jprog i{display:block;height:100%;background:var(--accent);border-radius:2px}
+@media (max-width:620px){.gantt .grow{grid-template-columns:80px minmax(0,1fr);}.gantt .gd{grid-column:1/-1;text-align:left}}
 .jempty{border:1px dashed var(--line);border-radius:var(--r);padding:40px 20px;text-align:center;color:var(--ink-2);background:var(--surface)}
 .exports{display:flex;gap:8px;flex-wrap:wrap}
 .gcd{margin-top:12px;border:1px solid var(--line-2);border-radius:var(--r);padding:8px 10px}.gcd summary{cursor:pointer;font-weight:500}
@@ -289,7 +299,7 @@ table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
     </nav>
     <div class="panel-body">
       <section id="jtab-jobs">
-        <div class="ptools"><button class="btn primary" id="jNew">+ Шинэ ажил</button></div>
+        <div class="ptools"><button class="btn primary" id="jNew">+ Шинэ ажил</button><button class="btn" id="jDash">Самбар</button></div>
         <div class="grid2" style="margin:10px 0">
           <input id="jSearch" class="inp" placeholder="Хайх: дугаар, захиалагч…" aria-label="Хайх">
           <select id="jFilter" class="inp" aria-label="Төлөв"><option value="open">Идэвхтэй</option><option value="all">Бүгд</option><option value="closed">Дууссан</option></select>
@@ -304,7 +314,7 @@ table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
       </section>
       <section id="jtab-kits" hidden>
         <p class="hint">Иж бүрдэл гэдэг нь нэг бүтээгдэхүүний (жишээ нь PC200 шанага) бүх хавтгай эд анги, ширхэгийг хадгалсан загвар. Ажилд «иж бүрдэл × тоо» гэж оруулахад партууд автоматаар үржинэ.</p>
-        <div class="ptools"><button class="btn primary" id="kFromParts">Nesting-ийн партуудаас шинэ</button></div>
+        <div class="ptools"><button class="btn primary" id="kFromParts">Nesting-ийн партуудаас шинэ</button><button class="btn" id="kBucket">Шанага үүсгэгч</button><label class="btn" for="bomKitIn">BOM-оос</label><input type="file" id="bomKitIn" accept=".xlsx,.xls,.csv,.dxf,.svg,.pdf,.ai,.plt" multiple hidden></div>
         <div id="kList" class="plist" style="margin-top:10px"></div>
       </section>
       <section id="jtab-certs" hidden>
@@ -336,6 +346,8 @@ table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
         <div class="ptools">
           <label class="btn primary" for="dxfIn">Файл нэмэх</label>
           <input type="file" id="dxfIn" accept=".dxf,.svg,.pdf,.ai,.plt,.hpgl,.hgl,.cdr,.dwg,.eps" multiple hidden>
+          <label class="btn" for="bomIn" title="Excel/CSV жагсаалт: нэр, тоо, материал, зузаан, урт×өргөн эсвэл DXF файлын нэр">BOM (Excel)</label>
+          <input type="file" id="bomIn" accept=".xlsx,.xls,.csv,.dxf,.svg,.pdf,.ai,.plt" multiple hidden>
           <button class="btn" id="btnShape">Хэлбэр нэмэх</button>
           <button class="btn" id="btnText">Текст нэмэх</button>
           <button class="btn ghost" id="btnKitFrom" title="Одоогийн партуудыг дахин ашиглах иж бүрдэл болгож хадгална">Иж бүрдэл болгох</button>
@@ -345,7 +357,7 @@ table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
           <label class="fld">Шинэ партын материал<select id="defMat"></select></label>
           <label class="fld">Зузаан, мм<input id="defThk" type="number" min="0.1" step="0.1"></label>
         </div>
-        <p class="hint">DXF, SVG, PDF, AI, PLT файлаа энэ цонх руу чирч оруулж болно (CorelDRAW-оос эдгээр форматаар экспортлоно). Нэг файлд хэд хэдэн хаалттай контур байвал тус бүрийг парт болгож, ижил хэлбэрүүдийг тоогоор нь нэгтгэнэ.</p>
+        <p class="hint">DXF, SVG, PDF, AI, PLT файлаа энэ цонх руу чирч оруулж болно (CorelDRAW-оос эдгээр форматаар экспортлоно). Нэг файлд хэд хэдэн хаалттай контур байвал тус бүрийг парт болгож, ижил хэлбэрүүдийг тоогоор нь нэгтгэнэ. <b>BOM</b>: Excel жагсаалтаа DXF файлуудтайгаа хамт сонгоход нэрээр нь холбоно — <button class="linkbtn" id="bomTpl">загвар татах</button>.</p>
         <div id="partList" class="plist"></div>
       </section>
 
@@ -393,11 +405,18 @@ table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
           <label class="fld">DXF-д нугалах шугам<select id="s_dxfBend"><option value="0">Оруулахгүй</option><option value="1">BEND давхаргад</option></select></label>
         </div>
         <h3>Материал</h3>
-        <table class="mtab"><thead><tr><th>Нэр</th><th style="width:70px">Нягт г/см³</th><th style="width:84px">Үнэ ₮/кг</th><th style="width:22px"></th></tr></thead><tbody id="matBody"></tbody></table>
+        <table class="mtab"><thead><tr><th>Нэр</th><th style="width:96px">Төрөл</th><th style="width:62px">Нягт г/см³</th><th style="width:78px">Үнэ ₮/кг</th><th style="width:22px"></th></tr></thead><tbody id="matBody"></tbody></table>
         <div class="addrow"><button class="btn sm" id="matAdd">Материал нэмэх</button></div>
         <h3>Зүсэлт</h3>
+        <div class="grid2">
+          <label class="fld">Лазерын чадал, кВт<input id="c_kW" type="number" min="0.5" max="40" step="0.5" list="kwList"><datalist id="kwList"></datalist></label>
+          <label class="fld">Хурдны хүснэгт<select id="c_src"><option value="auto">Жишиг: материал × зузаан × кВт</option><option value="own">Өөрийн хүснэгт</option></select></label>
+        </div>
+        <div id="spdAutoBox"><div class="tblwrap" style="margin-top:8px"><table class="mtab" id="spdAuto"></table></div>
+          <div class="addrow"><button class="btn sm" id="spdCopy">Өөрийн хүснэгт рүү хуулах</button><span class="note">мм/мин (цоолох хугацаа — хулганаар заахад). «—» нь энэ чадлаар зүсэхгүй.</span></div></div>
+        <div id="spdOwnBox">
         <table class="mtab"><thead><tr><th>Зузаан, мм</th><th>Хурд, мм/мин</th><th>Цоолох, сек</th><th style="width:22px"></th></tr></thead><tbody id="spdBody"></tbody></table>
-        <div class="addrow"><button class="btn sm" id="spdAdd">Мөр нэмэх</button></div>
+        <div class="addrow"><button class="btn sm" id="spdAdd">Мөр нэмэх</button></div></div>
         <div class="grid2" style="margin-top:10px">
           <label class="fld">Зүсэлтийн үнэ, ₮/м<input id="c_cut" type="number" min="0" step="10"></label>
           <label class="fld">Цоолтын үнэ, ₮/ш<input id="c_pierce" type="number" min="0" step="10"></label>
@@ -410,12 +429,39 @@ table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
           <label class="fld">Микро холбоос, ш/парт<select id="l_tabN"><option value="0">Үгүй</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></label>
           <label class="fld">Холбоосны өргөн, мм<input id="l_tabW" type="number" min="0.1" step="0.1"></label>
           <label class="fld">Зөвхөн ийм хэмжээнээс бага партад, мм (0 = бүгд)<input id="l_tabMax" type="number" min="0" step="10"></label>
-          <label class="fld">Зүсэх дараалал<select id="l_order"><option value="near">Хамгийн ойр нь</option><option value="strip">Туузаар — мөргөлтөөс сэргийлэх</option></select></label>
+          <label class="fld">Зүсэх дараалал<select id="l_order"><option value="near">Хамгийн ойр нь</option><option value="strip">Туузаар — мөргөлтөөс сэргийлэх</option><option value="heat">Дулаан тараах — зузаан, Hardox</option></select></label>
           <label class="fld">Туузны өргөн, мм<input id="l_strip" type="number" min="50" step="10"></label>
           <label class="fld">Зүсэлтийн өргөн (kerf), мм<input id="l_kerf" type="number" min="0" step="0.05"></label>
           <label class="fld">Нүхний доод хэмжээ, × зузаан<input id="l_holeK" type="number" min="0" step="0.1"></label>
         </div>
         <p class="note">Микро холбоос нь жижиг партыг листтэй холбож унах, толгой мөргөхөөс сэргийлнэ. «Туузаар» дараалал нь листийг баганаар зүсэж, толгой тасарсан партын дээгүүр явахыг багасгана.</p>
+        <h3>Зүсэлтийн технологи</h3>
+        <label class="check"><input type="checkbox" id="l_avoid"><span><b>Тасарсан партыг тойрч явах</b> — хоосон явалт унаж болох партын дээгүүр гарахгүй, тойрох боломжгүй бол толгой өргөнө</span></label>
+        <label class="check"><input type="checkbox" id="l_chain"><span><b>Гинжин зүсэлт</b> — дараагийн партыг цацраг унтраалгүй, хаягдлаар дамжиж зүснэ. Цоолт цөөрнө (зузаан хавтанд их хэмнэлттэй)</span></label>
+        <div class="grid2">
+          <label class="fld">Гинжний дээд урт, мм<input id="l_chainMax" type="number" min="1" step="1"></label>
+          <label class="fld">DXF-д гинж<select id="l_chainDxf"><option value="false">CHAIN давхаргад (мэдээлэл)</option><option value="true">Нэг полилин болгох</option></select></label>
+        </div>
+        <div class="grid2">
+          <label class="fld">Дугуй нүхний орох зам<select id="l_spiral"><option value="off">Энгийн lead-in</option><option value="center">Төвөөс хагас тойрог</option><option value="spiral">Төвөөс спираль</option></select></label>
+          <label class="fld">Ийм диаметрээс бага нүхэнд, мм<input id="l_spiralMax" type="number" min="1" step="1"></label>
+          <label class="fld">Спиралын алхам, мм<input id="l_spiralPitch" type="number" min="0.5" step="0.5"></label>
+        </div>
+        <label class="check"><input type="checkbox" id="l_slug"><span><b>Нүхний хаягдал хуваах</b> — том нүхний дотор хэсгийг торлон зүсэж, хэсэг бүр сараалжаар унана. Хөмөрч толгой мөргөхөөс сэргийлнэ</span></label>
+        <div class="grid2">
+          <label class="fld">Ийм хэмжээнээс том нүхэнд, мм<input id="l_slugMin" type="number" min="10" step="5"></label>
+          <label class="fld">Торны алхам, мм<input id="l_slugStep" type="number" min="10" step="5"></label>
+        </div>
+        <label class="check"><input type="checkbox" id="l_skel"><span><b>Араг яс хэрчих</b> — хамгийн сүүлд хаягдлын хүрээг хэсэглэж, листээс буулгахад амар болгоно</span></label>
+        <div class="grid2">
+          <label class="fld">Хэрчих алхам, мм<input id="l_skelStep" type="number" min="100" step="50"></label>
+          <label class="fld">Партаас доод зай, мм<input id="l_skelClear" type="number" min="1" step="0.5"></label>
+        </div>
+        <label class="check"><input type="checkbox" id="l_fly"><span><b>Fly-cut</b> — нэг шугам дээрх тэгш өнцөгт партуудын ирмэгийг зогсолтгүй, нэг цоолтоор зүснэ (нимгэн лист)</span></label>
+        <div class="grid2">
+          <label class="fld">Ийм зузаанаас нимгэнд, мм<input id="l_flyMaxT" type="number" min="0.5" step="0.5"></label>
+        </div>
+        <p class="note">Hardox, зузаан хавтанд «Дулаан тараах» дараалал, гинжин зүсэлт, төвөөс орох замыг хамт хэрэглэхийг зөвлөнө. Дулаан нэг газар хуримтлагдвал хавтан хазайж, Hardox хатуулгаа алддаг (SSAB-ийн зөвлөмж).</p>
         <h3>Лазер тэмдэглэгээ</h3>
         <label class="check"><input type="checkbox" id="m_on"><span><b>Парт бүр дээр дугаар тэмдэглэх</b> — ажлын дугаар ба партын дугаарыг бага чадлаар сийлнэ (MARK давхарга)</span></label>
         <div class="grid2">
@@ -432,6 +478,8 @@ table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
             <label class="fld">Тэмдэглэгээ асаах<input id="g_mOn" class="mono"></label>
             <label class="fld">Тэмдэглэгээ унтраах<input id="g_mOff" class="mono"></label>
             <label class="fld">Цоолох ({t} = сек)<input id="g_pierce" class="mono"></label>
+            <label class="fld">Толгой өргөх (тойрох боломжгүй үед)<input id="g_liftUp" class="mono" placeholder="жишээ: M10"></label>
+            <label class="fld">Толгой буулгах<input id="g_liftDown" class="mono" placeholder="жишээ: M11"></label>
             <label class="fld">Аравтын орон<input id="g_dec" type="number" min="0" max="5"></label>
             <label class="fld">Файлын өргөтгөл<input id="g_ext" class="mono"></label>
           </div>
@@ -508,6 +556,7 @@ table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
     <nav class="tabs" role="tablist">
       <button data-btab="prof" class="on">Профиль</button>
       <button data-btab="tools">Багаж, машин</button>
+      <button data-btab="roll">Галзуу</button>
     </nav>
     <div class="panel-body">
       <section id="btab-prof">
@@ -537,8 +586,24 @@ table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
         <table class="mtab"><thead><tr><th>Материал</th><th>σb, МПа</th></tr></thead><tbody id="rmBody"></tbody></table>
         <p class="note">Багажийн жагсаалт жишээ. Танай байгаа пуансон, матрицаар солино уу. Хүчийг P[кН] = 650·S²·L[м]/V томьёогоор σb 450 МПа-д тооцоод материалын бат бөхөөр масштаблана.</p>
       </section>
+      <section id="btab-roll" hidden>
+        <div class="ptools"><button class="btn primary" id="rNew">+ Шинэ галзуу</button></div>
+        <p class="hint">Хавтанг 3 булт машинаар нум, цилиндр болгох дэлгэмэл урт, дээд булны суулт, шалгах шаблоныг тооцно. Шанага үүсгэгчийн ороох хавтан энд ирнэ.</p>
+        <div id="rList" class="plist"></div>
+        <h3>Галзуудах машин</h3>
+        <div class="grid2">
+          <label class="fld">Доод булны төв хоорондын зай, мм<input id="rm_a" type="number" min="10"></label>
+          <label class="fld">Дээд булны Ø, мм<input id="rm_Dt" type="number" min="10"></label>
+          <label class="fld">Доод булны Ø, мм<input id="rm_Dl" type="number" min="10"></label>
+          <label class="fld">Хүч, тонн<input id="rm_ton" type="number" min="1"></label>
+          <label class="fld">Дээд зузаан, мм<input id="rm_maxT" type="number" min="1"></label>
+          <label class="fld">Булны урт, мм<input id="rm_maxW" type="number" min="100"></label>
+        </div>
+        <p class="note">Утгууд жишээ — машиныхаа паспортаас оруулна уу. Суултыг уян буцалтгүйгээр тооцсон тул шаблоноор шалгаж нэмж дарна.</p>
+      </section>
     </div>
   </aside>
+  <main class="main" id="rollMain" hidden></main>
   <main class="main" id="bendMain" hidden>
     <div class="bhead">
       <label class="fld grow">Нэр<input id="b_name"></label>
@@ -1596,7 +1661,7 @@ function dxfWriter() {
     line(layer, x1, y1, x2, y2) { w(0, 'LINE'); w(8, layer); w(10, fmt(x1)); w(20, fmt(y1)); w(30, 0); w(11, fmt(x2)); w(21, fmt(y2)); w(31, 0); },
     text(layer, x, y, h, s) { w(0, 'TEXT'); w(8, layer); w(10, fmt(x)); w(20, fmt(y)); w(30, 0); w(40, fmt(h)); w(1, dxfText(s)); w(72, 1); w(11, fmt(x)); w(21, fmt(y)); w(31, 0); },
     doc() {
-      const layers = [['OUTER', 7], ['INNER', 3], ['LEADIN', 4], ['BEND_UP', 5], ['BEND_DOWN', 140], ['SHEET', 8], ['TRIM', 6], ['LABEL', 2], ['MARK', 1]];
+      const layers = [['OUTER', 7], ['INNER', 3], ['LEADIN', 4], ['BEND_UP', 5], ['BEND_DOWN', 140], ['SHEET', 8], ['TRIM', 6], ['LABEL', 2], ['MARK', 1], ['SLUG', 30], ['SKELETON', 9], ['CHAIN', 6]];
       const h = ['0', 'SECTION', '2', 'HEADER', '9', '$ACADVER', '1', 'AC1009', '9', '$INSUNITS', '70', '4', '0', 'ENDSEC',
         '0', 'SECTION', '2', 'TABLES', '0', 'TABLE', '2', 'LTYPE', '70', '1', '0', 'LTYPE', '2', 'CONTINUOUS', '70', '0', '3', 'Solid line', '72', '65', '73', '0', '40', '0.0', '0', 'ENDTAB',
         '0', 'TABLE', '2', 'LAYER', '70', String(layers.length)];
@@ -2348,13 +2413,15 @@ function crossesCut(a, b, cutUnits) {
 /* ---------- G-code ---------- */
 function laserDefaults() {
   return { tabN: 0, tabW: 0.6, tabMax: 0, order: 'near', strip: 300, kerf: 0.2, holeK: 1, markFeed: 6000,
-    gc: { head: '; Kh International · KH Fab\n; {job} · лист {sheet} · {mat} {thk}mm · {L}x{W}\nG21\nG90', foot: 'G00 X0 Y0\nM30', on: 'M07', off: 'M08', mOn: 'M07 ; MARK', mOff: 'M08', pierce: 'G04 P{t}', dec: 3, ext: 'nc' } };
+    avoid: true, chain: false, chainMax: 25, chainDxf: false, slug: false, slugMin: 80, slugStep: 50, slugGap: 2, spiral: 'off', spiralMax: 60, spiralPitch: 4, skel: false, skelStep: 500, skelClear: 3, fly: false, flyMaxT: 3,
+    gc: { head: '; Kh International · KH Fab\n; {job} · лист {sheet} · {mat} {thk}mm · {L}x{W}\nG21\nG90', foot: 'G00 X0 Y0\nM30', on: 'M07', off: 'M08', mOn: 'M07 ; MARK', mOff: 'M08', pierce: 'G04 P{t}', liftUp: '', liftDown: '', dec: 3, ext: 'nc' } };
 }
 function gcodeSheet(seq, o) {
   const c = o.gc, D = Math.max(0, Math.min(5, +c.dec || 3)), f = v => (Math.abs(v) < 5e-7 ? 0 : v).toFixed(D);
   const sub = s => String(s || '').replace(/\{(\w+)\}/g, (m, k) => o.vars[k] ?? m);
   const out = []; const line = s => { if (s) String(s).split(/\r?\n/).forEach(l => out.push(l)); };
   line(sub(c.head));
+  const offLines = String(c.off || '').split(/\r?\n/).filter(Boolean);
   const feed = Math.round(o.feed), pierce = sub(String(c.pierce || '').replace('{t}', (+o.pierceSec || 0).toFixed(2)));
   const path = (vs, closed) => {
     const n = vs.length, m = closed ? n : n - 1;
@@ -2364,23 +2431,239 @@ function gcodeSheet(seq, o) {
       out.push(`G01 X${f(b.x)} Y${f(b.y)}`);
     }
   };
+  const rapidTo = (it, e) => {
+    if (it.lift) line(c.liftUp);
+    (it.via || []).forEach(v => out.push(`G00 X${f(v[0])} Y${f(v[1])}`));
+    out.push(`G00 X${f(e[0])} Y${f(e[1])}`);
+    if (it.lift) line(c.liftDown);
+  };
   for (const it of seq) {
     if (it.type === 'mark') {
       for (const st of it.strokes) { out.push(`G00 X${f(st[0][0])} Y${f(st[0][1])}`); line(c.mOn); out.push(`G01 X${f(st[1][0])} Y${f(st[1][1])} F${Math.round(o.markFeed)}`); for (let i = 2; i < st.length; i++) out.push(`G01 X${f(st[i][0])} Y${f(st[i][1])}`); line(c.mOff); }
       continue;
     }
-    if (it.type === 'line') { const l = it.line; out.push(`G00 X${f(l[0])} Y${f(l[1])}`); line(c.on); line(pierce); out.push(`G01 X${f(l[2])} Y${f(l[3])} F${feed}`); line(c.off); continue; }
+    if (it.type === 'line') { const l = it.line; rapidTo(it, [l[0], l[1]]); line(c.on); line(pierce); out.push(`G01 X${f(l[2])} Y${f(l[3])} F${feed}`); line(c.off); continue; }
+    if (it.type === 'fly') { // flying cut: one pierce, beam toggled along the line without stopping
+      it.segs.forEach((g, i) => {
+        if (i === 0) { rapidTo(it, [g[0], g[1]]); line(c.on); line(pierce); }
+        else { out.push(`G01 X${f(g[0])} Y${f(g[1])} F${feed}`); line(c.on); }
+        out.push(`G01 X${f(g[2])} Y${f(g[3])} F${feed}`); line(c.off);
+      });
+      continue;
+    }
     const st = it.loop[0], pieces = it.pieces || [it.loop.concat([{ x: st.x, y: st.y, b: 0 }])];
+    if (it.chain) { // beam stays on from the previous contour
+      if (offLines.length && offLines.every((l, i) => out[out.length - offLines.length + i] === l)) out.length -= offLines.length;
+      out.push(`G01 X${f(st.x)} Y${f(st.y)} F${feed}`); path(pieces[0], false); line(c.off); continue;
+    }
     pieces.forEach((pc, k) => {
-      const e = k === 0 && it.lead ? it.lead : [pc[0].x, pc[0].y];
-      out.push(`G00 X${f(e[0])} Y${f(e[1])}`); line(c.on); if (k === 0) line(pierce);
-      if (k === 0 && it.lead) out.push(`G01 X${f(pc[0].x)} Y${f(pc[0].y)} F${feed}`);
-      else out.push(`G01 F${feed}`);
+      if (k === 0 && it.leadPath) { const lp = it.leadPath; rapidTo(it, [lp[0].x, lp[0].y]); line(c.on); line(pierce); out.push(`G01 F${feed}`); path(lp, false); }
+      else {
+        const e = k === 0 && it.lead ? it.lead : [pc[0].x, pc[0].y];
+        if (k === 0) rapidTo(it, e); else out.push(`G00 X${f(e[0])} Y${f(e[1])}`);
+        line(c.on); if (k === 0) line(pierce);
+        if (k === 0 && it.lead) out.push(`G01 X${f(pc[0].x)} Y${f(pc[0].y)} F${feed}`);
+        else out.push(`G01 F${feed}`);
+      }
       path(pc, false); line(c.off);
     });
   }
   line(sub(c.foot));
   return out.join('\r\n') + '\r\n';
+}
+
+/* ================= KH Fab — cutting technology: speed tables, heat order, chain cut, collision avoidance,
+   slug destroy, spiral / centre leads, skeleton cut, fly-cut ================= */
+
+/* ---------- reference cutting data (fiber laser, mm/min). Typical published charts — tune to your machine. ---------- */
+const CUTDATA = {
+  // carbon steel: O2 from 3 mm, air/N2 below
+  cs: {
+    1.5: [[1, 15000], [2, 5000], [3, 3000], [4, 2400], [5, 2000], [6, 1600], [8, 1100], [10, 900], [12, 700], [14, 600]],
+    3: [[1, 28000], [2, 8000], [3, 4200], [4, 3300], [5, 2800], [6, 2400], [8, 1900], [10, 1300], [12, 1000], [14, 850], [16, 750], [20, 600]],
+    6: [[1, 40000], [2, 20000], [3, 6000], [4, 4000], [5, 3500], [6, 3000], [8, 2500], [10, 2200], [12, 1800], [16, 1300], [20, 1000], [22, 900], [25, 700]],
+    12: [[2, 30000], [3, 7000], [6, 3500], [8, 3000], [10, 2500], [12, 2200], [16, 1800], [20, 1400], [25, 1100], [30, 800], [40, 400]],
+    20: [[3, 8000], [6, 4000], [10, 2800], [16, 2100], [20, 1700], [25, 1400], [30, 1100], [40, 600], [50, 350]]
+  },
+  // stainless: N2
+  ss: {
+    1.5: [[1, 20000], [2, 6000], [3, 2000], [4, 1200], [5, 700], [6, 400]],
+    3: [[1, 30000], [2, 13000], [3, 6000], [4, 3500], [5, 2400], [6, 1600], [8, 800], [10, 500], [12, 300]],
+    6: [[1, 45000], [2, 30000], [3, 18000], [4, 12000], [5, 8000], [6, 6000], [8, 3500], [10, 2000], [12, 1300], [16, 700], [20, 400]],
+    12: [[3, 30000], [6, 15000], [8, 9000], [10, 6000], [12, 4500], [16, 2500], [20, 1500], [25, 900], [30, 500], [40, 250]],
+    20: [[6, 22000], [10, 11000], [16, 5000], [20, 3500], [30, 1500], [40, 700], [50, 350]]
+  },
+  // aluminium: N2
+  al: {
+    1.5: [[1, 12000], [2, 4000], [3, 1000], [4, 500]],
+    3: [[1, 25000], [2, 10000], [3, 5000], [4, 3000], [5, 1800], [6, 1000], [8, 500]],
+    6: [[1, 40000], [2, 25000], [3, 15000], [4, 9000], [5, 7000], [6, 5000], [8, 3000], [10, 1600], [12, 1000], [16, 500]],
+    12: [[3, 25000], [6, 11000], [8, 7000], [10, 5000], [12, 3500], [16, 2000], [20, 1200], [25, 700], [30, 400]],
+    20: [[6, 18000], [10, 9000], [16, 4000], [20, 2600], [30, 1200], [40, 500]]
+  }
+};
+const PIERCE_CS = [[1, 0.1], [3, 0.3], [6, 0.6], [10, 1.2], [12, 1.6], [16, 2.8], [20, 4], [25, 6], [30, 9], [40, 15], [50, 22]];
+const MAT_CLS = [['cs', 'Хар ган'], ['hx', 'Hardox / элэгдэлд тэсвэртэй'], ['ss', 'Зэвэрдэггүй'], ['al', 'Хөнгөн цагаан']];
+const LASER_KW = [1.5, 2, 3, 4, 6, 8, 12, 15, 20];
+
+function matCls(m) {
+  if (m && m.cls) return m.cls;
+  const n = String(m && m.name || '');
+  if (/зэвэрдэг|stainless|\b30[14]\b|\b316\b|aisi/i.test(n)) return 'ss';
+  if (/цагаан|alum|\b5083\b|\b6061\b|\b5754\b/i.test(n)) return 'al';
+  if (/hardox|strenx|quard|nm\s?[345]00|wear|элэгд/i.test(n)) return 'hx';
+  return 'cs';
+}
+function lerpTab(tab, t) { // tab sorted [[x, y]]; null outside the top end
+  if (!tab.length) return null;
+  if (t <= tab[0][0]) return tab[0][1];
+  for (let i = 1; i < tab.length; i++) if (t <= tab[i][0] + 1e-9) { const a = tab[i - 1], b = tab[i], k = (t - a[0]) / (b[0] - a[0]); return a[1] + k * (b[1] - a[1]); }
+  return null;
+}
+function tabMax(tab) { return tab.length ? tab[tab.length - 1][0] : 0; }
+/* speed for class + power + thickness; interpolates between the two nearest power tables */
+function laserSpeed(cls, kW, t) {
+  const base = cls === 'hx' ? 'cs' : cls, D = CUTDATA[base] || CUTDATA.cs, ps = Object.keys(D).map(Number).sort((a, b) => a - b);
+  kW = Math.max(0.5, +kW || 3);
+  const at = p => ({ v: lerpTab(D[p], t), max: tabMax(D[p]) });
+  let v, maxT;
+  if (kW <= ps[0]) { const a = at(ps[0]), f = kW / ps[0]; v = a.v == null ? null : a.v * f; maxT = a.max * Math.sqrt(f); }
+  else if (kW >= ps[ps.length - 1]) { const a = at(ps[ps.length - 1]); v = a.v; maxT = a.max; }
+  else {
+    let i = 1; while (ps[i] < kW) i++;
+    const p1 = ps[i - 1], p2 = ps[i], k = (kW - p1) / (p2 - p1), a = at(p1), b = at(p2);
+    maxT = a.max + k * (b.max - a.max);
+    if (t > maxT + 1e-9) v = null;
+    else if (a.v != null && b.v != null) v = a.v + k * (b.v - a.v);
+    else v = b.v != null ? b.v * (0.55 + 0.45 * k) : null;
+  }
+  if (v != null && cls === 'hx') v *= 0.85;
+  let p = (lerpTab(PIERCE_CS, t) ?? (PIERCE_CS[PIERCE_CS.length - 1][1] * t / 50)) * Math.sqrt(3 / kW);
+  if (cls === 'ss' || cls === 'al') p *= 0.6; if (cls === 'hx') p *= 1.3;
+  return { v: v == null ? null : Math.round(v), p: Math.max(0.05, Math.round(p * 100) / 100), maxT: Math.round(maxT * 10) / 10 };
+}
+
+/* ---------- small geometry ---------- */
+function circleOf(lp) {
+  if (lp.length < 2) return null;
+  let cx = 0, cy = 0, r = 0, n = 0;
+  for (let i = 0; i < lp.length; i++) {
+    if (Math.abs(lp[i].b) < 1e-9) return null;
+    const s = segArc(lp[i], lp[(i + 1) % lp.length], lp[i].b); if (s.line) return null;
+    if (n && (Math.hypot(s.cx - cx / n, s.cy - cy / n) > 0.01 * s.r + 0.01 || Math.abs(s.r - r / n) > 0.01 * s.r + 0.01)) return null;
+    cx += s.cx; cy += s.cy; r += s.r; n++;
+  }
+  return { cx: cx / n, cy: cy / n, r: r / n };
+}
+/* centre-pierce lead for a circular hole: a chain of half circles from the centre that ends tangentially at the start vertex.
+   n = 1 is a plain centre arc lead; larger n is a spiral that also breaks the slug. */
+function spiralLead(lp, c, n) {
+  const S0 = lp[0], ux = (S0.x - c.cx) / c.r, uy = (S0.y - c.cy) / c.r, sg = Math.sign(lp[0].b) || -1;
+  n = Math.max(1, n | 0); if (n % 2 === 0) n++;
+  const pts = [];
+  for (let k = 0; k <= n; k++) { const s = k === 0 ? 0 : (k % 2 ? 1 : -1) * c.r * k / n; pts.push({ x: c.cx + ux * s, y: c.cy + uy * s, b: k < n ? sg : 0 }); }
+  pts[n] = { x: S0.x, y: S0.y, b: 0 };
+  return pts;
+}
+/* parallel grid lines inside a hole polygon (slug destroy) — kept `gap` mm away from the contour */
+function clipLines(poly, axis, c, gap) {
+  const xs = [], o = axis === 'x' ? 0 : 1, q = 1 - o;
+  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+    const a = poly[i], b = poly[j];
+    if ((a[o] > c) !== (b[o] > c)) xs.push(a[q] + (c - a[o]) / (b[o] - a[o]) * (b[q] - a[q]));
+  }
+  xs.sort((m, n) => m - n);
+  const out = [];
+  for (let i = 0; i + 1 < xs.length; i += 2) {
+    const lo = xs[i] + gap, hi = xs[i + 1] - gap; if (hi - lo < 2 * gap) continue;
+    out.push(axis === 'x' ? [c, lo, c, hi] : [lo, c, hi, c]);
+  }
+  return out;
+}
+function segDist(px, py, ax, ay, bx, by) {
+  const dx = bx - ax, dy = by - ay, L = dx * dx + dy * dy;
+  let t = L ? ((px - ax) * dx + (py - ay) * dy) / L : 0; t = Math.max(0, Math.min(1, t));
+  return Math.hypot(px - ax - t * dx, py - ay - t * dy);
+}
+function polyDist(px, py, poly) { let d = Infinity; for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) { const e = segDist(px, py, poly[j][0], poly[j][1], poly[i][0], poly[i][1]); if (e < d) d = e; } return d; }
+function slugLines(lp, minSize, step, gap) {
+  const poly = flattenLoop(lp, 0.2), bb = bboxPts(poly), w = bb.x1 - bb.x0, h = bb.y1 - bb.y0;
+  if (Math.min(w, h) < minSize) return [];
+  const lines = [];
+  const nx = Math.floor(w / step), ny = Math.floor(h / step);
+  for (let i = 1; i <= nx; i++) { const x = bb.x0 + w * i / (nx + 1); lines.push(...clipLines(poly, 'x', x, gap)); }
+  for (let j = 1; j <= ny; j++) { const y = bb.y0 + h * j / (ny + 1); lines.push(...clipLines(poly, 'y', y, gap)); }
+  return lines;
+}
+/* skeleton cut: vertical lines through scrap, every `step` mm, never closer than `clear` to a part */
+function skeletonLines(s, units, step, clear, xMax) {
+  const out = [], W = s.W, polys = units.map(u => ({ bb: u.bb, poly: u.flat || [[u.bb.x0, u.bb.y0], [u.bb.x1, u.bb.y0], [u.bb.x1, u.bb.y1], [u.bb.x0, u.bb.y1]] }));
+  for (let x = step; x < xMax - clear; x += step) {
+    const near = polys.filter(p => p.bb.x0 - clear <= x && p.bb.x1 + clear >= x);
+    const free = y => near.every(p => y < p.bb.y0 - clear || y > p.bb.y1 + clear || (!pointInPoly(x, y, p.poly) && polyDist(x, y, p.poly) >= clear));
+    let st = null;
+    const N = Math.ceil(W), dy = W / N;
+    for (let k = 0; k <= N; k++) {
+      const y = k * dy, ok = free(y);
+      if (ok && st == null) st = y;
+      if ((!ok || k === N) && st != null) {
+        const y1 = ok ? y : y - dy;
+        if (y1 - st >= Math.min(30, W / 4)) out.push([x, st <= 0 ? -1 : st, x, y1 >= W - 1e-6 ? W + 1 : y1]);
+        st = null;
+      }
+    }
+  }
+  return out;
+}
+/* axis-aligned rectangle outline? → {x0,y0,x1,y1} */
+function axisRect(lp) {
+  if (lp.length !== 4 || lp.some(v => Math.abs(v.b) > 1e-9)) return null;
+  for (let i = 0; i < 4; i++) { const a = lp[i], b = lp[(i + 1) % 4]; if (Math.abs(a.x - b.x) > 1e-4 && Math.abs(a.y - b.y) > 1e-4) return null; }
+  const xs = lp.map(v => v.x), ys = lp.map(v => v.y);
+  return { x0: Math.min(...xs), y0: Math.min(...ys), x1: Math.max(...xs), y1: Math.max(...ys) };
+}
+/* fly-cut passes for a set of aligned rectangles: edges grouped by line, each pass snakes along one line */
+function flyPasses(rects) {
+  const H = new Map(), V = new Map(), key = v => (Math.round(v * 100) / 100).toFixed(2);
+  for (const r of rects) {
+    for (const y of [r.y0, r.y1]) { const k = key(y); if (!H.has(k)) H.set(k, []); H.get(k).push([r.x0, r.x1]); }
+    for (const x of [r.x0, r.x1]) { const k = key(x); if (!V.has(k)) V.set(k, []); V.get(k).push([r.y0, r.y1]); }
+  }
+  const merge = arr => { arr.sort((a, b) => a[0] - b[0]); const o = []; for (const s of arr) { const l = o[o.length - 1]; if (l && s[0] <= l[1] + 1e-6) l[1] = Math.max(l[1], s[1]); else o.push(s.slice()); } return o; };
+  const passes = [];
+  [...H.entries()].sort((a, b) => +a[0] - +b[0]).forEach(([k, arr], i) => { const segs = merge(arr).map(s => [s[0], +k, s[1], +k]); if (i % 2) segs.reverse().forEach(s => s.splice(0, 4, s[2], s[3], s[0], s[1])); passes.push({ dir: 'h', segs }); });
+  [...V.entries()].sort((a, b) => +a[0] - +b[0]).forEach(([k, arr], i) => { const segs = merge(arr).map(s => [+k, s[0], +k, s[1]]); if (i % 2) segs.reverse().forEach(s => s.splice(0, 4, s[2], s[3], s[0], s[1])); passes.push({ dir: 'v', segs }); });
+  return passes;
+}
+/* does a straight link cross any part (cut or not)? used for chain cutting */
+function linkClear(a, b, units) {
+  const d = Math.hypot(b[0] - a[0], b[1] - a[1]); if (d < 0.5) return true;
+  const n = Math.max(2, Math.ceil(d / 1.5));
+  for (const u of units) {
+    if (Math.max(a[0], b[0]) < u.bb.x0 - 1 || Math.min(a[0], b[0]) > u.bb.x1 + 1 || Math.max(a[1], b[1]) < u.bb.y0 - 1 || Math.min(a[1], b[1]) > u.bb.y1 + 1) continue;
+    for (let k = 1; k < n; k++) {
+      const t = k / n, x = a[0] + (b[0] - a[0]) * t, y = a[1] + (b[1] - a[1]) * t;
+      if (Math.hypot(x - a[0], y - a[1]) < 0.4 || Math.hypot(x - b[0], y - b[1]) < 0.4) continue;
+      if (x > u.bb.x0 && x < u.bb.x1 && y > u.bb.y0 && y < u.bb.y1 && (!u.flat || pointInPoly(x, y, u.flat))) return false;
+    }
+  }
+  return true;
+}
+/* rapid move that steers around parts already cut free; falls back to a head lift */
+function rapidRoute(from, to, freed, clear) {
+  if (!freed.length || !crossesCut(from, to, freed)) return { via: null, lift: false, len: Math.hypot(to[0] - from[0], to[1] - from[1]) };
+  const ok = pts => { for (let i = 1; i < pts.length; i++) if (crossesCut(pts[i - 1], pts[i], freed)) return false; return true; };
+  const plen = pts => { let L = 0; for (let i = 1; i < pts.length; i++) L += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]); return L; };
+  const cands = [[from, [to[0], from[1]], to], [from, [from[0], to[1]], to]];
+  const blockers = freed.filter(u => crossesCut(from, to, [u]));
+  for (const u of blockers.slice(0, 6)) {
+    const c = [[u.bb.x0 - clear, u.bb.y0 - clear], [u.bb.x1 + clear, u.bb.y0 - clear], [u.bb.x1 + clear, u.bb.y1 + clear], [u.bb.x0 - clear, u.bb.y1 + clear]];
+    for (let i = 0; i < 4; i++) { cands.push([from, c[i], to]); cands.push([from, c[i], c[(i + 1) % 4], to]); cands.push([from, c[i], c[(i + 3) % 4], to]); }
+  }
+  let best = null, bl = Infinity;
+  for (const p of cands) { const L = plen(p); if (L < bl && ok(p)) { bl = L; best = p; } }
+  if (best) return { via: best.slice(1, -1), lift: false, len: bl };
+  return { via: null, lift: true, len: Math.hypot(to[0] - from[0], to[1] - from[1]) };
 }
 
 /* ================= KH Nesting — application ================= */
@@ -2407,7 +2690,7 @@ function defaults() {
     useRem: true,
     s: { gap: 6, margin: 10, rot: 90, prec: 'normal', opt: 6, sag: 0.05, keep: true, pip: true, mir: false, cl: true, trim: true, trimScope: 'last', trimStep: 50, minRem: 300, dxfSheet: 1, dxfBend: 0, leadIn: 0, rapid: 20000 },
     quote: { customer: '', no: 'ҮС-001', valid: 7, markup: 20, setup: 0, vat: true, by: 'Х. Очирбат', contact: '', note: 'Үнэд материал болон лазер зүсэлт багтсан. Гулзайлт, гагнуур, будаг ороогүй.' },
-    cut: { speeds: [[1, 20000, 0.3], [2, 9000, 0.5], [3, 5000, 0.8], [4, 3800, 1], [5, 3000, 1.2], [6, 2500, 1.5], [8, 1800, 2], [10, 1300, 2.5], [12, 1000, 3], [16, 700, 4], [20, 500, 6]], cutPrice: 1200, piercePrice: 100 },
+    cut: { kW: 3, src: 'auto', speeds: [[1, 20000, 0.3], [2, 9000, 0.5], [3, 5000, 0.8], [4, 3800, 1], [5, 3000, 1.2], [6, 2500, 1.5], [8, 1800, 2], [10, 1300, 2.5], [12, 1000, 3], [16, 700, 4], [20, 500, 6]], cutPrice: 1200, piercePrice: 100 },
     defMat: 'Ст3 / S235', defThk: 6,
     laser: laserDefaults(),
     mark: { on: false, h: 6, minH: 3, clear: 1.5, fmt: '{short}-{p}' },
@@ -2432,7 +2715,7 @@ function sampleParts() {
   ];
 }
 function load() { try { const t = localStorage.getItem(KEY); if (!t) return null; const o = JSON.parse(t); if (!o || o.v !== 1 || !Array.isArray(o.parts)) return null; return mergeState(o); } catch (e) { return null; } }
-function mergeState(o) { const d = defaults(); const r = Object.assign(d, o); r.s = Object.assign(defaults().s, o.s || {}); r.cut = Object.assign(defaults().cut, o.cut || {}); r.quote = Object.assign(defaults().quote, o.quote || {}); r.laser = Object.assign(laserDefaults(), o.laser || {}); r.laser.gc = Object.assign(laserDefaults().gc, (o.laser || {}).gc || {}); r.mark = Object.assign(defaults().mark, o.mark || {}); r.iso = Object.assign(defaults().iso, o.iso || {}); r.remnants.forEach(x => { if (!x.no) x.no = 'R-' + String(++r.remSeq).padStart(4, '0'); }); return r; }
+function mergeState(o) { const d = defaults(); const r = Object.assign(d, o); r.s = Object.assign(defaults().s, o.s || {}); r.cut = Object.assign(defaults().cut, o.cut || {}); if (o.cut && !o.cut.src) r.cut.src = JSON.stringify(o.cut.speeds || []) === JSON.stringify(defaults().cut.speeds) ? 'auto' : 'own'; r.quote = Object.assign(defaults().quote, o.quote || {}); r.laser = Object.assign(laserDefaults(), o.laser || {}); r.laser.gc = Object.assign(laserDefaults().gc, (o.laser || {}).gc || {}); r.mark = Object.assign(defaults().mark, o.mark || {}); r.iso = Object.assign(defaults().iso, o.iso || {}); r.remnants.forEach(x => { if (!x.no) x.no = 'R-' + String(++r.remSeq).padStart(4, '0'); }); return r; }
 let S = load();
 let firstRun = false;
 if (!S) { S = mergeState(defaults()); S.parts = sampleParts(); firstRun = true; }
@@ -2449,12 +2732,19 @@ function isDark() { const a = document.documentElement.getAttribute('data-theme'
 function cssv(n) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
 function partColor(i, dark, alpha = 1) { const h = (i * 137.508 + 200) % 360; return dark ? `hsla(${h},48%,${50}%,${alpha})` : `hsla(${h},58%,${62}%,${alpha})`; }
 function matOf(name) { return S.materials.find(m => m.name === name) || { name, rho: 7.85, price: 0 }; }
-function speedFor(t) {
+function ownSpeed(t) {
   const a = S.cut.speeds.filter(r => r[0] > 0 && r[1] > 0).sort((x, y) => x[0] - y[0]);
   if (!a.length) return { v: 2000, p: 1 };
   if (t <= a[0][0]) return { v: a[0][1], p: a[0][2] };
   for (let i = 1; i < a.length; i++) if (t <= a[i][0]) { const k = (t - a[i - 1][0]) / (a[i][0] - a[i - 1][0]); return { v: a[i - 1][1] + k * (a[i][1] - a[i - 1][1]), p: a[i - 1][2] + k * (a[i][2] - a[i - 1][2]) }; }
   const l = a[a.length - 1]; return { v: l[1], p: l[2] };
+}
+/* cutting speed (mm/min), pierce (s) and the thickness limit for a material on this laser */
+function speedFor(t, matName) {
+  const m = matOf(matName || S.defMat), cls = matCls(m), kW = +S.cut.kW || 3, a = laserSpeed(cls, kW, t);
+  if (S.cut.src === 'own') { const o = ownSpeed(t); return { v: o.v, p: o.p, maxT: a.maxT, over: false, src: 'own', cls }; }
+  if (a.v == null) { const o = laserSpeed(cls, kW, a.maxT); return { v: Math.max(50, (o.v || 300) * a.maxT / Math.max(t, 1)), p: a.p, maxT: a.maxT, over: true, src: 'auto', cls }; }
+  return { v: a.v, p: a.p, maxT: a.maxT, over: false, src: 'auto', cls };
 }
 function matOptions(sel) { const names = S.materials.map(m => m.name); if (sel && !names.includes(sel)) names.push(sel); return names.map(n => `<option${n === sel ? ' selected' : ''}>${esc(n)}</option>`).join(''); }
 
@@ -2493,7 +2783,7 @@ function renderParts() {
           <select data-f="mat" aria-label="Материал">${matOptions(p.mat)}</select>
           <span class="nowrap"><input class="pthk" data-f="thk" type="number" min="0.1" step="0.1" value="${p.thk}" aria-label="Зузаан, мм">мм</span>
           <button class="tog${p.rot ? ' on' : ''}" data-t="rot" title="Эргүүлэхийг зөвшөөрөх">↻ Эргүүлэх</button>
-          <button class="tog${p.prio ? ' on' : ''}" data-t="prio" title="Эхэлж өрөх">Эхэнд</button>${p.bends && p.bends.length ? '<button class="tog" data-t="bend" title="Bending модуль руу">Bending руу</button>' : ''}
+          <button class="tog${p.prio ? ' on' : ''}" data-t="prio" title="Эхэлж өрөх">Эхэнд</button>${p.bends && p.bends.length ? '<button class="tog" data-t="bend" title="Bending модуль руу">Bending руу</button>' : ''}${p.roll ? '<button class="tog" data-t="roll" title="Галзуудах тооцоо руу">Галзуу руу</button>' : ''}
         </div>
       </div>
       <div class="pqty"><label>Тоо</label><input data-f="qty" type="number" min="0" step="1" value="${p.qty}" aria-label="Тоо ширхэг"></div>
@@ -2512,7 +2802,7 @@ $('#partList').addEventListener('change', e => {
 $('#partList').addEventListener('click', e => {
   const it = e.target.closest('.pitem'); if (!it) return; const p = S.parts.find(x => x.id === it.dataset.id); if (!p) return;
   if (e.target.closest('[data-del]')) { S.parts = S.parts.filter(x => x !== p); save(); renderParts(); return; }
-  const t = e.target.closest('[data-t]'); if (t) { if (t.dataset.t === 'bend') { sendPartToBend(p.id); return; } if (t.dataset.t === 'rot') p.rot = !p.rot; else p.prio = p.prio ? 0 : 1; save(); renderParts(); }
+  const t = e.target.closest('[data-t]'); if (t) { if (t.dataset.t === 'bend') { sendPartToBend(p.id); return; } if (t.dataset.t === 'roll') { rollFromPart(p); return; } if (t.dataset.t === 'rot') p.rot = !p.rot; else p.prio = p.prio ? 0 : 1; save(); renderParts(); }
 });
 $('#btnClear').addEventListener('click', e => {
   const b = e.currentTarget;
@@ -2622,24 +2912,41 @@ $('#remAdd').addEventListener('click', () => { const L = +$('#remL').value, W = 
 const SET = [['s_gap', 'gap', 'n'], ['s_margin', 'margin', 'n'], ['s_rot', 'rot', 'n'], ['s_prec', 'prec', 's'], ['s_opt', 'opt', 'n'], ['s_sag', 'sag', 'n'], ['s_keep', 'keep', 'b'], ['s_pip', 'pip', 'b'], ['s_mir', 'mir', 'b'], ['s_cl', 'cl', 'b'], ['s_lead', 'leadIn', 'n'], ['s_rapid', 'rapid', 'n'], ['s_trim', 'trim', 'b'], ['s_trimScope', 'trimScope', 's'], ['s_trimStep', 'trimStep', 'n'], ['s_minRem', 'minRem', 'n'], ['s_dxfSheet', 'dxfSheet', 'n'], ['s_dxfBend', 'dxfBend', 'n']];
 function renderSettings() {
   for (const [id, k, t] of SET) { const el = $('#' + id); if (t === 'b') el.checked = !!S.s[k]; else el.value = S.s[k]; }
-  $('#matBody').innerHTML = S.materials.map((m, i) => `<tr data-i="${i}"><td><input data-k="name" value="${esc(m.name)}" style="font-family:var(--f-ui)"></td><td><input data-k="rho" type="number" step="0.01" value="${m.rho}"></td><td><input data-k="price" type="number" step="10" value="${m.price}"></td><td><button class="x" aria-label="Устгах">×</button></td></tr>`).join('');
+  $('#matBody').innerHTML = S.materials.map((m, i) => `<tr data-i="${i}"><td><input data-k="name" value="${esc(m.name)}" style="font-family:var(--f-ui)"></td><td><select data-k="cls" style="font-family:var(--f-ui)">${MAT_CLS.map(([c, n]) => `<option value="${c}"${c === matCls(m) ? ' selected' : ''}>${n}</option>`).join('')}</select></td><td><input data-k="rho" type="number" step="0.01" value="${m.rho}"></td><td><input data-k="price" type="number" step="10" value="${m.price}"></td><td><button class="x" aria-label="Устгах">×</button></td></tr>`).join('');
   $('#spdBody').innerHTML = S.cut.speeds.map((r, i) => `<tr data-i="${i}"><td><input data-k="0" type="number" step="0.5" value="${r[0]}"></td><td><input data-k="1" type="number" step="50" value="${r[1]}"></td><td><input data-k="2" type="number" step="0.1" value="${r[2]}"></td><td><button class="x" aria-label="Устгах">×</button></td></tr>`).join('');
   $('#c_cut').value = S.cut.cutPrice; $('#c_pierce').value = S.cut.piercePrice;
+  $('#c_kW').value = S.cut.kW; $('#c_src').value = S.cut.src; $('#kwList').innerHTML = LASER_KW.map(k => `<option value="${k}">`).join(''); renderSpeedAuto();
   $('#jobName').value = S.jobName;
   renderLaserSet();
 }
 const LSET = [['l_tabN', () => S.laser, 'tabN', 'n'], ['l_tabW', () => S.laser, 'tabW', 'n'], ['l_tabMax', () => S.laser, 'tabMax', 'n'], ['l_order', () => S.laser, 'order', 's'], ['l_strip', () => S.laser, 'strip', 'n'], ['l_kerf', () => S.laser, 'kerf', 'n'], ['l_holeK', () => S.laser, 'holeK', 'n'], ['l_markFeed', () => S.laser, 'markFeed', 'n'],
+  ['l_avoid', () => S.laser, 'avoid', 'b'], ['l_chain', () => S.laser, 'chain', 'b'], ['l_chainMax', () => S.laser, 'chainMax', 'n'], ['l_chainDxf', () => S.laser, 'chainDxf', 'tf'], ['l_spiral', () => S.laser, 'spiral', 's'], ['l_spiralMax', () => S.laser, 'spiralMax', 'n'], ['l_spiralPitch', () => S.laser, 'spiralPitch', 'n'],
+  ['l_slug', () => S.laser, 'slug', 'b'], ['l_slugMin', () => S.laser, 'slugMin', 'n'], ['l_slugStep', () => S.laser, 'slugStep', 'n'], ['l_skel', () => S.laser, 'skel', 'b'], ['l_skelStep', () => S.laser, 'skelStep', 'n'], ['l_skelClear', () => S.laser, 'skelClear', 'n'], ['l_fly', () => S.laser, 'fly', 'b'], ['l_flyMaxT', () => S.laser, 'flyMaxT', 'n'],
   ['m_on', () => S.mark, 'on', 'b'], ['m_h', () => S.mark, 'h', 'n'], ['m_minH', () => S.mark, 'minH', 'n'], ['m_clear', () => S.mark, 'clear', 'n'], ['m_fmt', () => S.mark, 'fmt', 's'],
-  ...['on', 'off', 'mOn', 'mOff', 'pierce', 'ext', 'head', 'foot'].map(k => ['g_' + k, () => S.laser.gc, k, 's']), ['g_dec', () => S.laser.gc, 'dec', 'n']];
-function renderLaserSet() { for (const [id, o, k, t] of LSET) { const el = $('#' + id); if (t === 'b') el.checked = !!o()[k]; else el.value = o()[k]; } }
-for (const [id, o, k, t] of LSET) $('#' + id).addEventListener('change', e => { o()[k] = t === 'b' ? e.target.checked : t === 'n' ? Math.max(0, +e.target.value || 0) : e.target.value; save(); if (R) recomputeResult(); });
+  ...['on', 'off', 'mOn', 'mOff', 'pierce', 'liftUp', 'liftDown', 'ext', 'head', 'foot'].map(k => ['g_' + k, () => S.laser.gc, k, 's']), ['g_dec', () => S.laser.gc, 'dec', 'n']];
+function renderLaserSet() { for (const [id, o, k, t] of LSET) { const el = $('#' + id); if (t === 'b') el.checked = !!o()[k]; else if (t === 'tf') el.value = o()[k] ? 'true' : 'false'; else el.value = o()[k]; } }
+for (const [id, o, k, t] of LSET) $('#' + id).addEventListener('change', e => { o()[k] = t === 'b' ? e.target.checked : t === 'tf' ? e.target.value === 'true' : t === 'n' ? Math.max(0, +e.target.value || 0) : e.target.value; save(); if (R) recomputeResult(); });
 for (const [id, k, t] of SET) $('#' + id).addEventListener('change', e => { S.s[k] = t === 'b' ? e.target.checked : t === 'n' ? Math.max(0, +e.target.value || 0) : e.target.value; save(); if (R && ['trim', 'trimScope', 'trimStep', 'minRem', 'leadIn', 'rapid'].includes(k)) { recomputeResult(); } });
-$('#matBody').addEventListener('change', e => { const tr = e.target.closest('tr'); const m = S.materials[+tr.dataset.i]; const k = e.target.dataset.k; if (k === 'name') { const old = m.name, nw = e.target.value.trim() || old; S.parts.forEach(p => { if (p.mat === old) p.mat = nw; }); S.remnants.forEach(r => { if (r.mat === old) r.mat = nw; }); if (S.defMat === old) S.defMat = nw; m.name = nw; } else m[k] = Math.max(0, +e.target.value || 0); save(); renderParts(); renderDefaults(); if (R) recomputeResult(); });
+$('#matBody').addEventListener('change', e => { const tr = e.target.closest('tr'); const m = S.materials[+tr.dataset.i]; const k = e.target.dataset.k; if (k === 'name') { const old = m.name, nw = e.target.value.trim() || old; S.parts.forEach(p => { if (p.mat === old) p.mat = nw; }); S.remnants.forEach(r => { if (r.mat === old) r.mat = nw; }); if (S.defMat === old) S.defMat = nw; m.name = nw; } else if (k === 'cls') m.cls = e.target.value; else m[k] = Math.max(0, +e.target.value || 0); if (k === 'cls') renderSpeedAuto(); save(); renderParts(); renderDefaults(); if (R) recomputeResult(); });
 $('#matBody').addEventListener('click', e => { if (!e.target.matches('.x')) return; if (S.materials.length <= 1) return; S.materials.splice(+e.target.closest('tr').dataset.i, 1); save(); renderSettings(); renderDefaults(); renderParts(); });
 $('#matAdd').addEventListener('click', () => { S.materials.push({ name: 'Шинэ материал ' + (S.materials.length + 1), rho: 7.85, price: 0 }); save(); renderSettings(); renderDefaults(); });
 $('#spdBody').addEventListener('change', e => { const tr = e.target.closest('tr'); S.cut.speeds[+tr.dataset.i][+e.target.dataset.k] = Math.max(0, +e.target.value || 0); save(); if (R) recomputeResult(); });
 $('#spdBody').addEventListener('click', e => { if (!e.target.matches('.x')) return; S.cut.speeds.splice(+e.target.closest('tr').dataset.i, 1); save(); renderSettings(); });
 $('#spdAdd').addEventListener('click', () => { S.cut.speeds.push([25, 400, 8]); save(); renderSettings(); });
+function renderSpeedAuto() {
+  $('#spdAutoBox').hidden = S.cut.src === 'own'; $('#spdOwnBox').hidden = S.cut.src !== 'own';
+  const kW = +S.cut.kW || 3, ts = [1, 2, 3, 4, 5, 6, 8, 10, 12, 16, 20, 25, 30, 40];
+  const used = [...new Set(S.materials.map(matCls))], cls = MAT_CLS.filter(c => used.includes(c[0]));
+  const short = { cs: 'Хар ган', hx: 'Hardox', ss: 'Зэвэрд.', al: 'Хөнг. цаг.' };
+  $('#spdAuto').innerHTML = `<thead><tr><th>мм</th>${cls.map(c => `<th title="${esc(c[1])}">${short[c[0]]}</th>`).join('')}</tr></thead><tbody>${ts.map(t => `<tr><td class="num">${t}</td>${cls.map(c => { const a = laserSpeed(c[0], kW, t); return `<td class="num" style="white-space:nowrap" title="${a.v == null ? `хязгаар ≈ ${a.maxT} мм` : `цоолох ${a.p} сек`}">${a.v == null ? '<span class="muted">—</span>' : nf(a.v)}</td>`; }).join('')}</tr>`).join('')}</tbody>`;
+}
+$('#c_kW').addEventListener('change', e => { S.cut.kW = Math.min(40, Math.max(0.5, +e.target.value || 3)); save(); renderSpeedAuto(); if (R) recomputeResult(); });
+$('#c_src').addEventListener('change', e => { S.cut.src = e.target.value; save(); renderSpeedAuto(); if (R) recomputeResult(); });
+$('#spdCopy').addEventListener('click', () => {
+  const cls = matCls(matOf(S.defMat)), kW = +S.cut.kW || 3;
+  S.cut.speeds = [1, 2, 3, 4, 5, 6, 8, 10, 12, 16, 20, 25, 30, 40].map(t => { const a = laserSpeed(cls, kW, t); return a.v == null ? null : [t, a.v, a.p]; }).filter(Boolean);
+  S.cut.src = 'own'; save(); renderSettings(); if (R) recomputeResult(); toast(`${MAT_CLS.find(c => c[0] === cls)[1]} · ${kW} кВт хүснэгт хуулагдлаа — машиныхаа утгаар засна уу`);
+});
 $('#c_cut').addEventListener('change', e => { S.cut.cutPrice = Math.max(0, +e.target.value || 0); save(); if (R) recomputeResult(); });
 $('#c_pierce').addEventListener('change', e => { S.cut.piercePrice = Math.max(0, +e.target.value || 0); save(); if (R) recomputeResult(); });
 $('#jobName').addEventListener('change', e => { S.jobName = e.target.value.trim() || 'Ажил'; save(); });
@@ -2781,7 +3088,7 @@ function partSpot(p) {
   if (p._spotKey !== key) { p._spotKey = key; p._spot = markSpot(p.flat.outer, p.flat.holes, txt, Math.max(1, +S.mark.h || 6), Math.max(1, Math.min(+S.mark.h || 6, +S.mark.minH || 3)), Math.max(0, +S.mark.clear || 0)); }
   return p._spot ? { spot: p._spot, txt } : { miss: true, txt };
 }
-function cutPlan(s) {
+function cutPlan(s, thk) {
   const LI = Math.max(0, +S.s.leadIn || 0), LZ = S.laser, units = [];
   const tabN = Math.max(0, Math.round(+LZ.tabN || 0)), tabW = Math.max(0.05, +LZ.tabW || 0.6), tabMax = Math.max(0, +LZ.tabMax || 0);
   const blk = new Map((s.blocks || []).map(b => [b.key, { b, holes: [] }]));
@@ -2806,71 +3113,139 @@ function cutPlan(s) {
     if (P === Q || !P.outer || !Q.outer) continue;
     if (Q.bb.x0 >= P.bb.x0 && Q.bb.x1 <= P.bb.x1 && Q.bb.y0 >= P.bb.y0 && Q.bb.y1 <= P.bb.y1 && pointInPoly(Q.flat[0][0], Q.flat[0][1], P.flat)) P.deps.push(Q);
   }
-  const seq = [], freed = []; let pos = [0, 0], travel = 0, cut = 0, markL = 0, tabs = 0, cross = 0;
-  const rapid = to => { travel += Math.hypot(to[0] - pos[0], to[1] - pos[1]); cross += crossesCut(pos, to, freed); };
+  const T = +thk || 0, kerf = Math.max(0, +LZ.kerf || 0.2);
+  const contained = new Set(); units.forEach(u => u.deps.forEach(d => contained.add(d)));
+  const seq = [], freed = [];
+  let pos = [0, 0], travel = 0, cut = 0, markL = 0, tabs = 0, cross = 0, pierce = 0, lifts = 0, avoided = 0, chains = 0, flyIdle = 0, slugN = 0, skelN = 0, flyN = 0, spiralN = 0, flySaved = 0;
+  const go = (to, it) => { // rapid move to `to`; steer around parts already cut free
+    if (LZ.avoid) { const r = rapidRoute(pos, to, freed, 5); travel += r.len; if (r.via) { it.via = r.via; avoided++; } if (r.lift) { it.lift = true; lifts++; cross++; } }
+    else { travel += Math.hypot(to[0] - pos[0], to[1] - pos[1]); cross += crossesCut(pos, to, freed); }
+  };
   // 1) marking first, while every part still lies flat in the sheet
   const ms = marks.slice();
   while (ms.length) {
     let bi = 0, bd = Infinity; ms.forEach((m, i) => { const d = Math.hypot(m.strokes[0][0][0] - pos[0], m.strokes[0][0][1] - pos[1]); if (d < bd) { bd = d; bi = i; } });
     const m = ms.splice(bi, 1)[0];
     for (const st of m.strokes) { travel += Math.hypot(st[0][0] - pos[0], st[0][1] - pos[1]); for (let i = 1; i < st.length; i++) markL += Math.hypot(st[i][0] - st[i - 1][0], st[i][1] - st[i - 1][1]); pos = st[st.length - 1]; }
-    seq.push({ type: 'mark', strokes: m.strokes, txt: m.txt, entry: m.strokes[0][0] });
+    seq.push({ type: 'mark', strokes: m.strokes, txt: m.txt, entry: m.strokes[0][0], exit: pos });
   }
   const nearV = vs => { let k = 0, d = Infinity; vs.forEach((v, i) => { const e = Math.hypot(v.x - pos[0], v.y - pos[1]); if (e < d) { d = e; k = i; } }); return [k, d]; };
-  const emitLoop = (vs, layer, withTabs, toward) => {
+  const spMode = LZ.spiral || 'off', spMax = Math.max(0, +LZ.spiralMax || 0), spPitch = Math.max(0.5, +LZ.spiralPitch || 4);
+  const emitLoop = (vs, layer, withTabs, toward, chainTry, plain) => {
     let k0 = nearV(vs)[0];
-    if (toward) { let d = Infinity; vs.forEach((v, i) => { const e = Math.hypot(v.x - toward[0], v.y - toward[1]); if (e < d) { d = e; k0 = i; } }); }
-    const lp = rotateLoop(vs, k0), st = lp[0];
-    let lead = null;
-    if (LI > 0 && lp.length > 1) {
+    if (toward && !chainTry) { let d = Infinity; vs.forEach((v, i) => { const e = Math.hypot(v.x - toward[0], v.y - toward[1]); if (e < d) { d = e; k0 = i; } }); }
+    const lp = rotateLoop(vs, k0), st = lp[0], it = { type: 'loop', loop: lp, layer, lead: null, pieces: null };
+    // chain: keep the beam on and cut straight across the scrap from the previous contour
+    if (chainTry && Math.hypot(st.x - pos[0], st.y - pos[1]) <= Math.max(0, +LZ.chainMax || 0) && linkClear(pos, [st.x, st.y], units)) {
+      it.chain = true; it.link = [pos.slice(), [st.x, st.y]]; it.entry = [st.x, st.y];
+      cut += Math.hypot(st.x - pos[0], st.y - pos[1]) + loopLen(lp); chains++;
+      seq.push(it); it.exit = pos = [st.x, st.y]; return it;
+    }
+    const circ = layer === 'INNER' && spMode !== 'off' && !plain ? circleOf(lp) : null;
+    if (circ && 2 * circ.r <= spMax + 1e-6 && circ.r > kerf + 1) {
+      it.leadPath = spiralLead(lp, circ, spMode === 'center' ? 1 : Math.max(3, Math.ceil(circ.r / spPitch)));
+      spiralN++;
+    } else if (LI > 0 && lp.length > 1) {
       const a = lp[0], b = lp[1]; let cx = b.x - a.x, cy = b.y - a.y; const cl = Math.hypot(cx, cy) || 1; cx /= cl; cy /= cl;
       const th = 4 * Math.atan(a.b), c = Math.cos(-th / 2), sn = Math.sin(-th / 2), tx = cx * c - cy * sn, ty = cx * sn + cy * c;
       const bb = bboxPts(lp.map(v => [v.x, v.y])), Lr = Math.min(LI, 0.4 * Math.min(bb.x1 - bb.x0, bb.y1 - bb.y0));
-      lead = [st.x + ty * Lr, st.y - tx * Lr];
+      it.lead = [st.x + ty * Lr, st.y - tx * Lr];
     }
-    const entry = lead || [st.x, st.y];
-    rapid(entry);
+    it.entry = it.leadPath ? [it.leadPath[0].x, it.leadPath[0].y] : it.lead || [st.x, st.y];
+    go(it.entry, it); pierce++;
     const pieces = withTabs ? splitTabs(lp, tabN, tabW) : null;
-    cut += (pieces ? pieces.reduce((a, pc) => a + openLen(pc), 0) : loopLen(lp)) + (lead ? Math.hypot(lead[0] - st.x, lead[1] - st.y) : 0);
+    it.pieces = pieces;
+    cut += (pieces ? pieces.reduce((a, pc) => a + openLen(pc), 0) : loopLen(lp)) + (it.lead ? Math.hypot(it.lead[0] - st.x, it.lead[1] - st.y) : 0) + (it.leadPath ? openLen(it.leadPath) : 0);
     if (pieces) { tabs += pieces.length - 1; travel += (loopLen(lp) - pieces.reduce((a, pc) => a + openLen(pc), 0)); }
-    seq.push({ type: 'loop', loop: lp, layer, lead, entry, pieces });
-    pos = [st.x, st.y];
+    seq.push(it); it.exit = pos = [st.x, st.y];
+    return it;
   };
-  const emitLine = ln => {
+  const emitLine = (ln, layer) => {
     const d1 = Math.hypot(ln[0] - pos[0], ln[1] - pos[1]), d2 = Math.hypot(ln[2] - pos[0], ln[3] - pos[1]);
-    const l = d2 < d1 ? [ln[2], ln[3], ln[0], ln[1]] : ln;
-    rapid([l[0], l[1]]); cut += Math.hypot(l[2] - l[0], l[3] - l[1]);
-    seq.push({ type: 'line', line: l, layer: 'OUTER', entry: [l[0], l[1]] });
-    pos = [l[2], l[3]];
+    const l = d2 < d1 ? [ln[2], ln[3], ln[0], ln[1]] : ln, it = { type: 'line', line: l, layer: layer || 'OUTER', entry: [l[0], l[1]] };
+    go(it.entry, it); pierce++; cut += Math.hypot(l[2] - l[0], l[3] - l[1]);
+    seq.push(it); it.exit = pos = [l[2], l[3]];
   };
+  const emitLines = (ls, layer) => { ls = ls.slice(); while (ls.length) { let bi = 0, bdd = Infinity; ls.forEach((l, i) => { const d = Math.min(Math.hypot(l[0] - pos[0], l[1] - pos[1]), Math.hypot(l[2] - pos[0], l[3] - pos[1])); if (d < bdd) { bdd = d; bi = i; } }); emitLine(ls.splice(bi, 1)[0], layer); } };
+  const emitHoles = (holes, inner) => {
+    const hs = holes.slice();
+    while (hs.length) {
+      let bi = 0, bdd = Infinity; hs.forEach((h, i) => { const d = nearV(h)[1]; if (d < bdd) { bdd = d; bi = i; } });
+      const h = hs.splice(bi, 1)[0];
+      // a hole that holds a nested part (part-in-part) gets no slug grid and no centre lead
+      let occupied = false;
+      if (inner && inner.length) { const hp = flattenLoop(h, 0.5), hb = bboxPts(hp); occupied = inner.some(u => { const c = u.flat ? u.flat[0] : [u.bb.x0, u.bb.y0]; return c[0] >= hb.x0 && c[0] <= hb.x1 && c[1] >= hb.y0 && c[1] <= hb.y1 && pointInPoly(c[0], c[1], hp); }); }
+      if (occupied) { emitLoop(h, 'INNER', false, null, false, true); continue; }
+      if (LZ.slug) { const sl = slugLines(h, Math.max(10, +LZ.slugMin || 80), Math.max(10, +LZ.slugStep || 50), Math.max(0.5, +LZ.slugGap || 2)); if (sl.length) { slugN += sl.length; emitLines(sl, 'SLUG'); } }
+      emitLoop(h, 'INNER', false);
+    }
+  };
+  const done = new Set();
+  // 2) fly-cut: aligned rectangles on thin sheet are cut line by line without stopping
+  if (LZ.fly && T <= (+LZ.flyMaxT || 3) + 1e-9) {
+    const fu = units.filter(u => u.outer && !u.tabs && !u.deps.length && !contained.has(u) && (u.rect = axisRect(u.outer)));
+    if (fu.length >= 2) {
+      const passes = flyPasses(fu.map(u => u.rect));
+      if (passes.length < fu.length * 4) {
+        fu.forEach(u => emitHoles(u.holes, u.deps));
+        for (const ps of passes) {
+          const it = { type: 'fly', segs: ps.segs, layer: 'OUTER', entry: [ps.segs[0][0], ps.segs[0][1]] };
+          go(it.entry, it); pierce++; flyN++; flySaved += ps.segs.length - 1;
+          ps.segs.forEach((g, i) => { cut += Math.hypot(g[2] - g[0], g[3] - g[1]); if (i) flyIdle += Math.hypot(g[0] - ps.segs[i - 1][2], g[1] - ps.segs[i - 1][3]); });
+          const e = ps.segs[ps.segs.length - 1]; seq.push(it); it.exit = pos = [e[2], e[3]];
+        }
+        fu.forEach(u => { done.add(u); freed.push(u); });
+      }
+    }
+  }
   const bbDist = bb => Math.hypot(Math.max(bb.x0 - pos[0], 0, pos[0] - bb.x1), Math.max(bb.y0 - pos[1], 0, pos[1] - bb.y1));
-  // 2) strip order: columns from the origin outwards, snaking, so the head moves over uncut sheet
+  const ctr = u => [(u.bb.x0 + u.bb.x1) / 2, (u.bb.y0 + u.bb.y1) / 2];
+  // 3) order: nearest, strips (head over uncut sheet) or heat (spread heat across the plate)
   let order = null;
   if (LZ.order === 'strip') {
     const sw = Math.max(50, +LZ.strip || 300);
-    order = units.map(u => { const cx = (u.bb.x0 + u.bb.x1) / 2, cy = (u.bb.y0 + u.bb.y1) / 2, k = Math.floor(cx / sw); return { u, k: k * 1e7 + (k % 2 ? -cy : cy) }; }).sort((a, b) => a.k - b.k).map(o => o.u);
+    order = units.map(u => { const [cx, cy] = ctr(u), k = Math.floor(cx / sw); return { u, k: k * 1e7 + (k % 2 ? -cy : cy) }; }).sort((a, b) => a.k - b.k).map(o => o.u);
   }
-  const done = new Set();
+  const recent = [];
+  const avail = u => !done.has(u) && u.deps.every(d => done.has(d));
+  const pickHeat = () => {
+    let best = null, bs = -Infinity;
+    for (const u of units) {
+      if (!avail(u)) continue;
+      const c = ctr(u), md = recent.length ? Math.min(...recent.map(r => Math.hypot(c[0] - r[0], c[1] - r[1]))) : 0;
+      const sc = md - 0.15 * bbDist(u.bb) + (recent.length ? 0 : -Math.hypot(c[0], c[1]));
+      if (sc > bs) { bs = sc; best = u; }
+    }
+    return best;
+  };
   while (done.size < units.length) {
     let best = null;
-    if (order) best = order.find(u => !done.has(u) && u.deps.every(d => done.has(d)));
-    else { let bd = Infinity; for (const u of units) { if (done.has(u) || u.deps.some(d => !done.has(d))) continue; const d = bbDist(u.bb); if (d < bd) { bd = d; best = u; } } }
+    if (order) best = order.find(avail);
+    else if (LZ.order === 'heat') best = pickHeat();
+    else { let bd = Infinity; for (const u of units) { if (!avail(u)) continue; const d = bbDist(u.bb); if (d < bd) { bd = d; best = u; } } }
     if (!best) best = units.find(u => !done.has(u));
     done.add(best);
-    const hs = best.holes.slice();
-    while (hs.length) { let bi = 0, bdd = Infinity; hs.forEach((h, i) => { const d = nearV(h)[1]; if (d < bdd) { bdd = d; bi = i; } }); emitLoop(hs.splice(bi, 1)[0], 'INNER', false); }
-    if (best.lines) { const ls = best.lines.slice(); while (ls.length) { let bi = 0, bdd = Infinity; ls.forEach((l, i) => { const d = Math.min(Math.hypot(l[0] - pos[0], l[1] - pos[1]), Math.hypot(l[2] - pos[0], l[3] - pos[1])); if (d < bdd) { bdd = d; bi = i; } }); emitLine(ls.splice(bi, 1)[0]); } }
+    const hadInner = best.holes.length > 0 || !!best.lines;
+    emitHoles(best.holes, best.deps);
+    if (best.lines) emitLines(best.lines, 'OUTER');
     if (best.outer) {
       // finish the outer contour on the side that faces the next part, so the head leaves over uncut sheet
-      const avail = u => !done.has(u) && u.deps.every(d => done.has(d));
-      const c0 = [(best.bb.x0 + best.bb.x1) / 2, (best.bb.y0 + best.bb.y1) / 2];
       let nx = order ? order.find(avail) : null;
-      if (!order) { let bd = Infinity; for (const u of units) { if (!avail(u)) continue; const d = Math.hypot((u.bb.x0 + u.bb.x1) / 2 - c0[0], (u.bb.y0 + u.bb.y1) / 2 - c0[1]); if (d < bd) { bd = d; nx = u; } } }
-      emitLoop(best.outer, 'OUTER', best.tabs, nx ? [(nx.bb.x0 + nx.bb.x1) / 2, (nx.bb.y0 + nx.bb.y1) / 2] : null);
+      if (!order && LZ.order !== 'heat') { const c0 = ctr(best); let bd = Infinity; for (const u of units) { if (!avail(u)) continue; const c = ctr(u), d = Math.hypot(c[0] - c0[0], c[1] - c0[1]); if (d < bd) { bd = d; nx = u; } } }
+      const last = seq[seq.length - 1];
+      const chainTry = !!LZ.chain && !hadInner && !best.tabs && last && last.type === 'loop' && last.layer === 'OUTER' && !last.pieces;
+      emitLoop(best.outer, 'OUTER', best.tabs, nx ? ctr(nx) : null, chainTry);
     }
+    recent.push(ctr(best)); if (recent.length > 3) recent.shift();
     if (!best.tabs) freed.push(best);
   }
-  return { seq, travel, cut, markL, markN: marks.length, markMiss, tabs, cross };
+  // 4) skeleton cut: break the scrap frame into pieces that are easy to unload
+  if (LZ.skel && !s.shapeInfo && units.length) {
+    const right = Math.max(...units.map(u => u.bb.x1)) + (+S.s.margin || 0);
+    const sk = skeletonLines(s, units, Math.max(100, +LZ.skelStep || 500), Math.max(1, +LZ.skelClear || 3), Math.min(s.L, right));
+    skelN = sk.length; emitLines(sk, 'SKELETON');
+  }
+  return { seq, travel, cut, markL, markN: marks.length, markMiss, tabs, cross, pierce, lifts, avoided, chains, flyIdle, slugN, skelN, flyN, spiralN, flySaved };
 }
 
 /* ---------- result processing ---------- */
@@ -2879,21 +3254,21 @@ function recomputeResult() {
   const st = S.s, step = Math.max(1, +st.trimStep || 1), rapid = Math.max(1000, +st.rapid || 20000);
   R.groups = R.raw.map((g, gi) => {
     const meta = R.meta.find(m => m.key === g.key) || R.meta[gi];
-    const mat = matOf(meta.mat), thk = +meta.thk, sp = speedFor(thk);
+    const mat = matOf(meta.mat), thk = +meta.thk, sp = speedFor(thk, meta.mat);
     const sheets = g.sheets.map((raw, si) => {
       const s = { ...raw, raw, idx: si };
       let area = 0;
       for (const pl of s.pl) area += R.parts.get(pl.id).info.area;
       const shp = s.kind === 'rem' && s.remId ? R.remShapes.get(s.remId) : null;
       s.shapeInfo = shp || null;
-      const plan = cutPlan(s);
+      const plan = cutPlan(s, thk);
       const isLast = si === g.sheets.length - 1;
       let right = 0; for (const pl of s.pl) { const p = R.parts.get(pl.id); const bb = bboxPts(xformPts(p.flat.outer, pl.ang, pl.mir, pl.tx, pl.ty)); if (bb.x1 > right) right = bb.x1; }
       const usedR = Math.min(s.L, Math.ceil((right + st.margin) / step) * step);
       const trimmed = !!st.trim && s.kind === 'std' && (st.trimScope === 'all' || isLast) && usedR < s.L - 1e-6;
       const cL = trimmed ? usedR : s.L, left = trimmed ? s.L - usedR : 0;
       const sheetArea = shp ? shp.area : cL * s.W;
-      return Object.assign(s, { area, plan, cut: plan.cut, travel: plan.travel, n: s.pl.length, trimmed, cL, left, remOk: trimmed && left >= st.minRem, util: area / sheetArea, sheetArea, kg: sheetArea * thk * mat.rho / 1e6, pierce: plan.seq.filter(it => it.type !== 'mark').length, time: plan.cut / sp.v + plan.seq.filter(it => it.type !== 'mark').length * sp.p / 60 + plan.travel / rapid + plan.markL / Math.max(500, +S.laser.markFeed || 6000) + plan.tabs * 0.5 / 60 });
+      return Object.assign(s, { area, plan, cut: plan.cut, travel: plan.travel, n: s.pl.length, trimmed, cL, left, remOk: trimmed && left >= st.minRem, util: area / sheetArea, sheetArea, kg: sheetArea * thk * mat.rho / 1e6, pierce: plan.pierce, time: (plan.cut + plan.flyIdle) / sp.v + plan.pierce * sp.p / 60 + plan.travel / rapid + plan.markL / Math.max(500, +S.laser.markFeed || 6000) + plan.tabs * 0.5 / 60 });
     });
     const lays = [], bySig = new Map();
     sheets.forEach(s => {
@@ -2901,7 +3276,8 @@ function recomputeResult() {
       if (bySig.has(sig)) bySig.get(sig).sheets.push(s); else { const L = { sheet: s, sheets: [s] }; bySig.set(sig, L); lays.push(L); }
     });
     lays.forEach((l, i) => { l.no = i + 1; l.count = l.sheets.length; });
-    const tot = sheets.reduce((a, s) => ({ area: a.area + s.area, cut: a.cut + s.cut, pierce: a.pierce + s.pierce, kg: a.kg + s.kg, sheetArea: a.sheetArea + s.sheetArea, time: a.time + s.time, travel: a.travel + s.travel, n: a.n + s.n, markN: a.markN + s.plan.markN, markMiss: a.markMiss + s.plan.markMiss, tabs: a.tabs + s.plan.tabs, cross: a.cross + s.plan.cross }), { area: 0, cut: 0, pierce: 0, kg: 0, sheetArea: 0, time: 0, travel: 0, n: 0, markN: 0, markMiss: 0, tabs: 0, cross: 0 });
+    const tot = sheets.reduce((a, s) => ({ area: a.area + s.area, cut: a.cut + s.cut, pierce: a.pierce + s.pierce, kg: a.kg + s.kg, sheetArea: a.sheetArea + s.sheetArea, time: a.time + s.time, travel: a.travel + s.travel, n: a.n + s.n, markN: a.markN + s.plan.markN, markMiss: a.markMiss + s.plan.markMiss, tabs: a.tabs + s.plan.tabs, cross: a.cross + s.plan.cross, avoided: a.avoided + s.plan.avoided, chains: a.chains + s.plan.chains, slugN: a.slugN + s.plan.slugN, skelN: a.skelN + s.plan.skelN, flyN: a.flyN + s.plan.flyN, flySaved: a.flySaved + s.plan.flySaved, spiralN: a.spiralN + s.plan.spiralN }), { area: 0, cut: 0, pierce: 0, kg: 0, sheetArea: 0, time: 0, travel: 0, n: 0, markN: 0, markMiss: 0, tabs: 0, cross: 0, avoided: 0, chains: 0, slugN: 0, skelN: 0, flyN: 0, flySaved: 0, spiralN: 0 });
+    tot.sp = sp;
     tot.partsKg = tot.area * thk * mat.rho / 1e6;
     tot.scrapKg = tot.kg - tot.partsKg;
     tot.util = tot.sheetArea ? tot.area / tot.sheetArea : 0;
@@ -2937,6 +3313,7 @@ function renderResults() {
   const sf = [...R.parts.values()].filter(p => (p.mat + '|' + p.thk) === g.key && (g.placed[p.id] || 0) > 0).map(p => ({ p, f: smallFeatures(p, +p.thk, +S.laser.holeK || 1, +S.laser.kerf || 0.2) })).filter(o => o.f.small || o.f.tiny);
   $('#warn').innerHTML = (un.length ? `<div class="warnbox"><b>Багтаагүй:</b> ${un.map(([id, n]) => `${esc(R.parts.get(id)?.name)} — ${n} ш`).join(', ')}. Листийн хэмжээ партаас бага эсвэл захын зай хэт их байна.</div>` : '')
     + (sf.length ? `<div class="warnbox wb-warn"><b>Зүсэхэд эрсдэлтэй:</b> ${sf.map(o => `${esc(o.p.name)} — ${[o.f.small ? `${o.f.small} нүх зузаанаас (${o.p.thk} мм) жижиг` : '', o.f.tiny ? `${o.f.tiny} хэт богино элемент` : ''].filter(Boolean).join(', ')}`).join('; ')}.</div>` : '')
+    + (t.sp && t.sp.over ? `<div class="warnbox"><b>Лазерын чадал хүрэхгүй:</b> ${nf(+S.cut.kW || 3, 1)} кВт лазер ${esc(MAT_CLS.find(c => c[0] === t.sp.cls)?.[1] || '')} ${g.thk} мм-ийг зүсэхгүй (жишиг хязгаар ≈ ${nf(t.sp.maxT, 1)} мм). Плазм, хийн зүсэлт ашиглах эсвэл «Тохиргоо → Зүсэлт»-ээс чадлыг шалгана уу.</div>` : '')
     + (t.markMiss ? `<div class="warnbox wb-warn"><b>Тэмдэглэгээ багтаагүй:</b> ${t.markMiss} партад ${S.mark.minH} мм-ийн текст багтахгүй байна.</div>` : '');
   const sizes = Object.entries(g.bySize).map(([k, n]) => `${k} ×${n}`).join(', ');
   const stats = [
@@ -2944,7 +3321,8 @@ function renderResults() {
     ['Ашиглалт', `${nf(t.util * 100, 1)}<small>%</small>`, `хаягдал ${nf(t.scrapKg, 1)} кг`],
     ['Зүсэх урт', `${nf(t.cut / 1000, 2)}<small>м</small>`, `${nf(t.n)} парт` + (g.clN ? ` · ${g.clN} хамтын шугамтай` : '')],
     ['Цоолт', `${nf(t.pierce)}`, `хоосон явалт ${nf(t.travel / 1000, 1)} м` + (t.tabs ? ` · ${t.tabs} микро холбоос` : '') + (t.markN ? ` · ${t.markN} тэмдэглэгээ` : '')],
-    ['Дээгүүр явалт', `${nf(t.cross)}`, t.cross ? 'тасарсан партын дээгүүр — «Тохиргоо → Лазер»' : 'тасарсан партын дээгүүр явахгүй'],
+    ['Дээгүүр явалт', `${nf(t.cross)}`, S.laser.avoid ? (t.cross ? `${t.cross} удаа толгой өргөнө · ${t.avoided} тойрсон` : (t.avoided ? `${t.avoided} удаа тойрч явна` : 'тасарсан партын дээгүүр явахгүй')) : (t.cross ? 'тасарсан партын дээгүүр — «Тохиргоо → Лазер»' : 'тасарсан партын дээгүүр явахгүй')],
+    ...((t.chains || t.flyN || t.slugN || t.skelN || t.spiralN) ? [['Хэмнэсэн цоолт', `${nf(t.chains + t.flySaved)}`, [t.chains ? `${t.chains} гинж` : '', t.flyN ? `${t.flyN} fly-cut` : '', t.spiralN ? `${t.spiralN} төвөөс` : '', t.slugN ? `${t.slugN} хаягдал хуваах` : '', t.skelN ? `${t.skelN} араг яс` : ''].filter(Boolean).join(' · ')]] : []),
     ['Материал', `${nf(t.kg, 1)}<small>кг</small>`, `партын жин ${nf(t.partsKg, 1)} кг`],
     ['Хугацаа', fmtTime(t.time), `${g.label}`],
     ['Өртөг', `${nf(t.cost / 1000, 0)}<small>мян₮</small>`, `материал + зүсэлт`]
@@ -3054,6 +3432,13 @@ function drawLayout(x, l, T, pal, opt = {}) {
     x.beginPath();
     for (const it of s.plan.seq) if (it.type === 'mark') for (const st of it.strokes) st.forEach((p, i) => i ? x.lineTo(X(p[0]), Y(p[1])) : x.moveTo(X(p[0]), Y(p[1])));
     x.stroke(); x.lineCap = 'butt'; x.lineJoin = 'miter';
+    // slug destroy, skeleton cuts and chain links
+    x.lineWidth = Math.max(0.6 * k, Math.min(1.2 * k, 0.3 * T.sc)); x.strokeStyle = pal.trim; x.setLineDash([4 * k, 3 * k]); x.beginPath();
+    for (const it of s.plan.seq) {
+      if (it.type === 'line' && (it.layer === 'SLUG' || it.layer === 'SKELETON')) { x.moveTo(X(it.line[0]), Y(it.line[1])); x.lineTo(X(it.line[2]), Y(it.line[3])); }
+      if (it.chain && it.link) { x.moveTo(X(it.link[0][0]), Y(it.link[0][1])); x.lineTo(X(it.link[1][0]), Y(it.link[1][1])); }
+    }
+    x.stroke(); x.setLineDash([]);
     x.fillStyle = pal.trim;
     for (const it of s.plan.seq) if (it.pieces) for (let i = 0; i + 1 < it.pieces.length; i++) { const e = it.pieces[i][it.pieces[i].length - 1]; x.beginPath(); x.arc(X(e.x), Y(e.y), Math.max(1.6 * k, Math.min(3 * k, 0.8 * T.sc)), 0, TAU); x.fill(); }
   }
@@ -3064,10 +3449,14 @@ function drawLayout(x, l, T, pal, opt = {}) {
     let pos = [0, 0];
     x.lineWidth = 0.8 * k; x.strokeStyle = pal.path; x.fillStyle = pal.path;
     s.plan.seq.forEach(it => {
-      x.setLineDash([3 * k, 3 * k]); x.globalAlpha = 0.7; x.beginPath(); x.moveTo(X(pos[0]), Y(pos[1])); x.lineTo(X(it.entry[0]), Y(it.entry[1])); x.stroke(); x.setLineDash([]); x.globalAlpha = 1;
+      if (!it.chain) {
+        x.setLineDash([3 * k, 3 * k]); x.globalAlpha = 0.7; x.strokeStyle = it.lift ? pal.bad : pal.path; x.beginPath(); x.moveTo(X(pos[0]), Y(pos[1]));
+        (it.via || []).forEach(v => x.lineTo(X(v[0]), Y(v[1]))); x.lineTo(X(it.entry[0]), Y(it.entry[1])); x.stroke(); x.setLineDash([]); x.globalAlpha = 1; x.strokeStyle = pal.path;
+      }
       if (it.lead) { const st = it.loop[0]; x.beginPath(); x.moveTo(X(it.lead[0]), Y(it.lead[1])); x.lineTo(X(st.x), Y(st.y)); x.stroke(); }
-      x.beginPath(); x.arc(X(it.entry[0]), Y(it.entry[1]), 2.2 * k, 0, TAU); x.fill();
-      pos = it.type === 'line' ? [it.line[2], it.line[3]] : it.type === 'mark' ? it.strokes[it.strokes.length - 1].slice(-1)[0] : [it.loop[0].x, it.loop[0].y];
+      if (it.leadPath) { x.beginPath(); flattenOpen(it.leadPath, 0.2).forEach((p, i) => i ? x.lineTo(X(p[0]), Y(p[1])) : x.moveTo(X(p[0]), Y(p[1]))); x.stroke(); }
+      if (!it.chain) { x.beginPath(); x.arc(X(it.entry[0]), Y(it.entry[1]), 2.2 * k, 0, TAU); x.fill(); }
+      pos = it.exit || pos;
     });
   }
   const fs = opt.fs || 12, font = opt.font || 'IBM Plex Sans, Arial, sans-serif';
@@ -3363,10 +3752,21 @@ function layoutDXF(l) {
   if (s.trimmed) w.line('TRIM', s.cL, 0, s.cL, s.W);
   // contours in cutting order: holes before the outer contour, nearest next, part-in-part first
   if (+S.s.dxfBend) for (const pl of s.pl) { const p = R.parts.get(pl.id); (p.bends || []).forEach(b => { const q = xformPts([[b.x1, b.y1], [b.x2, b.y2]], pl.ang, pl.mir, pl.tx, pl.ty); w.line(b.up ? 'BEND_UP' : 'BEND_DOWN', q[0][0], q[0][1], q[1][0], q[1][1]); }); }
-  for (const it of s.plan.seq) {
+  const seq = s.plan.seq, chainDxf = !!S.laser.chainDxf;
+  for (let i = 0; i < seq.length; i++) {
+    const it = seq[i];
     if (it.type === 'mark') { it.strokes.forEach(st => w.poly('MARK', st)); continue; }
-    if (it.type === 'line') { w.line('OUTER', ...it.line); continue; }
+    if (it.type === 'line') { w.line(it.layer === 'SLUG' || it.layer === 'SKELETON' ? it.layer : 'OUTER', ...it.line); continue; }
+    if (it.type === 'fly') { it.segs.forEach(g => w.line('OUTER', ...g)); continue; }
     if (it.lead) w.line('LEADIN', it.lead[0], it.lead[1], it.loop[0].x, it.loop[0].y);
+    if (it.leadPath) w.open('LEADIN', it.leadPath);
+    if (chainDxf && !it.chain && !it.pieces && seq[i + 1] && seq[i + 1].chain) {
+      // one open polyline per chain so the machine software pierces once
+      const vs = []; let j = i;
+      do { const lp = seq[j].loop; lp.forEach(v => vs.push({ x: v.x, y: v.y, b: v.b })); vs.push({ x: lp[0].x, y: lp[0].y, b: 0 }); j++; } while (seq[j] && seq[j].chain);
+      w.open('OUTER', vs); i = j - 1; continue;
+    }
+    if (it.chain) w.line('CHAIN', it.link[0][0], it.link[0][1], it.link[1][0], it.link[1][1]);
     if (it.pieces) it.pieces.forEach(pc => w.open(it.layer, pc)); else w.loop(it.layer, it.loop);
   }
   return w.doc();
@@ -3383,13 +3783,13 @@ $('#xDxfAll').addEventListener('click', async () => {
   if (!window.JSZip) { toast('ZIP сан ачаалагдсангүй — интернэт холболтоо шалгана уу'); return; }
   const z = new JSZip();
   R.groups.forEach(g => g.lays.forEach(l => z.file(layFile(g, l), layoutDXF(l))));
-  z.file('README.txt', 'Kh International - KH Fab\r\nOUTER - gadna kontur ba hamtyn shugam (mikro holboostoi bol neelttei polyline), INNER - nuh, LEADIN - orolt, MARK - laser temdeglegee (bagaa chadal), SHEET - listiin huree, TRIM - tairah shugam.\r\nKonturuud zusekh daraallaar bichigdsen (nuh ehelj, oir dotroo).\r\n_xN - ijil listiig N udaa zusne.\r\n');
+  z.file('README.txt', 'Kh International - KH Fab\r\nOUTER - gadna kontur ba hamtyn shugam (mikro holboostoi bol neelttei polyline), INNER - nuh, LEADIN - orolt (tuvees ehleh nuhend spiral/hagas toirog), MARK - laser temdeglegee (bagaa chadal), SLUG - nuhnii dotorh hayagdal huvaah (nuhnees omno), SKELETON - arag yas herchih (hamgiin suuld), CHAIN - giniin holboos, SHEET - listiin huree, TRIM - tairah shugam.\r\nKonturuud zusekh daraallaar bichigdsen (nuh ehelj, oir dotroo).\r\n_xN - ijil listiig N udaa zusne.\r\n');
   saveFile(safeName(S.jobName) + '_DXF.zip', await z.generateAsync({ type: 'blob', compression: 'DEFLATE' }));
 });
 
 /* ---------- G-code (NC) export ---------- */
 function layoutNC(g, l) {
-  const sp = speedFor(+g.thk), s = l.sheet;
+  const sp = speedFor(+g.thk, g.mat), s = l.sheet;
   return gcodeSheet(s.plan.seq, { gc: S.laser.gc, feed: sp.v, pierceSec: sp.p, markFeed: +S.laser.markFeed || 6000, vars: { job: S.jobName, sheet: l.no, mat: g.mat, thk: g.thk, L: s.L, W: s.W, count: l.count, date: new Date().toLocaleDateString('mn-MN') } });
 }
 function ncFile(g, l) { return layFile(g, l).replace(/\.dxf$/, '.' + (String(S.laser.gc.ext || 'nc').replace(/[^a-z0-9]/gi, '') || 'nc')); }
@@ -3714,7 +4114,7 @@ function newJob() {
   S.jobs.unshift(job); jobLog('Ажил нээсэн', job);
   J.sel = job.id; save(); return job;
 }
-const cleanPart = p => ({ id: uid(), name: p.name, qty: Math.max(0, Math.round(+p.qty || 0)), mat: p.mat, thk: +p.thk, rot: p.rot !== false, mir: !!p.mir, prio: p.prio || 0, outer: p.outer, holes: p.holes, bends: p.bends || [] });
+const cleanPart = p => ({ id: uid(), name: p.name, qty: Math.max(0, Math.round(+p.qty || 0)), mat: p.mat, thk: +p.thk, rot: p.rot !== false, mir: !!p.mir, prio: p.prio || 0, outer: p.outer, holes: p.holes, bends: p.bends || [], ...(p.roll ? { roll: p.roll } : {}) });
 function jobParts(job) {
   const out = [];
   job.items.forEach(it => { const k = findKit(it.kitId); if (!k) return; k.parts.forEach(p => out.push({ ...cleanPart(p), qty: p.qty * Math.max(0, +it.n || 0), kit: k.name })); });
@@ -3739,13 +4139,24 @@ function jobsOnResult() {
 function loadJobToNest(job) {
   const parts = jobParts(job);
   if (!parts.length) { toast('Ажилд парт алга — иж бүрдэл эсвэл нэмэлт парт оруулна уу'); return; }
-  S.parts = parts.map(p => ({ id: uid(), name: p.kit ? `${p.name}` : p.name, qty: p.qty, mat: p.mat, thk: p.thk, rot: p.rot, mir: p.mir, prio: p.prio, outer: p.outer, holes: p.holes, bends: p.bends, job: p.job, jobShort: p.jobShort, jobId: p.jobId, pno: p.pno, kit: p.kit }));
+  S.parts = parts.map(p => ({ id: uid(), name: p.kit ? `${p.name}` : p.name, qty: p.qty, mat: p.mat, thk: p.thk, rot: p.rot, mir: p.mir, prio: p.prio, outer: p.outer, holes: p.holes, bends: p.bends, ...(p.roll ? { roll: p.roll } : {}), job: p.job, jobShort: p.jobShort, jobId: p.jobId, pno: p.pno, kit: p.kit }));
   S.jobName = job.no + (job.title ? ' ' + job.title : '');
   S.activeJob = job.id; R = null;
   jobLog(`Өрөлтөд ачаалсан: ${parts.length} төрөл, ${parts.reduce((a, p) => a + p.qty, 0)} ширхэг`, job);
   save(); renderAll(); setModule('nest');
   toast(`${job.no} ачаалагдлаа — «Өрөх» товчийг дарна уу`, 4000);
 }
+
+/* ---------- money: plan (nest estimate + planned extras) vs actual ---------- */
+function jobMoney(job) {
+  const e = job.est, a = job.act || {}, actH = +a.hours || 0, actKg = +a.kg || 0, other = +a.other || 0;
+  const g0 = e ? (e.kg ? e.matCost / e.kg : 0) : 0, rate = e && e.time ? e.cutCost / (e.time / 60) : 0;
+  const has = !!(actKg || actH || other);
+  const act = e ? (actKg || e.kg) * g0 + (actH ? actH * rate : e.cutCost) + other : other;
+  const plan = (e ? e.cost : 0) + (+job.planOther || 0), price = +job.price || 0;
+  return { plan, act: has ? act : null, price, margin: price ? price - (has ? act : plan) : null, has, actH, actKg, other, g0, rate };
+}
+const daysLeft = d => d ? Math.round((new Date(d + 'T00:00:00') - new Date(today() + 'T00:00:00')) / 864e5) : null;
 
 /* ---------- side panel ---------- */
 $$('[data-jtab]').forEach(b => b.addEventListener('click', () => { J.tab = b.dataset.jtab; $$('[data-jtab]').forEach(x => x.classList.toggle('on', x === b)); ['jobs', 'kits', 'certs'].forEach(t => $('#jtab-' + t).hidden = t !== J.tab); renderJobs(); }));
@@ -3760,8 +4171,9 @@ function renderJList() {
   }).join('') : `<div class="emptyp">${S.jobs.length ? 'Хайлтад тохирох ажил алга.' : 'Ажил алга. <b>+ Шинэ ажил</b> товчоор эхэлнэ.'}</div>`;
   ['formTrace', 'rev', 'operators'].forEach(k => $('#iso_' + k).value = S.iso[k] || '');
 }
-$('#jList').addEventListener('click', e => { const it = e.target.closest('.jitem'); if (!it) return; J.sel = it.dataset.id; J.traceForm = false; renderJList(); renderJobMain(); });
-$('#jNew').addEventListener('click', () => { newJob(); renderJobs(); setTimeout(() => { const el = $('#jf_title'); if (el) el.focus(); }, 50); });
+$('#jDash').addEventListener('click', () => { J.dash = true; renderJList(); renderJobMain(); });
+$('#jList').addEventListener('click', e => { const it = e.target.closest('.jitem'); if (!it) return; J.sel = it.dataset.id; J.traceForm = false; J.dash = false; renderJList(); renderJobMain(); });
+$('#jNew').addEventListener('click', () => { J.dash = false; newJob(); renderJobs(); setTimeout(() => { const el = $('#jf_title'); if (el) el.focus(); }, 50); });
 $('#jSearch').addEventListener('input', renderJList);
 $('#jFilter').addEventListener('change', renderJList);
 ['formTrace', 'rev', 'operators'].forEach(k => $('#iso_' + k).addEventListener('change', e => { S.iso[k] = e.target.value.trim(); save(); }));
@@ -3775,7 +4187,8 @@ function renderKList() {
   }).join('') : '<div class="emptyp">Иж бүрдэл алга. Nesting дээр шанаганы эд ангиудаа оруулаад <b>Иж бүрдэл болгох</b> товчийг дарна уу.</div>';
   $$('#kList canvas').forEach(c => { const k = S.kits[+c.dataset.i]; const p = k.parts.slice().sort((a, b) => partInfo(b).area - partInfo(a).area)[0]; drawPartBox(c, p, partColor(+c.dataset.i + 3, dark, 0.85)); });
 }
-$('#kList').addEventListener('click', e => { const it = e.target.closest('.bitem'); if (!it) return; J.kit = it.dataset.id; renderKList(); renderJobMain(); });
+$('#kList').addEventListener('click', e => { const it = e.target.closest('.bitem'); if (!it) return; J.kit = it.dataset.id; J.bucket = false; BK.edit = null; renderKList(); renderJobMain(); });
+$('#kBucket').addEventListener('click', () => { J.bucket = true; BK.edit = null; renderKList(); renderJobMain(); });
 function kitFromParts() {
   if (!S.parts.length) { toast('Nesting-д парт алга'); return null; }
   const k = { id: uid(), name: 'Шинэ иж бүрдэл ' + (S.kits.length + 1), desc: '', parts: S.parts.filter(p => p.qty > 0).map(cleanPart) };
@@ -3802,8 +4215,9 @@ $('#cAdd').addEventListener('click', () => {
 /* ---------- main panel ---------- */
 function renderJobMain() {
   const el = $('#jobsMain');
-  if (J.tab === 'kits') { renderKitMain(el); return; }
+  if (J.tab === 'kits') { if (J.bucket) renderBucketMain(el); else renderKitMain(el); return; }
   if (J.tab === 'certs') { renderCertMain(el); return; }
+  if (J.dash && S.jobs.length) { renderDash(el); return; }
   const job = findJob(J.sel) || findJob(S.activeJob) || S.jobs[0];
   if (!job) { el.innerHTML = '<div class="jempty"><b>Ажил алга</b><br>Зүүн талын <b>+ Шинэ ажил</b> товчоор ажлын дугаар үүсгэнэ. Дугаар нь <span class="mono">KH-' + new Date().getFullYear() + '-001</span> хэлбэртэй, жил бүр шинээр эхэлнэ.</div>'; return; }
   J.sel = job.id;
@@ -3812,7 +4226,7 @@ function renderJobMain() {
   const e = job.est, a = job.act || {};
   const actH = +a.hours || 0, actKg = +a.kg || 0, other = +a.other || 0;
   const g0 = e ? (e.kg ? e.matCost / e.kg : 0) : 0, rate = e && e.time ? e.cutCost / (e.time / 60) : 0;
-  const actCost = e ? (actKg || e.kg) * g0 + (actH ? actH * rate : e.cutCost) + other : 0;
+  const actCost = e ? (actKg || e.kg) * g0 + (actH ? actH * rate : e.cutCost) + other : 0, money = jobMoney(job);
   const dlt = (est, act) => { if (!est || !act) return ''; const d = (act - est) / est * 100; return `<div class="d ${d > 0 ? 'd-up' : 'd-dn'}">${d > 0 ? '+' : ''}${nf(d, 1)}%</div>`; };
   const ops = (S.iso.operators || '').split(',').map(x => x.trim()).filter(Boolean);
   const rows = job.trace.map((t, i) => `<tr data-i="${i}"><td class="num">${esc(t.date)}</td><td>${esc(t.lay)}</td><td class="num">${esc(t.size)}</td><td>${esc(t.mat)} ${t.thk}мм</td><td class="r num">${t.count}</td><td class="num">${esc(t.heat)}</td><td class="num">${esc(t.cert || '')}</td><td>${esc(t.op || '')}</td><td><button class="x" data-tdel aria-label="Устгах">×</button></td></tr>`).join('');
@@ -3824,6 +4238,7 @@ function renderJobMain() {
       <label class="fld">Хугацаа<input id="jf_due" type="date" value="${esc(job.due)}"></label>
       <label class="fld">Төлөв<select id="jf_status">${JST.map(([k, n]) => `<option value="${k}"${k === job.status ? ' selected' : ''}>${n}</option>`).join('')}</select></label>
       <label class="fld grow">Тайлбар<input id="jf_note" value="${esc(job.note)}"></label>
+      <label class="fld">Гэрээний үнэ, ₮<input id="jf_price" type="number" min="0" step="10000" value="${esc(job.price || '')}" class="mono"></label>
     </div>
     <div class="exports">
       <button class="btn primary" id="jLoad">Өрөлтөд ачаалах</button>
@@ -3852,7 +4267,9 @@ function renderJobMain() {
         <label class="fld">Бодит зүсэлтийн хугацаа, цаг<input id="ja_hours" type="number" min="0" step="0.1" value="${esc(a.hours)}"></label>
         <label class="fld">Бодит зарцуулсан материал, кг<input id="ja_kg" type="number" min="0" step="1" value="${esc(a.kg)}"></label>
         <label class="fld">Бусад зардал (хий, ажиллах хүч), ₮<input id="ja_other" type="number" min="0" step="1000" value="${esc(a.other)}"></label>
+        <label class="fld">Төлөвлөсөн бусад зардал (гагнуур, будаг), ₮<input id="jp_other" type="number" min="0" step="1000" value="${esc(job.planOther || '')}"></label>
       </div>
+      ${money.price ? `<p class="note" style="margin-top:8px">Гэрээ ${nf(money.price)} ₮ · төсөв ${nf(money.plan)} ₮${money.has ? ` · бодит ${nf(money.act)} ₮` : ''} · <b class="${money.margin < 0 ? 'late' : ''}">ашиг ${nf(money.margin)} ₮ (${nf(money.margin / money.price * 100, 1)}%)</b></p>` : ''}
     </div></div>
     <div class="jcard"><div class="bcard-h">Зүсэлтийн бүртгэл — ISO 9001 ул мөр <span class="sp"></span><button class="btn sm" id="jTraceNest">Өрөлтөөс бүртгэх</button><button class="btn sm ghost" id="jTraceAdd">+ Гараар</button></div><div class="jbody">
       <div id="jTraceForm"></div>
@@ -3864,6 +4281,8 @@ function renderJobMain() {
   ['no', 'title', 'customer', 'due', 'note'].forEach(k => $('#jf_' + k).addEventListener('change', ev => { const v = ev.target.value.trim(); if (k === 'no' && !v) return; if (k === 'no') { job.no = v; job.short = (v.match(/(\d+)\s*$/) || [, v])[1]; } else job[k] = v; save(); renderJList(); }));
   $('#jf_status').addEventListener('change', ev => { const o = jstName(job.status); job.status = ev.target.value; jobLog(`Төлөв: ${o} → ${jstName(job.status)}`, job); renderJList(); renderJobMain(); });
   ['hours', 'kg', 'other'].forEach(k => $('#ja_' + k).addEventListener('change', ev => { job.act[k] = ev.target.value; save(); renderJobMain(); }));
+  $('#jf_price').addEventListener('change', ev => { job.price = Math.max(0, +ev.target.value || 0); save(); renderJobMain(); });
+  $('#jp_other').addEventListener('change', ev => { job.planOther = Math.max(0, +ev.target.value || 0); save(); renderJobMain(); });
   el.querySelector('tbody').addEventListener('change', ev => { const tr = ev.target.closest('tr[data-i]'); if (!tr) return; const it = job.items[+tr.dataset.i], k = ev.target.dataset.k; if (k === 'n') it.n = Math.max(0, Math.round(+ev.target.value || 0)); else it.kitId = ev.target.value; save(); renderJobMain(); });
   el.querySelector('tbody').addEventListener('click', ev => { if (ev.target.matches('[data-idel]')) { job.items.splice(+ev.target.closest('tr').dataset.i, 1); save(); renderJobMain(); } else if (ev.target.matches('[data-xdel]')) { job.extra = []; save(); renderJobMain(); } });
   $('#jAddKit').addEventListener('click', () => { job.items.push({ kitId: S.kits[0] ? S.kits[0].id : '', n: 1 }); save(); renderJobMain(); });
@@ -3920,13 +4339,14 @@ function renderKitMain(el) {
   J.kit = k.id; const dark = isDark(), usedIn = S.jobs.filter(j => j.items.some(it => it.kitId === k.id));
   el.innerHTML = `
     <div class="bhead"><label class="fld grow">Иж бүрдлийн нэр<input id="kf_name" value="${esc(k.name)}" placeholder="жишээ: PC200 шанага 0.8 м³"></label><label class="fld grow">Тайлбар<input id="kf_desc" value="${esc(k.desc)}"></label></div>
-    <div class="exports"><button class="btn primary" id="kToNest">Nesting руу нэмэх ×</button><input id="kN" type="number" min="1" value="1" class="inp mono" style="width:70px"><button class="btn" id="kAddParts">Nesting-ийн партуудыг энд нэмэх</button><span style="flex:1"></span><button class="btn ghost" id="kDel">Иж бүрдэл устгах</button></div>
+    <div class="exports">${k.bucket ? '<button class="btn" id="kBkEdit">Шанагын хэмжээг засах</button>' : ''}<button class="btn primary" id="kToNest">Nesting руу нэмэх ×</button><input id="kN" type="number" min="1" value="1" class="inp mono" style="width:70px"><button class="btn" id="kAddParts">Nesting-ийн партуудыг энд нэмэх</button><span style="flex:1"></span><button class="btn ghost" id="kDel">Иж бүрдэл устгах</button></div>
     <div class="jcard"><div class="bcard-h">Эд ангиуд — нэг иж бүрдэлд <span class="sp"></span><span class="muted mono" style="font-weight:400">${k.parts.reduce((a, p) => a + p.qty, 0)} ш · ${nf(jobWeight(k.parts), 1)} кг</span></div>
       <div class="tblwrap" style="border:0"><table class="dt"><thead><tr><th style="width:60px"></th><th>Нэр</th><th>Материал</th><th style="width:90px">Зузаан</th><th class="r">Хэмжээ, мм</th><th class="r">Жин 1ш, кг</th><th class="r" style="width:90px">Тоо</th><th style="width:30px"></th></tr></thead><tbody>
       ${k.parts.map((p, i) => { const inf = partInfo(p); return `<tr data-i="${i}"><td><canvas class="thumb" style="width:44px;height:44px" data-i="${i}"></canvas></td><td><input data-k="name" value="${esc(p.name)}"></td><td><select data-k="mat">${matOptions(p.mat)}</select></td><td><input data-k="thk" type="number" step="0.1" value="${p.thk}" class="mono"></td><td class="r num">${nf(inf.w, 1)}×${nf(inf.h, 1)}</td><td class="r num">${nf(inf.area * p.thk * matOf(p.mat).rho / 1e6, 2)}</td><td><input data-k="qty" type="number" min="0" value="${p.qty}" class="mono" style="text-align:right"></td><td><button class="x" data-pdel aria-label="Хасах">×</button></td></tr>`; }).join('')}
       </tbody></table></div></div>
     <p class="note">${usedIn.length ? 'Ашигласан ажил: ' + usedIn.map(j => esc(j.no)).join(', ') : 'Ямар ч ажилд ашиглаагүй.'}</p>`;
   el.querySelectorAll('canvas.thumb').forEach(c => drawPartBox(c, k.parts[+c.dataset.i], partColor(+c.dataset.i, dark, 0.85)));
+  if ($('#kBkEdit')) $('#kBkEdit').addEventListener('click', () => { BK.edit = k.id; J.bucket = true; renderJobMain(); });
   $('#kf_name').addEventListener('change', e => { k.name = e.target.value.trim() || k.name; save(); renderKList(); });
   $('#kf_desc').addEventListener('change', e => { k.desc = e.target.value; save(); });
   el.querySelector('tbody').addEventListener('change', e => { const tr = e.target.closest('tr'), p = k.parts[+tr.dataset.i], f = e.target.dataset.k; if (f === 'qty') p.qty = Math.max(0, Math.round(+e.target.value || 0)); else if (f === 'thk') p.thk = Math.max(0.1, +e.target.value || p.thk); else p[f] = e.target.value; save(); renderKList(); renderKitMain(el); });
@@ -4060,6 +4480,42 @@ async function jobCardPdf(job) {
   pages.forEach((c, i) => { if (i) pdf.addPage(); pdf.addImage(c.toDataURL('image/jpeg', 0.92), 'JPEG', 0, 0, PW, PH); });
   saveFile(safeName(`${job.no}_ажлын_карт`) + '.pdf', pdf.output('blob'), 'application/pdf');
   jobLog('Ажлын карт PDF гаргасан', job);
+}
+
+/* ---------- dashboard: deadlines, budget vs actual, margin ---------- */
+function renderDash(el) {
+  const open = S.jobs.filter(x => !['done', 'given'].includes(x.status));
+  const late = open.filter(x => x.due && daysLeft(x.due) < 0), soon = open.filter(x => x.due && daysLeft(x.due) >= 0 && daysLeft(x.due) <= 7);
+  const M = S.jobs.map(x => ({ j: x, m: jobMoney(x) }));
+  const sum = (arr, f) => arr.reduce((a, o) => a + (f(o) || 0), 0);
+  const openM = M.filter(o => open.includes(o.j)), doneM = M.filter(o => !open.includes(o.j));
+  const pPrice = sum(openM, o => o.m.price), pPlan = sum(openM, o => o.m.plan);
+  const dPrice = sum(doneM, o => o.m.price), dCost = sum(doneM, o => o.m.has ? o.m.act : o.m.plan);
+  const over = M.filter(o => o.m.has && o.m.plan && o.m.act > o.m.plan * 1.05);
+  const stIdx = k => JST.findIndex(s => s[0] === k);
+  // timeline window
+  const dates = open.flatMap(x => [x.created, x.due].filter(Boolean)).concat([today()]).sort();
+  const d0 = new Date(dates[0] + 'T00:00:00'), d1 = new Date(Math.max(new Date(dates[dates.length - 1] + 'T00:00:00'), +d0 + 14 * 864e5)), span = (d1 - d0) || 1;
+  const pc = d => Math.max(0, Math.min(100, (new Date(d + 'T00:00:00') - d0) / span * 100));
+  const rows = M.slice().sort((a, b) => (open.includes(b.j) - open.includes(a.j)) || String(a.j.due || '9999').localeCompare(String(b.j.due || '9999')));
+  el.innerHTML = `
+    <div class="summary">${[
+      ['Идэвхтэй ажил', `${open.length}`, `${S.jobs.length} нийт`],
+      ['Хугацаа хэтэрсэн', `<span class="${late.length ? 'late' : ''}">${late.length}</span>`, late.map(x => x.no).join(', ') || 'алга'],
+      ['7 хоногт дуусах', `${soon.length}`, soon.map(x => x.no).join(', ') || 'алга'],
+      ['Идэвхтэй гэрээ', `${nf(pPrice / 1e6, 1)}<small>сая₮</small>`, `төсөв ${nf(pPlan / 1e6, 1)} сая₮`],
+      ['Дууссан ажлын ашиг', `${nf((dPrice - dCost) / 1e6, 1)}<small>сая₮</small>`, dPrice ? `${nf((dPrice - dCost) / dPrice * 100, 1)}% · гэрээ ${nf(dPrice / 1e6, 1)} сая₮` : 'гэрээний үнэ оруулаагүй'],
+      ['Төсөв хэтэрсэн', `<span class="${over.length ? 'late' : ''}">${over.length}</span>`, over.map(o => o.j.no).join(', ') || '5%-аас дээш хэтэрсэн алга']
+    ].map(s => `<div class="stat"><div class="k">${s[0]}</div><div class="v">${s[1]}</div><div class="s">${esc(s[2])}</div></div>`).join('')}</div>
+    ${open.length ? `<div class="jcard"><div class="bcard-h">Хугацааны зураг <span class="sp"></span><span class="muted mono" style="font-weight:400">${esc(dates[0])} → ${d1.toISOString().slice(0, 10)}</span></div><div class="jbody"><div class="gantt">
+      ${open.slice().sort((a, b) => String(a.due || '9999').localeCompare(String(b.due || '9999'))).map(x => { const dl = daysLeft(x.due), a = pc(x.created || today()), b = x.due ? pc(x.due) : 100; return `<div class="grow" data-id="${x.id}"><span class="gl mono">${esc(x.no)}</span><span class="gt"><i class="gb st-${x.status}${dl != null && dl < 0 ? ' gl8' : ''}" style="left:${a}%;width:${Math.max(1.5, b - a)}%"></i><i class="gn" style="left:${pc(today())}%"></i></span><span class="gd mono ${dl != null && dl < 0 ? 'late' : ''}">${x.due ? (dl < 0 ? `${-dl} хоног хэтэрсэн` : dl === 0 ? 'өнөөдөр' : `${dl} хоног`) : 'хугацаагүй'}</span></div>`; }).join('')}
+    </div></div></div>` : ''}
+    <div class="jcard"><div class="bcard-h">Ажлууд — төсөв ба бодит</div>
+      <div class="tblwrap" style="border:0"><table class="dt"><thead><tr><th>Дугаар</th><th>Ажил</th><th>Захиалагч</th><th>Төлөв</th><th>Хугацаа</th><th class="r">Гэрээ, ₮</th><th class="r">Төсөв, ₮</th><th class="r">Бодит, ₮</th><th class="r">Зөрүү</th><th class="r">Ашиг</th></tr></thead><tbody>
+      ${rows.map(({ j: x, m }) => { const dl = daysLeft(x.due), lateX = dl != null && dl < 0 && open.includes(x), dv = m.has && m.plan ? (m.act - m.plan) / m.plan * 100 : null; return `<tr class="jrow" data-id="${x.id}" style="cursor:pointer"><td class="num"><b>${esc(x.no)}</b></td><td>${esc(x.title || '—')}</td><td>${esc(x.customer || '—')}</td><td><span class="pill st-${x.status}">${jstName(x.status)}</span><span class="jprog"><i style="width:${(stIdx(x.status) + 1) / JST.length * 100}%"></i></span></td><td class="num${lateX ? ' late' : ''}">${esc(x.due || '—')}</td><td class="r num">${m.price ? nf(m.price) : '—'}</td><td class="r num">${m.plan ? nf(m.plan) : '—'}</td><td class="r num">${m.has ? nf(m.act) : '—'}</td><td class="r num">${dv == null ? '—' : `<span class="${dv > 5 ? 'late' : ''}">${dv > 0 ? '+' : ''}${nf(dv, 1)}%</span>`}</td><td class="r num">${m.margin == null ? '—' : `<span class="${m.margin < 0 ? 'late' : ''}">${nf(m.margin)}</span>`}</td></tr>`; }).join('')}
+      </tbody></table></div></div>
+    <p class="note">Төсөв = өрөлтөөс гарсан материал + зүсэлтийн өртөг + төлөвлөсөн бусад зардал. Бодит = бодит кг, зүсэлтийн цаг, бусад зардал. Ашиг = гэрээний үнэ − (бодит, байхгүй бол төсөв). Мөр дээр дарж ажлыг нээнэ.</p>`;
+  el.querySelectorAll('[data-id]').forEach(r => r.addEventListener('click', () => { J.sel = r.dataset.id; J.dash = false; renderJList(); renderJobMain(); }));
 }
 
 /* ================= KH Bending: flat pattern, tooling, force, sequence ================= */
@@ -4306,13 +4762,13 @@ function bpal(print) {
 function setModule(m) {
   $$('.modtabs button').forEach(b => b.classList.toggle('on', b.dataset.mod === m));
   $('#nestSide').hidden = $('#nestMain').hidden = m !== 'nest';
-  $('#bendSide').hidden = $('#bendMain').hidden = m !== 'bend';
+  $('#bendSide').hidden = $('#bendMain').hidden = m !== 'bend'; if ($('#rollMain')) $('#rollMain').hidden = true;
   $('#jobsSide').hidden = $('#jobsMain').hidden = m !== 'jobs';
-  if (m === 'bend') renderBend(); else if (m === 'jobs') renderJobs(); else drawView();
+  if (m === 'bend') { renderBend(); if (typeof showBendTab === 'function') showBendTab(RT.tab); } else if (m === 'jobs') renderJobs(); else drawView();
   try { localStorage.setItem(KEY + ':mod', m); } catch (e) { }
 }
 $$('.modtabs button').forEach(b => b.addEventListener('click', () => setModule(b.dataset.mod)));
-$$('[data-btab]').forEach(b => b.addEventListener('click', () => { $$('[data-btab]').forEach(x => x.classList.toggle('on', x === b)); $('#btab-prof').hidden = b.dataset.btab !== 'prof'; $('#btab-tools').hidden = b.dataset.btab !== 'tools'; }));
+$$('[data-btab]').forEach(b => b.addEventListener('click', () => showBendTab(b.dataset.btab)));
 
 function renderBend() { renderBList(); renderBTools(); renderBEditor(); }
 function renderBList() {
@@ -4488,7 +4944,412 @@ async function bendPdf() {
 }
 $('#bPdf').addEventListener('click', bendPdf);
 new ResizeObserver(() => { if (!$('#bendMain').hidden) renderBEditor(); }).observe($('#bendMain'));
+
+/* ================= KH Fab — parametric excavator bucket (шанага) → kit of flat plates ================= */
+function pickMat(re, fb) { const m = S.materials.find(x => re.test(x.name)); return m ? m.name : (fb || S.defMat); }
+function bucketDefaults() {
+  const hx = pickMat(/hardox|элэгд/i), s355 = pickMat(/s355|09г2с/i);
+  return {
+    name: 'PC200 шанага', W: 1100, D: 1150, H: 1000, R: 420, alpha: 25,
+    lipL: 220, topD: 260,
+    pin: 80, pitch: 440, hc: 150, boss: 45, earQty: 4,
+    wearN: 3, wearW: 100, cutter: true, cutterW: 120,
+    side: { mat: s355, thk: 16 }, wrap: { mat: hx, thk: 12 }, lip: { mat: hx, thk: 30 }, top: { mat: s355, thk: 20 },
+    ear: { mat: s355, thk: 30 }, wear: { mat: hx, thk: 12 }
+  };
+}
+/* ear plate: flat base, two pin holes, rounded top */
+function earLoop(P, Re, hc) {
+  const b = Math.tan(Math.PI / 8);
+  return [{ x: -Re, y: 0, b: 0 }, { x: P + Re, y: 0, b: 0 }, { x: P + Re, y: hc, b }, { x: P, y: hc + Re, b: 0 }, { x: 0, y: hc + Re, b }, { x: -Re, y: hc, b: 0 }];
+}
+function bucketCalc(B) {
+  const n = k => Math.max(0, +B[k] || 0);
+  const W = n('W'), D = n('D'), H = n('H'), R = n('R'), al = Math.min(60, n('alpha')) * D2R;
+  const ts = +B.side.thk, tw = +B.wrap.thk, tl = +B.lip.thk, tt = +B.top.thk, te = +B.ear.thk, twr = +B.wear.thk;
+  const lipL = n('lipL'), topD = n('topD'), Bx = D - H * Math.tan(al);
+  const err = [];
+  if (!(W > 100 && D > 200 && H > 200)) err.push('Өргөн, гүн, өндрийг оруулна уу');
+  if (!(R > tw + 10)) err.push(`Ороох радиус R нь хавтангийн зузаанаас (${tw} мм) их байх ёстой`);
+  if (R > Math.min(D - lipL, H - tt) - 20) err.push('R хэт том — гүн, өндрөөс багасгана уу');
+  if (Bx < topD + 50) err.push('Амны налуу (α) хэт их эсвэл дээд хавтан хэт өргөн — дээд урд булан дээд хавтантай давхцаж байна');
+  if (lipL >= D - R) err.push('Ирний хавтангийн урт хэт их');
+  const side = [{ x: R, y: 0, b: 0 }, { x: D, y: 0, b: 0 }, { x: Bx, y: H, b: 0 }, { x: 0, y: H, b: 0 }, { x: 0, y: R, b: Math.tan(Math.PI / 8) }];
+  const Lm = Math.hypot(D - Bx, H);
+  const A = Math.abs(loopArea(side));
+  const Vs = A * W / 1e9, Vh = Vs + Math.max(0, (Lm * Lm * W / 8 - Lm * Lm * Lm / 24)) / 1e9;
+  // wrap plate: bottom straight + 90° roll + back straight, outer surface on the side-plate edge
+  const Lb = D - lipL - R, Lk = H - tt - R, Ri = Math.max(1, R - tw), K = kFactor(Ri, tw), arc = Math.PI / 2 * (Ri + K * tw);
+  const wrapL = Lb + Lk + arc;
+  const Re = n('pin') / 2 + n('boss');
+  const P = (name, part, qty, outer, holes, extra) => ({ name, mat: part.mat, thk: +part.thk, qty, outer, holes: holes || [], ...(extra || {}) });
+  const parts = [];
+  if (!err.length) {
+    parts.push(P('Хажуу хавтан', B.side, 2, side, [], { mir: true }));
+    parts.push(P(`Ороох хавтан (R${Math.round(R)}, галзуу)`, B.wrap, 1, rectLoop(Math.round(wrapL * 10) / 10, W, 0), [], { roll: { L1: Lb, R: Ri, ang: 90, L2: Lk, W } }));
+    parts.push(P('Ирний хавтан', B.lip, 1, rectLoop(lipL, W, 0)));
+    parts.push(P('Дээд хавтан', B.top, 1, rectLoop(topD, W, 0)));
+    if (n('earQty') > 0) parts.push(P('Чих (холбоосны хавтан)', B.ear, Math.round(n('earQty')), earLoop(n('pitch'), Re, n('hc')), [circleLoop(0, n('hc'), n('pin') / 2), circleLoop(n('pitch'), n('hc'), n('pin') / 2)]));
+    if (n('wearN') > 0 && n('wearW') > 0 && Lb > 80) parts.push(P('Элэгдлийн тууз', B.wear, Math.round(n('wearN')), rectLoop(n('wearW'), Math.round(Lb - 40), 0)));
+    if (B.cutter && n('cutterW') > 0) parts.push(P('Хажуугийн ир', B.side, 2, rectLoop(Math.round(Lm), n('cutterW'), 0)));
+  }
+  const kg = parts.reduce((a, p) => a + partInfo(p).area * p.thk * matOf(p.mat).rho / 1e6 * p.qty, 0);
+  return { err, side, Bx, Lm, A, Vs, Vh, Lb, Lk, Ri, K, arc, wrapL, Re, parts, kg, W, D, H, R, tw, tl, tt, lipL, topD, ts, te };
+}
+function drawBucket(cv, B, c) {
+  const { x, w, h } = prepCanvas(cv); if (c.err.length) return;
+  const pal = bpal(), ink = pal.ink, acc = pal.accent;
+  const ear = earLoop(+B.pitch, c.Re, +B.hc), ex0 = Math.max(0, c.topD / 2 - +B.pitch / 2);
+  const all = [...flattenLoop(c.side, 1), ...flattenLoop(ear, 1).map(p => [p[0] + ex0, p[1] + c.H])];
+  const T = fitBox(all, w, h, 34), X = p => T.ox + p[0] * T.sc, Y = p => T.oy - p[1] * T.sc;
+  const poly = (pts, close) => { x.beginPath(); pts.forEach((p, i) => i ? x.lineTo(X(p), Y(p)) : x.moveTo(X(p), Y(p))); if (close) x.closePath(); };
+  // side plate
+  poly(flattenLoop(c.side, 0.5), true); x.fillStyle = pal.sheet; x.fill(); x.lineWidth = 1.2; x.strokeStyle = ink; x.stroke();
+  // wrap plate (inner offset band)
+  const band = []; const t = c.tw;
+  band.push([c.D - c.lipL, 0], [c.R, 0]);
+  for (let i = 0; i <= 24; i++) { const a = -Math.PI / 2 - i / 24 * Math.PI / 2; band.push([c.R + c.R * Math.cos(a), c.R + c.R * Math.sin(a)]); }
+  band.push([0, c.H - c.tt]);
+  const inner = [[t, c.H - c.tt]];
+  for (let i = 24; i >= 0; i--) { const a = -Math.PI / 2 - i / 24 * Math.PI / 2; inner.push([c.R + (c.R - t) * Math.cos(a), c.R + (c.R - t) * Math.sin(a)]); }
+  inner.push([c.D - c.lipL, t]);
+  poly(band.concat(inner), true); x.fillStyle = acc; x.globalAlpha = 0.85; x.fill(); x.globalAlpha = 1;
+  // lip, top plate, ears
+  poly([[c.D - c.lipL, 0], [c.D, 0], [c.D - c.tl * 0.6, c.tl], [c.D - c.lipL, c.tl]], true); x.fillStyle = pal.blue; x.fill();
+  poly([[0, c.H - c.tt], [c.topD, c.H - c.tt], [c.topD, c.H], [0, c.H]], true); x.fillStyle = pal.tool; x.fill(); x.strokeStyle = ink; x.lineWidth = 0.8; x.stroke();
+  poly(flattenLoop(ear, 0.5).map(p => [p[0] + ex0, p[1] + c.H]), true); x.fillStyle = pal.tool; x.globalAlpha = 0.7; x.fill(); x.globalAlpha = 1; x.stroke();
+  [[0, +B.hc], [+B.pitch, +B.hc]].forEach(q => { x.beginPath(); x.arc(X([q[0] + ex0, 0]), Y([0, q[1] + c.H]), +B.pin / 2 * T.sc, 0, TAU); x.fillStyle = cssv('--view'); x.fill(); x.stroke(); });
+  // dimensions
+  x.fillStyle = ink; x.font = `600 12px ${pal.font}`; x.textAlign = 'center';
+  x.fillText(`D ${nf(c.D)}`, X([c.D / 2, 0]), Y([0, 0]) + 18);
+  x.save(); x.translate(X([0, 0]) - 14, Y([0, c.H / 2])); x.rotate(-Math.PI / 2); x.fillText(`H ${nf(c.H)}`, 0, 0); x.restore();
+  x.fillText(`R ${nf(c.R)}`, X([c.R * 0.45, 0]), Y([0, c.R * 0.45]));
+  x.textAlign = 'left'; x.fillText(`амны урт ${nf(c.Lm)}`, X([(c.D + c.Bx) / 2, 0]) + 14, Y([0, c.H / 2]));
+}
+const BK = { edit: null };
+function renderBucketMain(el) {
+  if (!S.bucket) S.bucket = bucketDefaults();
+  const B = BK.edit ? (findKit(BK.edit) || {}).bucket || S.bucket : S.bucket;
+  const c = bucketCalc(B), dark = isDark();
+  const num = (k, lbl, step) => `<label class="fld sm"><span>${lbl}</span><input data-b="${k}" type="number" min="0" step="${step || 1}" value="${B[k]}" class="mono"></label>`;
+  const plate = (k, lbl) => `<tr data-p="${k}"><td>${lbl}</td><td><select data-pk="mat" class="inp" style="width:100%;min-width:0">${matOptions(B[k].mat)}</select></td><td><input data-pk="thk" type="number" min="1" step="1" value="${B[k].thk}" class="inp mono" style="width:100%;min-width:0"></td></tr>`;
+  el.innerHTML = `
+    <div class="bhead"><label class="fld grow">Шанагын нэр<input id="bk_name" value="${esc(B.name)}"></label>
+      ${num('W', 'Дотор өргөн W, мм', 10)}${num('D', 'Гүн D, мм', 10)}${num('H', 'Өндөр H, мм', 10)}${num('R', 'Ороох R, мм', 5)}${num('alpha', 'Амны налуу α, °', 1)}</div>
+    <div class="bgrid" style="grid-template-columns:minmax(260px,340px) minmax(0,1fr)">
+      <div class="bcard"><div class="bcard-h">Хавтан, материал</div>
+        <div class="tblwrap"><table class="dt" style="table-layout:fixed;min-width:0;width:100%"><thead><tr><th style="width:34%">Эд анги</th><th>Материал</th><th style="width:72px">Зузаан</th></tr></thead><tbody id="bkPlates">
+          ${plate('side', 'Хажуу')}${plate('wrap', 'Ороох')}${plate('lip', 'Ир')}${plate('top', 'Дээд')}${plate('ear', 'Чих')}${plate('wear', 'Элэгдлийн тууз')}
+        </tbody></table></div>
+        <div class="jbody"><div class="grid2">
+          ${num('lipL', 'Ирний өргөн, мм', 5)}${num('topD', 'Дээд хавтан, мм', 5)}
+          ${num('pin', 'Пин Ø, мм', 1)}${num('pitch', 'Пин хоорондын зай, мм', 5)}
+          ${num('hc', 'Пин төвийн өндөр, мм', 5)}${num('boss', 'Нүхний ханын зузаан, мм', 1)}
+          ${num('earQty', 'Чихний тоо', 1)}${num('wearN', 'Элэгдлийн тууз, ш', 1)}
+          ${num('wearW', 'Туузны өргөн, мм', 5)}${num('cutterW', 'Хажуугийн ирний өргөн, мм', 5)}
+        </div><label class="check" style="margin-top:8px"><input type="checkbox" id="bk_cutter"${B.cutter ? ' checked' : ''}><span>Хажуугийн ир (амны ирмэг дагуу) нэмэх</span></label></div>
+      </div>
+      <div class="bcard"><div class="bcard-h">Хажуугийн харагдац <span class="sp"></span><span class="muted" style="font-weight:400;font-size:12px">ороох — улбар шар, ир — цэнхэр</span></div><canvas id="bkCv" class="bcv tall" style="height:340px"></canvas></div>
+    </div>
+    ${c.err.length ? `<div class="warnbox">${c.err.map(esc).join('<br>')}</div>` : `
+    <div class="summary">${[
+      ['Багтаамж (тэгш)', `${nf(c.Vs, 2)}<small>м³</small>`, 'SAE J296-аар ойролцоо'],
+      ['Багтаамж (овоолсон)', `${nf(c.Vh, 2)}<small>м³</small>`, '1:1 овоолго'],
+      ['Нийт жин', `${nf(c.kg, 0)}<small>кг</small>`, `${c.parts.reduce((a, p) => a + p.qty, 0)} хавтан, гагнуургүй`],
+      ['Ороох хавтан', `${nf(c.wrapL, 1)}<small>мм</small>`, `× ${nf(c.W)} · дотор R${nf(c.Ri)} · K ${nf(c.K, 3)}`],
+      ['Амны урт', `${nf(c.Lm)}<small>мм</small>`, `хажуугийн талбай ${nf(c.A / 1e6, 3)} м²`]
+    ].map(s => `<div class="stat"><div class="k">${s[0]}</div><div class="v">${s[1]}</div><div class="s">${esc(s[2])}</div></div>`).join('')}</div>
+    <div class="jcard"><div class="bcard-h">Хавтгай эд ангиуд — нэг шанагад</div>
+      <div class="tblwrap" style="border:0"><table class="dt"><thead><tr><th style="width:60px"></th><th>Нэр</th><th>Материал</th><th class="r">Зузаан</th><th class="r">Хэмжээ, мм</th><th class="r">Тоо</th><th class="r">Жин, кг</th></tr></thead><tbody>
+      ${c.parts.map((p, i) => { const inf = partInfo(p); return `<tr><td><canvas class="thumb" style="width:44px;height:44px" data-i="${i}"></canvas></td><td>${esc(p.name)}</td><td>${esc(p.mat)}</td><td class="r num">${p.thk}</td><td class="r num">${nf(inf.w, 1)} × ${nf(inf.h, 1)}</td><td class="r num">${p.qty}</td><td class="r num">${nf(inf.area * p.thk * matOf(p.mat).rho / 1e6 * p.qty, 1)}</td></tr>`; }).join('')}
+      </tbody></table></div></div>`}
+    <div class="exports">
+      <button class="btn primary" id="bkKit"${c.err.length ? ' disabled' : ''}>${BK.edit ? 'Иж бүрдлийг шинэчлэх' : 'Иж бүрдэл үүсгэх'}</button>
+      <button class="btn" id="bkRoll"${c.err.length ? ' disabled' : ''}>Ороох хавтанг галзуу руу</button>
+      <button class="btn" id="bkNest"${c.err.length ? ' disabled' : ''}>Nesting руу шууд ×</button><input id="bkN" type="number" min="1" value="1" class="inp mono" style="width:64px">
+      <span style="flex:1"></span><button class="btn ghost" id="bkReset">Анхны утга</button>
+    </div>
+    <p class="note">Загвар нь хялбаршуулсан: доод тал хэвтээ, нуруу босоо, 90° ороолттой. Ороох хавтангийн урт нь гадна гадаргуу хажуугийн хавтангийн ирмэгтэй тэгшилнэ гэж тооцсон (DIN 6935 K). Ирний налуу, шүдний адаптер, бэхэлгээний нүхийг гараар нэмнэ.</p>`;
+  if (!c.err.length) { drawBucket($('#bkCv'), B, c); el.querySelectorAll('canvas.thumb').forEach(cv => drawPartBox(cv, c.parts[+cv.dataset.i], partColor(+cv.dataset.i, dark, 0.85))); }
+  const upd = () => { save(); renderBucketMain(el); };
+  el.querySelectorAll('[data-b]').forEach(i => i.addEventListener('change', e => { B[e.target.dataset.b] = Math.max(0, +e.target.value || 0); upd(); }));
+  $('#bk_name').addEventListener('change', e => { B.name = e.target.value.trim() || B.name; save(); });
+  $('#bk_cutter').addEventListener('change', e => { B.cutter = e.target.checked; upd(); });
+  $('#bkPlates').addEventListener('change', e => { const k = e.target.closest('tr').dataset.p, f = e.target.dataset.pk; B[k][f] = f === 'thk' ? Math.max(1, +e.target.value || B[k].thk) : e.target.value; upd(); });
+  $('#bkReset').addEventListener('click', () => { const d = bucketDefaults(); Object.keys(d).forEach(k => B[k] = d[k]); upd(); });
+  const kitParts = () => bucketCalc(B).parts.map(p => cleanPart({ ...p, rot: true }));
+  $('#bkKit').addEventListener('click', () => {
+    let k = BK.edit && findKit(BK.edit);
+    if (k) { k.parts = kitParts(); k.name = B.name; k.bucket = JSON.parse(JSON.stringify(B)); toast('Иж бүрдэл шинэчлэгдлээ'); }
+    else { k = { id: uid(), name: B.name, desc: `W${B.W} × D${B.D} × H${B.H}, R${B.R} · ${nf(c.Vh, 2)} м³`, parts: kitParts(), bucket: JSON.parse(JSON.stringify(B)) }; S.kits.unshift(k); toast('Иж бүрдэл үүслээ — ажилд «× тоо»-гоор нэмнэ'); }
+    BK.edit = null; J.kit = k.id; J.bucket = false; save(); renderJobs();
+  });
+  $('#bkNest').addEventListener('click', () => { const nn = Math.max(1, Math.round(+$('#bkN').value || 1)); kitParts().forEach(p => S.parts.push({ ...p, id: uid(), qty: p.qty * nn })); save(); renderParts(); toast(`${B.name} ×${nn} — ${c.parts.length} төрлийн хавтан Nesting-д нэмэгдлээ`); });
+  $('#bkRoll').addEventListener('click', () => { const w = c.parts.find(p => p.roll); if (!w) return; rollFromPart({ ...w, name: `${B.name} — ороох хавтан` }); });
+}
+
+/* ================= KH Fab — plate rolling (галзуу): developed length, 3-roll set-up, check template ================= */
+if (!S.bend.rolls) S.bend.rolls = [];
+S.bend.rollM = Object.assign({ name: '3 булт галзуу', a: 260, Dt: 200, Dl: 170, ton: 60, maxT: 16, maxW: 2000 }, S.bend.rollM || {});
+const curRoll = () => S.bend.rolls.find(r => r.id === S.bend.rollCur) || S.bend.rolls[0];
+function rollDefaults() { return { id: uid(), name: 'Галзуу хавтан', mat: S.defMat, thk: 10, W: 1000, R: 400, dims: 'in', ang: 90, L1: 300, L2: 300, qty: 1, allow: true }; }
+function rollCalc(r) {
+  const M = S.bend.rollM, t = Math.max(0.5, +r.thk || 1), R = Math.max(0, +r.R || 0);
+  const Ri = r.dims === 'out' ? R - t : r.dims === 'mid' ? R - t / 2 : R, Ro = Ri + t;
+  const th = Math.max(0, Math.min(360, +r.ang || 0)) * D2R, K = kFactor(Math.max(Ri, 0.01), t), Rn = Ri + K * t;
+  const L1 = Math.max(0, +r.L1 || 0), L2 = Math.max(0, +r.L2 || 0), arcN = th * Rn, flat = L1 + L2 + arcN;
+  const warn = [], e = (+M.a || 0) / 2, closed = th >= TAU - 1e-6;
+  // a 3-roll pyramid machine leaves ≈ half the lower-roll spacing flat at each end
+  const add1 = r.allow && !closed ? Math.max(0, e - L1) : 0, add2 = r.allow && !closed ? Math.max(0, e - L2) : 0;
+  if (closed && r.allow) warn.push(`Бүтэн цилиндр: төгсгөлүүдийг прессээр урьдчилан нугална (≈ ${nf(e)} мм шулуун үлдэнэ)`);
+  else if (!r.allow && (L1 < e || L2 < e)) warn.push(`Төгсгөлд ≈ ${nf(e)} мм шулуун үлдэнэ — прессээр урьдчилан нугалах эсвэл «Тайрах нэмэгдэл» сонгоно уу`);
+  if (!(Ri > 0)) warn.push('Дотор радиус 0-ээс их байх ёстой');
+  const rl = (+M.Dl || 0) / 2, rt = (+M.Dt || 0) / 2;
+  let stroke = null;
+  if (Ri <= rt) warn.push(`R${nf(Ri)} нь дээд булны радиусаас (${nf(rt)}) бага — энэ машинаар галзуудахгүй, прессээр алхамчлан нугална`);
+  else if (Ro + rl > e) { const g = Math.sqrt((Ro + rl) ** 2 - e * e) - (Ri - rt), g0 = rl + t + rt; stroke = g0 - g; }
+  if (t > +M.maxT) warn.push(`Зузаан ${t} мм машины хязгаараас (${M.maxT} мм) их`);
+  if (+r.W > +M.maxW) warn.push(`Өргөн ${r.W} мм машины булны уртаас (${M.maxW} мм) их`);
+  if (Ri / t < 5) warn.push(`R/t = ${nf(Ri / t, 1)} — бага радиус, хагарах эрсдэлтэй (Hardox-д нийлүүлэгчийн доод радиусыг шалгана уу)`);
+  const m = matOf(r.mat), cls = matCls(m), rm = +m.rm || 420, sy = rm * (cls === 'hx' ? 0.85 : 0.7);
+  const F = sy * (+r.W || 0) * t * t / Math.max(1, +M.a || 1) / 1000 / 9.81; // tonnes on the top roll, plastic moment over half the spacing
+  if (F > +M.ton) warn.push(`Шаардлагатай хүч ≈ ${nf(F, 1)} т, машин ${M.ton} т — өргөнийг хувааж эсвэл том машинд галзуудна`);
+  const c = Math.min(500, 1.6 * Ro, th < Math.PI ? 2 * Ro * Math.sin(th / 2) : 1e9), sag = (rr) => rr - Math.sqrt(Math.max(0, rr * rr - c * c / 4));
+  const kg = (flat + add1 + add2) * (+r.W || 0) * t * m.rho / 1e6;
+  return { t, Ri, Ro, Rn, K, th, L1, L2, arcN, arcIn: th * Ri, arcOut: th * Ro, flat, add1, add2, flatCut: flat + add1 + add2, e, stroke, F, sy, chord: c, sagO: sag(Ro), sagI: sag(Ri), kg, warn, cls };
+}
+function rollPts(r, c) { // neutral line of the rolled profile
+  const pts = [[0, 0]]; let x = c.L1, y = 0; pts.push([x, y]);
+  const n = Math.max(8, Math.ceil(c.th / (4 * D2R)));
+  for (let i = 1; i <= n; i++) { const a = -Math.PI / 2 + c.th * i / n; pts.push([c.L1 + c.Rn * Math.cos(a), c.Rn + c.Rn * Math.sin(a)]); }
+  const last = pts[pts.length - 1], dx = Math.cos(c.th), dy = Math.sin(c.th);
+  pts.push([last[0] + dx * c.L2, last[1] + dy * c.L2]);
+  return pts;
+}
+function drawRoll(cv, r, c, mini) {
+  const { x, w, h } = prepCanvas(cv), pal = bpal(), pts = rollPts(r, c);
+  const T = fitBox(pts, w, h, mini ? 8 : 40), X = p => T.ox + p[0] * T.sc, Y = p => T.oy - p[1] * T.sc;
+  x.lineCap = 'butt'; x.lineJoin = 'round'; x.strokeStyle = pal.part; x.lineWidth = Math.max(mini ? 2 : 3, c.t * T.sc);
+  x.beginPath(); pts.forEach((p, i) => i ? x.lineTo(X(p), Y(p)) : x.moveTo(X(p), Y(p))); x.stroke();
+  if (mini) return;
+  x.fillStyle = pal.ink; x.font = `600 12px ${pal.font}`; x.textAlign = 'center';
+  x.beginPath(); x.arc(X([c.L1, c.Rn]), Y([c.L1, c.Rn]), 3, 0, TAU); x.fill();
+  x.fillText(`R${nf(c.Ri)} (дотор)`, X([c.L1, c.Rn]), Y([c.L1, c.Rn]) - 8);
+  if (c.L1 > 0) x.fillText(`${nf(c.L1)}`, X([c.L1 / 2, 0]), Y([0, 0]) + 18);
+  x.fillText(`${nf(+r.ang)}°`, X([c.L1 + c.Rn * 0.5, c.Rn * 0.5]), Y([0, c.Rn * 0.5]));
+}
+function drawRollFlat(cv, r, c) {
+  const { x, w, h } = prepCanvas(cv), pal = bpal(), L = c.flatCut, W = +r.W || 1;
+  const T = fitBox([[0, 0], [L, W]], w, h, 34), X = v => T.ox + v * T.sc, Y = v => T.oy - v * T.sc;
+  x.fillStyle = pal.sheet; x.fillRect(X(0), Y(W), L * T.sc, W * T.sc); x.strokeStyle = pal.ink; x.lineWidth = 1.2; x.strokeRect(X(0), Y(W), L * T.sc, W * T.sc);
+  const z0 = c.add1 + c.L1, z1 = z0 + c.arcN;
+  x.fillStyle = pal.part; x.globalAlpha = 0.18; x.fillRect(X(z0), Y(W), c.arcN * T.sc, W * T.sc); x.globalAlpha = 1;
+  x.setLineDash([6, 4]); x.strokeStyle = pal.part; x.lineWidth = 1.4;
+  [z0, z1].forEach(v => { x.beginPath(); x.moveTo(X(v), Y(0)); x.lineTo(X(v), Y(W)); x.stroke(); });
+  x.strokeStyle = pal.bad; [c.add1, L - c.add2].forEach((v, i) => { if ((i ? c.add2 : c.add1) > 0) { x.beginPath(); x.moveTo(X(v), Y(0)); x.lineTo(X(v), Y(W)); x.stroke(); } });
+  x.setLineDash([]); x.fillStyle = pal.ink; x.font = `600 12px ${pal.font}`; x.textAlign = 'center';
+  x.fillText(`${nf(L, 1)} мм`, X(L / 2), Y(0) + 18);
+  x.fillText(`галзуудах бүс ${nf(c.arcN, 1)}`, X((z0 + z1) / 2), Y(W / 2));
+}
+const RT = { tab: 'prof' };
+function renderRollSide() {
+  const M = S.bend.rollM;
+  [['rm_a', 'a'], ['rm_Dt', 'Dt'], ['rm_Dl', 'Dl'], ['rm_ton', 'ton'], ['rm_maxT', 'maxT'], ['rm_maxW', 'maxW']].forEach(([id, k]) => $('#' + id).value = M[k]);
+  const el = $('#rList');
+  el.innerHTML = S.bend.rolls.length ? S.bend.rolls.map(r => { let c = null; try { c = rollCalc(r); } catch (e) { } return `<div class="bitem${r.id === (curRoll() || {}).id ? ' on' : ''}" data-id="${r.id}"><canvas data-id="${r.id}"></canvas><div style="min-width:0"><div class="t">${esc(r.name)}</div><div class="m">${r.thk} мм · R${r.R} · ${r.ang}° · ${r.qty} ш</div><div class="m">${c ? `дэлгэмэл ${nf(c.flatCut, 1)} × ${nf(r.W)}` : ''}</div></div><button class="x" data-del aria-label="Устгах">×</button></div>`; }).join('') : '<div class="emptyp">Галзуу алга. <b>+ Шинэ галзуу</b> эсвэл шанага үүсгэгчээс ороох хавтанг илгээнэ.</div>';
+  $$('#rList canvas').forEach(cv => { const r = S.bend.rolls.find(q => q.id === cv.dataset.id); try { drawRoll(cv, r, rollCalc(r), true); } catch (e) { } });
+}
+function renderRollMain() {
+  const r = curRoll(), el = $('#rollMain');
+  if (!r) { el.innerHTML = '<div class="jempty"><b>Галзуу алга</b><br>Зүүн талын <b>+ Шинэ галзуу</b> товчоор эхэлнэ. Шанагын ороох хавтан, цилиндр, хоолой, конусын бус нумын хавтанд тохирно.</div>'; return; }
+  const c = rollCalc(r), M = S.bend.rollM;
+  const fld = (k, lbl, step, extra) => `<label class="fld sm"><span>${lbl}</span><input data-r="${k}" type="number" step="${step || 1}" value="${r[k]}" class="mono"${extra || ''}></label>`;
+  el.innerHTML = `
+    <div class="bhead">
+      <label class="fld grow">Нэр<input data-r="name" value="${esc(r.name)}"></label>
+      <label class="fld">Материал<select data-r="mat">${matOptions(r.mat)}</select></label>
+      ${fld('thk', 'Зузаан, мм', 0.5)}${fld('W', 'Өргөн, мм', 10)}${fld('R', 'Радиус, мм', 5)}
+      <label class="fld"><span>Радиус нь</span><select data-r="dims"><option value="in"${r.dims === 'in' ? ' selected' : ''}>Дотор</option><option value="mid"${r.dims === 'mid' ? ' selected' : ''}>Дунд</option><option value="out"${r.dims === 'out' ? ' selected' : ''}>Гадна</option></select></label>
+      ${fld('ang', 'Нумын өнцөг, °', 1, ' min="1" max="360"')}${fld('L1', 'Шулуун 1, мм', 5)}${fld('L2', 'Шулуун 2, мм', 5)}${fld('qty', 'Тоо', 1, ' min="1"')}
+    </div>
+    <label class="check" style="margin:2px 0"><input type="checkbox" data-r="allow"${r.allow ? ' checked' : ''}><span><b>Тайрах нэмэгдэл</b> — галзуудаагүй шулуун төгсгөлийг (≈ ${nf(c.e)} мм) нэмж үлдээгээд дараа нь тайрна</span></label>
+    <div class="bgrid" style="grid-template-columns:minmax(0,1fr) minmax(0,1fr)">
+      <div class="bcard"><div class="bcard-h">Профиль</div><canvas id="rProf" class="bcv"></canvas></div>
+      <div class="bcard"><div class="bcard-h">Дэлгэмэл <span class="muted" style="font-weight:400">${nf(c.flatCut, 1)} × ${nf(r.W)} мм</span></div><canvas id="rFlat" class="bcv"></canvas></div>
+    </div>
+    <div class="summary">${[
+      ['Дэлгэмэл урт', `${nf(c.flatCut, 1)}<small>мм</small>`, c.add1 + c.add2 > 0 ? `үүнээс тайрах ${nf(c.add1 + c.add2, 0)} мм` : `${nf(c.kg, 1)} кг`],
+      ['Нумын урт (тэнхлэг)', `${nf(c.arcN, 1)}<small>мм</small>`, `дотор ${nf(c.arcIn, 1)} · гадна ${nf(c.arcOut, 1)}`],
+      ['K-factor', nf(c.K, 3), `тэнхлэгийн R ${nf(c.Rn, 1)}`],
+      ['Дээд булны суулт', c.stroke == null ? '—' : `${nf(c.stroke, 1)}<small>мм</small>`, 'хавтанд хүрсэн байрлалаас, буцалтгүй'],
+      ['Хүч', `${nf(c.F, 1)}<small>т</small>`, `машин ${M.ton} т · σт ≈ ${nf(c.sy)} МПа`],
+      ['Шаблон', `${nf(c.sagO, 1)}<small>мм</small>`, `хөвч ${nf(c.chord)} мм дээрх гадна хотгор`]
+    ].map(s => `<div class="stat"><div class="k">${s[0]}</div><div class="v">${s[1]}</div><div class="s">${esc(s[2])}</div></div>`).join('')}</div>
+    ${c.warn.length ? `<div class="warnbox">${c.warn.map(esc).join('<br>')}</div>` : ''}
+    <div class="jcard"><div class="bcard-h">Галзуудах заавар</div><div class="jbody"><ol class="note" style="margin:0;padding-left:18px;line-height:1.7">
+      ${c.add1 + c.add2 > 0 || c.th >= TAU - 1e-6 ? `<li>Төгсгөлийг прессээр R${nf(c.Ri)}-д урьдчилан нугална, эсвэл нэмэгдэлтэй хавтанг галзуудаад ${nf(c.add1)} / ${nf(c.add2)} мм-ийг тайрна.</li>` : ''}
+      <li>Хавтангийн ирмэгийг булнуудтай зэрэгцүүлж, дээд булыг хавтанд хүргэнэ (тэг байрлал).</li>
+      <li>${c.stroke == null ? 'Дээд булыг' : `Дээд булыг нийт ≈ ${nf(c.stroke, 1)} мм хүртэл`} 3–4 дамжлагаар аажмаар дарна. ${c.cls === 'hx' ? 'Hardox-д уян буцалт их тул эхний дамжлагад 70% орчим дарна.' : 'Эхний дамжлагад 80% орчим дарна.'}</li>
+      <li>Дамжлага бүрийн дараа ${nf(c.chord)} мм хөвчтэй шаблоноор шалгана: гадна хотгор ${nf(c.sagO, 1)} мм, дотор ${nf(c.sagI, 1)} мм.</li>
+      <li>Галзуудах бүс: дэлгэмэлийн ${nf(c.add1 + c.L1, 1)} – ${nf(c.add1 + c.L1 + c.arcN, 1)} мм (шохойгоор тэмдэглэнэ).</li>
+    </ol></div></div>
+    <div class="exports">
+      <button class="btn primary" id="rToNest">Дэлгэмэл Nesting руу</button>
+      <button class="btn" id="rTpl">Шаблон Nesting руу (2 мм)</button>
+      <button class="btn" id="rDxf">Дэлгэмэл DXF</button>
+      <button class="btn ghost" id="rDup">Хуулбар</button>
+    </div>`;
+  drawRoll($('#rProf'), r, c); drawRollFlat($('#rFlat'), r, c);
+  el.querySelectorAll('[data-r]').forEach(i => i.addEventListener('change', e => {
+    const k = e.target.dataset.r;
+    r[k] = e.target.type === 'checkbox' ? e.target.checked : e.target.type === 'number' ? Math.max(k === 'ang' ? 1 : 0, +e.target.value || 0) : e.target.value;
+    if (k === 'ang') r.ang = Math.min(360, r.ang); if (k === 'qty') r.qty = Math.max(1, Math.round(r.qty));
+    save(); renderRollSide(); renderRollMain();
+  }));
+  $('#rToNest').addEventListener('click', () => {
+    S.parts.push({ id: uid(), name: `${r.name} (галзуу дэлгэмэл)`, qty: r.qty, mat: r.mat, thk: +r.thk, rot: true, mir: false, prio: 0, outer: rectLoop(Math.round(c.flatCut * 10) / 10, +r.W, 0), holes: [], bends: [], roll: { L1: c.L1 + c.add1, R: c.Ri, ang: +r.ang, L2: c.L2 + c.add2, W: +r.W } });
+    save(); renderParts(); toast(`Дэлгэмэл ${nf(c.flatCut, 1)} × ${nf(r.W)} мм Nesting-д нэмэгдлээ`);
+  });
+  $('#rTpl').addEventListener('click', () => {
+    const cc = c.chord, H = Math.round(c.sagO + 40), bu = -2 * c.sagO / cc;
+    S.parts.push({ id: uid(), name: `Шаблон R${nf(c.Ro)} (гадна)`, qty: 1, mat: S.defMat, thk: 2, rot: true, mir: false, prio: 0, outer: [{ x: 0, y: 0, b: 0 }, { x: cc, y: 0, b: 0 }, { x: cc, y: H, b: bu }, { x: 0, y: H, b: 0 }], holes: [circleLoop(20, 15, 5)], bends: [] });
+    save(); renderParts(); toast('Шаблон Nesting-д нэмэгдлээ — 2 мм хавтангаас зүснэ');
+  });
+  $('#rDxf').addEventListener('click', () => {
+    const w = dxfWriter(), L = c.flatCut, W = +r.W, z0 = c.add1 + c.L1;
+    w.loop('OUTER', rectLoop(L, W, 0)); w.line('BEND_UP', z0, 0, z0, W); w.line('BEND_UP', z0 + c.arcN, 0, z0 + c.arcN, W);
+    if (c.add1 > 0) w.line('TRIM', c.add1, 0, c.add1, W); if (c.add2 > 0) w.line('TRIM', L - c.add2, 0, L - c.add2, W);
+    const name = safeName(`${r.name}_галзуу_${nf(L, 1).replace(/\s/g, '')}x${W}`) + '.dxf', txt = w.doc();
+    if (inHost && !window.kh) { if (!window.JSZip) { toast('ZIP сан ачаалагдсангүй'); return; } const z = new JSZip(); z.file(name, txt); z.generateAsync({ type: 'blob' }).then(b => saveFile(name.replace(/\.dxf$/, '.zip'), b)); }
+    else saveFile(name, txt, 'application/dxf');
+  });
+  $('#rDup').addEventListener('click', () => { const q = { ...JSON.parse(JSON.stringify(r)), id: uid(), name: r.name + ' (хуулбар)' }; S.bend.rolls.unshift(q); S.bend.rollCur = q.id; save(); renderRollSide(); renderRollMain(); });
+}
+function showBendTab(t) {
+  RT.tab = t;
+  $$('[data-btab]').forEach(x => x.classList.toggle('on', x.dataset.btab === t));
+  ['prof', 'tools', 'roll'].forEach(k => $('#btab-' + k).hidden = k !== t);
+  const inBend = !$('#bendSide').hidden;
+  $('#bendMain').hidden = !inBend || t === 'roll'; $('#rollMain').hidden = !inBend || t !== 'roll';
+  if (t === 'roll' && inBend) { renderRollSide(); renderRollMain(); }
+}
+function rollFromPart(p) {
+  const q = p.roll || {};
+  const r = { ...rollDefaults(), name: p.name.replace(/ \(галзуу.*\)$/, ''), mat: p.mat, thk: +p.thk, W: Math.round(q.W || partInfo(p).h), R: Math.round((q.R || 400) * 10) / 10, dims: 'in', ang: q.ang || 90, L1: Math.round((q.L1 || 0) * 10) / 10, L2: Math.round((q.L2 || 0) * 10) / 10, qty: p.qty || 1, allow: false };
+  S.bend.rolls.unshift(r); S.bend.rollCur = r.id; save();
+  setModule('bend'); showBendTab('roll'); toast('Галзуудах тооцоо үүслээ');
+}
+$('#rNew').addEventListener('click', () => { const r = rollDefaults(); S.bend.rolls.unshift(r); S.bend.rollCur = r.id; save(); renderRollSide(); renderRollMain(); });
+$('#rList').addEventListener('click', e => {
+  const it = e.target.closest('.bitem'); if (!it) return;
+  if (e.target.closest('[data-del]')) { S.bend.rolls = S.bend.rolls.filter(r => r.id !== it.dataset.id); if (S.bend.rollCur === it.dataset.id) S.bend.rollCur = S.bend.rolls[0]?.id || null; save(); renderRollSide(); renderRollMain(); return; }
+  S.bend.rollCur = it.dataset.id; save(); renderRollSide(); renderRollMain();
+});
+[['rm_a', 'a'], ['rm_Dt', 'Dt'], ['rm_Dl', 'Dl'], ['rm_ton', 'ton'], ['rm_maxT', 'maxT'], ['rm_maxW', 'maxW']].forEach(([id, k]) => $('#' + id).addEventListener('change', e => { S.bend.rollM[k] = Math.max(1, +e.target.value || 1); save(); renderRollSide(); renderRollMain(); }));
+
 try { const m0 = localStorage.getItem(KEY + ':mod'); if (m0 === 'bend' || m0 === 'jobs') setModule(m0); } catch (e) { }
+
+/* ================= KH Fab — BOM import (Excel / CSV): rows → parts, DXF files matched by name ================= */
+const XLSX_URL = 'vendor/xlsx.full.min.js';
+const BOM_COLS = {
+  name: /^(нэр|нэршил|name|part|эд\s*анги|деталь|наименование|description|тайлбар)/i,
+  qty: /^(тоо|ширхэг|qty|quantity|pcs|count|кол|ш\.?$|тоо\s*ширхэг)/i,
+  mat: /^(материал|material|марка|grade|ган)/i,
+  thk: /^(зузаан|thickness|thk|t$|s$|толщина|зуз)/i,
+  L: /^(урт|length|l$|длина)/i,
+  W: /^(өргөн|width|w$|b$|ширина)/i,
+  D: /^(диаметр|diameter|ø|d$|dia)/i,
+  file: /^(файл|file|dxf|drawing|чертеж|зураг)/i
+};
+function bomNum(v) { if (v == null) return NaN; if (typeof v === 'number') return v; const m = String(v).replace(/\s/g, '').replace(',', '.').match(/-?\d+(\.\d+)?/); return m ? +m[0] : NaN; }
+function parseCsv(txt) {
+  txt = txt.replace(/^﻿/, '');
+  const first = txt.split(/\r?\n/)[0] || '', d = [';', '\t', ','].sort((a, b) => first.split(b).length - first.split(a).length)[0];
+  const rows = []; let row = [], cur = '', q = false;
+  for (let i = 0; i < txt.length; i++) {
+    const ch = txt[i];
+    if (q) { if (ch === '"') { if (txt[i + 1] === '"') { cur += '"'; i++; } else q = false; } else cur += ch; continue; }
+    if (ch === '"') q = true; else if (ch === d) { row.push(cur); cur = ''; } else if (ch === '\n' || ch === '\r') { if (ch === '\r' && txt[i + 1] === '\n') i++; row.push(cur); rows.push(row); row = []; cur = ''; } else cur += ch;
+  }
+  if (cur || row.length) { row.push(cur); rows.push(row); }
+  return rows.filter(r => r.some(c => String(c).trim()));
+}
+async function readBomRows(file) {
+  if (/\.csv$|\.txt$/i.test(file.name)) {
+    const buf = new Uint8Array(await file.arrayBuffer());
+    let txt = new TextDecoder('utf-8').decode(buf);
+    if (txt.includes('�')) txt = new TextDecoder('windows-1251').decode(buf); // Excel “CSV” saved in Cyrillic code page
+    return parseCsv(txt);
+  }
+  if (!window.XLSX) await loadScript(XLSX_URL);
+  const wb = XLSX.read(await file.arrayBuffer(), { type: 'array' });
+  const ws = wb.Sheets[wb.SheetNames[0]];
+  return XLSX.utils.sheet_to_json(ws, { header: 1, raw: true, defval: '' }).filter(r => r.some(c => String(c).trim()));
+}
+function bomMap(rows) {
+  for (let i = 0; i < Math.min(rows.length, 15); i++) {
+    const m = {};
+    rows[i].forEach((c, j) => { const s = String(c).trim(); for (const [k, re] of Object.entries(BOM_COLS)) if (m[k] == null && re.test(s)) { m[k] = j; break; } });
+    if (m.qty != null && (m.name != null || m.file != null)) return { map: m, start: i + 1 };
+  }
+  return { map: { name: 0, qty: 1, mat: 2, thk: 3, L: 4, W: 5, file: 6 }, start: 0 };
+}
+function bomMat(txt, added) {
+  const s = String(txt || '').trim(); if (!s) return S.defMat;
+  const lo = s.toLowerCase(), hit = S.materials.find(m => m.name.toLowerCase() === lo) || S.materials.find(m => m.name.toLowerCase().split(/\s*\/\s*/).includes(lo)) || S.materials.find(m => m.name.toLowerCase().includes(lo));
+  if (hit) return hit.name;
+  S.materials.push({ name: s, rho: /alum|цагаан/i.test(s) ? 2.7 : 7.85, price: 0, rm: 420 }); added.add(s); return s;
+}
+/* rows + geometry files → parts */
+async function bomToParts(rows, geoFiles) {
+  const { map, start } = bomMap(rows), out = [], msgs = [], added = new Set();
+  const byName = new Map(geoFiles.map(f => [f.name.replace(/\.[^.]+$/, '').toLowerCase(), f]));
+  const cell = (r, k) => map[k] != null ? r[map[k]] : '';
+  let skipped = 0;
+  for (let i = start; i < rows.length; i++) {
+    const r = rows[i], qty = Math.round(bomNum(cell(r, 'qty')));
+    const name = String(cell(r, 'name') || '').trim() || `Мөр ${i + 1}`;
+    if (!(qty > 0)) { skipped++; continue; }
+    const thk = bomNum(cell(r, 'thk')), mat = bomMat(cell(r, 'mat'), added), base = { qty, mat, thk: thk > 0 ? thk : +S.defThk, rot: true, mir: false, prio: 0 };
+    const fn = String(cell(r, 'file') || '').trim(), key = fn.replace(/^.*[\\/]/, '').replace(/\.[^.]+$/, '').toLowerCase();
+    const f = key && (byName.get(key) || [...byName.entries()].find(([k]) => k.includes(key) || key.includes(k))?.[1]);
+    if (f) {
+      try {
+        const g = await importAnyFile(f);
+        if (!g.parts.length) { msgs.push(`${name}: «${f.name}» хаалттай контургүй`); continue; }
+        g.parts.forEach((p, k) => out.push({ ...base, id: uid(), name: g.parts.length > 1 ? `${name} (${k + 1})` : name, qty: qty * (p.qty || 1), outer: p.outer, holes: p.holes, ...(p.bends ? { bends: p.bends } : {}) }));
+      } catch (e) { msgs.push(`${name}: ${e.message || 'файл уншигдсангүй'}`); }
+      continue;
+    }
+    const L = bomNum(cell(r, 'L')), W = bomNum(cell(r, 'W')), D = bomNum(cell(r, 'D'));
+    if (L > 0 && W > 0) out.push({ ...base, id: uid(), name, outer: rectLoop(L, W, 0), holes: [] });
+    else if (D > 0) out.push({ ...base, id: uid(), name, outer: circleLoop(D / 2, D / 2, D / 2), holes: [] });
+    else msgs.push(fn ? `${name}: «${fn}» файл сонгогдоогүй` : `${name}: хэмжээ эсвэл файл алга`);
+  }
+  if (added.size) msgs.push(`Шинэ материал: ${[...added].join(', ')} (нягт, үнийг Тохиргоонд шалгана уу)`);
+  return { parts: out, msgs, skipped };
+}
+async function importBom(files, target) {
+  const tab = files.filter(f => /\.(xlsx|xlsm|xls|csv|txt|ods)$/i.test(f.name)), geo = files.filter(f => !tab.includes(f));
+  if (!tab.length) { toast('Excel (.xlsx) эсвэл CSV файл сонгоно уу — DXF-үүдийг хамт сонгож болно'); return null; }
+  let parts = [], msgs = [];
+  for (const f of tab) {
+    try { const rows = await readBomRows(f); const r = await bomToParts(rows, geo); parts = parts.concat(r.parts); msgs = msgs.concat(r.msgs); }
+    catch (e) { msgs.push(`${f.name}: ${e.message || 'уншиж чадсангүй'}`); }
+  }
+  if (target === 'kit') {
+    if (parts.length) { const k = { id: uid(), name: tab[0].name.replace(/\.[^.]+$/, ''), desc: 'BOM-оос', parts: parts.map(cleanPart) }; S.kits.unshift(k); J.kit = k.id; J.bucket = false; }
+    save(); renderJobs();
+  } else { S.parts.push(...parts); save(); renderParts(); renderSettings(); }
+  toast((parts.length ? `BOM: ${parts.length} төрлийн парт, ${parts.reduce((a, p) => a + p.qty, 0)} ширхэг` : 'BOM-оос парт нэмэгдсэнгүй') + (msgs.length ? ' · ' + msgs.slice(0, 4).join(' · ') + (msgs.length > 4 ? ` · +${msgs.length - 4}` : '') : ''), msgs.length ? 10000 : 3000);
+  return parts;
+}
+$('#bomIn').addEventListener('change', e => { importBom([...e.target.files], 'nest'); e.target.value = ''; });
+$('#bomKitIn').addEventListener('change', e => { importBom([...e.target.files], 'kit'); e.target.value = ''; });
+$('#bomTpl').addEventListener('click', () => {
+  const csv = '﻿Нэр;Тоо;Материал;Зузаан;Урт;Өргөн;Диаметр;Файл\r\nХажуу хавтан;2;S355 / 09Г2С;16;;;;side_plate.dxf\r\nИрний хавтан;1;Hardox 450;30;1100;220;;\r\nШайб;8;Ст3 / S235;6;;;80;\r\n';
+  saveFile('KH_BOM_загвар.csv', csv, 'text/csv');
+});
 
 </script>
 

@@ -70,6 +70,7 @@ h3:first-child{margin-top:4px}
 #progMsg{font-size:12.5px;min-height:18px}
 
 .ptools{display:flex;gap:8px;flex-wrap:wrap}
+.linkbtn{background:none;border:0;padding:0;color:var(--accent);text-decoration:underline;cursor:pointer;font:inherit}
 .defaults{display:grid;grid-template-columns:1fr 110px;gap:8px;margin:12px 0 6px}
 label.fld{display:grid;gap:3px;font-size:12px;color:var(--ink-2)}
 .fld input,.fld select,.inp{border:1px solid var(--line);background:var(--surface-2);border-radius:var(--r);padding:6px 8px;width:100%;min-width:0;color:var(--ink)}
@@ -184,6 +185,15 @@ label.fld{display:grid;gap:3px;font-size:12px;color:var(--ink-2)}
 .cmpv .d{font-size:12px;font-family:var(--f-mono)}
 .d-up{color:var(--bad)}.d-dn{color:var(--ok)}
 .dt input,.dt select{border:1px solid var(--line);background:var(--surface-2);border-radius:4px;padding:3px 5px;font-size:12.5px;min-width:0;width:100%}
+.gantt{display:flex;flex-direction:column;gap:6px}
+.gantt .grow{display:grid;grid-template-columns:110px minmax(0,1fr) 130px;gap:10px;align-items:center;cursor:pointer}
+.gantt .gl{font-size:12.5px;font-weight:600}.gantt .gd{font-size:12px;text-align:right;color:var(--ink-2)}
+.gantt .gt{position:relative;height:14px;background:var(--line-2);border-radius:7px}
+.gantt .gb{position:absolute;top:0;bottom:0;border-radius:7px;background:var(--accent);opacity:.75}
+.gantt .gb.gl8{background:var(--bad);opacity:.9}
+.gantt .gn{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--ink)}
+.jprog{display:block;height:3px;background:var(--line-2);border-radius:2px;margin-top:4px;max-width:120px}.jprog i{display:block;height:100%;background:var(--accent);border-radius:2px}
+@media (max-width:620px){.gantt .grow{grid-template-columns:80px minmax(0,1fr);}.gantt .gd{grid-column:1/-1;text-align:left}}
 .jempty{border:1px dashed var(--line);border-radius:var(--r);padding:40px 20px;text-align:center;color:var(--ink-2);background:var(--surface)}
 .exports{display:flex;gap:8px;flex-wrap:wrap}
 .gcd{margin-top:12px;border:1px solid var(--line-2);border-radius:var(--r);padding:8px 10px}.gcd summary{cursor:pointer;font-weight:500}
@@ -284,7 +294,7 @@ table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
     </nav>
     <div class="panel-body">
       <section id="jtab-jobs">
-        <div class="ptools"><button class="btn primary" id="jNew">+ Шинэ ажил</button></div>
+        <div class="ptools"><button class="btn primary" id="jNew">+ Шинэ ажил</button><button class="btn" id="jDash">Самбар</button></div>
         <div class="grid2" style="margin:10px 0">
           <input id="jSearch" class="inp" placeholder="Хайх: дугаар, захиалагч…" aria-label="Хайх">
           <select id="jFilter" class="inp" aria-label="Төлөв"><option value="open">Идэвхтэй</option><option value="all">Бүгд</option><option value="closed">Дууссан</option></select>
@@ -299,7 +309,7 @@ table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
       </section>
       <section id="jtab-kits" hidden>
         <p class="hint">Иж бүрдэл гэдэг нь нэг бүтээгдэхүүний (жишээ нь PC200 шанага) бүх хавтгай эд анги, ширхэгийг хадгалсан загвар. Ажилд «иж бүрдэл × тоо» гэж оруулахад партууд автоматаар үржинэ.</p>
-        <div class="ptools"><button class="btn primary" id="kFromParts">Nesting-ийн партуудаас шинэ</button></div>
+        <div class="ptools"><button class="btn primary" id="kFromParts">Nesting-ийн партуудаас шинэ</button><button class="btn" id="kBucket">Шанага үүсгэгч</button><label class="btn" for="bomKitIn">BOM-оос</label><input type="file" id="bomKitIn" accept=".xlsx,.xls,.csv,.dxf,.svg,.pdf,.ai,.plt" multiple hidden></div>
         <div id="kList" class="plist" style="margin-top:10px"></div>
       </section>
       <section id="jtab-certs" hidden>
@@ -331,6 +341,8 @@ table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
         <div class="ptools">
           <label class="btn primary" for="dxfIn">Файл нэмэх</label>
           <input type="file" id="dxfIn" accept=".dxf,.svg,.pdf,.ai,.plt,.hpgl,.hgl,.cdr,.dwg,.eps" multiple hidden>
+          <label class="btn" for="bomIn" title="Excel/CSV жагсаалт: нэр, тоо, материал, зузаан, урт×өргөн эсвэл DXF файлын нэр">BOM (Excel)</label>
+          <input type="file" id="bomIn" accept=".xlsx,.xls,.csv,.dxf,.svg,.pdf,.ai,.plt" multiple hidden>
           <button class="btn" id="btnShape">Хэлбэр нэмэх</button>
           <button class="btn" id="btnText">Текст нэмэх</button>
           <button class="btn ghost" id="btnKitFrom" title="Одоогийн партуудыг дахин ашиглах иж бүрдэл болгож хадгална">Иж бүрдэл болгох</button>
@@ -340,7 +352,7 @@ table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
           <label class="fld">Шинэ партын материал<select id="defMat"></select></label>
           <label class="fld">Зузаан, мм<input id="defThk" type="number" min="0.1" step="0.1"></label>
         </div>
-        <p class="hint">DXF, SVG, PDF, AI, PLT файлаа энэ цонх руу чирч оруулж болно (CorelDRAW-оос эдгээр форматаар экспортлоно). Нэг файлд хэд хэдэн хаалттай контур байвал тус бүрийг парт болгож, ижил хэлбэрүүдийг тоогоор нь нэгтгэнэ.</p>
+        <p class="hint">DXF, SVG, PDF, AI, PLT файлаа энэ цонх руу чирч оруулж болно (CorelDRAW-оос эдгээр форматаар экспортлоно). Нэг файлд хэд хэдэн хаалттай контур байвал тус бүрийг парт болгож, ижил хэлбэрүүдийг тоогоор нь нэгтгэнэ. <b>BOM</b>: Excel жагсаалтаа DXF файлуудтайгаа хамт сонгоход нэрээр нь холбоно — <button class="linkbtn" id="bomTpl">загвар татах</button>.</p>
         <div id="partList" class="plist"></div>
       </section>
 
@@ -388,11 +400,18 @@ table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
           <label class="fld">DXF-д нугалах шугам<select id="s_dxfBend"><option value="0">Оруулахгүй</option><option value="1">BEND давхаргад</option></select></label>
         </div>
         <h3>Материал</h3>
-        <table class="mtab"><thead><tr><th>Нэр</th><th style="width:70px">Нягт г/см³</th><th style="width:84px">Үнэ ₮/кг</th><th style="width:22px"></th></tr></thead><tbody id="matBody"></tbody></table>
+        <table class="mtab"><thead><tr><th>Нэр</th><th style="width:96px">Төрөл</th><th style="width:62px">Нягт г/см³</th><th style="width:78px">Үнэ ₮/кг</th><th style="width:22px"></th></tr></thead><tbody id="matBody"></tbody></table>
         <div class="addrow"><button class="btn sm" id="matAdd">Материал нэмэх</button></div>
         <h3>Зүсэлт</h3>
+        <div class="grid2">
+          <label class="fld">Лазерын чадал, кВт<input id="c_kW" type="number" min="0.5" max="40" step="0.5" list="kwList"><datalist id="kwList"></datalist></label>
+          <label class="fld">Хурдны хүснэгт<select id="c_src"><option value="auto">Жишиг: материал × зузаан × кВт</option><option value="own">Өөрийн хүснэгт</option></select></label>
+        </div>
+        <div id="spdAutoBox"><div class="tblwrap" style="margin-top:8px"><table class="mtab" id="spdAuto"></table></div>
+          <div class="addrow"><button class="btn sm" id="spdCopy">Өөрийн хүснэгт рүү хуулах</button><span class="note">мм/мин (цоолох хугацаа — хулганаар заахад). «—» нь энэ чадлаар зүсэхгүй.</span></div></div>
+        <div id="spdOwnBox">
         <table class="mtab"><thead><tr><th>Зузаан, мм</th><th>Хурд, мм/мин</th><th>Цоолох, сек</th><th style="width:22px"></th></tr></thead><tbody id="spdBody"></tbody></table>
-        <div class="addrow"><button class="btn sm" id="spdAdd">Мөр нэмэх</button></div>
+        <div class="addrow"><button class="btn sm" id="spdAdd">Мөр нэмэх</button></div></div>
         <div class="grid2" style="margin-top:10px">
           <label class="fld">Зүсэлтийн үнэ, ₮/м<input id="c_cut" type="number" min="0" step="10"></label>
           <label class="fld">Цоолтын үнэ, ₮/ш<input id="c_pierce" type="number" min="0" step="10"></label>
@@ -405,12 +424,39 @@ table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
           <label class="fld">Микро холбоос, ш/парт<select id="l_tabN"><option value="0">Үгүй</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></label>
           <label class="fld">Холбоосны өргөн, мм<input id="l_tabW" type="number" min="0.1" step="0.1"></label>
           <label class="fld">Зөвхөн ийм хэмжээнээс бага партад, мм (0 = бүгд)<input id="l_tabMax" type="number" min="0" step="10"></label>
-          <label class="fld">Зүсэх дараалал<select id="l_order"><option value="near">Хамгийн ойр нь</option><option value="strip">Туузаар — мөргөлтөөс сэргийлэх</option></select></label>
+          <label class="fld">Зүсэх дараалал<select id="l_order"><option value="near">Хамгийн ойр нь</option><option value="strip">Туузаар — мөргөлтөөс сэргийлэх</option><option value="heat">Дулаан тараах — зузаан, Hardox</option></select></label>
           <label class="fld">Туузны өргөн, мм<input id="l_strip" type="number" min="50" step="10"></label>
           <label class="fld">Зүсэлтийн өргөн (kerf), мм<input id="l_kerf" type="number" min="0" step="0.05"></label>
           <label class="fld">Нүхний доод хэмжээ, × зузаан<input id="l_holeK" type="number" min="0" step="0.1"></label>
         </div>
         <p class="note">Микро холбоос нь жижиг партыг листтэй холбож унах, толгой мөргөхөөс сэргийлнэ. «Туузаар» дараалал нь листийг баганаар зүсэж, толгой тасарсан партын дээгүүр явахыг багасгана.</p>
+        <h3>Зүсэлтийн технологи</h3>
+        <label class="check"><input type="checkbox" id="l_avoid"><span><b>Тасарсан партыг тойрч явах</b> — хоосон явалт унаж болох партын дээгүүр гарахгүй, тойрох боломжгүй бол толгой өргөнө</span></label>
+        <label class="check"><input type="checkbox" id="l_chain"><span><b>Гинжин зүсэлт</b> — дараагийн партыг цацраг унтраалгүй, хаягдлаар дамжиж зүснэ. Цоолт цөөрнө (зузаан хавтанд их хэмнэлттэй)</span></label>
+        <div class="grid2">
+          <label class="fld">Гинжний дээд урт, мм<input id="l_chainMax" type="number" min="1" step="1"></label>
+          <label class="fld">DXF-д гинж<select id="l_chainDxf"><option value="false">CHAIN давхаргад (мэдээлэл)</option><option value="true">Нэг полилин болгох</option></select></label>
+        </div>
+        <div class="grid2">
+          <label class="fld">Дугуй нүхний орох зам<select id="l_spiral"><option value="off">Энгийн lead-in</option><option value="center">Төвөөс хагас тойрог</option><option value="spiral">Төвөөс спираль</option></select></label>
+          <label class="fld">Ийм диаметрээс бага нүхэнд, мм<input id="l_spiralMax" type="number" min="1" step="1"></label>
+          <label class="fld">Спиралын алхам, мм<input id="l_spiralPitch" type="number" min="0.5" step="0.5"></label>
+        </div>
+        <label class="check"><input type="checkbox" id="l_slug"><span><b>Нүхний хаягдал хуваах</b> — том нүхний дотор хэсгийг торлон зүсэж, хэсэг бүр сараалжаар унана. Хөмөрч толгой мөргөхөөс сэргийлнэ</span></label>
+        <div class="grid2">
+          <label class="fld">Ийм хэмжээнээс том нүхэнд, мм<input id="l_slugMin" type="number" min="10" step="5"></label>
+          <label class="fld">Торны алхам, мм<input id="l_slugStep" type="number" min="10" step="5"></label>
+        </div>
+        <label class="check"><input type="checkbox" id="l_skel"><span><b>Араг яс хэрчих</b> — хамгийн сүүлд хаягдлын хүрээг хэсэглэж, листээс буулгахад амар болгоно</span></label>
+        <div class="grid2">
+          <label class="fld">Хэрчих алхам, мм<input id="l_skelStep" type="number" min="100" step="50"></label>
+          <label class="fld">Партаас доод зай, мм<input id="l_skelClear" type="number" min="1" step="0.5"></label>
+        </div>
+        <label class="check"><input type="checkbox" id="l_fly"><span><b>Fly-cut</b> — нэг шугам дээрх тэгш өнцөгт партуудын ирмэгийг зогсолтгүй, нэг цоолтоор зүснэ (нимгэн лист)</span></label>
+        <div class="grid2">
+          <label class="fld">Ийм зузаанаас нимгэнд, мм<input id="l_flyMaxT" type="number" min="0.5" step="0.5"></label>
+        </div>
+        <p class="note">Hardox, зузаан хавтанд «Дулаан тараах» дараалал, гинжин зүсэлт, төвөөс орох замыг хамт хэрэглэхийг зөвлөнө. Дулаан нэг газар хуримтлагдвал хавтан хазайж, Hardox хатуулгаа алддаг (SSAB-ийн зөвлөмж).</p>
         <h3>Лазер тэмдэглэгээ</h3>
         <label class="check"><input type="checkbox" id="m_on"><span><b>Парт бүр дээр дугаар тэмдэглэх</b> — ажлын дугаар ба партын дугаарыг бага чадлаар сийлнэ (MARK давхарга)</span></label>
         <div class="grid2">
@@ -427,6 +473,8 @@ table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
             <label class="fld">Тэмдэглэгээ асаах<input id="g_mOn" class="mono"></label>
             <label class="fld">Тэмдэглэгээ унтраах<input id="g_mOff" class="mono"></label>
             <label class="fld">Цоолох ({t} = сек)<input id="g_pierce" class="mono"></label>
+            <label class="fld">Толгой өргөх (тойрох боломжгүй үед)<input id="g_liftUp" class="mono" placeholder="жишээ: M10"></label>
+            <label class="fld">Толгой буулгах<input id="g_liftDown" class="mono" placeholder="жишээ: M11"></label>
             <label class="fld">Аравтын орон<input id="g_dec" type="number" min="0" max="5"></label>
             <label class="fld">Файлын өргөтгөл<input id="g_ext" class="mono"></label>
           </div>
@@ -503,6 +551,7 @@ table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
     <nav class="tabs" role="tablist">
       <button data-btab="prof" class="on">Профиль</button>
       <button data-btab="tools">Багаж, машин</button>
+      <button data-btab="roll">Галзуу</button>
     </nav>
     <div class="panel-body">
       <section id="btab-prof">
@@ -532,8 +581,24 @@ table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
         <table class="mtab"><thead><tr><th>Материал</th><th>σb, МПа</th></tr></thead><tbody id="rmBody"></tbody></table>
         <p class="note">Багажийн жагсаалт жишээ. Танай байгаа пуансон, матрицаар солино уу. Хүчийг P[кН] = 650·S²·L[м]/V томьёогоор σb 450 МПа-д тооцоод материалын бат бөхөөр масштаблана.</p>
       </section>
+      <section id="btab-roll" hidden>
+        <div class="ptools"><button class="btn primary" id="rNew">+ Шинэ галзуу</button></div>
+        <p class="hint">Хавтанг 3 булт машинаар нум, цилиндр болгох дэлгэмэл урт, дээд булны суулт, шалгах шаблоныг тооцно. Шанага үүсгэгчийн ороох хавтан энд ирнэ.</p>
+        <div id="rList" class="plist"></div>
+        <h3>Галзуудах машин</h3>
+        <div class="grid2">
+          <label class="fld">Доод булны төв хоорондын зай, мм<input id="rm_a" type="number" min="10"></label>
+          <label class="fld">Дээд булны Ø, мм<input id="rm_Dt" type="number" min="10"></label>
+          <label class="fld">Доод булны Ø, мм<input id="rm_Dl" type="number" min="10"></label>
+          <label class="fld">Хүч, тонн<input id="rm_ton" type="number" min="1"></label>
+          <label class="fld">Дээд зузаан, мм<input id="rm_maxT" type="number" min="1"></label>
+          <label class="fld">Булны урт, мм<input id="rm_maxW" type="number" min="100"></label>
+        </div>
+        <p class="note">Утгууд жишээ — машиныхаа паспортаас оруулна уу. Суултыг уян буцалтгүйгээр тооцсон тул шаблоноор шалгаж нэмж дарна.</p>
+      </section>
     </div>
   </aside>
+  <main class="main" id="rollMain" hidden></main>
   <main class="main" id="bendMain" hidden>
     <div class="bhead">
       <label class="fld grow">Нэр<input id="b_name"></label>

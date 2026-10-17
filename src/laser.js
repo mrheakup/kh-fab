@@ -177,13 +177,15 @@ function crossesCut(a, b, cutUnits) {
 /* ---------- G-code ---------- */
 function laserDefaults() {
   return { tabN: 0, tabW: 0.6, tabMax: 0, order: 'near', strip: 300, kerf: 0.2, holeK: 1, markFeed: 6000,
-    gc: { head: '; Kh International · KH Fab\n; {job} · лист {sheet} · {mat} {thk}mm · {L}x{W}\nG21\nG90', foot: 'G00 X0 Y0\nM30', on: 'M07', off: 'M08', mOn: 'M07 ; MARK', mOff: 'M08', pierce: 'G04 P{t}', dec: 3, ext: 'nc' } };
+    avoid: true, chain: false, chainMax: 25, chainDxf: false, slug: false, slugMin: 80, slugStep: 50, slugGap: 2, spiral: 'off', spiralMax: 60, spiralPitch: 4, skel: false, skelStep: 500, skelClear: 3, fly: false, flyMaxT: 3,
+    gc: { head: '; Kh International · KH Fab\n; {job} · лист {sheet} · {mat} {thk}mm · {L}x{W}\nG21\nG90', foot: 'G00 X0 Y0\nM30', on: 'M07', off: 'M08', mOn: 'M07 ; MARK', mOff: 'M08', pierce: 'G04 P{t}', liftUp: '', liftDown: '', dec: 3, ext: 'nc' } };
 }
 function gcodeSheet(seq, o) {
   const c = o.gc, D = Math.max(0, Math.min(5, +c.dec || 3)), f = v => (Math.abs(v) < 5e-7 ? 0 : v).toFixed(D);
   const sub = s => String(s || '').replace(/\{(\w+)\}/g, (m, k) => o.vars[k] ?? m);
   const out = []; const line = s => { if (s) String(s).split(/\r?\n/).forEach(l => out.push(l)); };
   line(sub(c.head));
+  const offLines = String(c.off || '').split(/\r?\n/).filter(Boolean);
   const feed = Math.round(o.feed), pierce = sub(String(c.pierce || '').replace('{t}', (+o.pierceSec || 0).toFixed(2)));
   const path = (vs, closed) => {
     const n = vs.length, m = closed ? n : n - 1;
@@ -193,18 +195,40 @@ function gcodeSheet(seq, o) {
       out.push(`G01 X${f(b.x)} Y${f(b.y)}`);
     }
   };
+  const rapidTo = (it, e) => {
+    if (it.lift) line(c.liftUp);
+    (it.via || []).forEach(v => out.push(`G00 X${f(v[0])} Y${f(v[1])}`));
+    out.push(`G00 X${f(e[0])} Y${f(e[1])}`);
+    if (it.lift) line(c.liftDown);
+  };
   for (const it of seq) {
     if (it.type === 'mark') {
       for (const st of it.strokes) { out.push(`G00 X${f(st[0][0])} Y${f(st[0][1])}`); line(c.mOn); out.push(`G01 X${f(st[1][0])} Y${f(st[1][1])} F${Math.round(o.markFeed)}`); for (let i = 2; i < st.length; i++) out.push(`G01 X${f(st[i][0])} Y${f(st[i][1])}`); line(c.mOff); }
       continue;
     }
-    if (it.type === 'line') { const l = it.line; out.push(`G00 X${f(l[0])} Y${f(l[1])}`); line(c.on); line(pierce); out.push(`G01 X${f(l[2])} Y${f(l[3])} F${feed}`); line(c.off); continue; }
+    if (it.type === 'line') { const l = it.line; rapidTo(it, [l[0], l[1]]); line(c.on); line(pierce); out.push(`G01 X${f(l[2])} Y${f(l[3])} F${feed}`); line(c.off); continue; }
+    if (it.type === 'fly') { // flying cut: one pierce, beam toggled along the line without stopping
+      it.segs.forEach((g, i) => {
+        if (i === 0) { rapidTo(it, [g[0], g[1]]); line(c.on); line(pierce); }
+        else { out.push(`G01 X${f(g[0])} Y${f(g[1])} F${feed}`); line(c.on); }
+        out.push(`G01 X${f(g[2])} Y${f(g[3])} F${feed}`); line(c.off);
+      });
+      continue;
+    }
     const st = it.loop[0], pieces = it.pieces || [it.loop.concat([{ x: st.x, y: st.y, b: 0 }])];
+    if (it.chain) { // beam stays on from the previous contour
+      if (offLines.length && offLines.every((l, i) => out[out.length - offLines.length + i] === l)) out.length -= offLines.length;
+      out.push(`G01 X${f(st.x)} Y${f(st.y)} F${feed}`); path(pieces[0], false); line(c.off); continue;
+    }
     pieces.forEach((pc, k) => {
-      const e = k === 0 && it.lead ? it.lead : [pc[0].x, pc[0].y];
-      out.push(`G00 X${f(e[0])} Y${f(e[1])}`); line(c.on); if (k === 0) line(pierce);
-      if (k === 0 && it.lead) out.push(`G01 X${f(pc[0].x)} Y${f(pc[0].y)} F${feed}`);
-      else out.push(`G01 F${feed}`);
+      if (k === 0 && it.leadPath) { const lp = it.leadPath; rapidTo(it, [lp[0].x, lp[0].y]); line(c.on); line(pierce); out.push(`G01 F${feed}`); path(lp, false); }
+      else {
+        const e = k === 0 && it.lead ? it.lead : [pc[0].x, pc[0].y];
+        if (k === 0) rapidTo(it, e); else out.push(`G00 X${f(e[0])} Y${f(e[1])}`);
+        line(c.on); if (k === 0) line(pierce);
+        if (k === 0 && it.lead) out.push(`G01 X${f(pc[0].x)} Y${f(pc[0].y)} F${feed}`);
+        else out.push(`G01 F${feed}`);
+      }
       path(pc, false); line(c.off);
     });
   }

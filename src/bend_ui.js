@@ -12,13 +12,13 @@ function bpal(print) {
 function setModule(m) {
   $$('.modtabs button').forEach(b => b.classList.toggle('on', b.dataset.mod === m));
   $('#nestSide').hidden = $('#nestMain').hidden = m !== 'nest';
-  $('#bendSide').hidden = $('#bendMain').hidden = m !== 'bend';
+  $('#bendSide').hidden = $('#bendMain').hidden = m !== 'bend'; if ($('#rollMain')) $('#rollMain').hidden = true;
   $('#jobsSide').hidden = $('#jobsMain').hidden = m !== 'jobs';
-  if (m === 'bend') renderBend(); else if (m === 'jobs') renderJobs(); else drawView();
+  if (m === 'bend') { renderBend(); if (typeof showBendTab === 'function') showBendTab(RT.tab); } else if (m === 'jobs') renderJobs(); else drawView();
   try { localStorage.setItem(KEY + ':mod', m); } catch (e) { }
 }
 $$('.modtabs button').forEach(b => b.addEventListener('click', () => setModule(b.dataset.mod)));
-$$('[data-btab]').forEach(b => b.addEventListener('click', () => { $$('[data-btab]').forEach(x => x.classList.toggle('on', x === b)); $('#btab-prof').hidden = b.dataset.btab !== 'prof'; $('#btab-tools').hidden = b.dataset.btab !== 'tools'; }));
+$$('[data-btab]').forEach(b => b.addEventListener('click', () => showBendTab(b.dataset.btab)));
 
 function renderBend() { renderBList(); renderBTools(); renderBEditor(); }
 function renderBList() {
@@ -194,4 +194,3 @@ async function bendPdf() {
 }
 $('#bPdf').addEventListener('click', bendPdf);
 new ResizeObserver(() => { if (!$('#bendMain').hidden) renderBEditor(); }).observe($('#bendMain'));
-try { const m0 = localStorage.getItem(KEY + ':mod'); if (m0 === 'bend' || m0 === 'jobs') setModule(m0); } catch (e) { }
