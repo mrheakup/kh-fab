@@ -1,7 +1,7 @@
 import re
 shell=open('shell.html').read()
 w=open('geom_exact.js').read()+'\n'+open('worker.js').read(); core=open('core.js').read()+'\n'+open('geom_exact.js').read()+'\n'+open('import_formats.js').read()+'\n'+open('fonts.js').read()+'\n'+open('text_tool.js').read(); app=open('app.js').read()
-page=shell.replace('{{WORKER}}',w).replace('{{APP}}',core+'\n'+open('laser.js').read()+'\n'+open('cutting.js').read()+'\n'+app+'\n'+open('jobs.js').read()+'\n'+open('bend.js').read()+'\n'+open('bend_ui.js').read()+'\n'+open('bucket.js').read()+'\n'+open('roll.js').read()+'\n'+open('bom.js').read())
+page=shell.replace('{{WORKER}}',w).replace('{{APP}}',core+'\n'+open('laser.js').read()+'\n'+open('cutting.js').read()+'\n'+app+'\n'+open('jobs.js').read()+'\n'+open('bend.js').read()+'\n'+open('bend_ui.js').read()+'\n'+open('bucket.js').read()+'\n'+open('roll.js').read()+'\n'+open('bom.js').read()+'\n'+open('trace.js').read())
 open('kh-nesting.html','w').write(page)
 head='<!doctype html>\n<html lang="mn">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">\n</head>\n<body>\n'
 open('KH_Nesting.html','w').write(head+page+'\n</body>\n</html>\n')
