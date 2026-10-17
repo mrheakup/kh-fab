@@ -120,8 +120,12 @@ function renderBucketMain(el) {
       <button class="btn primary" id="bkKit"${c.err.length ? ' disabled' : ''}>${BK.edit ? 'Иж бүрдлийг шинэчлэх' : 'Иж бүрдэл үүсгэх'}</button>
       <button class="btn" id="bkRoll"${c.err.length ? ' disabled' : ''}>Ороох хавтанг галзуу руу</button>
       <button class="btn" id="bkNest"${c.err.length ? ' disabled' : ''}>Nesting руу шууд ×</button><input id="bkN" type="number" min="1" value="1" class="inp mono" style="width:64px">
+      <button class="btn" id="bk3d"${c.err.length ? ' disabled' : ''}>3D</button>
+      <button class="btn" id="bkIl"${c.err.length ? ' disabled' : ''}>Inventor iLogic</button>
+      <button class="btn" id="bkStep"${c.err.length ? ' disabled' : ''}>STEP</button>
       <span style="flex:1"></span><button class="btn ghost" id="bkReset">Анхны утга</button>
     </div>
+    <div class="bcard" id="bk3dBox" hidden><div class="bcard-h">3D угсралт <span class="sp"></span><span class="muted" style="font-weight:400;font-size:12px">хулганаар эргүүлж, томруулна</span></div><div id="bk3dV" class="v3d"></div></div>
     <p class="note">Загвар нь хялбаршуулсан: доод тал хэвтээ, нуруу босоо, 90° ороолттой. Ороох хавтангийн урт нь гадна гадаргуу хажуугийн хавтангийн ирмэгтэй тэгшилнэ гэж тооцсон (DIN 6935 K). Ирний налуу, шүдний адаптер, бэхэлгээний нүхийг гараар нэмнэ.</p>`;
   if (!c.err.length) { drawBucket($('#bkCv'), B, c); el.querySelectorAll('canvas.thumb').forEach(cv => drawPartBox(cv, c.parts[+cv.dataset.i], partColor(+cv.dataset.i, dark, 0.85))); }
   const upd = () => { save(); renderBucketMain(el); };
@@ -138,5 +142,11 @@ function renderBucketMain(el) {
     BK.edit = null; J.kit = k.id; J.bucket = false; save(); renderJobs();
   });
   $('#bkNest').addEventListener('click', () => { const nn = Math.max(1, Math.round(+$('#bkN').value || 1)); kitParts().forEach(p => S.parts.push({ ...p, id: uid(), qty: p.qty * nn })); save(); renderParts(); toast(`${B.name} ×${nn} — ${c.parts.length} төрлийн хавтан Nesting-д нэмэгдлээ`); });
+  const show = () => { $('#bk3dBox').hidden = false; const r3 = bucket3D(B); if (r3) show3D($('#bk3dV'), worldSolids(r3)).catch(e => toast('3D: ' + (e.message || ''))); };
+  $('#bk3d').addEventListener('click', show);
+  if (BK.show3d && !c.err.length) show();
+  $('#bk3d').addEventListener('click', () => { BK.show3d = true; });
+  $('#bkIl').addEventListener('click', () => saveFile(`KH_bucket_${safeName(B.name)}.iLogicVb`, ilogicRule('bucket', bucketVbParams(B), B.name), 'text/plain'));
+  $('#bkStep').addEventListener('click', () => { const r3 = bucket3D(B); if (r3) saveFile(`${safeName(B.name)}.stp`, stepFile(worldSolids(r3), safeName(B.name)), 'application/step'); });
   $('#bkRoll').addEventListener('click', () => { const w = c.parts.find(p => p.roll); if (!w) return; rollFromPart({ ...w, name: `${B.name} — ороох хавтан` }); });
 }

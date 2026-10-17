@@ -157,4 +157,3 @@ $('#rList').addEventListener('click', e => {
 });
 [['rm_a', 'a'], ['rm_Dt', 'Dt'], ['rm_Dl', 'Dl'], ['rm_ton', 'ton'], ['rm_maxT', 'maxT'], ['rm_maxW', 'maxW']].forEach(([id, k]) => $('#' + id).addEventListener('change', e => { S.bend.rollM[k] = Math.max(1, +e.target.value || 1); save(); renderRollSide(); renderRollMain(); }));
 
-try { const m0 = localStorage.getItem(KEY + ':mod'); if (m0 === 'bend' || m0 === 'jobs') setModule(m0); } catch (e) { }

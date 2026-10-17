@@ -14,7 +14,8 @@ function setModule(m) {
   $('#nestSide').hidden = $('#nestMain').hidden = m !== 'nest';
   $('#bendSide').hidden = $('#bendMain').hidden = m !== 'bend'; if ($('#rollMain')) $('#rollMain').hidden = true;
   $('#jobsSide').hidden = $('#jobsMain').hidden = m !== 'jobs';
-  if (m === 'bend') { renderBend(); if (typeof showBendTab === 'function') showBendTab(RT.tab); } else if (m === 'jobs') renderJobs(); else drawView();
+  if ($('#infoSide')) $('#infoSide').hidden = $('#infoMain').hidden = m !== 'info';
+  if (m === 'info') { if (typeof renderInfo === 'function') renderInfo(); } else if (m === 'bend') { renderBend(); if (typeof showBendTab === 'function') showBendTab(RT.tab); } else if (m === 'jobs') renderJobs(); else drawView();
   try { localStorage.setItem(KEY + ':mod', m); } catch (e) { }
 }
 $$('.modtabs button').forEach(b => b.addEventListener('click', () => setModule(b.dataset.mod)));

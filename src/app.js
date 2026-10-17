@@ -150,9 +150,11 @@ async function importFiles(files) {
   let added = 0; const msgs = [];
   for (const f of files) {
     try {
-      const r = await importAnyFile(f);
+      const st = /\.(step|stp|iges|igs|brep)$/i.test(f.name); if (st) toast('3D файл уншиж байна…', 8000);
+      const r = st ? await importStep(f) : await importAnyFile(f);
+      if (r.bent) msgs.push(`${f.name}: ${r.bent} нугалсан/муруй биеийг алгассан (Inventor-оос Flat Pattern DXF гаргана уу)`);
       if (!r.parts.length) { msgs.push(`${f.name}: хаалттай контур олдсонгүй`); continue; }
-      for (const p of r.parts) { S.parts.push({ id: uid(), name: p.name, qty: p.qty, mat: S.defMat, thk: S.defThk, rot: true, mir: false, prio: 0, outer: p.outer, holes: p.holes, ...(p.bends ? { bends: p.bends } : {}) }); added++; }
+      for (const p of r.parts) { S.parts.push({ id: uid(), name: p.name, qty: p.qty, mat: S.defMat, thk: p.thk || S.defThk, rot: true, mir: false, prio: 0, outer: p.outer, holes: p.holes, ...(p.bends ? { bends: p.bends } : {}) }); added++; }
       if (r.open) msgs.push(`${f.name}: ${r.open} нээлттэй шугам (гулзайлтын шугам, текст г.м.) алгассан`);
     } catch (err) { msgs.push(`${f.name}: ${err && err.message ? err.message : 'уншиж чадсангүй'}`); }
   }

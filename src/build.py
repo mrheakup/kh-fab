@@ -1,7 +1,9 @@
 import re
 shell=open('shell.html').read()
 w=open('geom_exact.js').read()+'\n'+open('worker.js').read(); core=open('core.js').read()+'\n'+open('geom_exact.js').read()+'\n'+open('import_formats.js').read()+'\n'+open('fonts.js').read()+'\n'+open('text_tool.js').read(); app=open('app.js').read()
-page=shell.replace('{{WORKER}}',w).replace('{{APP}}',core+'\n'+open('laser.js').read()+'\n'+open('cutting.js').read()+'\n'+app+'\n'+open('jobs.js').read()+'\n'+open('bend.js').read()+'\n'+open('bend_ui.js').read()+'\n'+open('bucket.js').read()+'\n'+open('roll.js').read()+'\n'+open('bom.js').read()+'\n'+open('trace.js').read())
+import json
+vbjs='const VB_GEOM = '+json.dumps(open('ilogic/kh_geom.vb').read())+';\nconst VB_INV = '+json.dumps(open('ilogic/kh_inv.vb').read())+';'
+page=shell.replace('{{WORKER}}',w).replace('{{APP}}',core+'\n'+open('laser.js').read()+'\n'+open('cutting.js').read()+'\n'+app+'\n'+open('jobs.js').read()+'\n'+open('bend.js').read()+'\n'+open('bend_ui.js').read()+'\n'+open('bucket.js').read()+'\n'+open('roll.js').read()+'\n'+open('bom.js').read()+'\n'+open('trace.js').read()+'\n'+open('info_data.js').read()+'\n'+open('templates.js').read()+'\n'+open('cad3d.js').read()+'\n'+vbjs+'\n'+open('ilogic.js').read()+'\n'+open('info.js').read())
 open('kh-nesting.html','w').write(page)
 head='<!doctype html>\n<html lang="mn">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">\n</head>\n<body>\n'
 open('KH_Nesting.html','w').write(head+page+'\n</body>\n</html>\n')
@@ -11,7 +13,7 @@ print(len(page))
 import shutil, os
 D='/home/claude/kh-fab/app'; NM='/home/claude/kh-fab/node_modules/'
 os.makedirs(D+'/vendor/fonts', exist_ok=True)
-for src,dst in [('jszip/dist/jszip.min.js','jszip.min.js'),('jspdf/dist/jspdf.umd.min.js','jspdf.umd.min.js'),('pdfjs-dist/build/pdf.min.js','pdf.min.js'),('pdfjs-dist/build/pdf.worker.min.js','pdf.worker.min.js'),('opentype.js/dist/opentype.min.js','opentype.min.js'),('clipper-lib/clipper.js','clipper.js'),('qrcode-generator/qrcode.js','qrcode.js'),('xlsx/dist/xlsx.full.min.js','xlsx.full.min.js')]:
+for src,dst in [('jszip/dist/jszip.min.js','jszip.min.js'),('jspdf/dist/jspdf.umd.min.js','jspdf.umd.min.js'),('pdfjs-dist/build/pdf.min.js','pdf.min.js'),('pdfjs-dist/build/pdf.worker.min.js','pdf.worker.min.js'),('opentype.js/dist/opentype.min.js','opentype.min.js'),('clipper-lib/clipper.js','clipper.js'),('qrcode-generator/qrcode.js','qrcode.js'),('xlsx/dist/xlsx.full.min.js','xlsx.full.min.js'),('three/build/three.min.js','three.min.js'),('three/examples/js/controls/OrbitControls.js','OrbitControls.js'),('occt-import-js/dist/occt-import-js.js','occt-import-js.js'),('occt-import-js/dist/occt-import-js.wasm','occt-import-js.wasm'),('occt-import-js/dist/license.occt.txt','license.occt.txt'),('occt-import-js/dist/license.occt-import-js.txt','license.occt-import-js.txt')]:
     shutil.copy(NM+src, D+'/vendor/'+dst)
 css=[]
 for fam,pkg,ws in [('IBM Plex Sans','ibm-plex-sans',[400,500,600,700]),('IBM Plex Mono','ibm-plex-mono',[400,500])]:
@@ -21,11 +23,14 @@ for fam,pkg,ws in [('IBM Plex Sans','ibm-plex-sans',[400,500,600,700]),('IBM Ple
             shutil.copy(NM+f'@fontsource/{pkg}/files/'+f, D+'/vendor/fonts/'+f)
             css.append(f"@font-face{{font-family:'{fam}';font-style:normal;font-weight:{w};font-display:swap;src:url(fonts/{f}) format('woff2');unicode-range:{rng}}}")
 open(D+'/vendor/fonts.css','w').write('\n'.join(css))
+import base64
+open(D+'/vendor/occt-wasm-b64.js','w').write('window.OCCT_WASM_B64="'+base64.b64encode(open(NM+'occt-import-js/dist/occt-import-js.wasm','rb').read()).decode()+'";')
+os.remove(D+'/vendor/occt-import-js.wasm')
 dp=page
 dp=dp.replace('<link rel="preconnect" href="https://fonts.googleapis.com">\n','').replace('<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n','')
 import re
 dp=re.sub(r'<link rel="stylesheet" href="https://fonts.googleapis.com[^"]*">','<link rel="stylesheet" href="vendor/fonts.css">',dp)
-for cdn,loc in [('https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js','vendor/jszip.min.js'),('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js','vendor/jspdf.umd.min.js'),('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js','vendor/pdf.min.js'),('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js','vendor/pdf.worker.min.js'),('https://cdnjs.cloudflare.com/ajax/libs/opentype.js/1.3.4/opentype.min.js','vendor/opentype.min.js'),('https://cdn.jsdelivr.net/npm/clipper-lib@6.4.2/clipper.js','vendor/clipper.js'),('https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js','vendor/qrcode.js'),('https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js','vendor/xlsx.full.min.js')]:
+for cdn,loc in [('https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js','vendor/jszip.min.js'),('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js','vendor/jspdf.umd.min.js'),('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js','vendor/pdf.min.js'),('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js','vendor/pdf.worker.min.js'),('https://cdnjs.cloudflare.com/ajax/libs/opentype.js/1.3.4/opentype.min.js','vendor/opentype.min.js'),('https://cdn.jsdelivr.net/npm/clipper-lib@6.4.2/clipper.js','vendor/clipper.js'),('https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js','vendor/qrcode.js'),('https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js','vendor/xlsx.full.min.js'),('https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js','vendor/three.min.js'),('https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/controls/OrbitControls.js','vendor/OrbitControls.js'),('https://cdn.jsdelivr.net/npm/occt-import-js@0.0.23/dist/occt-import-js.js','vendor/occt-import-js.js')]:
     assert cdn in dp, cdn
     dp=dp.replace(cdn,loc)
 assert 'https://' not in re.sub(r'https://(fonts\.google|www\.w3\.org|github\.com|electron)[^"\' ]*','',dp) or True

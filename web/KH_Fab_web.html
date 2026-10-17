@@ -77,6 +77,16 @@ h3:first-child{margin-top:4px}
 #progMsg{font-size:12.5px;min-height:18px}
 
 .ptools{display:flex;gap:8px;flex-wrap:wrap}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.v3d{width:100%;height:420px;position:relative;background:var(--view)}
+.bcard>.v3d{flex:1 1 auto;min-height:420px}
+.v3d canvas{display:block;width:100%!important;height:100%!important}
+.libgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;padding:10px}
+.libit{border:1px solid var(--line-2);border-radius:var(--r);padding:8px;cursor:pointer;background:var(--surface);min-width:0}
+.libit.on{border-color:var(--accent);background:var(--accent-soft)}
+.libit canvas{width:100%;height:90px;display:block}
+.libit .t{font-weight:600;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.libit .m{font-size:11.5px;color:var(--ink-2)}
+@media (max-width:820px){.v3d{height:300px}}
 .linkbtn{background:none;border:0;padding:0;color:var(--accent);text-decoration:underline;cursor:pointer;font:inherit}
 .defaults{display:grid;grid-template-columns:1fr 110px;gap:8px;margin:12px 0 6px}
 label.fld{display:grid;gap:3px;font-size:12px;color:var(--ink-2)}
@@ -155,6 +165,7 @@ label.fld{display:grid;gap:3px;font-size:12px;color:var(--ink-2)}
 .modtabs{display:flex;gap:2px;background:var(--surface-2);border:1px solid var(--line);border-radius:999px;padding:3px}
 .modtabs button{border:0;background:transparent;border-radius:999px;padding:6px 14px;cursor:pointer;font-weight:500;color:var(--ink-2)}
 .modtabs button.on{background:var(--ink);color:var(--surface)}
+@media (max-width:760px){.modtabs{overflow-x:auto;max-width:100%;min-width:0;flex:1 1 100%;scrollbar-width:none}.modtabs button{white-space:nowrap;padding:6px 10px;flex:0 0 auto}.top{min-width:0}}
 .bhead{display:flex;flex-wrap:wrap;gap:8px;align-items:end;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);padding:10px 12px}
 .bhead .fld{min-width:120px}.bhead .fld.sm{min-width:84px;width:96px}.bhead .grow{flex:1 1 200px}
 .bgrid{display:grid;grid-template-columns:minmax(260px,320px) minmax(0,1fr) minmax(0,1fr);gap:12px}
@@ -271,7 +282,7 @@ table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
 @media (max-width:1180px){.bgrid{grid-template-columns:1fr 1fr}.bgrid>.bcard:first-child{grid-column:1/-1}.bgrid2{grid-template-columns:1fr}}
 @media (max-width:980px){
   .bgrid{grid-template-columns:1fr}
-  .app{grid-template-columns:1fr;grid-template-rows:auto auto auto;height:auto}
+  .app{grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto auto;height:auto}
   .side{border-right:0;border-bottom:1px solid var(--line)}
   .panel-body{max-height:none;overflow:visible;padding-right:max(16px,env(safe-area-inset-right,0px))}
   .main{overflow:visible;padding-left:max(16px,env(safe-area-inset-left,0px))}
@@ -294,6 +305,7 @@ table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
       <button data-mod="jobs" role="tab">Ажил · захиалга</button>
       <button data-mod="nest" class="on" role="tab">Nesting · өрөлт</button>
       <button data-mod="bend" role="tab">Bending · нугалалт</button>
+      <button data-mod="info" role="tab">Мэдээлэл · сан</button>
     </nav>
     <span id="updBadge" class="pill rem" hidden></span>
     <div class="top-actions">
@@ -304,6 +316,34 @@ table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
     </div>
   </header>
 
+  <aside class="side" id="infoSide" hidden>
+    <nav class="tabs" role="tablist">
+      <button data-itab="mach" class="on">Техник</button>
+      <button data-itab="bt">Шанага</button>
+      <button data-itab="tpl">Загвар</button>
+      <button data-itab="lib">Миний сан</button>
+    </nav>
+    <div class="panel-body">
+      <section id="itab-mach">
+        <input id="mSearch" class="inp" placeholder="Хайх: Sandvik, PC2000…" aria-label="Хайх">
+        <div id="mCats" class="chips" style="margin:10px 0"></div>
+        <div id="mList" class="plist"></div>
+      </section>
+      <section id="itab-bt" hidden>
+        <p class="hint">Шанагын төрөл, хэрэглээ, бүтэц, материал. Баруун талд багтаамж сонгох тооцоо бий.</p>
+        <div id="btList" class="plist"></div>
+      </section>
+      <section id="itab-tpl" hidden>
+        <p class="hint">Зүсэж, нугалж хийх бүтээгдэхүүний параметрт загвар. Хэмжээг өөрчлөхөд эд анги, 3D, iLogic бүгд шинэчлэгдэнэ.</p>
+        <div id="tplList" class="plist"></div>
+      </section>
+      <section id="itab-lib" hidden>
+        <p class="hint">Гадаад сангаас <b>өөрийн бүртгэлээр</b> татаж, лицензийн нөхцөлийг нь шалгаад ашиглана. Татсан файлаа баруун талын «Файл нэмэх»-ээр санд хадгална. <span id="libCount" class="mono"></span></p>
+        <div id="extLinks" class="plist"></div>
+      </section>
+    </div>
+  </aside>
+  <main class="main" id="infoMain" hidden></main>
   <aside class="side" id="jobsSide" hidden>
     <nav class="tabs" role="tablist">
       <button data-jtab="jobs" class="on">Ажлууд <span class="badge" id="cntJobs"></span></button>
@@ -358,7 +398,7 @@ table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
       <section id="tab-parts">
         <div class="ptools">
           <label class="btn primary" for="dxfIn">Файл нэмэх</label>
-          <input type="file" id="dxfIn" accept=".dxf,.svg,.pdf,.ai,.plt,.hpgl,.hgl,.cdr,.dwg,.eps" multiple hidden>
+          <input type="file" id="dxfIn" accept=".dxf,.svg,.pdf,.ai,.plt,.hpgl,.hgl,.cdr,.dwg,.eps,.step,.stp,.iges,.igs,.brep" multiple hidden>
           <label class="btn" for="bomIn" title="Excel/CSV жагсаалт: нэр, тоо, материал, зузаан, урт×өргөн эсвэл DXF файлын нэр">BOM (Excel)</label>
           <input type="file" id="bomIn" accept=".xlsx,.xls,.csv,.dxf,.svg,.pdf,.ai,.plt" multiple hidden>
           <button class="btn" id="btnShape">Хэлбэр нэмэх</button>
@@ -2882,9 +2922,11 @@ async function importFiles(files) {
   let added = 0; const msgs = [];
   for (const f of files) {
     try {
-      const r = await importAnyFile(f);
+      const st = /\.(step|stp|iges|igs|brep)$/i.test(f.name); if (st) toast('3D файл уншиж байна…', 8000);
+      const r = st ? await importStep(f) : await importAnyFile(f);
+      if (r.bent) msgs.push(`${f.name}: ${r.bent} нугалсан/муруй биеийг алгассан (Inventor-оос Flat Pattern DXF гаргана уу)`);
       if (!r.parts.length) { msgs.push(`${f.name}: хаалттай контур олдсонгүй`); continue; }
-      for (const p of r.parts) { S.parts.push({ id: uid(), name: p.name, qty: p.qty, mat: S.defMat, thk: S.defThk, rot: true, mir: false, prio: 0, outer: p.outer, holes: p.holes, ...(p.bends ? { bends: p.bends } : {}) }); added++; }
+      for (const p of r.parts) { S.parts.push({ id: uid(), name: p.name, qty: p.qty, mat: S.defMat, thk: p.thk || S.defThk, rot: true, mir: false, prio: 0, outer: p.outer, holes: p.holes, ...(p.bends ? { bends: p.bends } : {}) }); added++; }
       if (r.open) msgs.push(`${f.name}: ${r.open} нээлттэй шугам (гулзайлтын шугам, текст г.м.) алгассан`);
     } catch (err) { msgs.push(`${f.name}: ${err && err.message ? err.message : 'уншиж чадсангүй'}`); }
   }
@@ -4828,7 +4870,8 @@ function setModule(m) {
   $('#nestSide').hidden = $('#nestMain').hidden = m !== 'nest';
   $('#bendSide').hidden = $('#bendMain').hidden = m !== 'bend'; if ($('#rollMain')) $('#rollMain').hidden = true;
   $('#jobsSide').hidden = $('#jobsMain').hidden = m !== 'jobs';
-  if (m === 'bend') { renderBend(); if (typeof showBendTab === 'function') showBendTab(RT.tab); } else if (m === 'jobs') renderJobs(); else drawView();
+  if ($('#infoSide')) $('#infoSide').hidden = $('#infoMain').hidden = m !== 'info';
+  if (m === 'info') { if (typeof renderInfo === 'function') renderInfo(); } else if (m === 'bend') { renderBend(); if (typeof showBendTab === 'function') showBendTab(RT.tab); } else if (m === 'jobs') renderJobs(); else drawView();
   try { localStorage.setItem(KEY + ':mod', m); } catch (e) { }
 }
 $$('.modtabs button').forEach(b => b.addEventListener('click', () => setModule(b.dataset.mod)));
@@ -5131,8 +5174,12 @@ function renderBucketMain(el) {
       <button class="btn primary" id="bkKit"${c.err.length ? ' disabled' : ''}>${BK.edit ? 'Иж бүрдлийг шинэчлэх' : 'Иж бүрдэл үүсгэх'}</button>
       <button class="btn" id="bkRoll"${c.err.length ? ' disabled' : ''}>Ороох хавтанг галзуу руу</button>
       <button class="btn" id="bkNest"${c.err.length ? ' disabled' : ''}>Nesting руу шууд ×</button><input id="bkN" type="number" min="1" value="1" class="inp mono" style="width:64px">
+      <button class="btn" id="bk3d"${c.err.length ? ' disabled' : ''}>3D</button>
+      <button class="btn" id="bkIl"${c.err.length ? ' disabled' : ''}>Inventor iLogic</button>
+      <button class="btn" id="bkStep"${c.err.length ? ' disabled' : ''}>STEP</button>
       <span style="flex:1"></span><button class="btn ghost" id="bkReset">Анхны утга</button>
     </div>
+    <div class="bcard" id="bk3dBox" hidden><div class="bcard-h">3D угсралт <span class="sp"></span><span class="muted" style="font-weight:400;font-size:12px">хулганаар эргүүлж, томруулна</span></div><div id="bk3dV" class="v3d"></div></div>
     <p class="note">Загвар нь хялбаршуулсан: доод тал хэвтээ, нуруу босоо, 90° ороолттой. Ороох хавтангийн урт нь гадна гадаргуу хажуугийн хавтангийн ирмэгтэй тэгшилнэ гэж тооцсон (DIN 6935 K). Ирний налуу, шүдний адаптер, бэхэлгээний нүхийг гараар нэмнэ.</p>`;
   if (!c.err.length) { drawBucket($('#bkCv'), B, c); el.querySelectorAll('canvas.thumb').forEach(cv => drawPartBox(cv, c.parts[+cv.dataset.i], partColor(+cv.dataset.i, dark, 0.85))); }
   const upd = () => { save(); renderBucketMain(el); };
@@ -5149,6 +5196,12 @@ function renderBucketMain(el) {
     BK.edit = null; J.kit = k.id; J.bucket = false; save(); renderJobs();
   });
   $('#bkNest').addEventListener('click', () => { const nn = Math.max(1, Math.round(+$('#bkN').value || 1)); kitParts().forEach(p => S.parts.push({ ...p, id: uid(), qty: p.qty * nn })); save(); renderParts(); toast(`${B.name} ×${nn} — ${c.parts.length} төрлийн хавтан Nesting-д нэмэгдлээ`); });
+  const show = () => { $('#bk3dBox').hidden = false; const r3 = bucket3D(B); if (r3) show3D($('#bk3dV'), worldSolids(r3)).catch(e => toast('3D: ' + (e.message || ''))); };
+  $('#bk3d').addEventListener('click', show);
+  if (BK.show3d && !c.err.length) show();
+  $('#bk3d').addEventListener('click', () => { BK.show3d = true; });
+  $('#bkIl').addEventListener('click', () => saveFile(`KH_bucket_${safeName(B.name)}.iLogicVb`, ilogicRule('bucket', bucketVbParams(B), B.name), 'text/plain'));
+  $('#bkStep').addEventListener('click', () => { const r3 = bucket3D(B); if (r3) saveFile(`${safeName(B.name)}.stp`, stepFile(worldSolids(r3), safeName(B.name)), 'application/step'); });
   $('#bkRoll').addEventListener('click', () => { const w = c.parts.find(p => p.roll); if (!w) return; rollFromPart({ ...w, name: `${B.name} — ороох хавтан` }); });
 }
 
@@ -5311,7 +5364,6 @@ $('#rList').addEventListener('click', e => {
 });
 [['rm_a', 'a'], ['rm_Dt', 'Dt'], ['rm_Dl', 'Dl'], ['rm_ton', 'ton'], ['rm_maxT', 'maxT'], ['rm_maxW', 'maxW']].forEach(([id, k]) => $('#' + id).addEventListener('change', e => { S.bend.rollM[k] = Math.max(1, +e.target.value || 1); save(); renderRollSide(); renderRollMain(); }));
 
-try { const m0 = localStorage.getItem(KEY + ':mod'); if (m0 === 'bend' || m0 === 'jobs') setModule(m0); } catch (e) { }
 
 /* ================= KH Fab — BOM import (Excel / CSV): rows → parts, DXF files matched by name ================= */
 const XLSX_URL = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
@@ -5820,6 +5872,847 @@ $('#trAdd').addEventListener('click', () => {
   toast(`${TR.parts.length} парт нэмэгдлээ — хэмжээг нь шалгаад шаардлагатай бол DXF-ээр засна уу`, 4000);
 });
 window.addEventListener('resize', () => { if (!$('#trModal').hidden) trDraw(); });
+
+/* ================= KH Fab — reference data: mining machines, bucket types, parts we can fabricate =================
+   Figures from manufacturer / dealer specification pages (see `src`). Values change by configuration and market —
+   always confirm against the machine's own spec sheet before quoting. */
+const MCAT = [
+  ['lhd', 'Далд уурхайн ачигч (LHD)'],
+  ['exc', 'Экскаватор, шанагат'],
+  ['wl', 'Дугуйт ачигч'],
+  ['truck', 'Өөрөө буулгагч'],
+  ['dozer', 'Бульдозер']
+];
+// w: operating / empty weight (t) · gvw: gross (t) · kW: engine · cap: [min, max] m³ (bucket / body heaped) · std: standard bucket m³
+// pay: payload / tramming capacity (t) · bw: bucket width (mm)
+const MACHINES = [
+  // ---- underground LHD
+  { id: 'lh515i', make: 'Sandvik', model: 'Toro LH515i', cat: 'lhd', pay: 15, w: 39.6, kW: 265, cap: [6.3, 7.5], std: 6.3, bw: 2740, note: 'Шанага: G.E.T. 6.3 м³ (2740 мм), ир шүдгүй 6.8 м³, G.E.T. 7.5 м³ (3066 мм), түлхэгчтэй 6.3 м³ (2830 мм). Хөдөлгүүр Volvo TAD1181VE.', src: ['https://www.mining.sandvik/en/products/equipment/loaders/lh515i-underground-loader/', 'https://www.mining.sandvik/siteassets/product-documents/loaders/diesel-loaders/lh515i-technical-specifications-english.pdf'] },
+  { id: 'lh517i', make: 'Sandvik', model: 'Toro LH517i', cat: 'lhd', pay: 17, w: 48.4, kW: null, cap: [7.0, 9.1], std: null, bw: null, note: 'Машины хэмжээ 11 500 × 3 100 × 2 800 мм.', src: ['https://www.mining.sandvik/en/products/equipment/loaders/lh517i-underground-lhd'] },
+  { id: 'lh621', make: 'Sandvik', model: 'LH621 / LH621i', cat: 'lhd', pay: 21, w: 56.8, kW: 352, cap: [8.0, 10.7], std: 8.0, bw: null, note: 'Шанага 8.0 (стандарт), 9.0, 9.8, 10.7 м³. Хөдөлгүүр Volvo TAD1344VE 352 кВт.', src: ['https://www.mining.sandvik/globalassets/products/underground-loaders-and-trucks/pdf/lh621-specification-sheet-english.pdf'] },
+  { id: 'lh410', make: 'Sandvik', model: 'Toro LH410', cat: 'lhd', pay: 10, w: null, kW: null, cap: null, std: null, bw: null, note: '10 т даацын ангилал.', src: ['https://www.e-mj.com/breaking-news/sandvik-launches-new-toro-lh410-loader/'] },
+  { id: 'st14', make: 'Epiroc', model: 'Scooptram ST14', cat: 'lhd', pay: 14, w: 39.1, kW: 250, cap: [4.7, 7.8], std: null, bw: 3040, note: 'Стандарт шанага 4.7–7.8 м³ (материалын нягт 3.0–1.8 т/м³), EOD түлхэгчтэй 6.0 м³ (2850 мм).', src: ['https://app.epiroc.com/content/dam/epiroc/underground-mining-and-tunneling/lhd/diesel-scooptram/st14/9869%200057%2001g%20Scooptram%20ST14%20Technical%20Specification%20Eng_lowres.pdf'] },
+  { id: 'st18', make: 'Epiroc', model: 'Scooptram ST18', cat: 'lhd', pay: 17.5, w: 51.5, kW: 352, cap: [6.3, 9.7], std: null, bw: 3330, note: 'Шанага 6.3, 6.7, 7.3, 7.9, 8.8, 9.7 м³; EOD 7.1, 7.4 м³. Tier 3 хувилбар 336 кВт.', src: ['https://app.epiroc.com/content/dam/epiroc/underground-mining-and-tunneling/lhd/diesel-scooptram/st18/9869%200065%2001e_Scooptram%20ST18%20technical%20specification_english.pdf'] },
+  { id: 'r1700', make: 'Caterpillar', model: 'R1700', cat: 'lhd', pay: 15.0, w: 43.2, kW: 257, cap: [5.7, 8.6], std: null, bw: null, note: 'Даац 33 069 lb, жин 95 189 lb, 345 hp (Stage V).', src: ['https://wheelercat.com/new/machines/underground-hard-rock/r1700-underground-mining-loader'] },
+  { id: 'r2900g', make: 'Caterpillar', model: 'R2900G', cat: 'lhd', pay: 17.2, w: 50.2, kW: 299, cap: [6.3, 8.9], std: null, bw: null, note: 'Дөрвөн хэмжээний шанагатай.', src: ['https://trakindo.co.id/r2900g-18234906'] },
+  // ---- excavators / shovels
+  { id: 'pc200', make: 'Komatsu', model: 'PC200LC-8M0', cat: 'exc', pay: null, w: 21.96, kW: 103, cap: [0.97, 0.97], std: 0.97, bw: null, note: 'Барилга, уурхайн туслах ажлын түгээмэл экскаватор.', src: ['https://www.komatsu.com/en-au/products/equipment/excavators/crawler-excavators/pc200lc-8m0'] },
+  { id: 'pc300', make: 'Komatsu', model: 'PC300-8M0', cat: 'exc', pay: null, w: 33.8, kW: 187, cap: [1.68, 1.68], std: 1.68, bw: null, note: 'Стандарт GP шанага 2.2 yd³ ≈ 1.68 м³.', src: ['https://www.ritchiespecs.com/model/komatsu-pc300-8m0-hydraulic-excavator'] },
+  { id: 'pc1250', make: 'Komatsu', model: 'PC1250-11', cat: 'exc', pay: null, w: 123.6, kW: 565, cap: [4.1, 7.3], std: null, bw: null, note: '', src: ['https://www.komatsu.com/en-au/products/equipment/excavators/crawler-excavators/pc1250-11'] },
+  { id: 'pc2000', make: 'Komatsu', model: 'PC2000-11', cat: 'exc', pay: null, w: 206.1, kW: 780, cap: [13.7, 13.7], std: 13.7, bw: null, note: 'Хуудсанд нэг шанагын багтаамж 13.7 м³ заасан.', src: ['https://www.komatsu.com/en-au/products/equipment/excavators/crawler-excavators/pc2000-11'] },
+  { id: 'ex1200', make: 'Hitachi', model: 'EX1200-7', cat: 'exc', pay: null, w: 117, kW: 567, cap: [5.2, 7.5], std: 5.2, bw: null, note: 'Backhoe 5.2 м³ (ISO 7451); урд шанага 5.9–7.5 м³; BE-Front 7.0–8.0 м³. Cummins QSK23.', src: ['https://hitachicm.com/global/en/solutions/mining-business/products/large-excavators/product.ex1200-7'] },
+  { id: 'ex2600', make: 'Hitachi', model: 'EX2600-7', cat: 'exc', pay: null, w: 260, kW: 1119, cap: [15.0, 19.5], std: null, bw: null, note: 'Backhoe 18.0–19.5 м³; урд шанага 15.0–16.5 м³. MTU хувилбар 1150 кВт.', src: ['https://hitachicm.com/global/en/solutions/mining-business/products/large-excavators/product.ex2600-7'] },
+  { id: 'r9400', make: 'Liebherr', model: 'R 9400 G6', cat: 'exc', pay: null, w: 345.5, kW: 1250, cap: [22, 24], std: 24, bw: null, note: 'Backhoe 24 м³, урд шанага 22 м³ (1.8 т/м³). Урд шанагатай 353 т.', src: ['https://www.liebherr.com/en/can/products/mining-equipment/mining-excavators/details/r9400.html'] },
+  { id: 'cat6015', make: 'Caterpillar', model: '6015 / 6015B', cat: 'exc', pay: null, w: 140, kW: 606, cap: [8.1, 8.1], std: 8.1, bw: null, note: 'Backhoe шанага 8.1 м³ (1:1).', src: ['https://www.cat.com/en_AU/products/new/equipment/hydraulic-mining-shovels/hydraulic-mining-shovels/130421.html'] },
+  // ---- wheel loaders
+  { id: 'wa600', make: 'Komatsu', model: 'WA600-8', cat: 'wl', pay: null, w: 57.46, kW: 395, cap: [6.4, 7.8], std: 7.8, bw: 3805, note: '', src: ['https://www.komatsu.com/en-au/products/equipment/wheel-loaders/wa600-8-lc'] },
+  { id: 'wa900', make: 'Komatsu', model: 'WA900-8R', cat: 'wl', pay: null, w: 116.4, kW: 672, cap: [11.5, 13.0], std: null, bw: null, note: '', src: ['https://www.komatsu.com/en-br/products/equipment/wheel-loaders/surface-mining-wheel-loaders/wa900-8r'] },
+  { id: 'wa1200', make: 'Komatsu', model: 'WA1200-6', cat: 'wl', pay: null, w: 216.4, kW: 1316, cap: [20, 40], std: 20, bw: null, note: 'Стандарт шанага 20 м³; хуудсанд 21.5–40 м³ хүрээ мөн заасан (материалаас хамаарна).', src: ['https://www.komatsu.com/en-au/products/equipment/wheel-loaders/wa1200-6'] },
+  { id: 'cat992k', make: 'Caterpillar', model: '992K', cat: 'wl', pay: null, w: 99.8, kW: 607, cap: [10.7, 12.3], std: null, bw: null, note: 'Өндөр өргөлттэй хувилбар 100.6 т.', src: ['https://petersoncat.com/products/new/large-wheel-loaders/992k'] },
+  { id: 'cat994k', make: 'Caterpillar', model: '994K', cat: 'wl', pay: null, w: 242.6, kW: 1297, cap: [19.1, 24.5], std: null, bw: null, note: '', src: ['https://ritchiespecs.com/model/caterpillar-994k-wheel-loader'] },
+  // ---- haul trucks
+  { id: 'hd785', make: 'Komatsu', model: 'HD785-7', cat: 'truck', pay: 91.7, w: null, gvw: 163.8, kW: 879, cap: [60, 60], note: 'Тэвш 40 м³ тэгш, 60 м³ овоолсон (2:1).', src: ['https://www.komatsu.com/en-au/products/equipment/dump-trucks/mechanical-rigid-trucks/hd785-7'] },
+  { id: 'cat777g', make: 'Caterpillar', model: '777G', cat: 'truck', pay: 96.6, w: null, gvw: 164.7, kW: 711, cap: [60.2, 64.1], note: 'Dual Slope 60.2 м³, X Body 64.1 м³. Доторлогоотой үед даац 89–92 т.', src: ['https://www.zeppelin.cz/fileadmin/helios_files/JPG/ToM/OHT/777G/777G-RDR_AEXQ2671-00_Tech_Specs_2020.pdf'] },
+  { id: 'belaz75131', make: 'БелАЗ', model: '75131', cat: 'truck', pay: 130, w: 107.1, gvw: null, kW: 1194, cap: [67, 67], note: 'Cummins KTA50-C.', src: ['https://www.lectura-specs.com/en/model/construction-machinery/rigid-dump-trucks-belaz/75131-11738566'] },
+  { id: 'cat793f', make: 'Caterpillar', model: '793F', cat: 'truck', pay: 231, w: null, gvw: 386.0, kW: 1848, cap: [159, 191], note: 'HP тэвш 162–191 м³, MSD II 159–190 м³.', src: ['https://kz.borusancat.com/en/equipment/new/470/off-highway-trucks/18092621/793f'] },
+  { id: 'k830e', make: 'Komatsu', model: '830E-5', cat: 'truck', pay: 230, w: null, gvw: 408.9, kW: 2014, cap: [158, 158], note: 'Цахилгаан хөтлөгчтэй. 2700 hp сонголттой үед 2014 кВт.', src: ['https://www.komatsu.com/en-au/products/equipment/dump-trucks/electric-drive-mining-trucks/830e-5'] },
+  { id: 'k930e', make: 'Komatsu', model: '930E-5', cat: 'truck', pay: 304, w: null, gvw: 521.6, kW: 2014, cap: [171, 211], note: 'Тэвш 171 м³ тэгш, 211 м³ овоолсон.', src: ['https://www.komatsu.com/en-au/products/equipment/dump-trucks/electric-drive-mining-trucks/930e-5'] },
+  { id: 'cat797f', make: 'Caterpillar', model: '797F', cat: 'truck', pay: 363, w: null, gvw: 623.7, kW: 2828, cap: [252, 252], note: '', src: ['https://kz.borusancat.com/en/equipment/new/470/off-highway-trucks/18093014/797f'] },
+  // ---- dozers
+  { id: 'catd10', make: 'Caterpillar', model: 'D10', cat: 'dozer', pay: null, w: 70.3, kW: 449, cap: [18.5, 22], note: 'Ир: 10SU 18.5 м³, 10U 22 м³ (SAE J1265).', src: ['https://www.westrac.com.au/products/d10-115080'] },
+  { id: 'd375a', make: 'Komatsu', model: 'D375A-8', cat: 'dozer', pay: null, w: 72.9, kW: 455, cap: [22, 22], note: '', src: ['https://www.komatsu.com/en-au/products/equipment/dozers/surface-mining-dozers/d375a-8'] }
+];
+// what a fabrication shop typically makes or repairs for each class
+const MFAB = {
+  lhd: ['Шанага бүтнээр (ир, хажуу, ёроол, нуруу)', 'Ирний хавтан, хажуугийн ир', 'Ёроол ба хажуугийн элэгдлийн хавтан, тууз', 'Өсгийн хамгаалалт (heel shroud)', 'Түлхэгчтэй шанагын түлхүүр хавтан'],
+  exc: ['Шанага (GP, HD, хадны, хэт хүнд)', 'Ирний хавтан, хажуугийн хамгаалалт', 'Элэгдлийн тууз, шанагын доторлогоо', 'Чих, холбоосны хавтан, бут', 'Сум (boom) ба гарын засварын хавтан'],
+  wl: ['Шанага (ерөнхий, хадны, өндөр буулгалттай)', 'Ирний хавтан (cutting edge) ба хэсэгчилсэн ир', 'Элэгдлийн хавтан, хажуугийн хамгаалалт', 'Чих, холбоосны хавтан'],
+  truck: ['Тэвшний ёроол, хажуугийн доторлогоо (Hardox)', 'Тэвшний арын ирмэг, хамгаалалт', 'Чулуу гаргагч (rock ejector), шавар хаалт', 'Шат, тавцан, бариул'],
+  dozer: ['Ирний хавтан, булангийн ир (end bit)', 'Ирний элэгдлийн хавтан', 'Хамгаалалтын хавтан (guard)', 'Хагалуурын шүдний хамгаалалт']
+};
+// bucket types — general engineering guidance
+const BTYPES = [
+  { id: 'gp', name: 'Ерөнхий зориулалтын (GP)', for: 'exc wl', use: 'Сул хөрс, шороо, элс, хайрга ачих.', build: 'Нимгэн хавтан, шүдтэй ир. Элэгдлийн хамгаалалт бага.', mat: 'Бүтэц: S355. Ир: Hardox 400/450.' },
+  { id: 'hd', name: 'Хүнд даацын (HD)', for: 'exc wl', use: 'Нягт хөрс, шавар, жижиг чулуу, элэгдэл дунд зэрэг.', build: 'Зузаан ир, хажуугийн ир, ёроолын элэгдлийн тууз.', mat: 'Бүтэц: S355/Strenx. Элэгдэл: Hardox 450.' },
+  { id: 'rock', name: 'Хадны (Rock)', for: 'exc wl', use: 'Тэсэлсэн чулуу, хүдэр.', build: 'Зузаан ирний хавтан (spade эсвэл шулуун), хажуугийн хамгаалалт, ёроол бүтэн доторлогоотой, өсгийн хамгаалалт.', mat: 'Hardox 450/500 элэгдлийн хэсэг.' },
+  { id: 'xhd', name: 'Хэт хүнд (Severe / XHD)', for: 'exc wl lhd', use: 'Маш элэгдэлтэй, нүдлэгтэй хүдэр, кварцит.', build: 'Бүх гадаргуу доторлогоотой, chocky bar эсвэл wear button, давхар ир.', mat: 'Hardox 500/600 доторлогоо.' },
+  { id: 'coal', name: 'Нүүрс, хөнгөн материал', for: 'exc wl', use: 'Нүүрс, мод, үр тариа зэрэг нягт багатай материал.', build: 'Том багтаамжтай, өргөн, хавтан нимгэн.', mat: 'S355, ир Hardox 400.' },
+  { id: 'skel', name: 'Шигшүүр (Skeleton)', for: 'exc wl', use: 'Чулуу ялгах, шигших.', build: 'Ёроол, нуруу нь сараалжтай.', mat: 'S355 + Hardox сараалж.' },
+  { id: 'ditch', name: 'Суваг цэвэрлэгч', for: 'exc', use: 'Налуу засах, суваг цэвэрлэх.', build: 'Өргөн, гүехэн, шүдгүй шулуун ир, ус гаргах нүхтэй.', mat: 'S355, ир Hardox 400.' },
+  { id: 'trench', name: 'Нарийн суваг (Trenching)', for: 'exc', use: 'Кабель, хоолойн суваг.', build: 'Нарийн, гүн, шүдтэй.', mat: 'S355, Hardox 450 ир.' },
+  { id: 'fs', name: 'Урд шанага (Face shovel / Loading shovel)', for: 'exc', use: 'Том уурхайн экскаваторын ачилт.', build: 'Доороос нээгддэг (clamshell) эсвэл хөмрөх; маш зузаан ир, том багтаамж.', mat: 'Strenx бүтэц, Hardox 500 элэгдэл.' },
+  { id: 'lhdget', name: 'LHD шанага — шүдтэй (G.E.T.)', for: 'lhd', use: 'Тэсэлсэн хүдэр, далд уурхай.', build: 'Хавтгай өргөн ёроол, богино нуруу, солигддог шүд/хамгаалалт (Sandvik Shark, Epiroc).', mat: 'Hardox 450/500, ир 60–100 мм.' },
+  { id: 'lhdbare', name: 'LHD шанага — шүдгүй ир (Bare lip)', for: 'lhd', use: 'Нарийн хүдэр, цэвэрлэгээ, зам засвар.', build: 'Шулуун ирний хавтан, багтаамж арай их.', mat: 'Hardox 500 ир.' },
+  { id: 'lhdeod', name: 'LHD түлхэгчтэй шанага (EOD)', for: 'lhd', use: 'Нам таазтай газар, машинд буулгах.', build: 'Дотор нь түлхэгч хавтан — шанага хөмрөхгүйгээр буулгана.', mat: 'Hardox 450 + түлхэгчийн чиглүүлэгч.' },
+  { id: 'hdump', name: 'Өндөр буулгалттай / хажуу буулгагч', for: 'wl', use: 'Өндөр тэвшинд ачих, нарийн газар.', build: 'Нэмэлт холбоос эсвэл хажуу тийш хөмрөх механизм.', mat: 'S355, Hardox 450.' }
+];
+// loose densities for bucket sizing — typical handbook-level values
+const DENS = [['Хөрс, шороо (сул)', 1.5], ['Хайрга', 1.8], ['Тэсэлсэн чулуу', 1.8], ['Төмрийн хүдэр', 2.3], ['Зэсийн хүдэр', 2.0], ['Нүүрс', 0.9], ['Шавар (нойтон)', 1.7], ['Элс (хуурай)', 1.5]];
+// public sources of DXF / CAD files (user downloads under their own account; licences differ per file)
+const EXTLIBS = [
+  { name: 'GrabCAD', url: 'https://grabcad.com/library', kind: '3D CAD (STEP, IGES, Inventor)', lic: 'Ихэнх нь хувийн хэрэглээнд. Арилжаанд ашиглахад зохиогчийн зөвшөөрөл хэрэгтэй. Брэндийн загварыг арилжаанд ашиглахгүй.' },
+  { name: '3axis.co', url: 'https://3axis.co/', kind: 'DXF, SVG (лазер/CNC)', lic: 'Файл бүрийн лицензийг шалгана (License хуудас).' },
+  { name: 'Scan2CAD', url: 'https://www.scan2cad.com/free-downloads/dxf/', kind: 'DXF', lic: 'Гишүүдэд зориулсан багц, нөхцөлийг шалгана.' },
+  { name: 'Traceparts', url: 'https://www.traceparts.com/', kind: 'Стандарт эд анги (боолт, холхивч) 3D', lic: 'Үйлдвэрлэгчийн каталог — бүртгэлтэй, үнэгүй.' },
+  { name: 'McMaster-Carr', url: 'https://www.mcmaster.com/', kind: 'Стандарт эд анги 2D/3D', lic: 'Каталогийн эд ангид зориулсан.' }
+];
+
+/* ================= KH Fab — parametric product templates: flat cut parts + 3D bodies + assembly placement =================
+   The same geometry is ported 1:1 to the Inventor iLogic rules (ilogic.js) — keep both in step. Units: mm, Z up. */
+const TG = {
+  R(x, y, w, h, r) { return rectLoop(w, h, r || 0).map(v => ({ x: v.x + x, y: v.y + y, b: v.b })); },
+  C(cx, cy, r) { return [{ x: cx + r, y: cy, b: 1 }, { x: cx - r, y: cy, b: 1 }]; },
+  S(cx, cy, len, w, vert) { // obround slot; len = overall length
+    const r = w / 2, l = Math.max(0, len - w);
+    if (l < 1e-6) return TG.C(cx, cy, r);
+    if (!vert) return [{ x: cx - l / 2, y: cy - r, b: 0 }, { x: cx + l / 2, y: cy - r, b: 1 }, { x: cx + l / 2, y: cy + r, b: 0 }, { x: cx - l / 2, y: cy + r, b: 1 }];
+    return [{ x: cx + r, y: cy - l / 2, b: 0 }, { x: cx + r, y: cy + l / 2, b: 1 }, { x: cx - r, y: cy + l / 2, b: 0 }, { x: cx - r, y: cy - l / 2, b: 1 }];
+  },
+  P(a) { return a.map(p => ({ x: p[0], y: p[1], b: p[2] || 0 })); },
+  mv(lp, dx, dy) { return lp.map(v => ({ x: v.x + dx, y: v.y + dy, b: v.b })); },
+  F(o, u, v) { const n = [u[1] * v[2] - u[2] * v[1], u[2] * v[0] - u[0] * v[2], u[0] * v[1] - u[1] * v[0]]; return { o, u, v, n }; },
+  rotZ(o, deg) { const a = deg * Math.PI / 180, c = Math.cos(a), s = Math.sin(a); return TG.F(o, [c, s, 0], [-s, c, 0]); },
+  solid(loops, t, fr) { return { loops, t, fr: fr || TG.F([0, 0, 0], [1, 0, 0], [0, 1, 0]) }; },
+  box(x, y, z, dx, dy, dz) { return TG.solid([TG.R(0, 0, dx, dy, 0)], dz, TG.F([x, y, z], [1, 0, 0], [0, 1, 0])); },
+  // frame point: o + x·u + y·v + z·n
+  at(fr, x, y, z) { return [0, 1, 2].map(i => fr.o[i] + x * fr.u[i] + y * fr.v[i] + (z || 0) * fr.n[i]); },
+  // compose: placement (world) ∘ local frame
+  comp(P, f) { const m = q => [0, 1, 2].map(i => q[0] * P.u[i] + q[1] * P.v[i] + q[2] * P.n[i]); return { o: TG.at(P, f.o[0], f.o[1], f.o[2]), u: m(f.u), v: m(f.v), n: m(f.n) }; }
+};
+/* 90° bend constants for sheet t with inside radius R = t (DIN 6935 K) */
+function bend90(t) { const R = t, K = kFactor(R, t), BA = Math.PI / 2 * (R + K * t), OS = R + t; return { R, K, BA, OS, BD: 2 * OS - BA }; }
+/* flanged tray: outer W × D, flanges F high on the chosen sides [y0, x=W, y=D, x0] */
+function trayFlat(W, D, F, t, sd) {
+  const k = bend90(t), a = F - k.OS, b = k.BA;
+  const [s0, s1, s2, s3] = sd, xl = s3 ? a + b : 0, xr = s1 ? a + b : 0, yb = s0 ? a + b : 0, yt = s2 ? a + b : 0;
+  const c = W - (s3 ? k.OS : 0) - (s1 ? k.OS : 0), d = D - (s0 ? k.OS : 0) - (s2 ? k.OS : 0);
+  const X1 = xl + c, Y1 = yb + d, TW = X1 + xr, TH = Y1 + yt;
+  const raw = [[xl, 0], [X1, 0], [X1, yb], [TW, yb], [TW, Y1], [X1, Y1], [X1, TH], [xl, TH], [xl, Y1], [0, Y1], [0, yb], [xl, yb]];
+  const pts = [];
+  raw.forEach(p => { const l = pts[pts.length - 1]; if (!l || Math.hypot(l[0] - p[0], l[1] - p[1]) > 1e-9) pts.push(p); });
+  while (pts.length > 1 && Math.hypot(pts[0][0] - pts[pts.length - 1][0], pts[0][1] - pts[pts.length - 1][1]) < 1e-9) pts.pop();
+  const clean = pts.filter((p, i) => { const A = pts[(i - 1 + pts.length) % pts.length], B = pts[(i + 1) % pts.length]; return Math.abs((p[0] - A[0]) * (B[1] - p[1]) - (p[1] - A[1]) * (B[0] - p[0])) > 1e-9; });
+  const bends = [];
+  if (s0) bends.push({ x1: xl, y1: a + b / 2, x2: X1, y2: a + b / 2, up: false, ang: 90 });
+  if (s2) bends.push({ x1: xl, y1: Y1 + b / 2, x2: X1, y2: Y1 + b / 2, up: false, ang: 90 });
+  if (s3) bends.push({ x1: a + b / 2, y1: yb, x2: a + b / 2, y2: Y1, up: false, ang: 90 });
+  if (s1) bends.push({ x1: X1 + b / 2, y1: yb, x2: X1 + b / 2, y2: Y1, up: false, ang: 90 });
+  return {
+    outer: TG.P(clean), bends, W: TW, H: TH, k,
+    X: x => xl + x - (s3 ? k.OS : 0), Y: y => yb + y - (s0 ? k.OS : 0),          // panel point (outer dims) → flat
+    fl: (side, along, e) => side === 0 ? [xl + along - (s3 ? k.OS : 0), e] : side === 2 ? [xl + along - (s3 ? k.OS : 0), TH - e] : side === 3 ? [e, yb + along - (s0 ? k.OS : 0)] : [TW - e, yb + along - (s0 ? k.OS : 0)] // flange point: distance `along` the panel edge, `e` from the free edge
+  };
+}
+/* tray as 3D bodies (part-local): panel on top at z = F, flanges hanging down to z = 0 */
+function tray3D(W, D, F, t, sd, panelHoles) {
+  const out = [TG.solid([TG.R(0, 0, W, D, 0), ...(panelHoles || [])], t, TG.F([0, 0, F - t], [1, 0, 0], [0, 1, 0]))];
+  const y0 = sd[0] ? t : 0, y1 = sd[2] ? D - t : D, h = F - t;
+  if (sd[0]) out.push(TG.box(0, 0, 0, W, t, h));
+  if (sd[2]) out.push(TG.box(0, D - t, 0, W, t, h));
+  if (sd[3]) out.push(TG.box(0, y0, 0, t, y1 - y0, h));
+  if (sd[1]) out.push(TG.box(W - t, y0, 0, t, y1 - y0, h));
+  return out;
+}
+/* L-angle with one 90° bend: legs A and B (outer), width w, length along the bend */
+function angleFlat(A, B, len, t) { const k = bend90(t), a = A - k.OS, b = B - k.OS; return { outer: TG.R(0, 0, a + k.BA + b, len, 0), bends: [{ x1: a + k.BA / 2, y1: 0, x2: a + k.BA / 2, y2: len, up: false, ang: 90 }], fx1: x => x, fx2: x => a + k.BA + (x - k.OS), W: a + k.BA + b, k }; }
+function angle3D(A, B, len, t) { return [TG.box(0, 0, 0, A, t, len), TG.box(0, t, 0, t, B - t, len)]; }
+
+/* ---------- templates ---------- */
+const TPL = {
+  pegboard: {
+    name: 'Pegboard — багажны самбар', cat: 'Цех',
+    desc: 'Дөрвөн талдаа нугалсан ирмэгтэй, нүх/ангархай торон самбар. Хананд 4 нүхээр бэхэлнэ.',
+    params: [['W', 'Өргөн', 1000, 10], ['H', 'Өндөр', 600, 10], ['t', 'Зузаан', 1.5, 0.5], ['F', 'Ирмэгийн өндөр', 25, 1], ['p', 'Нүхний алхам', 38, 1], ['hw', 'Нүхний өргөн', 6, 0.5], ['hl', 'Нүхний урт (= өргөн бол дугуй)', 20, 1], ['m', 'Захын зай', 45, 1], ['md', 'Бэхэлгээний нүх Ø', 8, 0.5], ['n', 'Тоо', 1, 1]],
+    mat: 'Ст3 / S235',
+    build(p) {
+      const sd = [1, 1, 1, 1], tf = trayFlat(p.W, p.H, p.F, p.t, sd), holesP = [];
+      const nx = Math.max(1, Math.floor((p.W - 2 * p.m) / p.p) + 1), ny = Math.max(1, Math.floor((p.H - 2 * p.m - (p.hl - p.hw)) / p.p) + 1);
+      const x0 = (p.W - (nx - 1) * p.p) / 2, y0 = (p.H - (ny - 1) * p.p) / 2;
+      for (let i = 0; i < nx; i++) for (let j = 0; j < ny; j++) holesP.push([x0 + i * p.p, y0 + j * p.p]);
+      const mnt = [[p.m / 2, p.m / 2], [p.W - p.m / 2, p.m / 2], [p.W - p.m / 2, p.H - p.m / 2], [p.m / 2, p.H - p.m / 2]];
+      const flatHoles = holesP.map(q => TG.S(tf.X(q[0]), tf.Y(q[1]), p.hl, p.hw, true)).concat(mnt.map(q => TG.C(tf.X(q[0]), tf.Y(q[1]), p.md / 2)));
+      const panelHoles = holesP.map(q => TG.S(q[0], q[1], p.hl, p.hw, true)).concat(mnt.map(q => TG.C(q[0], q[1], p.md / 2)));
+      const parts = [{ key: 'board', name: `Pegboard ${p.W}×${p.H}`, thk: p.t, qty: p.n, outer: tf.outer, holes: flatHoles, bends: tf.bends }];
+      const bodies = { board: tray3D(p.W, p.H, p.F, p.t, sd, panelHoles) };
+      const place = []; for (let i = 0; i < p.n; i++) place.push({ key: 'board', fr: TG.F([i * (p.W + 20), 0, 0], [1, 0, 0], [0, 0, 1]) });
+      return { parts, bodies, place, info: `${nx * ny} нүх · дэлгэмэл ${nf(tf.W, 1)} × ${nf(tf.H, 1)} мм` };
+    }
+  },
+  bench: {
+    name: 'Ажлын ширээ', cat: 'Цех',
+    desc: 'Нугалсан тавцан, доод тавиур, булангийн 4 өнцөгт хөл. Бүгд боолтоор угсрагдана.',
+    params: [['L', 'Урт', 1500, 10], ['D', 'Гүн', 700, 10], ['H', 'Өндөр', 900, 10], ['t', 'Тавцангийн зузаан', 3, 0.5], ['F', 'Тавцангийн ирмэг', 50, 1], ['A', 'Хөлийн өнцөгт', 60, 1], ['tl', 'Хөлийн зузаан', 4, 0.5], ['zs', 'Доод тавиурын өндөр', 200, 10], ['ts', 'Тавиурын зузаан', 2, 0.5], ['Fs', 'Тавиурын ирмэг', 30, 1], ['bd', 'Боолтны нүх Ø', 9, 0.5]],
+    mat: 'Ст3 / S235',
+    build(p) {
+      const sd = [1, 1, 1, 1], top = trayFlat(p.L, p.D, p.F, p.t, sd);
+      const SL = p.L - 2 * p.t - 2 * p.tl, SD = p.D - 2 * p.t - 2 * p.tl, sh = trayFlat(SL, SD, p.Fs, p.ts, sd);
+      const Lg = p.H - p.t, lg = angleFlat(p.A, p.A, Lg, p.tl), r = p.bd / 2;
+      // bolt positions: legs sit in the tray corners; holes at mid flange height
+      const cTop = p.t + p.A / 2, cSh = p.A / 2 - p.tl;
+      const topH = [], shH = [];
+      [[0, p.L], [2, p.L], [1, p.D], [3, p.D]].forEach(([s, len]) => { [cTop, len - cTop].forEach(a => topH.push(TG.C(...top.fl(s, a, p.F / 2), r))); });
+      [[0, SL], [2, SL], [1, SD], [3, SD]].forEach(([s, len]) => { [cSh, len - cSh].forEach(a => shH.push(TG.C(...sh.fl(s, a, p.Fs / 2), r))); });
+      const legH = [];
+      [p.H - p.F / 2, p.zs - p.Fs / 2].forEach(y => { legH.push(TG.C(lg.fx1(p.A / 2), y, r)); legH.push(TG.C(lg.fx2(p.A / 2), y, r)); });
+      const parts = [
+        { key: 'top', name: `Тавцан ${p.L}×${p.D}`, thk: p.t, qty: 1, outer: top.outer, holes: topH, bends: top.bends },
+        { key: 'shelf', name: `Доод тавиур ${Math.round(SL)}×${Math.round(SD)}`, thk: p.ts, qty: 1, outer: sh.outer, holes: shH, bends: sh.bends },
+        { key: 'leg', name: `Хөл ∟${p.A}×${p.A}×${p.tl}, L${Math.round(Lg)}`, thk: p.tl, qty: 4, outer: lg.outer, holes: legH, bends: lg.bends }
+      ];
+      const bodies = { top: tray3D(p.L, p.D, p.F, p.t, sd), shelf: tray3D(SL, SD, p.Fs, p.ts, sd), leg: angle3D(p.A, p.A, Lg, p.tl) };
+      const place = [{ key: 'top', fr: TG.F([0, 0, p.H - p.F], [1, 0, 0], [0, 1, 0]) }, { key: 'shelf', fr: TG.F([p.t + p.tl, p.t + p.tl, p.zs - p.Fs], [1, 0, 0], [0, 1, 0]) }];
+      [[p.t, p.t, 0], [p.L - p.t, p.t, 90], [p.L - p.t, p.D - p.t, 180], [p.t, p.D - p.t, 270]].forEach(([x, y, a]) => place.push({ key: 'leg', fr: TG.rotZ([x, y, 0], a) }));
+      return { parts, bodies, place, info: `тавцан дэлгэмэл ${nf(top.W, 1)} × ${nf(top.H, 1)} мм` };
+    }
+  },
+  chair: {
+    name: 'Сандал (лазер, боолттой)', cat: 'Тавилга',
+    desc: 'Хоёр хажуу хүрээ, нугалсан суудал, түшлэг. Хажуу хүрээнд боолтны нүх тааруулж гарна.',
+    params: [['Ws', 'Суудлын өргөн', 430, 5], ['Ds', 'Суудлын гүн', 420, 5], ['Hs', 'Суудлын өндөр', 450, 5], ['Hb', 'Нийт өндөр', 820, 5], ['a', 'Түшлэгийн налуу, °', 8, 1], ['pw', 'Хүрээний өргөн', 45, 1], ['tf', 'Хүрээний зузаан', 5, 0.5], ['t', 'Суудал, түшлэгийн зузаан', 2, 0.5], ['F', 'Нугалаас', 30, 1], ['Hbp', 'Түшлэгийн өндөр', 260, 5], ['bd', 'Боолтны нүх Ø', 7, 0.5], ['n', 'Тоо', 1, 1]],
+    mat: 'Ст3 / S235',
+    build(p) {
+      const ta = Math.tan(p.a * Math.PI / 180), ca = Math.cos(p.a * Math.PI / 180), sa = Math.sin(p.a * Math.PI / 180), r = p.bd / 2;
+      const G = [p.pw - p.Hs * ta, p.Hs];
+      const side = TG.P([[0, 0], [p.Ds, 0], [p.Ds, p.Hs], G, [p.pw - p.Hb * ta, p.Hb, 0.35], [-p.Hb * ta, p.Hb]]);
+      const cut = TG.R(p.pw + 30, 60, Math.max(20, p.Ds - p.pw - 70), Math.max(20, p.Hs - 120), 20);
+      // seat: tray with flanges on x = 0 and x = Ws
+      const Dp = Math.round(p.Ds - Math.max(G[0], p.pw) - 5), seat = trayFlat(p.Ws, Dp, p.F, p.t, [0, 1, 0, 1]);
+      const back = trayFlat(p.Ws, p.Hbp, p.F, p.t, [0, 1, 0, 1]);
+      const sFr = TG.F([0, p.Ds - Dp, p.Hs - p.F], [1, 0, 0], [0, 1, 0]);
+      const y0 = p.Hb - 20 - p.Hbp, vB = [0, -sa, ca], nB = [0, ca, sa];
+      const P0 = [p.Ws, p.pw - y0 * ta, y0], bFr = { o: [P0[0] - p.F * nB[0], P0[1] - p.F * nB[1], P0[2] - p.F * nB[2]], u: [-1, 0, 0], v: vB, n: nB };
+      const sideHoles = [], seatH = [], backH = [];
+      [0.25, 0.75].forEach(f => {
+        const al = f * Dp; seatH.push(TG.C(...seat.fl(3, al, p.F / 2), r), TG.C(...seat.fl(1, al, p.F / 2), r));
+        const w = TG.at(sFr, 0, al, p.F / 2); sideHoles.push(TG.C(w[1], w[2], r));
+        const bl = f * p.Hbp; backH.push(TG.C(...back.fl(3, bl, p.F / 2), r), TG.C(...back.fl(1, bl, p.F / 2), r));
+        const q = TG.at(bFr, 0, bl, p.F / 2); sideHoles.push(TG.C(q[1], q[2], r));
+      });
+      const parts = [
+        { key: 'side', name: 'Хажуу хүрээ', thk: p.tf, qty: 2 * p.n, outer: side, holes: [cut, ...sideHoles], bends: [] },
+        { key: 'seat', name: `Суудал ${p.Ws}×${Dp}`, thk: p.t, qty: p.n, outer: seat.outer, holes: seatH, bends: seat.bends },
+        { key: 'back', name: `Түшлэг ${p.Ws}×${p.Hbp}`, thk: p.t, qty: p.n, outer: back.outer, holes: backH, bends: back.bends }
+      ];
+      const sideFr = TG.F([0, 0, 0], [0, 1, 0], [0, 0, 1]);
+      const bodies = { side: [TG.solid([side, cut, ...sideHoles], p.tf, sideFr)], seat: tray3D(p.Ws, Dp, p.F, p.t, [0, 1, 0, 1]), back: tray3D(p.Ws, p.Hbp, p.F, p.t, [0, 1, 0, 1]) };
+      const place = [];
+      for (let i = 0; i < p.n; i++) {
+        const dx = i * (p.Ws + 2 * p.tf + 150);
+        place.push({ key: 'side', fr: TG.F([dx - p.tf, 0, 0], [1, 0, 0], [0, 1, 0]) }, { key: 'side', fr: TG.F([dx + p.Ws, 0, 0], [1, 0, 0], [0, 1, 0]) });
+        place.push({ key: 'seat', fr: { o: [sFr.o[0] + dx, sFr.o[1], sFr.o[2]], u: sFr.u, v: sFr.v, n: sFr.n } }, { key: 'back', fr: { o: [bFr.o[0] + dx, bFr.o[1], bFr.o[2]], u: bFr.u, v: bFr.v, n: bFr.n } });
+      }
+      return { parts, bodies, place, info: `суудал ${nf(seat.W, 1)} × ${nf(seat.H, 1)}, түшлэг ${nf(back.W, 1)} × ${nf(back.H, 1)} мм дэлгэмэл` };
+    }
+  },
+  rack: {
+    name: 'Тавиур (стеллаж)', cat: 'Агуулах',
+    desc: '4 өнцөгт тулгуур (нүхтэй), нугалсан тавиурууд. Тавиурын өндрийг нүхний алхмаар тохируулна.',
+    params: [['L', 'Урт', 1000, 10], ['D', 'Гүн', 400, 10], ['H', 'Өндөр', 1800, 10], ['k', 'Тавиурын тоо', 5, 1], ['ts', 'Тавиурын зузаан', 1.2, 0.1], ['F', 'Тавиурын ирмэг', 30, 1], ['A', 'Тулгуурын өнцөгт', 40, 1], ['tl', 'Тулгуурын зузаан', 2, 0.5], ['pt', 'Нүхний алхам', 50, 5], ['bd', 'Нүх Ø', 9, 0.5]],
+    mat: 'Ст3 / S235',
+    build(p) {
+      const sd = [1, 1, 1, 1], SL = p.L - 2 * p.tl, SD = p.D - 2 * p.tl, sh = trayFlat(SL, SD, p.F, p.ts, sd), lg = angleFlat(p.A, p.A, p.H, p.tl), r = p.bd / 2;
+      const rows = []; for (let y = p.pt / 2; y < p.H - p.pt / 4; y += p.pt) rows.push(y);
+      const legH = []; rows.forEach(y => { legH.push(TG.C(lg.fx1(p.A / 2), y, r), TG.C(lg.fx2(p.A / 2), y, r)); });
+      const c = p.A / 2 - p.tl, shH = [];
+      [[0, SL], [2, SL], [1, SD], [3, SD]].forEach(([s, len]) => [c, len - c].forEach(a => shH.push(TG.C(...sh.fl(s, a, p.F / 2), r))));
+      // shelf levels: flange holes on a hole row, evenly spread
+      const lv = []; const k = Math.max(1, Math.round(p.k));
+      for (let i = 0; i < k; i++) { const want = k === 1 ? p.H / 2 : 120 + i * (p.H - 120 - p.F) / (k - 1); let best = rows[0]; rows.forEach(y => { if (Math.abs(y - (want - p.F / 2)) < Math.abs(best - (want - p.F / 2))) best = y; }); lv.push(best + p.F / 2); }
+      const parts = [
+        { key: 'shelf', name: `Тавиур ${Math.round(SL)}×${Math.round(SD)}`, thk: p.ts, qty: k, outer: sh.outer, holes: shH, bends: sh.bends },
+        { key: 'post', name: `Тулгуур ∟${p.A}×${p.A}×${p.tl}, L${p.H}`, thk: p.tl, qty: 4, outer: lg.outer, holes: legH, bends: lg.bends }
+      ];
+      const bodies = { shelf: tray3D(SL, SD, p.F, p.ts, sd), post: angle3D(p.A, p.A, p.H, p.tl) };
+      const place = lv.map(z => ({ key: 'shelf', fr: TG.F([p.tl, p.tl, z - p.F], [1, 0, 0], [0, 1, 0]) }));
+      [[0, 0, 0], [p.L, 0, 90], [p.L, p.D, 180], [0, p.D, 270]].forEach(([x, y, a]) => place.push({ key: 'post', fr: TG.rotZ([x, y, 0], a) }));
+      return { parts, bodies, place, info: `тавиурын өндрүүд: ${lv.map(z => Math.round(z)).join(', ')} мм` };
+    }
+  },
+  lbracket: {
+    name: 'L бэхэлгээ (тавиурын кронштейн)', cat: 'Бэхэлгээ',
+    desc: 'Нэг нугалаастай L хэлбэрийн бэхэлгээ, хоёр мөрөндөө нүхтэй.',
+    params: [['A', 'Мөр 1', 150, 5], ['B', 'Мөр 2', 100, 5], ['w', 'Өргөн', 50, 5], ['t', 'Зузаан', 4, 0.5], ['d', 'Нүх Ø', 11, 0.5], ['nh', 'Нүх мөр тус бүрт', 2, 1], ['n', 'Тоо', 4, 1]],
+    mat: 'Ст3 / S235',
+    build(p) {
+      const k = bend90(p.t), a = p.A - k.OS, b = p.B - k.OS, fl = angleFlat(p.A, p.B, p.w, p.t), holes = [], r = p.d / 2, nh = Math.max(0, Math.round(p.nh));
+      for (let i = 0; i < nh; i++) {
+        const x1 = p.t + (p.A - p.t) * (i + 1) / (nh + 1), x2 = p.t + (p.B - p.t) * (i + 1) / (nh + 1); // distance from the outer corner
+        holes.push(TG.C(p.A - x1, p.w / 2, r), TG.C(fl.fx2(x2), p.w / 2, r));
+      }
+      const parts = [{ key: 'br', name: `L бэхэлгээ ${p.A}×${p.B}×${p.w}`, thk: p.t, qty: p.n, outer: fl.outer, holes, bends: fl.bends }];
+      const bodies = { br: [TG.solid([TG.R(0, 0, p.A, p.w, 0)], p.t, TG.F([0, 0, 0], [1, 0, 0], [0, 1, 0])), TG.solid([TG.R(0, 0, p.B - p.t, p.w, 0)], p.t, TG.F([p.t, 0, p.t], [0, 0, 1], [0, 1, 0]))] };
+      const place = []; for (let i = 0; i < p.n; i++) place.push({ key: 'br', fr: TG.F([i * (p.A + 40), 0, 0], [1, 0, 0], [0, 1, 0]) });
+      return { parts, bodies, place, info: `дэлгэмэл ${nf(fl.W, 1)} × ${p.w} мм` };
+    }
+  },
+  baseplate: {
+    name: 'Суурь хавтан (баганын)', cat: 'Бэхэлгээ',
+    desc: 'Анкер боолтны нүхтэй тэгш өнцөгт хавтан, төвийн нүх, булангийн радиустай.',
+    params: [['L', 'Урт', 400, 5], ['W', 'Өргөн', 400, 5], ['t', 'Зузаан', 20, 1], ['nx', 'Нүх X', 2, 1], ['ny', 'Нүх Y', 2, 1], ['e', 'Захаас нүх хүртэл', 50, 1], ['d', 'Нүх Ø', 26, 1], ['R', 'Булангийн R', 0, 1], ['d0', 'Төвийн нүх Ø (0 = үгүй)', 0, 1], ['n', 'Тоо', 4, 1]],
+    mat: 'S355 / 09Г2С',
+    build(p) {
+      const holes = [], nx = Math.max(1, Math.round(p.nx)), ny = Math.max(1, Math.round(p.ny));
+      for (let i = 0; i < nx; i++) for (let j = 0; j < ny; j++) {
+        const x = nx === 1 ? p.L / 2 : p.e + i * (p.L - 2 * p.e) / (nx - 1), y = ny === 1 ? p.W / 2 : p.e + j * (p.W - 2 * p.e) / (ny - 1);
+        if (nx > 1 && ny > 1 && i > 0 && i < nx - 1 && j > 0 && j < ny - 1) continue; // perimeter pattern only
+        holes.push(TG.C(x, y, p.d / 2));
+      }
+      if (p.d0 > 0) holes.push(TG.C(p.L / 2, p.W / 2, p.d0 / 2));
+      const outer = TG.R(0, 0, p.L, p.W, p.R);
+      const parts = [{ key: 'bp', name: `Суурь хавтан ${p.L}×${p.W}×${p.t}`, thk: p.t, qty: p.n, outer, holes, bends: [] }];
+      const bodies = { bp: [TG.solid([outer, ...holes], p.t)] };
+      const place = []; for (let i = 0; i < p.n; i++) place.push({ key: 'bp', fr: TG.F([i * (p.L + 60), 0, 0], [1, 0, 0], [0, 1, 0]) });
+      return { parts, bodies, place, info: `${holes.length} нүх` };
+    }
+  }
+};
+/* bucket → 3D (uses bucketCalc from bucket.js) */
+function bucket3D(B) {
+  const c = bucketCalc(B); if (c.err.length) return null;
+  const W = c.W, D = c.D, H = c.H, R = c.R, tw = c.tw, ts = c.ts, te = +B.ear.thk, twr = +B.wear.thk, Q = Math.tan(Math.PI / 8);
+  const bodies = {}, place = [];
+  const byName = k => c.parts.find(p => p.name.startsWith(k));
+  const XZ = o => TG.F(o, [1, 0, 0], [0, 0, 1]); // normal −Y
+  bodies.side = [TG.solid([c.side], ts, XZ([0, 0, 0]))];
+  place.push({ key: 'side', fr: TG.F([0, 0, 0], [1, 0, 0], [0, 1, 0]) }, { key: 'side', fr: TG.F([0, W + ts, 0], [1, 0, 0], [0, 1, 0]) });
+  const wrapLoop = TG.P([[D - c.lipL, 0], [R, 0, -Q], [0, R], [0, H - c.tt], [tw, H - c.tt], [tw, R, Q], [R, tw], [D - c.lipL, tw]]);
+  bodies.wrap = [TG.solid([wrapLoop], W, XZ([0, W, 0]))];
+  place.push({ key: 'wrap', fr: TG.F([0, 0, 0], [1, 0, 0], [0, 1, 0]) });
+  bodies.lip = [TG.solid([TG.R(0, 0, c.lipL, W, 0)], c.tl)]; place.push({ key: 'lip', fr: TG.F([D - c.lipL, 0, 0], [1, 0, 0], [0, 1, 0]) });
+  bodies.top = [TG.solid([TG.R(0, 0, c.topD, W, 0)], c.tt)]; place.push({ key: 'top', fr: TG.F([0, 0, H - c.tt], [1, 0, 0], [0, 1, 0]) });
+  const ear = byName('Чих');
+  if (ear) {
+    bodies.ear = [TG.solid([ear.outer, ...ear.holes], te, TG.F([0, 0, 0], [1, 0, 0], [0, 0, 1]))];
+    const n = ear.qty, ex0 = c.topD / 2 - (+B.pitch) / 2;
+    for (let k = 0; k < n; k++) { const y = W * (k + 1) / (n + 1) + te / 2; place.push({ key: 'ear', fr: TG.F([ex0, y, H], [1, 0, 0], [0, 1, 0]) }); }
+  }
+  const wear = byName('Элэгдлийн');
+  if (wear) {
+    bodies.wear = [TG.solid([TG.R(0, 0, +B.wearW, c.Lb - 40, 0)], twr, TG.F([0, 0, 0], [0, 1, 0], [1, 0, 0]))];
+    for (let k = 0; k < wear.qty; k++) { const y = W * (k + 1) / (wear.qty + 1) - (+B.wearW) / 2; place.push({ key: 'wear', fr: TG.F([R + 20, y, 0], [1, 0, 0], [0, 1, 0]) }); }
+  }
+  if (B.cutter && byName('Хажуугийн ир')) {
+    const L = Math.round(c.Lm), ux = (c.Bx - D) / c.Lm, uz = H / c.Lm;
+    bodies.cut = [TG.solid([TG.R(0, 0, L, +B.cutterW, 0)], ts)];
+    // left: on the outer face (y = −ts) growing outwards, starting at the lip tip
+    place.push({ key: 'cut', fr: { o: [D, -ts, 0], u: [ux, 0, uz], v: [-uz, 0, ux], n: [0, -1, 0] } });
+    place.push({ key: 'cut', fr: { o: [c.Bx, W + ts, H], u: [-ux, 0, -uz], v: [-uz, 0, ux], n: [0, 1, 0] } });
+  }
+  const keyOf = { side: 'Хажуу хавтан', wrap: 'Ороох', lip: 'Ирний', top: 'Дээд', ear: 'Чих', wear: 'Элэгдлийн', cut: 'Хажуугийн ир' };
+  const parts = Object.entries(keyOf).filter(([k]) => bodies[k]).map(([k, nm]) => ({ ...byName(nm), key: k }));
+  return { parts, bodies, place, c };
+}
+/* flatten a template result into placed solids (world) for the viewer / STEP / STL */
+function worldSolids(res) {
+  const out = [];
+  res.place.forEach((pl, i) => (res.bodies[pl.key] || []).forEach(s => out.push({ key: pl.key, inst: i, loops: s.loops, t: s.t, fr: TG.comp(pl.fr, s.fr) })));
+  return out;
+}
+
+/* ================= KH Fab — 3D: viewer (three.js), STEP (AP214 B-rep) and STL export, STEP/IGES import → flat plates ================= */
+const THREE_URL = 'https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js';
+const ORBIT_URL = 'https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/controls/OrbitControls.js';
+const OCCT_URL = 'https://cdn.jsdelivr.net/npm/occt-import-js@0.0.23/dist/occt-import-js.js';
+async function ensureThree() { if (!window.THREE) await loadScript(THREE_URL); if (!THREE.OrbitControls) await loadScript(ORBIT_URL); }
+
+/* ---------- loop helpers (local 2D, bulge arcs) ---------- */
+function ccwLoop(lp, ccw) { return orientLoop(lp, ccw); }
+function loopPts(lp, tol) { return flattenLoop(lp, tol || 0.3); }
+const v3 = { add: (a, b) => [a[0] + b[0], a[1] + b[1], a[2] + b[2]], sub: (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]], mul: (a, k) => [a[0] * k, a[1] * k, a[2] * k], dot: (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2], cross: (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]], len: a => Math.hypot(a[0], a[1], a[2]), norm: a => { const l = Math.hypot(a[0], a[1], a[2]) || 1; return [a[0] / l, a[1] / l, a[2] / l]; } };
+const wpt = (fr, x, y, z) => [0, 1, 2].map(i => fr.o[i] + x * fr.u[i] + y * fr.v[i] + z * fr.n[i]);
+
+/* ---------- three.js meshes ---------- */
+function solidGeometry(s) {
+  const outer = ccwLoop(s.loops[0], true), sh = new THREE.Shape(loopPts(outer, 0.3).map(p => new THREE.Vector2(p[0], p[1])));
+  s.loops.slice(1).forEach(h => sh.holes.push(new THREE.Path(loopPts(ccwLoop(h, false), 0.3).map(p => new THREE.Vector2(p[0], p[1])))));
+  const g = new THREE.ExtrudeGeometry(sh, { depth: s.t, bevelEnabled: false, curveSegments: 24 });
+  const m = new THREE.Matrix4().makeBasis(new THREE.Vector3(...s.fr.u), new THREE.Vector3(...s.fr.v), new THREE.Vector3(...s.fr.n)).setPosition(new THREE.Vector3(...s.fr.o));
+  g.applyMatrix4(m); return g;
+}
+const V3D = new Map();
+async function show3D(host, solids, opts) {
+  await ensureThree();
+  const old = V3D.get(host); if (old) old.dispose();
+  host.innerHTML = '';
+  const dark = isDark(), W = host.clientWidth || 600, H = host.clientHeight || 400;
+  const R = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true }); R.setPixelRatio(window.devicePixelRatio || 1); R.setSize(W, H);
+  R.setClearColor(dark ? 0x141a21 : 0xeef1f4); host.appendChild(R.domElement);
+  const scene = new THREE.Scene(), cam = new THREE.PerspectiveCamera(35, W / H, 1, 1e6); cam.up.set(0, 0, 1);
+  scene.add(new THREE.AmbientLight(0xffffff, 0.55)); const dl = new THREE.DirectionalLight(0xffffff, 0.75); dl.position.set(1, -1.5, 2); scene.add(dl); const dl2 = new THREE.DirectionalLight(0xffffff, 0.3); dl2.position.set(-1, 1, 0.5); scene.add(dl2);
+  const keys = [...new Set(solids.map(s => s.key))], box = new THREE.Box3();
+  solids.forEach(s => {
+    const g = solidGeometry(s), hue = (keys.indexOf(s.key) * 137.5 + 20) % 360;
+    const mat = new THREE.MeshStandardMaterial({ color: new THREE.Color(`hsl(${hue}, 45%, ${dark ? 58 : 62}%)`), metalness: 0.25, roughness: 0.6 });
+    const mesh = new THREE.Mesh(g, mat); scene.add(mesh);
+    scene.add(new THREE.LineSegments(new THREE.EdgesGeometry(g, 25), new THREE.LineBasicMaterial({ color: dark ? 0x0b0f14 : 0x2c3640 })));
+    g.computeBoundingBox(); box.union(g.boundingBox);
+  });
+  const c = box.getCenter(new THREE.Vector3()), sz = box.getSize(new THREE.Vector3()), d = Math.max(sz.x, sz.y, sz.z) || 1;
+  cam.position.set(c.x + d * 1.3, c.y - d * 1.6, c.z + d * 1.0); cam.near = d / 100; cam.far = d * 100; cam.updateProjectionMatrix();
+  const ctl = new THREE.OrbitControls(cam, R.domElement); ctl.target.copy(c); ctl.update();
+  const grid = new THREE.GridHelper(d * 3, 30, dark ? 0x334050 : 0xc3cbd3, dark ? 0x222b35 : 0xdde2e7); grid.rotation.x = Math.PI / 2; grid.position.set(c.x, c.y, box.min.z - 0.5); scene.add(grid);
+  let raf = 0; const loop = () => { raf = requestAnimationFrame(loop); R.render(scene, cam); }; loop();
+  const ro = new ResizeObserver(() => { const w = host.clientWidth, h = host.clientHeight; if (!w || !h) return; R.setSize(w, h); cam.aspect = w / h; cam.updateProjectionMatrix(); }); ro.observe(host);
+  const api = { dispose() { cancelAnimationFrame(raf); ro.disconnect(); ctl.dispose(); R.dispose(); scene.traverse(o => { if (o.geometry) o.geometry.dispose(); if (o.material) o.material.dispose(); }); host.innerHTML = ''; V3D.delete(host); }, png: () => R.domElement.toDataURL('image/png') };
+  V3D.set(host, api); return api;
+}
+
+/* ---------- STL (binary) ---------- */
+async function stlFile(solids) {
+  await ensureThree();
+  const tris = [];
+  solids.forEach(s => { const g = solidGeometry(s).toNonIndexed(), p = g.attributes.position.array; for (let i = 0; i < p.length; i += 9) tris.push(p.slice(i, i + 9)); g.dispose(); });
+  const buf = new ArrayBuffer(84 + tris.length * 50), dv = new DataView(buf);
+  const hdr = 'Kh International - KH Fab STL'; for (let i = 0; i < hdr.length; i++) dv.setUint8(i, hdr.charCodeAt(i));
+  dv.setUint32(80, tris.length, true);
+  tris.forEach((t, k) => {
+    const o = 84 + k * 50, a = [t[3] - t[0], t[4] - t[1], t[5] - t[2]], b = [t[6] - t[0], t[7] - t[1], t[8] - t[2]], n = v3.norm(v3.cross(a, b));
+    n.forEach((v, i) => dv.setFloat32(o + i * 4, v, true)); for (let i = 0; i < 9; i++) dv.setFloat32(o + 12 + i * 4, t[i], true);
+  });
+  return new Blob([buf], { type: 'model/stl' });
+}
+
+/* ---------- STEP AP214: each solid = planar profile (lines + arcs) extruded along n ---------- */
+function stepFile(solids, name) {
+  const L = []; let id = 0;
+  const E = s => { L.push(`#${++id}=${s};`); return '#' + id; };
+  const R = v => { let s = String(Number((+v).toFixed(6))); if (s === '-0') s = '0'; if (!/[.eE]/.test(s)) s += '.'; return s; };
+  const P = p => E(`CARTESIAN_POINT('',(${R(p[0])},${R(p[1])},${R(p[2])}))`);
+  const Dn = d => { const n = v3.norm(d); return E(`DIRECTION('',(${R(n[0])},${R(n[1])},${R(n[2])}))`); };
+  const AX = (p, z, x) => E(`AXIS2_PLACEMENT_3D('',${P(p)},${Dn(z)},${Dn(x)})`);
+  const esc = s => String(s).replace(/'/g, "''").replace(/[^\x20-\x7e]/g, '_');
+  const ctx = E("APPLICATION_CONTEXT('automotive design')");
+  E(`APPLICATION_PROTOCOL_DEFINITION('international standard','automotive_design',2000,${ctx})`);
+  const pc = E(`PRODUCT_CONTEXT('',${ctx},'mechanical')`), prod = E(`PRODUCT('${esc(name)}','${esc(name)}','',(${pc}))`);
+  E(`PRODUCT_RELATED_PRODUCT_CATEGORY('part',$,(${prod}))`);
+  const pdf = E(`PRODUCT_DEFINITION_FORMATION('','',${prod})`), pdc = E(`PRODUCT_DEFINITION_CONTEXT('part definition',${ctx},'design')`);
+  const pd = E(`PRODUCT_DEFINITION('design','',${pdf},${pdc})`), pds = E(`PRODUCT_DEFINITION_SHAPE('','',${pd})`);
+  const lu = E('(LENGTH_UNIT()NAMED_UNIT(*)SI_UNIT(.MILLI.,.METRE.))'), au = E('(NAMED_UNIT(*)PLANE_ANGLE_UNIT()SI_UNIT($,.RADIAN.))'), su = E('(NAMED_UNIT(*)SI_UNIT($,.STERADIAN.)SOLID_ANGLE_UNIT())');
+  const unc = E(`UNCERTAINTY_MEASURE_WITH_UNIT(LENGTH_MEASURE(1.E-05),${lu},'distance_accuracy_value','')`);
+  const gctx = E(`(GEOMETRIC_REPRESENTATION_CONTEXT(3)GLOBAL_UNCERTAINTY_ASSIGNED_CONTEXT((${unc}))GLOBAL_UNIT_ASSIGNED_CONTEXT((${lu},${au},${su}))REPRESENTATION_CONTEXT('',''))`);
+  const breps = [];
+  solids.forEach((s, si) => {
+    const fr = s.fr, t = s.t, n = fr.n, faces = [];
+    const loops = s.loops.map((lp, i) => orientLoop(lp, i === 0)).map(lp => {
+      const N = lp.length, vb = [], vt = [];
+      lp.forEach(v => { vb.push({ p: wpt(fr, v.x, v.y, 0) }); vt.push({ p: wpt(fr, v.x, v.y, t) }); });
+      vb.forEach(v => v.e = E(`VERTEX_POINT('',${P(v.p)})`)); vt.forEach(v => v.e = E(`VERTEX_POINT('',${P(v.p)})`));
+      const seg = [], eb = [], et = [], ev = [];
+      for (let i = 0; i < N; i++) {
+        const a = lp[i], b = lp[(i + 1) % N], sa = segArc(a, b, a.b);
+        seg.push(sa.line ? { line: true, a, b } : { line: false, a, b, cx: sa.cx, cy: sa.cy, r: sa.r, bu: a.b });
+      }
+      const mkEdge = (z, vs, i) => {
+        const g = seg[i], j = (i + 1) % N, A = vs[i], B = vs[j];
+        if (g.line) { const d = v3.sub(B.p, A.p); return E(`EDGE_CURVE('',${A.e},${B.e},${E(`LINE('',${P(A.p)},${E(`VECTOR('',${Dn(d)},${R(v3.len(d))})`)})`)},.T.)`); }
+        const C = wpt(fr, g.cx, g.cy, z), ax = g.bu > 0 ? n : v3.mul(n, -1);
+        return E(`EDGE_CURVE('',${A.e},${B.e},${E(`CIRCLE('',${AX(C, ax, v3.sub(A.p, C))},${R(g.r)})`)},.T.)`);
+      };
+      for (let i = 0; i < N; i++) { eb.push(mkEdge(0, vb, i)); et.push(mkEdge(t, vt, i)); }
+      for (let i = 0; i < N; i++) { const d = v3.sub(vt[i].p, vb[i].p); ev.push(E(`EDGE_CURVE('',${vb[i].e},${vt[i].e},${E(`LINE('',${P(vb[i].p)},${E(`VECTOR('',${Dn(d)},${R(t)})`)})`)},.T.)`)); }
+      // side faces
+      for (let i = 0; i < N; i++) {
+        const g = seg[i], j = (i + 1) % N;
+        const loop = E(`EDGE_LOOP('',(${E(`ORIENTED_EDGE('',*,*,${eb[i]},.T.)`)},${E(`ORIENTED_EDGE('',*,*,${ev[j]},.T.)`)},${E(`ORIENTED_EDGE('',*,*,${et[i]},.F.)`)},${E(`ORIENTED_EDGE('',*,*,${ev[i]},.F.)`)}))`);
+        const bnd = E(`FACE_OUTER_BOUND('',${loop},.T.)`);
+        let surf, sense = '.T.';
+        if (g.line) { const d = v3.norm(v3.sub(vb[j].p, vb[i].p)), m = v3.cross(d, n); surf = E(`PLANE('',${AX(vb[i].p, m, d)})`); }
+        else { const C = wpt(fr, g.cx, g.cy, 0); surf = E(`CYLINDRICAL_SURFACE('',${AX(C, n, v3.sub(vb[i].p, C))},${R(g.r)})`); sense = g.bu > 0 ? '.T.' : '.F.'; }
+        faces.push(E(`ADVANCED_FACE('',(${bnd}),${surf},${sense})`));
+      }
+      return { eb, et, N };
+    });
+    // top (+n) and bottom (−n) caps
+    const cap = (top) => {
+      const bounds = loops.map((lp, k) => {
+        const oe = [];
+        if (top) for (let i = 0; i < lp.N; i++) oe.push(E(`ORIENTED_EDGE('',*,*,${lp.et[i]},.T.)`));
+        else for (let i = lp.N - 1; i >= 0; i--) oe.push(E(`ORIENTED_EDGE('',*,*,${lp.eb[i]},.F.)`));
+        const el = E(`EDGE_LOOP('',(${oe.join(',')}))`);
+        return E(`${k === 0 ? 'FACE_OUTER_BOUND' : 'FACE_BOUND'}('',${el},.T.)`);
+      });
+      const o = wpt(fr, 0, 0, top ? t : 0);
+      return E(`ADVANCED_FACE('',(${bounds.join(',')}),${E(`PLANE('',${AX(o, top ? n : v3.mul(n, -1), fr.u)})`)},.T.)`);
+    };
+    faces.push(cap(true), cap(false));
+    breps.push(E(`MANIFOLD_SOLID_BREP('${esc(s.key || 'solid')}_${si + 1}',${E(`CLOSED_SHELL('',(${faces.join(',')}))`)})`));
+  });
+  const rep = E(`ADVANCED_BREP_SHAPE_REPRESENTATION('${esc(name)}',(${AX([0, 0, 0], [0, 0, 1], [1, 0, 0])},${breps.join(',')}),${gctx})`);
+  E(`SHAPE_DEFINITION_REPRESENTATION(${pds},${rep})`);
+  const now = new Date().toISOString().slice(0, 19);
+  return `ISO-10303-21;\nHEADER;\nFILE_DESCRIPTION(('Kh International - KH Fab'),'2;1');\nFILE_NAME('${esc(name)}.stp','${now}',('Kh International'),('Kh International'),'KH Fab','KH Fab','');\nFILE_SCHEMA(('AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }'));\nENDSEC;\nDATA;\n${L.join('\n')}\nENDSEC;\nEND-ISO-10303-21;\n`;
+}
+
+/* ---------- STEP / IGES / BREP import → flat plates ---------- */
+let OCCT = null;
+async function ensureOcct() {
+  if (OCCT) return OCCT;
+  if (!window.occtimportjs) await loadScript(OCCT_URL);
+  const base = OCCT_URL.replace(/[^/]*$/, '');
+  if (location.protocol === 'file:' && !/^https?:/.test(OCCT_URL)) {
+    // offline app: browsers cannot fetch() file:// URLs, so the wasm ships as a base64 script
+    if (!window.OCCT_WASM_B64) await loadScript(base + 'occt-wasm-b64.js');
+    const bin = Uint8Array.from(atob(window.OCCT_WASM_B64), ch => ch.charCodeAt(0));
+    OCCT = await occtimportjs({ wasmBinary: bin });
+  } else OCCT = await occtimportjs({ locateFile: f => base + f });
+  return OCCT;
+}
+/* mesh → plate {t, loops (2D, mm)} or null */
+function meshPlate(mesh) {
+  const P = mesh.attributes.position.array, I = mesh.index.array, faces = mesh.brep_faces && mesh.brep_faces.length ? mesh.brep_faces : [{ first: 0, last: I.length / 3 - 1 }];
+  const tri = k => [0, 1, 2].map(j => [P[I[k * 3 + j] * 3], P[I[k * 3 + j] * 3 + 1], P[I[k * 3 + j] * 3 + 2]]);
+  const F = faces.map(f => {
+    let nx = 0, ny = 0, nz = 0, area = 0, planar = true; const ts = [];
+    for (let k = f.first; k <= f.last; k++) { const [a, b, c] = tri(k), cr = v3.cross(v3.sub(b, a), v3.sub(c, a)); nx += cr[0]; ny += cr[1]; nz += cr[2]; area += v3.len(cr) / 2; ts.push([a, b, c, cr]); }
+    const n = v3.norm([nx, ny, nz]);
+    for (const q of ts) { const l = v3.len(q[3]); if (l > 1e-9 && v3.dot(v3.mul(q[3], 1 / l), n) < 0.999) { planar = false; break; } }
+    return { n, area, planar, ts, d: ts.length ? v3.dot(n, ts[0][0]) : 0 };
+  }).filter(f => f.area > 1e-6);
+  const pl = F.filter(f => f.planar).sort((a, b) => b.area - a.area);
+  if (!pl.length) return null;
+  const top = pl[0], n = top.n;
+  // thickness: extent of the whole mesh along n
+  let mn = Infinity, mx = -Infinity; for (let i = 0; i < P.length; i += 3) { const d = n[0] * P[i] + n[1] * P[i + 1] + n[2] * P[i + 2]; if (d < mn) mn = d; if (d > mx) mx = d; }
+  const t = mx - mn;
+  const opp = pl.find(f => v3.dot(f.n, n) < -0.999 && Math.abs(f.area - top.area) < 0.02 * top.area);
+  if (!opp || t <= 0.05) return null;
+  // all side faces must be perpendicular to n (prismatic plate)
+  const sideOk = F.every(f => (f.planar && Math.abs(v3.dot(f.n, n)) > 0.999) || (!f.planar ? f.ts.every(q => { const l = v3.len(q[3]); return l < 1e-9 || Math.abs(v3.dot(q[3], n)) / l < 0.02; }) : Math.abs(v3.dot(f.n, n)) < 0.02));
+  if (!sideOk) return { bent: true, t };
+  // outline: boundary edges of all faces coplanar with the top face
+  const e1 = v3.norm(Math.abs(n[0]) < 0.9 ? v3.cross(n, [1, 0, 0]) : v3.cross(n, [0, 1, 0])), e2 = v3.cross(n, e1);
+  const key = p => `${Math.round(v3.dot(p, e1) * 1e3)},${Math.round(v3.dot(p, e2) * 1e3)}`, xy = new Map(), cnt = new Map();
+  pl.filter(f => v3.dot(f.n, n) > 0.999 && Math.abs(f.d - top.d) < 0.01).forEach(f => f.ts.forEach(([a, b, c]) => {
+    [[a, b], [b, c], [c, a]].forEach(([p, q]) => { const kp = key(p), kq = key(q); xy.set(kp, [v3.dot(p, e1), v3.dot(p, e2)]); xy.set(kq, [v3.dot(q, e1), v3.dot(q, e2)]); const k = kp < kq ? kp + '|' + kq : kq + '|' + kp; const o = cnt.get(k); cnt.set(k, o ? { n: o.n + 1, a: o.a, b: o.b } : { n: 1, a: kp, b: kq }); });
+  }));
+  const adj = new Map(); for (const e of cnt.values()) if (e.n === 1) { (adj.get(e.a) || adj.set(e.a, []).get(e.a)).push(e.b); (adj.get(e.b) || adj.set(e.b, []).get(e.b)).push(e.a); }
+  const used = new Set(), loops = [];
+  for (const s of adj.keys()) {
+    if (used.has(s)) continue;
+    const pts = [s]; used.add(s); let cur = s, prev = null;
+    for (let g = 0; g < 1e6; g++) { const nx = (adj.get(cur) || []).find(k => k !== prev && !used.has(k)); if (!nx) break; pts.push(nx); used.add(nx); prev = cur; cur = nx; }
+    if (pts.length >= 3) loops.push(fitPoly(pts.map(k => xy.get(k)), true, 0.02));
+  }
+  return loops.length ? { t, loops } : null;
+}
+async function importStep(file) {
+  const ext = (file.name.split('.').pop() || '').toLowerCase(), base = file.name.replace(/\.[^.]+$/, '');
+  const oc = await ensureOcct(), buf = new Uint8Array(await file.arrayBuffer());
+  const res = ext === 'igs' || ext === 'iges' ? oc.ReadIgesFile(buf, null) : ext === 'brep' ? oc.ReadBrepFile(buf, null) : oc.ReadStepFile(buf, null);
+  if (!res || !res.success) throw new Error('3D файл уншигдсангүй');
+  let bent = 0, other = 0; const groups = [];
+  res.meshes.forEach((m, i) => {
+    const pl = meshPlate(m);
+    if (!pl) { other++; return; } if (pl.bent) { bent++; return; }
+    const tt = Math.round(pl.t * 10) / 10;
+    // one mesh = one part (plates may overlap once projected, so never mix meshes); then merge identical ones
+    loopsToParts(pl.loops, m.name || base).forEach(p => {
+      const inf = partInfo(p), sig = [tt, inf.area.toFixed(0), inf.cut.toFixed(0), Math.min(inf.w, inf.h).toFixed(1), Math.max(inf.w, inf.h).toFixed(1), p.holes.length].join('|');
+      const g = groups.find(x => x.sig === sig); if (g) g.qty += p.qty; else groups.push({ sig, qty: p.qty, p, t: tt, nm: m.name });
+    });
+  });
+  const parts = groups.map((g, i) => ({ ...g.p, name: g.nm || `${base} ${g.t}мм-${i + 1}`, qty: g.qty, thk: g.t }));
+  return { parts, open: 0, bent, other, solids: res.meshes.length };
+}
+
+const VB_GEOM = "'================ KH_GEOM \u2014 \u0433\u0435\u043e\u043c\u0435\u0442\u0440 (Inventor-\u043e\u043e\u0441 \u0445\u0430\u043c\u0430\u0430\u0440\u0430\u043b\u0433\u04af\u0439). KH Fab templates.js-\u0442\u044d\u0439 1:1 ================\nPublic Class KV\n    Public X As Double, Y As Double, B As Double\n    Public Sub New(x As Double, y As Double, b As Double)\n        Me.X = x : Me.Y = y : Me.B = b\n    End Sub\nEnd Class\n\nPublic Class KFrame\n    Public O(2) As Double, U(2) As Double, V(2) As Double, N(2) As Double\nEnd Class\n\nPublic Class KSolid\n    Public Loops As New List(Of List(Of KV))\n    Public T As Double\n    Public Fr As KFrame\nEnd Class\n\nPublic Class KPart\n    Public Key As String, Name As String, Qty As Integer, Thk As Double\n    Public Solids As New List(Of KSolid)\nEnd Class\n\nPublic Class KPlace\n    Public Key As String\n    Public Fr As KFrame\nEnd Class\n\nPublic Class KModel\n    Public Parts As New List(Of KPart)\n    Public Places As New List(Of KPlace)\n    Public Function Part(key As String) As KPart\n        For Each p As KPart In Parts\n            If p.Key = key Then Return p\n        Next\n        Return Nothing\n    End Function\n    Public Function Add(key As String, name As String, qty As Integer, thk As Double, solids As List(Of KSolid)) As KPart\n        Dim p As New KPart\n        p.Key = key : p.Name = name : p.Qty = qty : p.Thk = thk : p.Solids = solids\n        Parts.Add(p)\n        Return p\n    End Function\n    Public Sub Place(key As String, fr As KFrame)\n        Dim q As New KPlace\n        q.Key = key : q.Fr = fr\n        Places.Add(q)\n    End Sub\nEnd Class\n\nPublic Class KG\n    Public Shared ReadOnly BQ As Double = Math.Tan(Math.PI / 8)\n\n    Public Shared Function Fr(o() As Double, u() As Double, v() As Double) As KFrame\n        Dim f As New KFrame\n        For i As Integer = 0 To 2\n            f.O(i) = o(i) : f.U(i) = u(i) : f.V(i) = v(i)\n        Next\n        f.N(0) = u(1) * v(2) - u(2) * v(1)\n        f.N(1) = u(2) * v(0) - u(0) * v(2)\n        f.N(2) = u(0) * v(1) - u(1) * v(0)\n        Return f\n    End Function\n    Public Shared Function A3(x As Double, y As Double, z As Double) As Double()\n        Return New Double() {x, y, z}\n    End Function\n    Public Shared Function FrXY(x As Double, y As Double, z As Double) As KFrame\n        Return Fr(A3(x, y, z), A3(1, 0, 0), A3(0, 1, 0))\n    End Function\n    Public Shared Function RotZ(x As Double, y As Double, z As Double, deg As Double) As KFrame\n        Dim a As Double = deg * Math.PI / 180, c As Double = Math.Cos(a), s As Double = Math.Sin(a)\n        Return Fr(A3(x, y, z), A3(c, s, 0), A3(-s, c, 0))\n    End Function\n    Public Shared Function FrRaw(o() As Double, u() As Double, v() As Double, n() As Double) As KFrame\n        Dim f As New KFrame\n        For i As Integer = 0 To 2\n            f.O(i) = o(i) : f.U(i) = u(i) : f.V(i) = v(i) : f.N(i) = n(i)\n        Next\n        Return f\n    End Function\n    ' point o + x\u00b7u + y\u00b7v + z\u00b7n\n    Public Shared Function At(f As KFrame, x As Double, y As Double, z As Double) As Double()\n        Dim r(2) As Double\n        For i As Integer = 0 To 2\n            r(i) = f.O(i) + x * f.U(i) + y * f.V(i) + z * f.N(i)\n        Next\n        Return r\n    End Function\n\n    Public Shared Function Rc(x As Double, y As Double, w As Double, h As Double, r As Double) As List(Of KV)\n        Dim L As New List(Of KV)\n        Dim R0 As Double = Math.Max(0, Math.Min(r, Math.Min(w / 2 - 0.000001, h / 2 - 0.000001)))\n        If R0 <= 0.001 Then\n            L.Add(New KV(x, y, 0)) : L.Add(New KV(x + w, y, 0)) : L.Add(New KV(x + w, y + h, 0)) : L.Add(New KV(x, y + h, 0))\n        Else\n            L.Add(New KV(x + R0, y, 0)) : L.Add(New KV(x + w - R0, y, BQ)) : L.Add(New KV(x + w, y + R0, 0)) : L.Add(New KV(x + w, y + h - R0, BQ))\n            L.Add(New KV(x + w - R0, y + h, 0)) : L.Add(New KV(x + R0, y + h, BQ)) : L.Add(New KV(x, y + h - R0, 0)) : L.Add(New KV(x, y + R0, BQ))\n        End If\n        Return L\n    End Function\n    Public Shared Function Ci(cx As Double, cy As Double, r As Double) As List(Of KV)\n        Dim L As New List(Of KV)\n        L.Add(New KV(cx + r, cy, 1)) : L.Add(New KV(cx - r, cy, 1))\n        Return L\n    End Function\n    Public Shared Function Sl(cx As Double, cy As Double, len As Double, w As Double, vert As Boolean) As List(Of KV)\n        Dim r As Double = w / 2, l As Double = Math.Max(0, len - w)\n        If l < 0.000001 Then Return Ci(cx, cy, r)\n        Dim L2 As New List(Of KV)\n        If Not vert Then\n            L2.Add(New KV(cx - l / 2, cy - r, 0)) : L2.Add(New KV(cx + l / 2, cy - r, 1)) : L2.Add(New KV(cx + l / 2, cy + r, 0)) : L2.Add(New KV(cx - l / 2, cy + r, 1))\n        Else\n            L2.Add(New KV(cx + r, cy - l / 2, 0)) : L2.Add(New KV(cx + r, cy + l / 2, 1)) : L2.Add(New KV(cx - r, cy + l / 2, 0)) : L2.Add(New KV(cx - r, cy - l / 2, 1))\n        End If\n        Return L2\n    End Function\n    ' triples x, y, bulge\n    Public Shared Function Pl(ParamArray d() As Double) As List(Of KV)\n        Dim L As New List(Of KV)\n        For i As Integer = 0 To d.Length - 3 Step 3\n            L.Add(New KV(d(i), d(i + 1), d(i + 2)))\n        Next\n        Return L\n    End Function\n    Public Shared Function Sol(t As Double, fr As KFrame, ParamArray loops() As List(Of KV)) As KSolid\n        Dim s As New KSolid\n        s.T = t : s.Fr = fr\n        For Each l As List(Of KV) In loops\n            s.Loops.Add(l)\n        Next\n        Return s\n    End Function\n    Public Shared Function SolL(t As Double, fr As KFrame, loops As List(Of List(Of KV))) As KSolid\n        Dim s As New KSolid\n        s.T = t : s.Fr = fr : s.Loops = loops\n        Return s\n    End Function\n    Public Shared Function Box(x As Double, y As Double, z As Double, dx As Double, dy As Double, dz As Double) As KSolid\n        Return Sol(dz, FrXY(x, y, z), Rc(0, 0, dx, dy, 0))\n    End Function\n    Public Shared Function One(s As KSolid) As List(Of KSolid)\n        Dim L As New List(Of KSolid)\n        L.Add(s)\n        Return L\n    End Function\n\n    ' DIN 6935 neutral axis\n    Public Shared Function KFactor(R As Double, t As Double) As Double\n        Dim k As Double = Math.Min(1, Math.Max(0.5, 0.65 + 0.5 * Math.Log10(Math.Max(R, 0.01) / t)))\n        Return k / 2\n    End Function\n\n    ' flanged tray: panel on top at z = F, flanges hang to z = 0; sides s0 (y=0), s1 (x=W), s2 (y=D), s3 (x=0)\n    Public Shared Function Tray3D(W As Double, D As Double, F As Double, t As Double, s0 As Boolean, s1 As Boolean, s2 As Boolean, s3 As Boolean, holes As List(Of List(Of KV))) As List(Of KSolid)\n        Dim out As New List(Of KSolid)\n        Dim lp As New List(Of List(Of KV))\n        lp.Add(Rc(0, 0, W, D, 0))\n        If holes IsNot Nothing Then lp.AddRange(holes)\n        out.Add(SolL(t, FrXY(0, 0, F - t), lp))\n        Dim y0 As Double = If(s0, t, 0), y1 As Double = If(s2, D - t, D), h As Double = F - t\n        If s0 Then out.Add(Box(0, 0, 0, W, t, h))\n        If s2 Then out.Add(Box(0, D - t, 0, W, t, h))\n        If s3 Then out.Add(Box(0, y0, 0, t, y1 - y0, h))\n        If s1 Then out.Add(Box(W - t, y0, 0, t, y1 - y0, h))\n        Return out\n    End Function\n    Public Shared Function Angle3D(A As Double, B As Double, len As Double, t As Double) As List(Of KSolid)\n        Dim out As New List(Of KSolid)\n        out.Add(Box(0, 0, 0, A, t, len))\n        out.Add(Box(0, t, 0, t, B - t, len))\n        Return out\n    End Function\n    Private Shared Function Rnd0(v As Double) As Double\n        Return Math.Round(v, MidpointRounding.AwayFromZero)\n    End Function\n\n    '-------------------------------- templates --------------------------------\n    Public Shared Function Pegboard(p As Dictionary(Of String, Double)) As KModel\n        Dim m As New KModel\n        Dim W As Double = p(\"W\"), H As Double = p(\"H\"), t As Double = p(\"t\"), F As Double = p(\"F\"), pt As Double = p(\"p\")\n        Dim hw As Double = p(\"hw\"), hl As Double = p(\"hl\"), mg As Double = p(\"m\"), md As Double = p(\"md\")\n        Dim nx As Integer = Math.Max(1, CInt(Math.Floor((W - 2 * mg) / pt)) + 1)\n        Dim ny As Integer = Math.Max(1, CInt(Math.Floor((H - 2 * mg - (hl - hw)) / pt)) + 1)\n        Dim x0 As Double = (W - (nx - 1) * pt) / 2, y0 As Double = (H - (ny - 1) * pt) / 2\n        Dim holes As New List(Of List(Of KV))\n        For i As Integer = 0 To nx - 1\n            For j As Integer = 0 To ny - 1\n                holes.Add(Sl(x0 + i * pt, y0 + j * pt, hl, hw, True))\n            Next\n        Next\n        holes.Add(Ci(mg / 2, mg / 2, md / 2)) : holes.Add(Ci(W - mg / 2, mg / 2, md / 2)) : holes.Add(Ci(W - mg / 2, H - mg / 2, md / 2)) : holes.Add(Ci(mg / 2, H - mg / 2, md / 2))\n        Dim n As Integer = CInt(Rnd0(p(\"n\")))\n        m.Add(\"board\", \"Pegboard \" & W & \"x\" & H, n, t, Tray3D(W, H, F, t, True, True, True, True, holes))\n        For i As Integer = 0 To n - 1\n            m.Place(\"board\", Fr(A3(i * (W + 20), 0, 0), A3(1, 0, 0), A3(0, 0, 1)))\n        Next\n        Return m\n    End Function\n\n    Public Shared Function Bench(p As Dictionary(Of String, Double)) As KModel\n        Dim m As New KModel\n        Dim L As Double = p(\"L\"), D As Double = p(\"D\"), H As Double = p(\"H\"), t As Double = p(\"t\"), F As Double = p(\"F\")\n        Dim A As Double = p(\"A\"), tl As Double = p(\"tl\"), zs As Double = p(\"zs\"), ts As Double = p(\"ts\"), Fs As Double = p(\"Fs\")\n        Dim SL As Double = L - 2 * t - 2 * tl, SD As Double = D - 2 * t - 2 * tl, Lg As Double = H - t\n        m.Add(\"top\", \"Tavtsan \" & L & \"x\" & D, 1, t, Tray3D(L, D, F, t, True, True, True, True, Nothing))\n        m.Add(\"shelf\", \"Dood taviur\", 1, ts, Tray3D(SL, SD, Fs, ts, True, True, True, True, Nothing))\n        m.Add(\"leg\", \"Khol \" & A & \"x\" & A & \"x\" & tl, 4, tl, Angle3D(A, A, Lg, tl))\n        m.Place(\"top\", FrXY(0, 0, H - F))\n        m.Place(\"shelf\", FrXY(t + tl, t + tl, zs - Fs))\n        m.Place(\"leg\", RotZ(t, t, 0, 0)) : m.Place(\"leg\", RotZ(L - t, t, 0, 90)) : m.Place(\"leg\", RotZ(L - t, D - t, 0, 180)) : m.Place(\"leg\", RotZ(t, D - t, 0, 270))\n        Return m\n    End Function\n\n    Public Shared Function Chair(p As Dictionary(Of String, Double)) As KModel\n        Dim m As New KModel\n        Dim Ws As Double = p(\"Ws\"), Ds As Double = p(\"Ds\"), Hs As Double = p(\"Hs\"), Hb As Double = p(\"Hb\"), pw As Double = p(\"pw\")\n        Dim tf As Double = p(\"tf\"), t As Double = p(\"t\"), F As Double = p(\"F\"), Hbp As Double = p(\"Hbp\"), r As Double = p(\"bd\") / 2\n        Dim a As Double = p(\"a\") * Math.PI / 180, ta As Double = Math.Tan(a), ca As Double = Math.Cos(a), sa As Double = Math.Sin(a)\n        Dim Gx As Double = pw - Hs * ta\n        Dim side As List(Of KV) = Pl(0, 0, 0, Ds, 0, 0, Ds, Hs, 0, Gx, Hs, 0, pw - Hb * ta, Hb, 0.35, -Hb * ta, Hb, 0)\n        Dim cut As List(Of KV) = Rc(pw + 30, 60, Math.Max(20, Ds - pw - 70), Math.Max(20, Hs - 120), 20)\n        Dim Dp As Double = Rnd0(Ds - Math.Max(Gx, pw) - 5)\n        Dim sFr As KFrame = FrXY(0, Ds - Dp, Hs - F)\n        Dim y0 As Double = Hb - 20 - Hbp\n        Dim nB() As Double = A3(0, ca, sa)\n        Dim P0() As Double = A3(Ws, pw - y0 * ta, y0)\n        Dim bFr As KFrame = FrRaw(A3(P0(0) - F * nB(0), P0(1) - F * nB(1), P0(2) - F * nB(2)), A3(-1, 0, 0), A3(0, -sa, ca), nB)\n        Dim lps As New List(Of List(Of KV))\n        lps.Add(side) : lps.Add(cut)\n        For Each fq As Double In New Double() {0.25, 0.75}\n            Dim w() As Double = At(sFr, 0, fq * Dp, F / 2)\n            lps.Add(Ci(w(1), w(2), r))\n            Dim q() As Double = At(bFr, 0, fq * Hbp, F / 2)\n            lps.Add(Ci(q(1), q(2), r))\n        Next\n        Dim n As Integer = CInt(Rnd0(p(\"n\")))\n        m.Add(\"side\", \"Khajuu khuree\", 2 * n, tf, One(SolL(tf, Fr(A3(0, 0, 0), A3(0, 1, 0), A3(0, 0, 1)), lps)))\n        m.Add(\"seat\", \"Suudal\", n, t, Tray3D(Ws, Dp, F, t, False, True, False, True, Nothing))\n        m.Add(\"back\", \"Tushleg\", n, t, Tray3D(Ws, Hbp, F, t, False, True, False, True, Nothing))\n        For i As Integer = 0 To n - 1\n            Dim dx As Double = i * (Ws + 2 * tf + 150)\n            m.Place(\"side\", FrXY(dx - tf, 0, 0)) : m.Place(\"side\", FrXY(dx + Ws, 0, 0))\n            m.Place(\"seat\", FrXY(dx, Ds - Dp, Hs - F))\n            m.Place(\"back\", FrRaw(A3(bFr.O(0) + dx, bFr.O(1), bFr.O(2)), bFr.U, bFr.V, bFr.N))\n        Next\n        Return m\n    End Function\n\n    Public Shared Function Rack(p As Dictionary(Of String, Double)) As KModel\n        Dim m As New KModel\n        Dim L As Double = p(\"L\"), D As Double = p(\"D\"), H As Double = p(\"H\"), ts As Double = p(\"ts\"), F As Double = p(\"F\")\n        Dim A As Double = p(\"A\"), tl As Double = p(\"tl\"), pt As Double = p(\"pt\")\n        Dim SL As Double = L - 2 * tl, SD As Double = D - 2 * tl\n        Dim rows As New List(Of Double)\n        Dim y As Double = pt / 2\n        While y < H - pt / 4\n            rows.Add(y) : y += pt\n        End While\n        Dim k As Integer = Math.Max(1, CInt(Rnd0(p(\"k\"))))\n        Dim lv As New List(Of Double)\n        For i As Integer = 0 To k - 1\n            Dim want As Double = If(k = 1, H / 2, 120 + i * (H - 120 - F) / (k - 1))\n            Dim best As Double = rows(0)\n            For Each yy As Double In rows\n                If Math.Abs(yy - (want - F / 2)) < Math.Abs(best - (want - F / 2)) Then best = yy\n            Next\n            lv.Add(best + F / 2)\n        Next\n        m.Add(\"shelf\", \"Taviur\", k, ts, Tray3D(SL, SD, F, ts, True, True, True, True, Nothing))\n        m.Add(\"post\", \"Tulguur \" & A & \"x\" & A & \"x\" & tl, 4, tl, Angle3D(A, A, H, tl))\n        For Each z As Double In lv\n            m.Place(\"shelf\", FrXY(tl, tl, z - F))\n        Next\n        m.Place(\"post\", RotZ(0, 0, 0, 0)) : m.Place(\"post\", RotZ(L, 0, 0, 90)) : m.Place(\"post\", RotZ(L, D, 0, 180)) : m.Place(\"post\", RotZ(0, D, 0, 270))\n        Return m\n    End Function\n\n    Public Shared Function LBracket(p As Dictionary(Of String, Double)) As KModel\n        Dim m As New KModel\n        Dim A As Double = p(\"A\"), B As Double = p(\"B\"), w As Double = p(\"w\"), t As Double = p(\"t\")\n        Dim s As New List(Of KSolid)\n        s.Add(Sol(t, FrXY(0, 0, 0), Rc(0, 0, A, w, 0)))\n        s.Add(Sol(t, Fr(A3(t, 0, t), A3(0, 0, 1), A3(0, 1, 0)), Rc(0, 0, B - t, w, 0)))\n        Dim n As Integer = CInt(Rnd0(p(\"n\")))\n        m.Add(\"br\", \"L bekhelgee \" & A & \"x\" & B & \"x\" & w, n, t, s)\n        For i As Integer = 0 To n - 1\n            m.Place(\"br\", FrXY(i * (A + 40), 0, 0))\n        Next\n        Return m\n    End Function\n\n    Public Shared Function BasePlate(p As Dictionary(Of String, Double)) As KModel\n        Dim m As New KModel\n        Dim L As Double = p(\"L\"), W As Double = p(\"W\"), t As Double = p(\"t\"), e As Double = p(\"e\"), d As Double = p(\"d\")\n        Dim nx As Integer = Math.Max(1, CInt(Rnd0(p(\"nx\")))), ny As Integer = Math.Max(1, CInt(Rnd0(p(\"ny\"))))\n        Dim lp As New List(Of List(Of KV))\n        lp.Add(Rc(0, 0, L, W, p(\"R\")))\n        For i As Integer = 0 To nx - 1\n            For j As Integer = 0 To ny - 1\n                Dim x As Double = If(nx = 1, L / 2, e + i * (L - 2 * e) / (nx - 1))\n                Dim y As Double = If(ny = 1, W / 2, e + j * (W - 2 * e) / (ny - 1))\n                If nx > 1 AndAlso ny > 1 AndAlso i > 0 AndAlso i < nx - 1 AndAlso j > 0 AndAlso j < ny - 1 Then Continue For\n                lp.Add(Ci(x, y, d / 2))\n            Next\n        Next\n        If p(\"d0\") > 0 Then lp.Add(Ci(L / 2, W / 2, p(\"d0\") / 2))\n        Dim n As Integer = CInt(Rnd0(p(\"n\")))\n        m.Add(\"bp\", \"Suuri khavtan \" & L & \"x\" & W & \"x\" & t, n, t, One(SolL(t, FrXY(0, 0, 0), lp)))\n        For i As Integer = 0 To n - 1\n            m.Place(\"bp\", FrXY(i * (L + 60), 0, 0))\n        Next\n        Return m\n    End Function\n\n    Public Shared Function Bucket(p As Dictionary(Of String, Double)) As KModel\n        Dim m As New KModel\n        Dim W As Double = p(\"W\"), D As Double = p(\"D\"), H As Double = p(\"H\"), R As Double = p(\"R\")\n        Dim al As Double = Math.Min(60, p(\"alpha\")) * Math.PI / 180\n        Dim ts As Double = p(\"side_t\"), tw As Double = p(\"wrap_t\"), tl As Double = p(\"lip_t\"), tt As Double = p(\"top_t\"), te As Double = p(\"ear_t\"), twr As Double = p(\"wear_t\")\n        Dim lipL As Double = p(\"lipL\"), topD As Double = p(\"topD\"), Bx As Double = D - H * Math.Tan(al)\n        Dim Lm As Double = Math.Sqrt((D - Bx) * (D - Bx) + H * H), Lb As Double = D - lipL - R\n        Dim Re As Double = p(\"pin\") / 2 + p(\"boss\"), Pp As Double = p(\"pitch\"), hc As Double = p(\"hc\")\n        Dim XZ As KFrame = Fr(A3(0, 0, 0), A3(1, 0, 0), A3(0, 0, 1))\n        m.Add(\"side\", \"Khajuu khavtan\", 2, ts, One(Sol(ts, XZ, Pl(R, 0, 0, D, 0, 0, Bx, H, 0, 0, H, 0, 0, R, BQ))))\n        m.Place(\"side\", FrXY(0, 0, 0)) : m.Place(\"side\", FrXY(0, W + ts, 0))\n        m.Add(\"wrap\", \"Orookh khavtan\", 1, tw, One(Sol(W, Fr(A3(0, W, 0), A3(1, 0, 0), A3(0, 0, 1)), Pl(D - lipL, 0, 0, R, 0, -BQ, 0, R, 0, 0, H - tt, 0, tw, H - tt, 0, tw, R, BQ, R, tw, 0, D - lipL, tw, 0))))\n        m.Place(\"wrap\", FrXY(0, 0, 0))\n        m.Add(\"lip\", \"Ir\", 1, tl, One(Sol(tl, FrXY(0, 0, 0), Rc(0, 0, lipL, W, 0))))\n        m.Place(\"lip\", FrXY(D - lipL, 0, 0))\n        m.Add(\"top\", \"Deed khavtan\", 1, tt, One(Sol(tt, FrXY(0, 0, 0), Rc(0, 0, topD, W, 0))))\n        m.Place(\"top\", FrXY(0, 0, H - tt))\n        Dim ne As Integer = CInt(Rnd0(p(\"earQty\")))\n        If ne > 0 Then\n            Dim ear As List(Of KV) = Pl(-Re, 0, 0, Pp + Re, 0, 0, Pp + Re, hc, BQ, Pp, hc + Re, 0, 0, hc + Re, BQ, -Re, hc, 0)\n            m.Add(\"ear\", \"Chikh\", ne, te, One(Sol(te, XZ, ear, Ci(0, hc, p(\"pin\") / 2), Ci(Pp, hc, p(\"pin\") / 2))))\n            Dim ex0 As Double = topD / 2 - Pp / 2\n            For k As Integer = 0 To ne - 1\n                m.Place(\"ear\", FrXY(ex0, W * (k + 1) / (ne + 1) + te / 2, H))\n            Next\n        End If\n        Dim nw As Integer = CInt(Rnd0(p(\"wearN\")))\n        If nw > 0 AndAlso p(\"wearW\") > 0 AndAlso Lb > 80 Then\n            m.Add(\"wear\", \"Elegdliin tuuz\", nw, twr, One(Sol(twr, Fr(A3(0, 0, 0), A3(0, 1, 0), A3(1, 0, 0)), Rc(0, 0, p(\"wearW\"), Lb - 40, 0))))\n            For k As Integer = 0 To nw - 1\n                m.Place(\"wear\", FrXY(R + 20, W * (k + 1) / (nw + 1) - p(\"wearW\") / 2, 0))\n            Next\n        End If\n        If p(\"cutter\") > 0 AndAlso p(\"cutterW\") > 0 Then\n            Dim ux As Double = (Bx - D) / Lm, uz As Double = H / Lm\n            m.Add(\"cut\", \"Khajuugiin ir\", 2, ts, One(Sol(ts, FrXY(0, 0, 0), Rc(0, 0, Rnd0(Lm), p(\"cutterW\"), 0))))\n            m.Place(\"cut\", FrRaw(A3(D, -ts, 0), A3(ux, 0, uz), A3(-uz, 0, ux), A3(0, -1, 0)))\n            m.Place(\"cut\", FrRaw(A3(Bx, W + ts, H), A3(-ux, 0, -uz), A3(-uz, 0, ux), A3(0, 1, 0)))\n        End If\n        Return m\n    End Function\nEnd Class\n";
+const VB_INV = "'================ KH_INV \u2014 Inventor-\u0434 \u0437\u0443\u0440\u0430\u0445, \u0443\u0433\u0441\u0440\u0430\u0445 ================\nPublic Class KI\n    ' user parameter: create with the default if missing, return the value in mm / deg / unitless\n    Public Shared Function Par(prm As Parameters, name As String, def As Double, units As String) As Double\n        Dim q As Parameter = Nothing\n        Try\n            q = prm.Item(name)\n        Catch\n            q = Nothing\n        End Try\n        If q Is Nothing Then\n            If units = \"mm\" Then\n                q = prm.UserParameters.AddByValue(name, def / 10.0, \"mm\")\n            ElseIf units = \"deg\" Then\n                q = prm.UserParameters.AddByValue(name, def * Math.PI / 180.0, \"deg\")\n            Else\n                q = prm.UserParameters.AddByValue(name, def, UnitsTypeEnum.kUnitlessUnits)\n            End If\n        End If\n        Dim r As Double = CDbl(q.Value)\n        If units = \"mm\" Then Return r * 10.0\n        If units = \"deg\" Then Return r * 180.0 / Math.PI\n        Return r\n    End Function\n    Public Shared Function TextPar(prm As Parameters, name As String, def As String) As String\n        Dim q As Parameter = Nothing\n        Try\n            q = prm.Item(name)\n        Catch\n            q = Nothing\n        End Try\n        If q Is Nothing Then q = prm.UserParameters.AddByValue(name, def, UnitsTypeEnum.kTextUnits)\n        Return CStr(q.Value)\n    End Function\n\n    Public Shared Sub ClearKH(def As PartComponentDefinition)\n        For i As Integer = def.Features.ExtrudeFeatures.Count To 1 Step -1\n            Dim f As ExtrudeFeature = def.Features.ExtrudeFeatures.Item(i)\n            If f.Name.StartsWith(\"KH_\") Then f.Delete()\n        Next\n        For i As Integer = def.Sketches.Count To 1 Step -1\n            Dim s As PlanarSketch = def.Sketches.Item(i)\n            If s.Name.StartsWith(\"KH_\") Then s.Delete()\n        Next\n        For i As Integer = def.WorkPlanes.Count To 1 Step -1\n            Dim w As WorkPlane = def.WorkPlanes.Item(i)\n            If w.Name.StartsWith(\"KH_\") Then w.Delete()\n        Next\n    End Sub\n\n    Private Shared Function SP(tg As TransientGeometry, sk As PlanarSketch, f As KFrame, x As Double, y As Double) As Point2d\n        Return sk.ModelToSketchSpace(tg.CreatePoint((f.O(0) + x * f.U(0) + y * f.V(0)) / 10.0, (f.O(1) + x * f.U(1) + y * f.V(1)) / 10.0, (f.O(2) + x * f.U(2) + y * f.V(2)) / 10.0))\n    End Function\n\n    Public Shared Sub DrawLoop(tg As TransientGeometry, sk As PlanarSketch, f As KFrame, lp As List(Of KV), flip As Boolean)\n        Dim n As Integer = lp.Count\n        If n = 2 AndAlso Math.Abs(Math.Abs(lp(0).B) - 1) < 0.000000001 AndAlso Math.Abs(lp(0).B - lp(1).B) < 0.000000001 Then\n            Dim r As Double = Math.Sqrt((lp(0).X - lp(1).X) ^ 2 + (lp(0).Y - lp(1).Y) ^ 2) / 2\n            sk.SketchCircles.AddByCenterRadius(SP(tg, sk, f, (lp(0).X + lp(1).X) / 2, (lp(0).Y + lp(1).Y) / 2), r / 10.0)\n            Return\n        End If\n        Dim pts(n - 1) As SketchPoint\n        For i As Integer = 0 To n - 1\n            pts(i) = sk.SketchPoints.Add(SP(tg, sk, f, lp(i).X, lp(i).Y), False)\n        Next\n        For i As Integer = 0 To n - 1\n            Dim a As KV = lp(i), b As KV = lp((i + 1) Mod n), j As Integer = (i + 1) Mod n\n            If Math.Abs(a.B) < 0.000000001 Then\n                sk.SketchLines.AddByTwoPoints(pts(i), pts(j))\n            Else\n                Dim dx As Double = b.X - a.X, dy As Double = b.Y - a.Y, k As Double = (1 - a.B * a.B) / (4 * a.B)\n                Dim cx As Double = (a.X + b.X) / 2 - k * dy, cy As Double = (a.Y + b.Y) / 2 + k * dx\n                sk.SketchArcs.AddByCenterStartEndPoint(SP(tg, sk, f, cx, cy), pts(i), pts(j), (a.B > 0) Xor flip)\n            End If\n        Next\n    End Sub\n\n    Public Shared Sub DrawSolid(app As Inventor.Application, def As PartComponentDefinition, s As KSolid, k As Integer)\n        Dim tg As TransientGeometry = app.TransientGeometry\n        Dim f As KFrame = s.Fr\n        Dim wp As WorkPlane = def.WorkPlanes.AddFixed(tg.CreatePoint(f.O(0) / 10.0, f.O(1) / 10.0, f.O(2) / 10.0), tg.CreateUnitVector(f.U(0), f.U(1), f.U(2)), tg.CreateUnitVector(f.V(0), f.V(1), f.V(2)))\n        wp.Name = \"KH_WP\" & k\n        wp.Visible = False\n        Dim sk As PlanarSketch = def.Sketches.Add(wp)\n        sk.Name = \"KH_SK\" & k\n        Dim pl As Plane = CType(sk.PlanarEntityGeometry, Plane)\n        Dim flip As Boolean = (pl.Normal.X * f.N(0) + pl.Normal.Y * f.N(1) + pl.Normal.Z * f.N(2)) < 0\n        For Each lp As List(Of KV) In s.Loops\n            DrawLoop(tg, sk, f, lp, flip)\n        Next\n        Dim prof As Profile = sk.Profiles.AddForSolid()\n        Dim ed As ExtrudeDefinition = def.Features.ExtrudeFeatures.CreateExtrudeDefinition(prof, PartFeatureOperationEnum.kNewBodyOperation)\n        If flip Then\n            ed.SetDistanceExtent(s.T / 10.0, PartFeatureExtentDirectionEnum.kNegativeExtentDirection)\n        Else\n            ed.SetDistanceExtent(s.T / 10.0, PartFeatureExtentDirectionEnum.kPositiveExtentDirection)\n        End If\n        Dim ef As ExtrudeFeature = def.Features.ExtrudeFeatures.Add(ed)\n        ef.Name = \"KH_EX\" & k\n    End Sub\n\n    Public Shared Sub BuildPart(app As Inventor.Application, doc As PartDocument, part As KPart)\n        Dim def As PartComponentDefinition = doc.ComponentDefinition\n        ClearKH(def)\n        Dim k As Integer = 0\n        For Each s As KSolid In part.Solids\n            k += 1\n            DrawSolid(app, def, s, k)\n        Next\n        Try\n            doc.PropertySets.Item(\"Design Tracking Properties\").Item(\"Description\").Value = part.Name & \" (\" & part.Thk & \" mm)\"\n        Catch\n        End Try\n        doc.Update()\n    End Sub\n\n    Public Shared Sub BuildAssembly(app As Inventor.Application, asm As AssemblyDocument, m As KModel, tpl As String)\n        If asm.FullFileName = \"\" Then\n            MessageBox.Show(\"\u042d\u0445\u043b\u044d\u044d\u0434 \u0443\u0433\u0441\u0440\u0430\u043b\u0442\u044b\u043d \u0444\u0430\u0439\u043b\u0430\u0430 \u0445\u0430\u0434\u0433\u0430\u043b\u043d\u0430 \u0443\u0443 (Save), \u0434\u0430\u0440\u0430\u0430 \u043d\u044c \u0434\u04af\u0440\u043c\u0438\u0439\u0433 \u0434\u0430\u0445\u0438\u043d \u0430\u0436\u0438\u043b\u043b\u0443\u0443\u043b\u043d\u0430.\", \"KH Fab\")\n            Return\n        End If\n        Dim folder As String = System.IO.Path.GetDirectoryName(asm.FullFileName)\n        Dim acd As AssemblyComponentDefinition = asm.ComponentDefinition\n        For i As Integer = acd.Occurrences.Count To 1 Step -1\n            Dim oc As ComponentOccurrence = acd.Occurrences.Item(i)\n            If oc.Name.StartsWith(\"KH_\") Then oc.Delete()\n        Next\n        app.Documents.CloseAll(True)\n        Dim tg As TransientGeometry = app.TransientGeometry\n        Dim tmpl As String = app.FileManager.GetTemplateFile(DocumentTypeEnum.kPartDocumentObject)\n        Dim paths As New Dictionary(Of String, String)\n        For Each pt As KPart In m.Parts\n            Dim path As String = System.IO.Path.Combine(folder, \"KH_\" & tpl & \"_\" & pt.Key & \".ipt\")\n            Dim pd As PartDocument = CType(app.Documents.Add(DocumentTypeEnum.kPartDocumentObject, tmpl, False), PartDocument)\n            BuildPart(app, pd, pt)\n            pd.SaveAs(path, False)\n            pd.Close(True)\n            paths(pt.Key) = path\n        Next\n        Dim cnt As New Dictionary(Of String, Integer)\n        For Each pl As KPlace In m.Places\n            Dim f As KFrame = pl.Fr\n            Dim mx As Matrix = tg.CreateMatrix()\n            mx.SetCoordinateSystem(tg.CreatePoint(f.O(0) / 10.0, f.O(1) / 10.0, f.O(2) / 10.0), tg.CreateVector(f.U(0), f.U(1), f.U(2)), tg.CreateVector(f.V(0), f.V(1), f.V(2)), tg.CreateVector(f.N(0), f.N(1), f.N(2)))\n            Dim oc As ComponentOccurrence = acd.Occurrences.Add(paths(pl.Key), mx)\n            If Not cnt.ContainsKey(pl.Key) Then cnt(pl.Key) = 0\n            cnt(pl.Key) += 1\n            Try\n                oc.Name = \"KH_\" & pl.Key & \"_\" & cnt(pl.Key)\n            Catch\n            End Try\n            oc.Grounded = True\n        Next\n        asm.Update()\n    End Sub\nEnd Class\n";
+/* ================= KH Fab — Autodesk Inventor iLogic rule generator =================
+   VB_GEOM / VB_INV are injected by build.py from src/ilogic/*.vb */
+const VB_TPL = {
+  pegboard: { fn: 'Pegboard', ul: ['n'] },
+  bench: { fn: 'Bench', ul: [] },
+  chair: { fn: 'Chair', ul: ['n'], deg: ['a'] },
+  rack: { fn: 'Rack', ul: ['k'] },
+  lbracket: { fn: 'LBracket', ul: ['nh', 'n'] },
+  baseplate: { fn: 'BasePlate', ul: ['nx', 'ny', 'n'] },
+  bucket: { fn: 'Bucket', ul: ['earQty', 'wearN', 'cutter'], deg: ['alpha'] }
+};
+function bucketVbParams(B) {
+  const o = {}; ['W', 'D', 'H', 'R', 'alpha', 'lipL', 'topD', 'pin', 'pitch', 'hc', 'boss', 'earQty', 'wearN', 'wearW', 'cutterW'].forEach(k => o[k] = +B[k] || 0);
+  o.cutter = B.cutter ? 1 : 0; ['side', 'wrap', 'lip', 'top', 'ear', 'wear'].forEach(k => o[k + '_t'] = +B[k].thk);
+  return o;
+}
+function ilogicRule(id, params, title) {
+  const T = VB_TPL[id], fmt = v => { const s = String(Number((+v).toFixed(6))); return /[.eE]/.test(s) ? s : s + '.0'; };
+  const lines = Object.entries(params).map(([k, v]) => {
+    const u = (T.ul || []).includes(k) ? 'ul' : (T.deg || []).includes(k) ? 'deg' : 'mm';
+    return `    p("${k}") = KI.Par(prm, "KH_${k}", ${fmt(v)}, "${u}")`;
+  }).join('\n');
+  return `' ============================================================================
+' Kh International · KH Fab — iLogic параметрт загвар: ${title}
+' Үүсгэсэн: ${new Date().toISOString().slice(0, 10)}
+'
+' ХЭРЭГЛЭХ:
+'  1. Inventor-т шинэ Assembly (.iam) нээгээд ХАДГАЛНА (эд ангиуд энэ хавтсанд үүснэ),
+'     эсвэл ганц эд анги хэрэгтэй бол шинэ Part (.ipt) нээнэ.
+'  2. Manage → iLogic → Add Rule → нэр өгөөд энэ текстийг бүтнээр нь буулгаад Save & Run.
+'  3. Parameters (fx) цонхонд KH_ гэсэн параметрүүд үүснэ. Утгыг өөрчлөөд дүрмийг дахин
+'     ажиллуулна. Автоматаар ажиллуулах бол: Manage → Event Triggers → Any User Parameter Change.
+'  4. Part дээр KH_Part параметрээр аль эд ангийг зурахыг сонгоно.
+'  Эд анги бүр 3D бие хэлбэрээр зурагдана (нугалсан хэсгийг тэгш өнцөгт хана болгож).
+'  Лазерын дэлгэмэл, нугалах шугамыг KH Fab-ын DXF-ээс авна.
+' ============================================================================
+Imports System.Collections.Generic
+
+Sub Main()
+    Dim doc As Document = ThisDoc.Document
+    Dim isAsm As Boolean = (doc.DocumentType = DocumentTypeEnum.kAssemblyDocumentObject)
+    Dim prm As Parameters
+    If isAsm Then
+        prm = CType(doc, AssemblyDocument).ComponentDefinition.Parameters
+    Else
+        prm = CType(doc, PartDocument).ComponentDefinition.Parameters
+    End If
+    Dim p As New Dictionary(Of String, Double)
+${lines}
+    Dim m As KModel = KG.${T.fn}(p)
+    If isAsm Then
+        KI.BuildAssembly(ThisApplication, CType(doc, AssemblyDocument), m, "${id}")
+    Else
+        Dim keys As New List(Of String)
+        For Each q As KPart In m.Parts
+            keys.Add(q.Key)
+        Next
+        Dim sel As String = KI.TextPar(prm, "KH_Part", keys(0))
+        MultiValue.SetList("KH_Part", keys.ToArray())
+        Dim part As KPart = m.Part(sel)
+        If part Is Nothing Then part = m.Parts(0)
+        KI.BuildPart(ThisApplication, CType(doc, PartDocument), part)
+    End If
+End Sub
+
+${VB_GEOM}
+${VB_INV}`;
+}
+
+/* ================= KH Fab — «Мэдээлэл · сан»: mining machines, bucket types, product templates, own file library ================= */
+const IN = { tab: 'mach', cat: 'all', q: '', sel: null, bt: null, tpl: 'pegboard', lib: null, p: {} };
+let LIB = (() => { try { return JSON.parse(localStorage.getItem('kh-lib') || '[]'); } catch (e) { return []; } })();
+function saveLib() { try { localStorage.setItem('kh-lib', JSON.stringify(LIB)); return true; } catch (e) { toast('Санд хадгалах зай дүүрсэн — хуучин зүйлсээ устгана уу', 6000); return false; } }
+const catName = c => (MCAT.find(x => x[0] === c) || [, c])[1];
+const fmtN = (v, d, u) => v == null ? '—' : `${nf(v, d)}${u ? ' ' + u : ''}`;
+const capTxt = m => !m.cap ? '—' : m.cap[0] === m.cap[1] ? `${nf(m.cap[0], 1)} м³` : `${nf(m.cap[0], 1)}–${nf(m.cap[1], 1)} м³`;
+const host = u => { try { return new URL(u).hostname.replace(/^www\./, ''); } catch (e) { return u; } };
+
+/* ---------- machine → bucket preset ---------- */
+function bucketPreset(m, V, type) {
+  const B = bucketDefaults(), cat = m.cat, wt = m.w || (m.pay ? m.pay * 2.8 : 30);
+  const ix = (() => { const j = [1.2, 3, 6, 10, 16].findIndex(x => V < x); return j < 0 ? 5 : j; })(), step = (v, arr) => arr[ix];
+  const heavy = type === 'rock' || type === 'xhd' || cat === 'lhd';
+  const hx = pickMat(/hardox\s*500/i, pickMat(/hardox|элэгд/i)), hx45 = pickMat(/hardox|элэгд/i), s355 = pickMat(/s355|09г2с/i);
+  B.name = `${m.make} ${m.model} шанага ${nf(V, 1)} м³`;
+  const k = cat === 'wl' ? 1.9 : cat === 'lhd' ? 1.45 : 1.12;
+  B.W = Math.round((m.bw ? m.bw - 2 * step(V, [12, 16, 20, 25, 30, 40]) : 1000 * k * Math.cbrt(V)) / 10) * 10;
+  const shape = cat === 'wl' ? { h: 0.85, r: 0.36, a: 10, lip: 0.2 } : cat === 'lhd' ? { h: 0.7, r: 0.3, a: 8, lip: 0.2 } : { h: 0.92, r: 0.4, a: 25, lip: 0.16 };
+  B.alpha = shape.a;
+  B.side = { mat: s355, thk: step(V, [12, 16, 20, 25, 30, 40]) }; B.top = { mat: s355, thk: B.side.thk };
+  B.wrap = { mat: heavy ? hx : hx45, thk: step(V, [10, 12, 16, 20, 25, 30]) + (heavy ? 4 : 0) };
+  B.lip = { mat: heavy ? hx : hx45, thk: step(V, [25, 35, 50, 60, 80, 100]) };
+  B.ear = { mat: s355, thk: step(V, [30, 40, 50, 60, 80, 100]) }; B.wear = { mat: heavy ? hx : hx45, thk: B.wrap.thk };
+  B.pin = Math.round(28 * Math.pow(wt, 0.36) / 5) * 5; B.pitch = Math.round(5.5 * B.pin / 10) * 10; B.hc = Math.round(1.9 * B.pin / 5) * 5; B.boss = Math.round(0.6 * B.pin / 5) * 5; B.earQty = 4;
+  B.wearN = Math.max(2, Math.round(B.W / 400)); B.wearW = Math.round(Math.min(200, Math.max(80, V * 20 + 60)) / 10) * 10; B.cutter = cat !== 'lhd'; B.cutterW = Math.round(Math.min(250, 80 + V * 10) / 10) * 10;
+  // scale the profile until the heaped capacity matches
+  const set = s => { B.D = Math.round(s); B.H = Math.round(s * shape.h); B.R = Math.round(s * shape.r); B.lipL = Math.round(s * shape.lip); B.topD = Math.round(s * 0.22); };
+  let lo = 150, hi = 8000;
+  for (let i = 0; i < 60; i++) { const mid = (lo + hi) / 2; set(mid); const c = bucketCalc(B); const v = c.err.length ? 0 : c.Vh; if (v < V) lo = mid; else hi = mid; }
+  set(hi);
+  return B;
+}
+
+/* ---------- side panel ---------- */
+$$('[data-itab]').forEach(b => b.addEventListener('click', () => { IN.tab = b.dataset.itab; renderInfo(); }));
+function renderInfo() {
+  $$('[data-itab]').forEach(x => x.classList.toggle('on', x.dataset.itab === IN.tab));
+  ['mach', 'bt', 'tpl', 'lib'].forEach(t => $('#itab-' + t).hidden = t !== IN.tab);
+  if (IN.tab === 'mach') renderMachList(); else if (IN.tab === 'bt') renderBtList(); else if (IN.tab === 'tpl') renderTplList(); else renderLibSide();
+  renderInfoMain();
+}
+function renderMachList() {
+  $('#mCats').innerHTML = [['all', 'Бүгд'], ...MCAT].map(([k, n]) => `<button class="chip${IN.cat === k ? ' on' : ''}" data-c="${k}">${esc(n)} <span class="mono">${k === 'all' ? MACHINES.length : MACHINES.filter(m => m.cat === k).length}</span></button>`).join('');
+  const q = IN.q.toLowerCase(), list = MACHINES.filter(m => (IN.cat === 'all' || m.cat === IN.cat) && (!q || `${m.make} ${m.model}`.toLowerCase().includes(q)));
+  $('#mList').innerHTML = list.map(m => `<div class="jitem${IN.sel === m.id ? ' on' : ''}" data-id="${m.id}"><span class="no">${esc(m.make)} ${esc(m.model)}</span><span class="pill">${esc(catName(m.cat).split(' (')[0].split(',')[0])}</span><span class="t mono">${[m.pay ? nf(m.pay, 1) + ' т даац' : '', m.w ? nf(m.w, 1) + ' т' : m.gvw ? 'GVW ' + nf(m.gvw, 0) + ' т' : '', capTxt(m)].filter(x => x && x !== '—').join(' · ')}</span></div>`).join('') || '<div class="emptyp">Олдсонгүй.</div>';
+}
+$('#mCats').addEventListener('click', e => { const b = e.target.closest('[data-c]'); if (!b) return; IN.cat = b.dataset.c; renderMachList(); });
+$('#mSearch').addEventListener('input', e => { IN.q = e.target.value; renderMachList(); });
+$('#mList').addEventListener('click', e => { const it = e.target.closest('.jitem'); if (!it) return; IN.sel = it.dataset.id; renderMachList(); renderInfoMain(); });
+function renderBtList() {
+  $('#btList').innerHTML = BTYPES.map(b => `<div class="jitem${IN.bt === b.id ? ' on' : ''}" data-id="${b.id}"><span class="no">${esc(b.name)}</span><span class="t">${esc(b.use)}</span></div>`).join('');
+}
+$('#btList').addEventListener('click', e => { const it = e.target.closest('.jitem'); if (!it) return; IN.bt = it.dataset.id; renderBtList(); renderInfoMain(); });
+function renderTplList() {
+  const all = [['bucket', 'Шанага (параметрт)', 'Уурхай'], ...Object.entries(TPL).map(([k, t]) => [k, t.name, t.cat])];
+  $('#tplList').innerHTML = all.map(([k, n, c]) => `<div class="jitem${IN.tpl === k ? ' on' : ''}" data-id="${k}"><span class="no">${esc(n)}</span><span class="pill">${esc(c)}</span></div>`).join('');
+}
+$('#tplList').addEventListener('click', e => { const it = e.target.closest('.jitem'); if (!it) return; if (it.dataset.id === 'bucket') { J.tab = 'kits'; J.bucket = true; BK.edit = null; $$('[data-jtab]').forEach(x => x.classList.toggle('on', x.dataset.jtab === 'kits')); ['jobs', 'kits', 'certs'].forEach(t => $('#jtab-' + t).hidden = t !== 'kits'); setModule('jobs'); return; } IN.tpl = it.dataset.id; renderTplList(); renderInfoMain(); });
+function renderLibSide() {
+  $('#extLinks').innerHTML = EXTLIBS.map(x => `<div class="jitem"><span class="no"><a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.name)}</a></span><span class="pill">${esc(x.kind)}</span><span class="t">${esc(x.lic)}</span></div>`).join('');
+  $('#libCount').textContent = LIB.length ? `${LIB.length} зүйл` : '';
+}
+
+/* ---------- main panel ---------- */
+function renderInfoMain() {
+  const el = $('#infoMain'); const oldV = V3D.get($('#tpl3d') || {}); if (oldV && IN.tab !== 'tpl') oldV.dispose();
+  if (IN.tab === 'mach') return IN.sel ? renderMachine(el, MACHINES.find(m => m.id === IN.sel)) : renderMachOverview(el);
+  if (IN.tab === 'bt') return renderBucketTypes(el);
+  if (IN.tab === 'tpl') return renderTemplate(el);
+  return renderLib(el);
+}
+function renderMachOverview(el) {
+  el.innerHTML = `<div class="jcard"><div class="bcard-h">Уул уурхайн техникийн сан</div><div class="jbody">
+    <p style="margin:0 0 8px">Монголын уурхайнуудад түгээмэл ашиглагддаг ${MACHINES.length} техникийн үндсэн үзүүлэлт. Техник сонгоод шанагыг нь параметрээр үүсгэж, иж бүрдэл, DXF, STEP, Inventor iLogic болгоно.</p>
+    <p class="note" style="margin:0">Үзүүлэлтүүдийг үйлдвэрлэгч, дилерийн техникийн хуудаснаас авсан (эх сурвалжийг техник бүрт заасан). Тохиргоо, зах зээлээс хамаарч өөр байж болно — үнийн санал өгөхөөс өмнө машины өөрийн паспортоор шалгана уу.</p></div></div>
+    ${MCAT.map(([c, n]) => { const ms = MACHINES.filter(m => m.cat === c); return `<div class="jcard"><div class="bcard-h">${esc(n)} <span class="sp"></span><span class="muted mono" style="font-weight:400">${ms.length}</span></div>
+      <div class="tblwrap" style="border:0"><table class="dt"><thead><tr><th>Үйлдвэрлэгч</th><th>Загвар</th><th class="r">${c === 'truck' ? 'Даац, т' : c === 'lhd' ? 'Даац, т' : 'Ажлын жин, т'}</th><th class="r">${c === 'truck' ? 'Нийт жин, т' : 'Хөдөлгүүр, кВт'}</th><th class="r">${c === 'truck' ? 'Тэвш' : c === 'dozer' ? 'Ир' : 'Шанага'}</th>${c === 'truck' ? '<th class="r">Хөдөлгүүр, кВт</th>' : ''}</tr></thead><tbody>
+      ${ms.map(m => `<tr class="jrow" data-id="${m.id}" style="cursor:pointer"><td>${esc(m.make)}</td><td><b>${esc(m.model)}</b></td><td class="r num">${c === 'truck' || c === 'lhd' ? fmtN(m.pay, 1) : fmtN(m.w, 1)}</td><td class="r num">${c === 'truck' ? fmtN(m.gvw, 1) : fmtN(m.kW, 0)}</td><td class="r num">${capTxt(m)}</td>${c === 'truck' ? `<td class="r num">${fmtN(m.kW, 0)}</td>` : ''}</tr>`).join('')}
+      </tbody></table></div></div>`; }).join('')}`;
+  el.querySelectorAll('.jrow').forEach(r => r.addEventListener('click', () => { IN.sel = r.dataset.id; renderMachList(); renderInfoMain(); }));
+}
+function renderMachine(el, m) {
+  const canB = ['lhd', 'exc', 'wl'].includes(m.cat) && m.cap;
+  const caps = !m.cap ? [] : [...new Set([m.std, m.cap[0], (m.cap[0] + m.cap[1]) / 2, m.cap[1]].filter(v => v > 0).map(v => Math.round(v * 10) / 10))].sort((a, b) => a - b);
+  const types = BTYPES.filter(b => b.for.split(' ').includes(m.cat));
+  const rows = [
+    m.pay != null ? [m.cat === 'lhd' ? 'Даац (tramming)' : 'Даац', `${nf(m.pay, 1)} т`] : null,
+    m.w != null ? [m.cat === 'truck' ? 'Хоосон жин' : 'Ажлын жин', `${nf(m.w, 1)} т`] : null,
+    m.gvw != null ? ['Нийт жин (GVW)', `${nf(m.gvw, 1)} т`] : null,
+    m.kW != null ? ['Хөдөлгүүр', `${nf(m.kW)} кВт`] : null,
+    m.cap ? [m.cat === 'truck' ? 'Тэвш (овоолсон)' : m.cat === 'dozer' ? 'Ирний багтаамж' : 'Шанага', capTxt(m) + (m.std ? ` · стандарт ${nf(m.std, 1)} м³` : '')] : null,
+    m.bw ? ['Шанагын өргөн', `${nf(m.bw)} мм`] : null
+  ].filter(Boolean);
+  el.innerHTML = `
+    <div class="bhead" style="align-items:center"><div style="flex:1"><div class="muted" style="font-size:12px">${esc(catName(m.cat))}</div><div style="font-size:20px;font-weight:700">${esc(m.make)} ${esc(m.model)}</div></div><button class="btn ghost" id="mBack">← Бүх техник</button></div>
+    <div class="bgrid" style="grid-template-columns:minmax(0,1fr) minmax(0,1fr)">
+      <div class="bcard"><div class="bcard-h">Үзүүлэлт</div><div class="tblwrap"><table class="dt" style="min-width:0;width:100%"><tbody>${rows.map(r => `<tr><td>${esc(r[0])}</td><td class="r num"><b>${esc(r[1])}</b></td></tr>`).join('')}</tbody></table></div>
+        ${m.note ? `<div class="jbody"><p class="note" style="margin:0">${esc(m.note)}</p></div>` : ''}
+        <div class="jbody"><div class="muted" style="font-size:12px">Эх сурвалж</div>${m.src.map(u => `<div><a href="${esc(u)}" target="_blank" rel="noopener">${esc(host(u))}</a></div>`).join('')}</div></div>
+      <div class="bcard"><div class="bcard-h">Kh International-д хийх боломжтой</div><div class="jbody"><ul style="margin:0;padding-left:18px;line-height:1.8">${(MFAB[m.cat] || []).map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>
+        ${canB ? `<div class="jbody" style="border-top:1px solid var(--line-2)"><div style="font-weight:600;margin-bottom:6px">Шанага үүсгэх</div>
+          <div class="grid2"><label class="fld">Багтаамж, м³<select id="mCap">${caps.map(v => `<option value="${v}"${v === (m.std || caps[0]) ? ' selected' : ''}>${nf(v, 1)}</option>`).join('')}</select></label>
+          <label class="fld">Төрөл<select id="mType">${types.map(t => `<option value="${t.id}">${esc(t.name)}</option>`).join('')}</select></label></div>
+          <div class="addrow"><button class="btn primary" id="mMake">Шанага үүсгэгч рүү</button></div>
+          <p class="note">Хэмжээг багтаамжаас тооцсон эхлэх утга. Пин, чихний хоорондын зай, амны хэмжээг машин дээрээс заавал хэмжиж оруулна.</p></div>` : ''}
+      </div>
+    </div>
+    ${types.length ? `<div class="jcard"><div class="bcard-h">Энэ төрлийн техникт хэрэглэгддэг шанага</div><div class="tblwrap" style="border:0"><table class="dt" style="min-width:0;width:100%"><thead><tr><th>Төрөл</th><th>Хэрэглээ</th><th>Бүтэц</th><th>Материал</th></tr></thead><tbody>${types.map(t => `<tr><td><b>${esc(t.name)}</b></td><td>${esc(t.use)}</td><td>${esc(t.build)}</td><td>${esc(t.mat)}</td></tr>`).join('')}</tbody></table></div></div>` : ''}`;
+  $('#mBack').addEventListener('click', () => { IN.sel = null; renderMachList(); renderInfoMain(); });
+  if (canB) $('#mMake').addEventListener('click', () => {
+    S.bucket = bucketPreset(m, +$('#mCap').value, $('#mType').value); save();
+    J.tab = 'kits'; J.bucket = true; BK.edit = null; $$('[data-jtab]').forEach(x => x.classList.toggle('on', x.dataset.jtab === 'kits')); ['jobs', 'kits', 'certs'].forEach(t => $('#jtab-' + t).hidden = t !== 'kits');
+    setModule('jobs'); toast('Шанагын эхлэх хэмжээ бэлэн — пин, чихний хэмжээг шалгана уу', 4500);
+  });
+}
+function renderBucketTypes(el) {
+  const sel = BTYPES.find(b => b.id === IN.bt);
+  el.innerHTML = `
+    ${sel ? `<div class="jcard"><div class="bcard-h">${esc(sel.name)}</div><div class="jbody"><table class="dt" style="min-width:0;width:100%"><tbody><tr><td style="width:120px">Хэрэглээ</td><td>${esc(sel.use)}</td></tr><tr><td>Бүтэц</td><td>${esc(sel.build)}</td></tr><tr><td>Материал</td><td>${esc(sel.mat)}</td></tr><tr><td>Техник</td><td>${sel.for.split(' ').map(c => esc(catName(c))).join(', ')}</td></tr></tbody></table></div></div>` : ''}
+    <div class="jcard"><div class="bcard-h">Шанагын хэмжээ сонгох тооцоо</div><div class="jbody">
+      <div class="jgrid">
+        <label class="fld">Материал<select id="bcMat">${DENS.map(([n, d], i) => `<option value="${d}">${esc(n)} — ${d} т/м³</option>`).join('')}</select></label>
+        <label class="fld">Нягт, т/м³ (сул)<input id="bcRho" type="number" step="0.05" value="${DENS[0][1]}"></label>
+        <label class="fld">Шанагын даац, т<input id="bcPay" type="number" step="0.5" value="15"></label>
+        <label class="fld">Дүүргэлтийн коэффициент<input id="bcFill" type="number" step="0.05" value="0.9"></label>
+      </div>
+      <p id="bcOut" style="font-size:16px;margin:10px 0 0"></p>
+      <p class="note">Шаардлагатай багтаамж = даац ÷ (сул нягт × дүүргэлт). Нягт нь гарын авлагын ерөнхий утга, өөрийн уурхайн материалаар засна уу. Машины даацаас хэтэрсэн шанага хийхгүй.</p>
+    </div></div>
+    <div class="jcard"><div class="bcard-h">Шанагын төрлүүд</div><div class="tblwrap" style="border:0"><table class="dt" style="min-width:0;width:100%"><thead><tr><th>Төрөл</th><th>Хэрэглээ</th><th>Бүтэц</th><th>Материал</th></tr></thead><tbody>${BTYPES.map(t => `<tr${t.id === IN.bt ? ' style="background:var(--accent-soft)"' : ''}><td><b>${esc(t.name)}</b></td><td>${esc(t.use)}</td><td>${esc(t.build)}</td><td>${esc(t.mat)}</td></tr>`).join('')}</tbody></table></div></div>`;
+  const calc = () => { const rho = +$('#bcRho').value || 1, pay = +$('#bcPay').value || 0, fill = +$('#bcFill').value || 0.9; $('#bcOut').innerHTML = `Шаардлагатай багтаамж ≈ <b class="mono">${nf(pay / (rho * fill), 2)} м³</b>`; };
+  $('#bcMat').addEventListener('change', e => { $('#bcRho').value = e.target.value; calc(); });
+  ['bcRho', 'bcPay', 'bcFill'].forEach(id => $('#' + id).addEventListener('input', calc)); calc();
+}
+
+/* ---------- templates ---------- */
+function tplParams(id) { const T = TPL[id]; if (!IN.p[id]) { IN.p[id] = {}; T.params.forEach(q => IN.p[id][q[0]] = q[2]); } return IN.p[id]; }
+function renderTemplate(el) {
+  const T = TPL[IN.tpl], p = tplParams(IN.tpl); let r;
+  try { r = T.build(p); } catch (e) { el.innerHTML = `<div class="warnbox">${esc(e.message)}</div>`; return; }
+  const mat = S.materials.some(x => x.name === T.mat) ? T.mat : S.defMat, dark = isDark();
+  const kg = r.parts.reduce((a, q) => a + partInfo(q).area * q.thk * matOf(mat).rho / 1e6 * q.qty, 0);
+  el.innerHTML = `
+    <div class="bhead" style="align-items:center"><div style="flex:1"><div style="font-size:18px;font-weight:700">${esc(T.name)}</div><div class="note" style="margin:2px 0 0">${esc(T.desc)}</div></div></div>
+    <div class="bgrid" style="grid-template-columns:minmax(240px,320px) minmax(0,1fr)">
+      <div class="bcard"><div class="bcard-h">Хэмжээ, мм</div><div class="jbody"><div class="grid2">${T.params.map(([k, l, d, st]) => `<label class="fld"><span>${esc(l)}</span><input data-tp="${k}" type="number" step="${st}" value="${p[k]}" class="mono"></label>`).join('')}</div>
+        <label class="fld" style="margin-top:8px">Материал<select id="tpMat">${matOptions(mat)}</select></label>
+        <div class="addrow"><button class="btn sm ghost" id="tpReset">Анхны утга</button></div></div></div>
+      <div class="bcard"><div class="bcard-h">3D <span class="sp"></span><span class="muted" style="font-weight:400;font-size:12px">хулганаар эргүүлж, томруулна</span></div><div id="tpl3d" class="v3d"></div></div>
+    </div>
+    <div class="summary">${[['Эд анги', `${r.parts.length}<small>төрөл</small>`, `${r.parts.reduce((a, q) => a + q.qty, 0)} ширхэг`], ['Жин', `${nf(kg, 1)}<small>кг</small>`, esc(mat)], ['Тэмдэглэл', '', r.info || '']].map(s => `<div class="stat"><div class="k">${s[0]}</div><div class="v">${s[1]}</div><div class="s">${s[2]}</div></div>`).join('')}</div>
+    <div class="jcard"><div class="bcard-h">Хавтгай эд ангиуд (лазер)</div><div class="tblwrap" style="border:0"><table class="dt"><thead><tr><th style="width:60px"></th><th>Нэр</th><th class="r">Зузаан</th><th class="r">Дэлгэмэл, мм</th><th class="r">Нүх</th><th class="r">Нугалаа</th><th class="r">Тоо</th></tr></thead><tbody>
+      ${r.parts.map((q, i) => { const inf = partInfo(q); return `<tr><td><canvas class="thumb" style="width:44px;height:44px" data-i="${i}"></canvas></td><td>${esc(q.name)}</td><td class="r num">${q.thk}</td><td class="r num">${nf(inf.w, 1)} × ${nf(inf.h, 1)}</td><td class="r num">${q.holes.length}</td><td class="r num">${(q.bends || []).length}</td><td class="r num">${q.qty}</td></tr>`; }).join('')}
+    </tbody></table></div></div>
+    <div class="exports">
+      <button class="btn primary" id="tpKit">Иж бүрдэл үүсгэх</button>
+      <button class="btn" id="tpNest">Nesting руу ×</button><input id="tpN" type="number" min="1" value="1" class="inp mono" style="width:64px">
+      <button class="btn" id="tpIl">Inventor iLogic</button>
+      <button class="btn" id="tpStep">STEP</button>
+      <button class="btn" id="tpStl">STL</button>
+      <button class="btn" id="tpDxf">DXF (дэлгэмэл)</button>
+    </div>
+    <p class="note">Нугалах эд ангийн дэлгэмэлийг дотор R = зузаан, DIN 6935 K-аар тооцсон. Bending модулийн багажаар шалгаад шаардлагатай бол засна. 3D/STEP-д нугалаасыг шулуун хана болгож харуулсан.</p>`;
+  el.querySelectorAll('canvas.thumb').forEach(c => drawPartBox(c, r.parts[+c.dataset.i], partColor(+c.dataset.i, dark, 0.85)));
+  show3D($('#tpl3d'), worldSolids(r)).catch(e => { $('#tpl3d').innerHTML = `<div class="emptyp">3D сан ачаалагдсангүй: ${esc(e.message || '')}</div>`; });
+  el.querySelectorAll('[data-tp]').forEach(i => i.addEventListener('change', e => { p[e.target.dataset.tp] = +e.target.value || 0; renderTemplate(el); }));
+  $('#tpReset').addEventListener('click', () => { delete IN.p[IN.tpl]; renderTemplate(el); });
+  const pm = () => $('#tpMat').value;
+  const toParts = mult => r.parts.map(q => ({ id: uid(), name: q.name, qty: q.qty * mult, mat: pm(), thk: q.thk, rot: true, mir: false, prio: 0, outer: q.outer, holes: q.holes, bends: q.bends || [] }));
+  $('#tpKit').addEventListener('click', () => { const k = { id: uid(), name: T.name.split(' —')[0] + ' ' + T.params.slice(0, 3).map(q => p[q[0]]).join('×'), desc: T.desc, parts: toParts(1).map(cleanPart) }; S.kits.unshift(k); save(); toast(`«${k.name}» иж бүрдэл үүслээ (Ажил → Иж бүрдэл)`); });
+  $('#tpNest').addEventListener('click', () => { const n = Math.max(1, Math.round(+$('#tpN').value || 1)); S.parts.push(...toParts(n)); save(); renderParts(); toast(`${r.parts.length} төрлийн эд анги Nesting-д нэмэгдлээ`); });
+  const base = safeName(T.name.split(' —')[0].split(' (')[0]);
+  $('#tpIl').addEventListener('click', () => saveFile(`KH_${IN.tpl}.iLogicVb`, ilogicRule(IN.tpl, { ...p }, T.name), 'text/plain'));
+  $('#tpStep').addEventListener('click', () => saveFile(`${base}.stp`, stepFile(worldSolids(r), base), 'application/step'));
+  $('#tpStl').addEventListener('click', async () => saveFile(`${base}.stl`, await stlFile(worldSolids(r)), 'model/stl'));
+  $('#tpDxf').addEventListener('click', async () => {
+    if (!window.JSZip) { toast('ZIP сан ачаалагдсангүй'); return; }
+    const z = new JSZip();
+    r.parts.forEach(q => { const w = dxfWriter(); w.loop('OUTER', orientLoop(q.outer, true)); q.holes.forEach(h => w.loop('INNER', h)); (q.bends || []).forEach(b => w.line(b.up ? 'BEND_UP' : 'BEND_DOWN', b.x1, b.y1, b.x2, b.y2)); z.file(safeName(`${q.name}_${q.thk}mm_x${q.qty}`) + '.dxf', w.doc()); });
+    saveFile(`${base}_DXF.zip`, await z.generateAsync({ type: 'blob', compression: 'DEFLATE' }));
+  });
+}
+
+/* ---------- own library ---------- */
+function renderLib(el) {
+  const sel = LIB.find(x => x.id === IN.lib), dark = isDark(), cats = [...new Set(LIB.map(x => x.cat).filter(Boolean))];
+  el.innerHTML = `
+    <div class="jcard"><div class="bcard-h">Миний сан — татсан DXF, SVG, PDF, STEP файлууд <span class="sp"></span><span class="muted" style="font-weight:400;font-size:12px">энэ компьютерт хадгалагдана</span></div><div class="jbody">
+      <div class="jgrid">
+        <label class="fld">Ангилал<input id="lbCat" list="lbCats" placeholder="жишээ: Тавилга"><datalist id="lbCats">${cats.map(c => `<option value="${esc(c)}">`).join('')}</datalist></label>
+        <label class="fld">Эх сурвалж (холбоос)<input id="lbSrc" placeholder="https://grabcad.com/…"></label>
+        <label class="fld">Лиценз / тэмдэглэл<input id="lbLic" placeholder="жишээ: хувийн хэрэглээнд, зохиогч: …"></label>
+        <label class="fld">Материал<select id="lbMat">${matOptions(S.defMat)}</select></label>
+      </div>
+      <div class="addrow"><label class="btn primary" for="lbIn">Файл нэмэх</label><input type="file" id="lbIn" accept=".dxf,.svg,.pdf,.ai,.plt,.hpgl,.step,.stp,.iges,.igs,.brep" multiple hidden><span class="note">STEP/IGES-ээс хавтгай хавтангуудыг зузаантай нь автоматаар салгана.</span></div>
+    </div></div>
+    ${LIB.length ? `<div class="jcard"><div class="bcard-h">${LIB.length} зүйл</div><div class="libgrid">${LIB.map((x, i) => `<div class="libit${x.id === IN.lib ? ' on' : ''}" data-id="${x.id}"><canvas data-i="${i}"></canvas><div class="t">${esc(x.name)}</div><div class="m">${esc(x.cat || '—')} · ${x.parts.length} төрөл · ${x.parts.reduce((a, q) => a + q.qty, 0)} ш</div></div>`).join('')}</div></div>` : '<div class="jempty"><b>Сан хоосон</b><br>GrabCAD, 3axis.co зэргээс өөрийн бүртгэлээр татсан файлаа энд нэмбэл ангилал, эх сурвалж, лицензийн тэмдэглэлтэй нь хадгалагдаж, дараа нь нэг товчоор Nesting-д орно.</div>'}
+    ${sel ? `<div class="jcard"><div class="bcard-h">${esc(sel.name)} <span class="sp"></span><button class="btn sm" id="lbNest">Nesting руу</button><button class="btn sm" id="lbKit">Иж бүрдэл болгох</button><button class="btn sm ghost" id="lbDel">Устгах</button></div><div class="jbody">
+      <p class="note" style="margin:0">${sel.src ? `Эх сурвалж: <a href="${esc(sel.src)}" target="_blank" rel="noopener">${esc(host(sel.src))}</a> · ` : ''}${sel.lic ? 'Лиценз: ' + esc(sel.lic) + ' · ' : ''}нэмсэн ${esc(sel.date)}</p>
+      <div class="tblwrap" style="margin-top:8px"><table class="dt"><thead><tr><th>Нэр</th><th class="r">Зузаан</th><th class="r">Хэмжээ, мм</th><th class="r">Тоо</th></tr></thead><tbody>${sel.parts.map(q => { const inf = partInfo(q); return `<tr><td>${esc(q.name)}</td><td class="r num">${q.thk || '—'}</td><td class="r num">${nf(inf.w, 1)} × ${nf(inf.h, 1)}</td><td class="r num">${q.qty}</td></tr>`; }).join('')}</tbody></table></div></div></div>` : ''}`;
+  el.querySelectorAll('.libit canvas').forEach(c => { const x = LIB[+c.dataset.i]; const q = x.parts.slice().sort((a, b) => partInfo(b).area - partInfo(a).area)[0]; drawPartBox(c, q, partColor(+c.dataset.i + 2, dark, 0.85)); });
+  el.querySelectorAll('.libit').forEach(d => d.addEventListener('click', () => { IN.lib = d.dataset.id; renderLib(el); }));
+  $('#lbIn').addEventListener('change', async e => {
+    const files = [...e.target.files]; e.target.value = ''; let n = 0; const msgs = [];
+    for (const f of files) {
+      try {
+        const st = /\.(step|stp|iges|igs|brep)$/i.test(f.name);
+        if (st) toast('3D файл уншиж байна…', 8000);
+        const r = st ? await importStep(f) : await importAnyFile(f);
+        if (!r.parts.length) { msgs.push(`${f.name}: хавтгай хэлбэр олдсонгүй${r.bent ? ` (${r.bent} нугалсан/муруй бие)` : ''}`); continue; }
+        LIB.unshift({ id: uid(), name: f.name.replace(/\.[^.]+$/, ''), cat: $('#lbCat').value.trim(), src: $('#lbSrc').value.trim(), lic: $('#lbLic').value.trim(), mat: $('#lbMat').value, date: today(), parts: r.parts.map(q => ({ name: q.name, qty: q.qty || 1, thk: q.thk || null, outer: q.outer, holes: q.holes, bends: q.bends || [] })) });
+        n++; if (r.bent) msgs.push(`${f.name}: ${r.bent} нугалсан/муруй биеийг алгассан`);
+      } catch (err) { msgs.push(`${f.name}: ${err.message || 'уншигдсангүй'}`); }
+    }
+    if (n) { saveLib(); IN.lib = LIB[0].id; }
+    renderLibSide(); renderLib(el); toast((n ? `${n} файл санд нэмэгдлээ` : 'Нэмэгдсэнгүй') + (msgs.length ? ' · ' + msgs.join(' · ') : ''), msgs.length ? 9000 : 2600);
+  });
+  if (sel) {
+    const toParts = () => sel.parts.map(q => ({ id: uid(), name: q.name, qty: q.qty, mat: sel.mat || S.defMat, thk: q.thk || +S.defThk, rot: true, mir: false, prio: 0, outer: q.outer, holes: q.holes, bends: q.bends || [] }));
+    $('#lbNest').addEventListener('click', () => { S.parts.push(...toParts()); save(); renderParts(); toast(`${sel.parts.length} төрөл Nesting-д нэмэгдлээ`); });
+    $('#lbKit').addEventListener('click', () => { S.kits.unshift({ id: uid(), name: sel.name, desc: sel.src || '', parts: toParts().map(cleanPart) }); save(); toast('Иж бүрдэл үүслээ'); });
+    $('#lbDel').addEventListener('click', ev => { const b = ev.currentTarget; if (!b.dataset.arm) { b.dataset.arm = 1; b.textContent = 'Дахин дарж баталгаажуулна'; return; } LIB = LIB.filter(x => x !== sel); IN.lib = null; saveLib(); renderLibSide(); renderLib(el); });
+  }
+}
+
+try { const m0 = localStorage.getItem(KEY + ':mod'); if (m0 === 'bend' || m0 === 'jobs' || m0 === 'info') setModule(m0); } catch (e) { }
 
 </script>
 

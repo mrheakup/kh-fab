@@ -1,7 +1,7 @@
 {
   "name": "kh-fab",
   "productName": "KH Fab",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "Kh International — nesting ба bending програм",
   "author": "Kh International",
   "main": "main.js",
@@ -23,9 +23,11 @@
     "electron-builder": "24.13.3",
     "jspdf": "2.5.1",
     "jszip": "3.10.1",
+    "occt-import-js": "^0.0.23",
     "opentype.js": "1.3.4",
     "pdfjs-dist": "3.11.174",
     "qrcode-generator": "^1.4.4",
+    "three": "^0.147.0",
     "xlsx": "^0.18.5"
   },
   "build": {
