@@ -1,0 +1,369 @@
+/* ================= KH Fab — jobs (ажил), kits (иж бүрдэл), material certificates, ISO trace, labels ================= */
+const JST = [['new', 'Шинэ'], ['nest', 'Өрөлт'], ['cut', 'Зүсэгдсэн'], ['weld', 'Угсралт, гагнуур'], ['done', 'Дууссан'], ['given', 'Хүлээлгэсэн']];
+const jstName = k => (JST.find(s => s[0] === k) || JST[0])[1];
+const J = { tab: 'jobs', sel: null, kit: null, traceForm: false };
+const today = () => new Date().toISOString().slice(0, 10);
+const findJob = id => S.jobs.find(j => j.id === id);
+const findKit = id => S.kits.find(k => k.id === id);
+
+function jobLog(msg, job) {
+  job = job || findJob(S.activeJob); if (!job) return;
+  job.log.unshift({ t: new Date().toISOString().slice(0, 16).replace('T', ' '), m: msg });
+  if (job.log.length > 200) job.log.length = 200;
+  save();
+}
+function newJob() {
+  const y = new Date().getFullYear();
+  if (S.jobYear !== y) { S.jobYear = y; S.jobSeq = 0; }
+  const n = ++S.jobSeq, short = String(n).padStart(3, '0');
+  const job = { id: uid(), no: `KH-${y}-${short}`, short, customer: '', title: '', due: '', status: 'new', note: '', items: [], extra: [], est: null, act: { hours: '', kg: '', other: '' }, trace: [], log: [], created: today() };
+  S.jobs.unshift(job); jobLog('Ажил нээсэн', job);
+  J.sel = job.id; save(); return job;
+}
+const cleanPart = p => ({ id: uid(), name: p.name, qty: Math.max(0, Math.round(+p.qty || 0)), mat: p.mat, thk: +p.thk, rot: p.rot !== false, mir: !!p.mir, prio: p.prio || 0, outer: p.outer, holes: p.holes, bends: p.bends || [] });
+function jobParts(job) {
+  const out = [];
+  job.items.forEach(it => { const k = findKit(it.kitId); if (!k) return; k.parts.forEach(p => out.push({ ...cleanPart(p), qty: p.qty * Math.max(0, +it.n || 0), kit: k.name })); });
+  job.extra.forEach(p => out.push({ ...cleanPart(p), kit: '' }));
+  return out.filter(p => p.qty > 0).map((p, i) => ({ ...p, pno: String(i + 1).padStart(2, '0'), job: job.no, jobShort: job.short, jobId: job.id }));
+}
+function jobWeight(parts) { return parts.reduce((a, p) => a + partInfo(p).area * p.thk * matOf(p.mat).rho / 1e6 * p.qty, 0); }
+
+/* ---------- nesting hooks ---------- */
+function jobsOnResult() {
+  const job = findJob(S.activeJob); if (!job || !R) return;
+  if (![...R.parts.values()].some(p => p.jobId === job.id)) return;
+  const t = R.groups.reduce((a, g) => { const x = g.tot; return { sheets: a.sheets + g.sheets.length, kg: a.kg + x.kg, partsKg: a.partsKg + x.partsKg, cut: a.cut + x.cut, pierce: a.pierce + x.pierce, time: a.time + x.time, matCost: a.matCost + x.matCost, cutCost: a.cutCost + x.cutCost, cost: a.cost + x.cost, sheetArea: a.sheetArea + x.sheetArea, area: a.area + x.area }; }, { sheets: 0, kg: 0, partsKg: 0, cut: 0, pierce: 0, time: 0, matCost: 0, cutCost: 0, cost: 0, sheetArea: 0, area: 0 });
+  t.util = t.sheetArea ? t.area / t.sheetArea : 0; t.date = new Date().toISOString().slice(0, 16).replace('T', ' ');
+  t.groups = R.groups.map(g => ({ label: g.label, sheets: g.sheets.length, sizes: Object.entries(g.bySize).map(([k, n]) => `${k} ×${n}`).join(', ') }));
+  const first = !job.est; job.est = t;
+  if (job.status === 'new') job.status = 'nest';
+  if (first) jobLog(`Өрөлт: ${t.sheets} лист, ${nf(t.kg, 1)} кг, ашиглалт ${nf(t.util * 100, 1)}%`, job);
+  save();
+  if (!$('#jobsMain').hidden) renderJobMain();
+}
+function loadJobToNest(job) {
+  const parts = jobParts(job);
+  if (!parts.length) { toast('Ажилд парт алга — иж бүрдэл эсвэл нэмэлт парт оруулна уу'); return; }
+  S.parts = parts.map(p => ({ id: uid(), name: p.kit ? `${p.name}` : p.name, qty: p.qty, mat: p.mat, thk: p.thk, rot: p.rot, mir: p.mir, prio: p.prio, outer: p.outer, holes: p.holes, bends: p.bends, job: p.job, jobShort: p.jobShort, jobId: p.jobId, pno: p.pno, kit: p.kit }));
+  S.jobName = job.no + (job.title ? ' ' + job.title : '');
+  S.activeJob = job.id; R = null;
+  jobLog(`Өрөлтөд ачаалсан: ${parts.length} төрөл, ${parts.reduce((a, p) => a + p.qty, 0)} ширхэг`, job);
+  save(); renderAll(); setModule('nest');
+  toast(`${job.no} ачаалагдлаа — «Өрөх» товчийг дарна уу`, 4000);
+}
+
+/* ---------- side panel ---------- */
+$$('[data-jtab]').forEach(b => b.addEventListener('click', () => { J.tab = b.dataset.jtab; $$('[data-jtab]').forEach(x => x.classList.toggle('on', x === b)); ['jobs', 'kits', 'certs'].forEach(t => $('#jtab-' + t).hidden = t !== J.tab); renderJobs(); }));
+function renderJobs() { renderJList(); renderKList(); renderCertSide(); renderJobMain(); }
+function renderJList() {
+  $('#cntJobs').textContent = S.jobs.filter(j => !['done', 'given'].includes(j.status)).length || '';
+  const q = ($('#jSearch').value || '').toLowerCase(), f = $('#jFilter').value;
+  const list = S.jobs.filter(j => (f === 'all' || (f === 'open' ? !['done', 'given'].includes(j.status) : ['done', 'given'].includes(j.status))) && (!q || [j.no, j.customer, j.title].join(' ').toLowerCase().includes(q)));
+  $('#jList').innerHTML = list.length ? list.map(j => {
+    const late = j.due && j.due < today() && !['done', 'given'].includes(j.status);
+    return `<div class="jitem${J.sel === j.id && J.tab === 'jobs' ? ' on' : ''}" data-id="${j.id}"><span class="no">${esc(j.no)}${S.activeJob === j.id ? ' <span class="pill rem">өрөлтөд</span>' : ''}</span><span class="pill st-${j.status}">${jstName(j.status)}</span><span class="t">${esc(j.title || '—')}${j.customer ? ' · ' + esc(j.customer) : ''}${j.due ? ` · <span class="${late ? 'late' : ''}">${esc(j.due)}</span>` : ''}</span></div>`;
+  }).join('') : `<div class="emptyp">${S.jobs.length ? 'Хайлтад тохирох ажил алга.' : 'Ажил алга. <b>+ Шинэ ажил</b> товчоор эхэлнэ.'}</div>`;
+  ['formTrace', 'rev', 'operators'].forEach(k => $('#iso_' + k).value = S.iso[k] || '');
+}
+$('#jList').addEventListener('click', e => { const it = e.target.closest('.jitem'); if (!it) return; J.sel = it.dataset.id; J.traceForm = false; renderJList(); renderJobMain(); });
+$('#jNew').addEventListener('click', () => { newJob(); renderJobs(); setTimeout(() => { const el = $('#jf_title'); if (el) el.focus(); }, 50); });
+$('#jSearch').addEventListener('input', renderJList);
+$('#jFilter').addEventListener('change', renderJList);
+['formTrace', 'rev', 'operators'].forEach(k => $('#iso_' + k).addEventListener('change', e => { S.iso[k] = e.target.value.trim(); save(); }));
+
+function renderKList() {
+  $('#cntKits').textContent = S.kits.length || '';
+  const dark = isDark();
+  $('#kList').innerHTML = S.kits.length ? S.kits.map((k, i) => {
+    const n = k.parts.reduce((a, p) => a + p.qty, 0), kg = jobWeight(k.parts);
+    return `<div class="bitem${J.kit === k.id && J.tab === 'kits' ? ' on' : ''}" data-id="${k.id}"><canvas data-i="${i}"></canvas><div style="min-width:0"><div class="t">${esc(k.name)}</div><div class="m">${k.parts.length} төрөл · ${n} ш · ${nf(kg, 1)} кг</div></div><span></span></div>`;
+  }).join('') : '<div class="emptyp">Иж бүрдэл алга. Nesting дээр шанаганы эд ангиудаа оруулаад <b>Иж бүрдэл болгох</b> товчийг дарна уу.</div>';
+  $$('#kList canvas').forEach(c => { const k = S.kits[+c.dataset.i]; const p = k.parts.slice().sort((a, b) => partInfo(b).area - partInfo(a).area)[0]; drawPartBox(c, p, partColor(+c.dataset.i + 3, dark, 0.85)); });
+}
+$('#kList').addEventListener('click', e => { const it = e.target.closest('.bitem'); if (!it) return; J.kit = it.dataset.id; renderKList(); renderJobMain(); });
+function kitFromParts() {
+  if (!S.parts.length) { toast('Nesting-д парт алга'); return null; }
+  const k = { id: uid(), name: 'Шинэ иж бүрдэл ' + (S.kits.length + 1), desc: '', parts: S.parts.filter(p => p.qty > 0).map(cleanPart) };
+  S.kits.unshift(k); J.kit = k.id; save(); return k;
+}
+$('#kFromParts').addEventListener('click', () => { if (kitFromParts()) { renderJobs(); toast('Иж бүрдэл үүслээ — нэрийг нь өгнө үү'); } });
+$('#btnKitFrom').addEventListener('click', () => {
+  if (!kitFromParts()) return;
+  J.tab = 'kits'; $$('[data-jtab]').forEach(x => x.classList.toggle('on', x.dataset.jtab === 'kits')); ['jobs', 'kits', 'certs'].forEach(t => $('#jtab-' + t).hidden = t !== 'kits');
+  setModule('jobs'); toast('Иж бүрдэл үүслээ — нэрийг нь өгнө үү');
+});
+
+function renderCertSide() {
+  $('#c_mat').innerHTML = matOptions(S.defMat); if (!$('#c_thk').value) $('#c_thk').value = S.defThk;
+}
+$('#cAdd').addEventListener('click', () => {
+  const heat = $('#c_heat').value.trim(), thk = +$('#c_thk').value, L = +$('#c_L').value, W = +$('#c_W').value, qty = Math.max(1, Math.round(+$('#c_qty').value || 1));
+  if (!heat || !(thk > 0)) { toast('Хайлалтын дугаар, зузааныг оруулна уу'); return; }
+  S.certs.unshift({ id: uid(), heat, cert: $('#c_cert').value.trim(), mat: $('#c_mat').value, thk, L: L || 0, W: W || 0, qty, used: 0, sup: $('#c_sup').value.trim(), date: today() });
+  ['c_heat', 'c_cert', 'c_L', 'c_W', 'c_sup'].forEach(id => $('#' + id).value = ''); $('#c_qty').value = 1;
+  save(); renderJobMain(); toast('Гэрчилгээ бүртгэгдлээ');
+});
+
+/* ---------- main panel ---------- */
+function renderJobMain() {
+  const el = $('#jobsMain');
+  if (J.tab === 'kits') { renderKitMain(el); return; }
+  if (J.tab === 'certs') { renderCertMain(el); return; }
+  const job = findJob(J.sel) || findJob(S.activeJob) || S.jobs[0];
+  if (!job) { el.innerHTML = '<div class="jempty"><b>Ажил алга</b><br>Зүүн талын <b>+ Шинэ ажил</b> товчоор ажлын дугаар үүсгэнэ. Дугаар нь <span class="mono">KH-' + new Date().getFullYear() + '-001</span> хэлбэртэй, жил бүр шинээр эхэлнэ.</div>'; return; }
+  J.sel = job.id;
+  const parts = jobParts(job), pcs = parts.reduce((a, p) => a + p.qty, 0), kg = jobWeight(parts);
+  const kitOpts = sel => '<option value="">— сонгох —</option>' + S.kits.map(k => `<option value="${k.id}"${k.id === sel ? ' selected' : ''}>${esc(k.name)}</option>`).join('');
+  const e = job.est, a = job.act || {};
+  const actH = +a.hours || 0, actKg = +a.kg || 0, other = +a.other || 0;
+  const g0 = e ? (e.kg ? e.matCost / e.kg : 0) : 0, rate = e && e.time ? e.cutCost / (e.time / 60) : 0;
+  const actCost = e ? (actKg || e.kg) * g0 + (actH ? actH * rate : e.cutCost) + other : 0;
+  const dlt = (est, act) => { if (!est || !act) return ''; const d = (act - est) / est * 100; return `<div class="d ${d > 0 ? 'd-up' : 'd-dn'}">${d > 0 ? '+' : ''}${nf(d, 1)}%</div>`; };
+  const ops = (S.iso.operators || '').split(',').map(x => x.trim()).filter(Boolean);
+  const rows = job.trace.map((t, i) => `<tr data-i="${i}"><td class="num">${esc(t.date)}</td><td>${esc(t.lay)}</td><td class="num">${esc(t.size)}</td><td>${esc(t.mat)} ${t.thk}мм</td><td class="r num">${t.count}</td><td class="num">${esc(t.heat)}</td><td class="num">${esc(t.cert || '')}</td><td>${esc(t.op || '')}</td><td><button class="x" data-tdel aria-label="Устгах">×</button></td></tr>`).join('');
+  el.innerHTML = `
+    <div class="bhead">
+      <label class="fld sm" style="width:150px">Ажлын дугаар<input id="jf_no" class="mono" value="${esc(job.no)}"></label>
+      <label class="fld grow">Ажлын нэр<input id="jf_title" value="${esc(job.title)}" placeholder="жишээ: PC200 шанага ×2"></label>
+      <label class="fld grow">Захиалагч<input id="jf_customer" value="${esc(job.customer)}"></label>
+      <label class="fld">Хугацаа<input id="jf_due" type="date" value="${esc(job.due)}"></label>
+      <label class="fld">Төлөв<select id="jf_status">${JST.map(([k, n]) => `<option value="${k}"${k === job.status ? ' selected' : ''}>${n}</option>`).join('')}</select></label>
+      <label class="fld grow">Тайлбар<input id="jf_note" value="${esc(job.note)}"></label>
+    </div>
+    <div class="exports">
+      <button class="btn primary" id="jLoad">Өрөлтөд ачаалах</button>
+      <button class="btn" id="jLabels">Шошго PDF (QR)</button>
+      <label class="check" style="margin:0 6px 0 0"><input type="checkbox" id="jEach"><span>Ширхэг бүрт шошго</span></label>
+      <button class="btn" id="jCard">Ажлын карт PDF (ISO)</button>
+      <span class="sp" style="flex:1"></span>
+      <button class="btn ghost" id="jDel">Ажил устгах</button>
+    </div>
+    <div class="jcard"><div class="bcard-h">Бүрэлдэхүүн <span class="sp"></span><span class="muted mono" style="font-weight:400">${parts.length} төрөл · ${pcs} ш · ${nf(kg, 1)} кг</span></div><div class="jbody">
+      <div class="tblwrap"><table class="dt"><thead><tr><th>Иж бүрдэл</th><th class="r" style="width:110px">Тоо</th><th class="r">Парт, ш</th><th class="r">Жин, кг</th><th style="width:30px"></th></tr></thead><tbody>
+      ${job.items.map((it, i) => { const k = findKit(it.kitId); const n = k ? k.parts.reduce((a, p) => a + p.qty, 0) * (+it.n || 0) : 0; return `<tr data-i="${i}"><td><select data-k="kitId">${kitOpts(it.kitId)}</select></td><td><input data-k="n" type="number" min="0" value="${it.n}" class="mono" style="text-align:right"></td><td class="r num">${n}</td><td class="r num">${k ? nf(jobWeight(k.parts) * (+it.n || 0), 1) : '—'}</td><td><button class="x" data-idel aria-label="Хасах">×</button></td></tr>`; }).join('')}
+      ${job.extra.length ? `<tr><td>Нэмэлт партууд <span class="muted">(${job.extra.length} төрөл)</span></td><td class="r num">—</td><td class="r num">${job.extra.reduce((a, p) => a + p.qty, 0)}</td><td class="r num">${nf(jobWeight(job.extra), 1)}</td><td><button class="x" data-xdel title="Нэмэлт партуудыг хасах">×</button></td></tr>` : ''}
+      </tbody></table></div>
+      <div class="addrow"><button class="btn sm" id="jAddKit"${S.kits.length ? '' : ' disabled title="Эхлээд иж бүрдэл үүсгэнэ"'}>+ Иж бүрдэл</button><button class="btn sm" id="jAddExtra">+ Nesting-ийн одоогийн партуудыг нэмэх</button>${S.kits.length ? '' : '<span class="note">Иж бүрдэл алга — «Иж бүрдэл» таб эсвэл Nesting дээрх «Иж бүрдэл болгох» товчоор үүсгэнэ.</span>'}</div>
+    </div></div>
+    <div class="jcard"><div class="bcard-h">Тооцоо — төлөвлөсөн ба бодит <span class="sp"></span><span class="muted" style="font-weight:400;font-size:12px">${e ? 'өрөлт: ' + esc(e.date) : 'өрөлт хийгдээгүй'}</span></div><div class="jbody">
+      ${e ? `<div class="cmpv">
+        <div><div class="k">Лист</div><div class="v">${e.sheets}</div><div class="d muted">${esc(e.groups.map(g => g.label + ': ' + g.sizes).join('; '))}</div></div>
+        <div><div class="k">Материал, кг</div><div class="v">${nf(e.kg, 1)}${actKg ? ` → ${nf(actKg, 1)}` : ''}</div>${dlt(e.kg, actKg)}</div>
+        <div><div class="k">Зүсэлт, цаг</div><div class="v">${nf(e.time / 60, 2)}${actH ? ` → ${nf(actH, 2)}` : ''}</div>${dlt(e.time / 60, actH)}</div>
+        <div><div class="k">Зүсэх урт, м</div><div class="v">${nf(e.cut / 1000, 1)}</div><div class="d muted">${e.pierce} цоолт · ашиглалт ${nf(e.util * 100, 1)}%</div></div>
+        <div><div class="k">Өртөг, ₮</div><div class="v">${nf(e.cost)}${(actKg || actH || other) ? ` → ${nf(actCost)}` : ''}</div>${(actKg || actH || other) ? dlt(e.cost, actCost) : ''}</div>
+      </div>` : '<p class="note">«Өрөлтөд ачаалах» → «Өрөх» хийхэд төлөвлөсөн лист, кг, хугацаа, өртөг энд автоматаар бичигдэнэ.</p>'}
+      <div class="jgrid">
+        <label class="fld">Бодит зүсэлтийн хугацаа, цаг<input id="ja_hours" type="number" min="0" step="0.1" value="${esc(a.hours)}"></label>
+        <label class="fld">Бодит зарцуулсан материал, кг<input id="ja_kg" type="number" min="0" step="1" value="${esc(a.kg)}"></label>
+        <label class="fld">Бусад зардал (хий, ажиллах хүч), ₮<input id="ja_other" type="number" min="0" step="1000" value="${esc(a.other)}"></label>
+      </div>
+    </div></div>
+    <div class="jcard"><div class="bcard-h">Зүсэлтийн бүртгэл — ISO 9001 ул мөр <span class="sp"></span><button class="btn sm" id="jTraceNest">Өрөлтөөс бүртгэх</button><button class="btn sm ghost" id="jTraceAdd">+ Гараар</button></div><div class="jbody">
+      <div id="jTraceForm"></div>
+      ${job.trace.length ? `<div class="tblwrap"><table class="dt"><thead><tr><th>Огноо</th><th>Лист</th><th>Хэмжээ</th><th>Материал</th><th class="r">Тоо</th><th>Хайлалт №</th><th>Гэрчилгээ №</th><th>Оператор</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>` : '<p class="note">Зүссэн лист бүрийн хавтангийн хайлалтын дугаар, операторыг энд бүртгэнэ. ISO аудитад бүтээгдэхүүнээс материалын гэрчилгээ хүртэл мөрдөх боломжтой болно.</p>'}
+    </div></div>
+    <div class="jcard"><div class="bcard-h">Түүх</div><div class="jbody"><div class="jlog">${job.log.map(l => `<div><span class="mono">${esc(l.t)}</span>${esc(l.m)}</div>`).join('') || '<span class="note">—</span>'}</div></div></div>
+    <datalist id="opList">${ops.map(o => `<option value="${esc(o)}">`).join('')}</datalist>`;
+  // field bindings
+  ['no', 'title', 'customer', 'due', 'note'].forEach(k => $('#jf_' + k).addEventListener('change', ev => { const v = ev.target.value.trim(); if (k === 'no' && !v) return; if (k === 'no') { job.no = v; job.short = (v.match(/(\d+)\s*$/) || [, v])[1]; } else job[k] = v; save(); renderJList(); }));
+  $('#jf_status').addEventListener('change', ev => { const o = jstName(job.status); job.status = ev.target.value; jobLog(`Төлөв: ${o} → ${jstName(job.status)}`, job); renderJList(); renderJobMain(); });
+  ['hours', 'kg', 'other'].forEach(k => $('#ja_' + k).addEventListener('change', ev => { job.act[k] = ev.target.value; save(); renderJobMain(); }));
+  el.querySelector('tbody').addEventListener('change', ev => { const tr = ev.target.closest('tr[data-i]'); if (!tr) return; const it = job.items[+tr.dataset.i], k = ev.target.dataset.k; if (k === 'n') it.n = Math.max(0, Math.round(+ev.target.value || 0)); else it.kitId = ev.target.value; save(); renderJobMain(); });
+  el.querySelector('tbody').addEventListener('click', ev => { if (ev.target.matches('[data-idel]')) { job.items.splice(+ev.target.closest('tr').dataset.i, 1); save(); renderJobMain(); } else if (ev.target.matches('[data-xdel]')) { job.extra = []; save(); renderJobMain(); } });
+  $('#jAddKit').addEventListener('click', () => { job.items.push({ kitId: S.kits[0] ? S.kits[0].id : '', n: 1 }); save(); renderJobMain(); });
+  $('#jAddExtra').addEventListener('click', () => { const ps = S.parts.filter(p => p.qty > 0 && p.jobId !== job.id); if (!ps.length) { toast('Nesting-д нэмэх парт алга'); return; } job.extra.push(...ps.map(cleanPart)); jobLog(`Нэмэлт ${ps.length} төрлийн парт нэмсэн`, job); renderJobMain(); toast(`${ps.length} төрлийн парт нэмэгдлээ`); });
+  $('#jLoad').addEventListener('click', () => loadJobToNest(job));
+  $('#jLabels').addEventListener('click', () => jobLabelsPdf(job, $('#jEach').checked));
+  $('#jCard').addEventListener('click', () => jobCardPdf(job));
+  $('#jDel').addEventListener('click', ev => { const b = ev.currentTarget; if (!b.dataset.arm) { b.dataset.arm = 1; b.textContent = 'Дахин дарж баталгаажуулна'; setTimeout(() => { delete b.dataset.arm; b.textContent = 'Ажил устгах'; }, 3000); return; } S.jobs = S.jobs.filter(j => j !== job); if (S.activeJob === job.id) S.activeJob = null; J.sel = null; save(); renderJobs(); });
+  const tb = el.querySelectorAll('tbody')[1]; if (tb) tb.addEventListener('click', ev => { if (!ev.target.matches('[data-tdel]')) return; const t = job.trace.splice(+ev.target.closest('tr').dataset.i, 1)[0]; const c = S.certs.find(x => x.heat === t.heat && x.mat === t.mat && +x.thk === +t.thk); if (c) c.used = Math.max(0, c.used - t.count); jobLog(`Бүртгэл устгасан: ${t.lay} (${t.heat})`, job); renderJobMain(); });
+  $('#jTraceAdd').addEventListener('click', () => traceForm(job, null));
+  $('#jTraceNest').addEventListener('click', () => { if (!R || S.activeJob !== job.id) { toast('Энэ ажлыг эхлээд өрөлтөд ачаалж, өрнө үү'); return; } traceForm(job, R); });
+}
+function heatOptions(mat, thk) {
+  const cs = S.certs.filter(c => c.mat === mat && +c.thk === +thk);
+  const rest = S.certs.filter(c => !(c.mat === mat && +c.thk === +thk));
+  const o = c => `<option value="${c.id}">${esc(c.heat)}${c.cert ? ' · ' + esc(c.cert) : ''} · ${esc(c.mat)} ${c.thk}мм · үлдсэн ${Math.max(0, c.qty - c.used)}</option>`;
+  return '<option value="">— хайлалт сонгох —</option>' + cs.map(o).join('') + (rest.length ? `<optgroup label="Бусад материал">${rest.map(o).join('')}</optgroup>` : '') + '<option value="__rem">Үлдэгдлээс (гэрчилгээ нь эх ажилд)</option>';
+}
+function traceForm(job, res) {
+  const box = $('#jTraceForm');
+  const lays = res ? res.groups.flatMap(g => g.lays.map(l => ({ g, l }))) : [{ g: null, l: null }];
+  box.innerHTML = `<div class="tblwrap"><table class="dt"><thead><tr><th style="width:26px"></th><th>Лист</th><th>Хэмжээ</th><th>Материал</th><th class="r" style="width:70px">Тоо</th><th>Хайлалт</th><th>Оператор</th></tr></thead><tbody>
+    ${lays.map(({ g, l }, i) => `<tr data-i="${i}"><td><input type="checkbox" data-k="on" checked></td>
+      <td>${l ? `Лист ${l.no}` : `<input data-k="lay" placeholder="Лист / тайлбар">`}</td>
+      <td class="num">${l ? `${l.sheet.L}×${l.sheet.W}${l.sheet.kind === 'rem' ? ' (үлд.)' : ''}` : '<input data-k="size" placeholder="3000×1500">'}</td>
+      <td>${g ? `${esc(g.mat)} ${g.thk}мм` : `<select data-k="mat">${matOptions(S.defMat)}</select>`}</td>
+      <td><input data-k="count" type="number" min="1" value="${l ? l.count : 1}" class="mono" style="text-align:right"></td>
+      <td><select data-k="heat">${heatOptions(g ? g.mat : S.defMat, g ? g.thk : S.defThk)}</select></td>
+      <td><input data-k="op" list="opList" placeholder="Оператор"></td></tr>`).join('')}
+    </tbody></table></div>
+    <div class="addrow">${res ? '' : `<label class="fld" style="width:110px">Зузаан, мм<input id="tf_thk" type="number" step="0.1" value="${S.defThk}"></label>`}<button class="btn primary sm" id="tfSave">Бүртгэх</button><button class="btn sm ghost" id="tfCancel">Болих</button><span class="note">Хайлалт сонгосон листүүдийн тоог материалын бүртгэлээс хасна.</span></div>`;
+  $('#tfCancel').addEventListener('click', () => box.innerHTML = '');
+  $('#tfSave').addEventListener('click', () => {
+    let n = 0;
+    box.querySelectorAll('tbody tr').forEach(tr => {
+      const v = k => { const el = tr.querySelector(`[data-k="${k}"]`); return el ? (el.type === 'checkbox' ? el.checked : el.value) : null; };
+      if (!v('on')) return;
+      const { g, l } = lays[+tr.dataset.i], hid = v('heat'), c = S.certs.find(x => x.id === hid), count = Math.max(1, Math.round(+v('count') || 1));
+      const mat = g ? g.mat : v('mat'), thk = g ? +g.thk : +($('#tf_thk') ? $('#tf_thk').value : S.defThk);
+      const remNoTxt = l && l.sheet.kind === 'rem' ? (S.remnants.find(r => r.id === l.sheet.remId) || {}).no || 'үлдэгдэл' : '';
+      job.trace.push({ date: today(), lay: l ? `Лист ${l.no}` + (remNoTxt ? ` (${remNoTxt})` : '') : (v('lay') || '—'), size: l ? `${l.sheet.L}×${l.sheet.W}` : (v('size') || ''), mat, thk, count, heat: c ? c.heat : hid === '__rem' ? 'үлдэгдэл' + (remNoTxt ? ' ' + remNoTxt : '') : '—', cert: c ? c.cert : '', op: v('op') || '' });
+      if (c) c.used += count;
+      n++;
+    });
+    if (!n) { toast('Мөр сонгоогүй байна'); return; }
+    if (['new', 'nest'].includes(job.status)) job.status = 'cut';
+    jobLog(`Зүсэлт бүртгэсэн: ${n} мөр`, job);
+    box.innerHTML = ''; renderJList(); renderJobMain(); toast('Зүсэлтийн бүртгэл хадгалагдлаа');
+  });
+}
+function renderKitMain(el) {
+  const k = findKit(J.kit) || S.kits[0];
+  if (!k) { el.innerHTML = '<div class="jempty"><b>Иж бүрдэл алга</b><br>Nesting дээр нэг шанаганы (эсвэл бусад бүтээгдэхүүний) бүх эд ангийг нэг ширхэгийн тоогоор оруулаад <b>Иж бүрдэл болгох</b> товчийг дарна. Дараа нь ажилд «× тоо» гэж оруулахад автоматаар үржинэ.</div>'; return; }
+  J.kit = k.id; const dark = isDark(), usedIn = S.jobs.filter(j => j.items.some(it => it.kitId === k.id));
+  el.innerHTML = `
+    <div class="bhead"><label class="fld grow">Иж бүрдлийн нэр<input id="kf_name" value="${esc(k.name)}" placeholder="жишээ: PC200 шанага 0.8 м³"></label><label class="fld grow">Тайлбар<input id="kf_desc" value="${esc(k.desc)}"></label></div>
+    <div class="exports"><button class="btn primary" id="kToNest">Nesting руу нэмэх ×</button><input id="kN" type="number" min="1" value="1" class="inp mono" style="width:70px"><button class="btn" id="kAddParts">Nesting-ийн партуудыг энд нэмэх</button><span style="flex:1"></span><button class="btn ghost" id="kDel">Иж бүрдэл устгах</button></div>
+    <div class="jcard"><div class="bcard-h">Эд ангиуд — нэг иж бүрдэлд <span class="sp"></span><span class="muted mono" style="font-weight:400">${k.parts.reduce((a, p) => a + p.qty, 0)} ш · ${nf(jobWeight(k.parts), 1)} кг</span></div>
+      <div class="tblwrap" style="border:0"><table class="dt"><thead><tr><th style="width:60px"></th><th>Нэр</th><th>Материал</th><th style="width:90px">Зузаан</th><th class="r">Хэмжээ, мм</th><th class="r">Жин 1ш, кг</th><th class="r" style="width:90px">Тоо</th><th style="width:30px"></th></tr></thead><tbody>
+      ${k.parts.map((p, i) => { const inf = partInfo(p); return `<tr data-i="${i}"><td><canvas class="thumb" style="width:44px;height:44px" data-i="${i}"></canvas></td><td><input data-k="name" value="${esc(p.name)}"></td><td><select data-k="mat">${matOptions(p.mat)}</select></td><td><input data-k="thk" type="number" step="0.1" value="${p.thk}" class="mono"></td><td class="r num">${nf(inf.w, 1)}×${nf(inf.h, 1)}</td><td class="r num">${nf(inf.area * p.thk * matOf(p.mat).rho / 1e6, 2)}</td><td><input data-k="qty" type="number" min="0" value="${p.qty}" class="mono" style="text-align:right"></td><td><button class="x" data-pdel aria-label="Хасах">×</button></td></tr>`; }).join('')}
+      </tbody></table></div></div>
+    <p class="note">${usedIn.length ? 'Ашигласан ажил: ' + usedIn.map(j => esc(j.no)).join(', ') : 'Ямар ч ажилд ашиглаагүй.'}</p>`;
+  el.querySelectorAll('canvas.thumb').forEach(c => drawPartBox(c, k.parts[+c.dataset.i], partColor(+c.dataset.i, dark, 0.85)));
+  $('#kf_name').addEventListener('change', e => { k.name = e.target.value.trim() || k.name; save(); renderKList(); });
+  $('#kf_desc').addEventListener('change', e => { k.desc = e.target.value; save(); });
+  el.querySelector('tbody').addEventListener('change', e => { const tr = e.target.closest('tr'), p = k.parts[+tr.dataset.i], f = e.target.dataset.k; if (f === 'qty') p.qty = Math.max(0, Math.round(+e.target.value || 0)); else if (f === 'thk') p.thk = Math.max(0.1, +e.target.value || p.thk); else p[f] = e.target.value; save(); renderKList(); renderKitMain(el); });
+  el.querySelector('tbody').addEventListener('click', e => { if (!e.target.matches('[data-pdel]')) return; k.parts.splice(+e.target.closest('tr').dataset.i, 1); save(); renderKList(); renderKitMain(el); });
+  $('#kToNest').addEventListener('click', () => { const n = Math.max(1, Math.round(+$('#kN').value || 1)); k.parts.forEach(p => S.parts.push({ ...cleanPart(p), qty: p.qty * n })); save(); renderParts(); toast(`${k.name} ×${n} Nesting-д нэмэгдлээ`); });
+  $('#kAddParts').addEventListener('click', () => { const ps = S.parts.filter(p => p.qty > 0); if (!ps.length) { toast('Nesting-д парт алга'); return; } k.parts.push(...ps.map(cleanPart)); save(); renderKList(); renderKitMain(el); toast(`${ps.length} парт нэмэгдлээ`); });
+  $('#kDel').addEventListener('click', e => { const b = e.currentTarget; if (!b.dataset.arm) { b.dataset.arm = 1; b.textContent = 'Дахин дарж баталгаажуулна'; setTimeout(() => { delete b.dataset.arm; b.textContent = 'Иж бүрдэл устгах'; }, 3000); return; } S.kits = S.kits.filter(x => x !== k); J.kit = null; save(); renderJobs(); });
+}
+function renderCertMain(el) {
+  const uses = c => S.jobs.filter(j => j.trace.some(t => t.heat === c.heat)).map(j => j.no);
+  el.innerHTML = `<div class="jcard"><div class="bcard-h">Материалын гэрчилгээний бүртгэл <span class="sp"></span><span class="muted" style="font-weight:400;font-size:12px">${S.certs.length} бичлэг</span></div>
+    ${S.certs.length ? `<div class="tblwrap" style="border:0"><table class="dt"><thead><tr><th>Огноо</th><th>Хайлалт №</th><th>Гэрчилгээ №</th><th>Материал</th><th class="r">Хэмжээ</th><th class="r">Ирсэн</th><th class="r">Зүссэн</th><th class="r">Үлдсэн</th><th>Нийлүүлэгч</th><th>Ажлууд</th><th></th></tr></thead><tbody>
+    ${S.certs.map((c, i) => `<tr data-i="${i}"><td class="num">${esc(c.date)}</td><td class="num"><b>${esc(c.heat)}</b></td><td class="num">${esc(c.cert)}</td><td>${esc(c.mat)} ${c.thk}мм</td><td class="r num">${c.L ? `${c.L}×${c.W}` : '—'}</td><td class="r num"><input data-k="qty" type="number" min="0" value="${c.qty}" class="mono" style="width:70px;text-align:right"></td><td class="r num">${c.used}</td><td class="r num">${c.qty - c.used < 0 ? `<span class="pill bad">${c.qty - c.used}</span>` : c.qty - c.used}</td><td>${esc(c.sup)}</td><td class="num">${esc(uses(c).join(', '))}</td><td><button class="x" data-cdel aria-label="Устгах">×</button></td></tr>`).join('')}
+    </tbody></table></div>` : '<div class="jbody"><p class="note">Бүртгэл алга. Зүүн талд ирсэн хавтангийн гэрчилгээний мэдээллийг оруулна.</p></div>'}</div>`;
+  const tb = el.querySelector('tbody'); if (!tb) return;
+  tb.addEventListener('change', e => { const c = S.certs[+e.target.closest('tr').dataset.i]; c.qty = Math.max(0, Math.round(+e.target.value || 0)); save(); renderCertMain(el); });
+  tb.addEventListener('click', e => { if (!e.target.matches('[data-cdel]')) return; S.certs.splice(+e.target.closest('tr').dataset.i, 1); save(); renderCertMain(el); });
+}
+
+/* ---------- labels with QR (A4, 3 × 8 labels 70 × 37 mm) ---------- */
+function qrMatrix(text) {
+  if (!window.qrcode) return null;
+  try { qrcode.stringToBytes = qrcode.stringToBytesFuncs['UTF-8']; const q = qrcode(0, 'M'); q.addData(text, 'Byte'); q.make(); const n = q.getModuleCount(); return { n, dark: (r, c) => q.isDark(r, c) }; } catch (e) { return null; }
+}
+function drawQR(x, text, X, Y, size) {
+  const m = qrMatrix(text); if (!m) return false;
+  const q = 2, cell = size / (m.n + 2 * q);
+  x.fillStyle = '#fff'; x.fillRect(X, Y, size, size); x.fillStyle = '#000';
+  for (let r = 0; r < m.n; r++) for (let c = 0; c < m.n; c++) if (m.dark(r, c)) x.fillRect(X + (c + q) * cell, Y + (r + q) * cell, cell + 0.02, cell + 0.02);
+  return true;
+}
+async function labelsPdf(items, fileName) {
+  if (!window.jspdf) { toast('PDF сан ачаалагдсангүй'); return; }
+  if (!window.qrcode) { toast('QR сан ачаалагдсангүй — интернэт холболтоо шалгана уу'); return; }
+  try { await document.fonts.ready; } catch (e) { }
+  const PW = 210, PH = 297, K = 6, cols = 3, rows = 8, LW = 70, LH = 37.125, F = '"IBM Plex Sans", Arial, sans-serif', FM = '"IBM Plex Mono", Consolas, monospace', pages = [];
+  let x = null;
+  const fit = (s, w) => { s = String(s ?? ''); while (s.length > 2 && x.measureText(s).width > w) s = s.slice(0, -2) + '…'; return s; };
+  items.forEach((it, i) => {
+    if (i % (cols * rows) === 0) { const c = document.createElement('canvas'); c.width = PW * K; c.height = PH * K; x = c.getContext('2d'); x.scale(K, K); x.fillStyle = '#fff'; x.fillRect(0, 0, PW, PH); pages.push(c); }
+    const k = i % (cols * rows), X = (k % cols) * LW, Y = Math.floor(k / cols) * LH, pad = 3.5, qs = 25;
+    x.strokeStyle = '#d5dbe2'; x.lineWidth = 0.15; x.strokeRect(X + 0.5, Y + 0.5, LW - 1, LH - 1);
+    drawQR(x, it.qr, X + LW - pad - qs, Y + (LH - qs) / 2, qs);
+    const tw = LW - qs - 2 * pad - 1.5;
+    x.textAlign = 'left'; x.textBaseline = 'alphabetic';
+    x.fillStyle = '#cf4a0c'; x.font = `600 2.3px ${F}`; x.fillText('Kh International', X + pad, Y + pad + 2);
+    x.fillStyle = '#10161c'; x.font = `700 6.4px ${FM}`; x.fillText(fit(it.big, tw), X + pad, Y + pad + 9.5);
+    x.font = `600 3px ${F}`; x.fillText(fit(it.l1, tw), X + pad, Y + pad + 15);
+    x.font = `400 2.7px ${F}`; x.fillStyle = '#333c46'; x.fillText(fit(it.l2, tw), X + pad, Y + pad + 19.2);
+    x.font = `600 3px ${F}`; x.fillStyle = '#10161c'; x.fillText(fit(it.l3, tw), X + pad, Y + pad + 23.6);
+    x.font = `400 2.3px ${F}`; x.fillStyle = '#6a7684'; x.fillText(fit(it.small, tw), X + pad, Y + LH - pad);
+  });
+  if (!pages.length) { toast('Хэвлэх шошго алга'); return; }
+  const pdf = new window.jspdf.jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true });
+  pages.forEach((c, i) => { if (i) pdf.addPage(); pdf.addImage(c.toDataURL('image/png'), 'PNG', 0, 0, PW, PH); });
+  saveFile(safeName(fileName) + '.pdf', pdf.output('blob'), 'application/pdf');
+}
+function jobLabelsPdf(job, each) {
+  const parts = jobParts(job), items = [];
+  parts.forEach(p => {
+    const mk = { job: job.no, jobShort: job.short, pno: p.pno }, big = S.mark.fmt ? String(S.mark.fmt).replace(/\{(\w+)\}/g, (m, k) => ({ short: job.short, no: job.no, p: p.pno }[k] ?? '')) : `${job.short}-${p.pno}`;
+    const base = { big, l1: p.name, l2: `${p.mat} · ${p.thk} мм${p.kit ? ' · ' + p.kit : ''}`, small: `${job.no}${job.customer ? ' · ' + job.customer : ''} · ${today()}` };
+    const qr = n => `KH|${job.no}|${p.pno}|${p.name}|${p.mat}|${p.thk}|${n}`;
+    if (each) for (let i = 1; i <= p.qty; i++) items.push({ ...base, l3: `${i} / ${p.qty} ш`, qr: qr(`${i}/${p.qty}`) });
+    else items.push({ ...base, l3: `Тоо: ${p.qty} ш`, qr: qr(p.qty) });
+  });
+  if (items.length > 2400) { toast('Шошго хэт олон байна — «Ширхэг бүрт» сонголтыг болиулна уу'); return; }
+  labelsPdf(items, `${job.no}_шошго`);
+  jobLog(`Шошго хэвлэсэн (${items.length})`, job);
+}
+function remLabelsPdf() {
+  const items = S.remnants.flatMap(r => Array.from({ length: Math.max(1, r.qty) }, () => ({ big: r.no || 'Үлдэгдэл', l1: `${nf(r.L)} × ${nf(r.W)} мм${r.shape ? ' (хэлбэртэй)' : ''}`, l2: `${r.mat} · ${r.thk} мм`, l3: r.loc ? 'Байршил: ' + r.loc : 'Үлдэгдэл', small: `${r.src || ''}${r.src ? ' · ' : ''}${r.date || ''}`, qr: `KH-REM|${r.no}|${r.L}x${r.W}|${r.mat}|${r.thk}|${r.loc || ''}` })));
+  if (!items.length) { toast('Үлдэгдэл бүртгэгдээгүй'); return; }
+  labelsPdf(items, 'Үлдэгдлийн_шошго');
+}
+$('#remLabels').addEventListener('click', remLabelsPdf);
+
+/* ---------- job card (ISO 9001 traveller) ---------- */
+async function jobCardPdf(job) {
+  if (!window.jspdf) { toast('PDF сан ачаалагдсангүй'); return; }
+  try { await document.fonts.ready; } catch (e) { }
+  const PW = 210, PH = 297, K = 6, F = '"IBM Plex Sans", Arial, sans-serif', FM = '"IBM Plex Mono", Consolas, monospace', pages = [];
+  const parts = jobParts(job), e = job.est, a = job.act || {};
+  let x, y;
+  const foot = `Kh International · ISO 9001 чанарын удирдлагын тогтолцоо${S.iso.formTrace ? ' · Маягт ' + S.iso.formTrace : ''}${S.iso.rev ? ' · Хувилбар ' + S.iso.rev : ''}`;
+  const page = () => {
+    const c = document.createElement('canvas'); c.width = PW * K; c.height = PH * K; x = c.getContext('2d'); x.scale(K, K); x.fillStyle = '#fff'; x.fillRect(0, 0, PW, PH);
+    x.textBaseline = 'alphabetic'; x.textAlign = 'left'; x.fillStyle = '#10161c'; x.font = `700 5.4px ${F}`; x.fillText('Kh International', 15, 20);
+    x.font = `400 3px ${F}`; x.fillStyle = '#4f5b68'; x.fillText('Ажлын карт · үйлдвэрлэлийн ул мөр', 15, 25);
+    x.textAlign = 'right'; x.fillStyle = '#cf4a0c'; x.font = `700 6px ${FM}`; x.fillText(job.no, PW - 15, 20);
+    x.fillStyle = '#4f5b68'; x.font = `400 3px ${F}`; x.fillText(`хуудас ${pages.length + 1} · ${today()}`, PW - 15, 25);
+    x.strokeStyle = '#cf4a0c'; x.lineWidth = 0.5; x.beginPath(); x.moveTo(15, 28); x.lineTo(PW - 15, 28); x.stroke();
+    x.textAlign = 'left'; x.font = `400 2.6px ${F}`; x.fillStyle = '#6a7684'; x.fillText(foot, 15, PH - 8);
+    pages.push(c); y = 36;
+  };
+  const need = h => { if (y + h > PH - 16) page(); };
+  const h2 = t => { need(12); x.textAlign = 'left'; x.fillStyle = '#10161c'; x.font = `600 3.8px ${F}`; x.fillText(t, 15, y); y += 3; };
+  const table = (cols, rows) => {
+    const rh = 5.6, head = () => { let cx = 15; x.font = `600 2.6px ${F}`; x.fillStyle = '#6a7684'; x.textBaseline = 'middle'; cols.forEach(c => { x.textAlign = c.a === 'r' ? 'right' : 'left'; x.fillText(c.t, c.a === 'r' ? cx + c.w - 1.5 : cx + 1.5, y + rh / 2); cx += c.w; }); x.strokeStyle = '#c6ced7'; x.lineWidth = 0.3; x.beginPath(); x.moveTo(15, y + rh); x.lineTo(PW - 15, y + rh); x.stroke(); y += rh; };
+    need(rh * 2); head();
+    rows.forEach(r => {
+      if (y + rh > PH - 16) { page(); head(); }
+      let cx = 15; x.textBaseline = 'middle';
+      cols.forEach((c, j) => { x.font = `${r.bold ? 600 : 400} 2.9px ${c.m ? FM : F}`; x.fillStyle = '#141b23'; x.textAlign = c.a === 'r' ? 'right' : 'left'; let s = String(r.cells ? r.cells[j] : r[j] ?? ''); while (s.length > 2 && x.measureText(s).width > c.w - 3) s = s.slice(0, -2) + '…'; x.fillText(s, c.a === 'r' ? cx + c.w - 1.5 : cx + 1.5, y + rh / 2); cx += c.w; });
+      x.strokeStyle = '#e3e8ee'; x.beginPath(); x.moveTo(15, y + rh); x.lineTo(PW - 15, y + rh); x.stroke(); y += rh;
+    });
+    x.textBaseline = 'alphabetic'; y += 6;
+  };
+  page();
+  const kv = [['Захиалагч', job.customer || '—'], ['Ажлын нэр', job.title || '—'], ['Нээсэн', job.created], ['Хугацаа', job.due || '—'], ['Төлөв', jstName(job.status)], ['Тайлбар', job.note || '—']];
+  kv.forEach(([k, v], i) => { const X = 15 + (i % 2) * 90, Y = y + Math.floor(i / 2) * 7; x.font = `400 2.8px ${F}`; x.fillStyle = '#6a7684'; x.fillText(k, X, Y); x.font = `600 3.3px ${F}`; x.fillStyle = '#10161c'; let s = String(v); while (s.length > 2 && x.measureText(s).width > 62) s = s.slice(0, -2) + '…'; x.fillText(s, X + 24, Y); });
+  y += 24;
+  if (job.items.length) { h2('Бүрэлдэхүүн'); table([{ t: 'Иж бүрдэл', w: 110 }, { t: 'Тоо', w: 25, a: 'r', m: 1 }, { t: 'Парт, ш', w: 45, a: 'r', m: 1 }], job.items.map(it => { const k = findKit(it.kitId); return [k ? k.name : '—', it.n, k ? k.parts.reduce((s, p) => s + p.qty, 0) * it.n : 0]; })); }
+  h2('Партууд');
+  table([{ t: '№', w: 12, m: 1 }, { t: 'Нэр', w: 62 }, { t: 'Материал', w: 38 }, { t: 'Хэмжээ, мм', w: 30, a: 'r', m: 1 }, { t: 'Тоо', w: 14, a: 'r', m: 1 }, { t: 'Жин, кг', w: 24, a: 'r', m: 1 }],
+    parts.map(p => { const inf = partInfo(p); return [p.pno, p.name, `${p.mat} ${p.thk}мм`, `${nf(inf.w, 0)}×${nf(inf.h, 0)}`, p.qty, nf(inf.area * p.thk * matOf(p.mat).rho / 1e6 * p.qty, 1)]; }).concat([{ bold: 1, cells: ['', 'Нийт', '', '', parts.reduce((s, p) => s + p.qty, 0), nf(jobWeight(parts), 1)] }]));
+  if (e) {
+    h2('Тооцоо');
+    const actCost = (+a.kg || e.kg) * (e.kg ? e.matCost / e.kg : 0) + (+a.hours ? +a.hours * (e.time ? e.cutCost / (e.time / 60) : 0) : e.cutCost) + (+a.other || 0);
+    table([{ t: 'Үзүүлэлт', w: 70 }, { t: 'Төлөвлөсөн', w: 55, a: 'r', m: 1 }, { t: 'Бодит', w: 55, a: 'r', m: 1 }], [
+      ['Лист', `${e.sheets} (${e.groups.map(g => g.sizes).join('; ')})`, ''], ['Материал, кг', nf(e.kg, 1), a.kg ? nf(+a.kg, 1) : '—'], ['Зүсэлтийн хугацаа, цаг', nf(e.time / 60, 2), a.hours ? nf(+a.hours, 2) : '—'],
+      ['Зүсэх урт, м / цоолт', `${nf(e.cut / 1000, 1)} / ${e.pierce}`, ''], ['Ашиглалт', nf(e.util * 100, 1) + '%', ''], ['Өртөг, ₮', nf(e.cost), (a.kg || a.hours || a.other) ? nf(actCost) : '—']]);
+  }
+  h2('Зүсэлтийн бүртгэл — материалын ул мөр');
+  if (job.trace.length) table([{ t: 'Огноо', w: 22, m: 1 }, { t: 'Лист', w: 30 }, { t: 'Хэмжээ', w: 24, m: 1 }, { t: 'Материал', w: 34 }, { t: 'Тоо', w: 10, a: 'r', m: 1 }, { t: 'Хайлалт №', w: 24, m: 1 }, { t: 'Гэрч. №', w: 18, m: 1 }, { t: 'Оператор', w: 18 }], job.trace.map(t => [t.date, t.lay, t.size, `${t.mat} ${t.thk}мм`, t.count, t.heat, t.cert, t.op]));
+  else { x.font = `400 3px ${F}`; x.fillStyle = '#6a7684'; x.fillText('Бүртгэл хийгдээгүй.', 15, y + 3); y += 10; }
+  need(40); y += 6;
+  x.font = `400 3.2px ${F}`; x.fillStyle = '#10161c';
+  [['Бэлтгэсэн', 15], ['Хянасан (ЧХ)', 80], ['Хүлээн авсан', 145]].forEach(([t, X]) => { x.fillText(t, X, y); x.strokeStyle = '#8a95a1'; x.lineWidth = 0.25; x.beginPath(); x.moveTo(X, y + 12); x.lineTo(X + 50, y + 12); x.stroke(); x.font = `400 2.6px ${F}`; x.fillStyle = '#6a7684'; x.fillText('гарын үсэг / огноо', X, y + 15.5); x.font = `400 3.2px ${F}`; x.fillStyle = '#10161c'; });
+  const pdf = new window.jspdf.jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true });
+  pages.forEach((c, i) => { if (i) pdf.addPage(); pdf.addImage(c.toDataURL('image/jpeg', 0.92), 'JPEG', 0, 0, PW, PH); });
+  saveFile(safeName(`${job.no}_ажлын_карт`) + '.pdf', pdf.output('blob'), 'application/pdf');
+  jobLog('Ажлын карт PDF гаргасан', job);
+}

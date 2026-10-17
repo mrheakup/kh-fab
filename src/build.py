@@ -1,19 +1,17 @@
-import os
-SRC=os.path.dirname(os.path.abspath(__file__))+'/'
 import re
-shell=open(SRC+'shell.html').read()
-w=open(SRC+'geom_exact.js').read()+'\n'+open(SRC+'worker.js').read(); core=open(SRC+'core.js').read()+'\n'+open(SRC+'geom_exact.js').read()+'\n'+open(SRC+'import_formats.js').read()+'\n'+open(SRC+'fonts.js').read()+'\n'+open(SRC+'text_tool.js').read(); app=open(SRC+'app.js').read()
-page=shell.replace('{{WORKER}}',w).replace('{{APP}}',core+'\n'+app+'\n'+open(SRC+'bend.js').read()+'\n'+open(SRC+'bend_ui.js').read())
-open(SRC+'../web/kh-nesting.html','w').write(page)
+shell=open('shell.html').read()
+w=open('geom_exact.js').read()+'\n'+open('worker.js').read(); core=open('core.js').read()+'\n'+open('geom_exact.js').read()+'\n'+open('import_formats.js').read()+'\n'+open('fonts.js').read()+'\n'+open('text_tool.js').read(); app=open('app.js').read()
+page=shell.replace('{{WORKER}}',w).replace('{{APP}}',core+'\n'+open('laser.js').read()+'\n'+app+'\n'+open('jobs.js').read()+'\n'+open('bend.js').read()+'\n'+open('bend_ui.js').read())
+open('kh-nesting.html','w').write(page)
 head='<!doctype html>\n<html lang="mn">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">\n</head>\n<body>\n'
-open(SRC+'../web/KH_Fab_web.html','w').write(head+page+'\n</body>\n</html>\n')
+open('KH_Nesting.html','w').write(head+page+'\n</body>\n</html>\n')
 print(len(page))
 
 # ---------- desktop build (Electron) ----------
 import shutil, os
-D=SRC+'../app'; NM=SRC+'../node_modules/'
+D='/home/claude/kh-fab/app'; NM='/home/claude/kh-fab/node_modules/'
 os.makedirs(D+'/vendor/fonts', exist_ok=True)
-for src,dst in [('jszip/dist/jszip.min.js','jszip.min.js'),('jspdf/dist/jspdf.umd.min.js','jspdf.umd.min.js'),('pdfjs-dist/build/pdf.min.js','pdf.min.js'),('pdfjs-dist/build/pdf.worker.min.js','pdf.worker.min.js'),('opentype.js/dist/opentype.min.js','opentype.min.js'),('clipper-lib/clipper.js','clipper.js')]:
+for src,dst in [('jszip/dist/jszip.min.js','jszip.min.js'),('jspdf/dist/jspdf.umd.min.js','jspdf.umd.min.js'),('pdfjs-dist/build/pdf.min.js','pdf.min.js'),('pdfjs-dist/build/pdf.worker.min.js','pdf.worker.min.js'),('opentype.js/dist/opentype.min.js','opentype.min.js'),('clipper-lib/clipper.js','clipper.js'),('qrcode-generator/qrcode.js','qrcode.js')]:
     shutil.copy(NM+src, D+'/vendor/'+dst)
 css=[]
 for fam,pkg,ws in [('IBM Plex Sans','ibm-plex-sans',[400,500,600,700]),('IBM Plex Mono','ibm-plex-mono',[400,500])]:
@@ -27,7 +25,7 @@ dp=page
 dp=dp.replace('<link rel="preconnect" href="https://fonts.googleapis.com">\n','').replace('<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n','')
 import re
 dp=re.sub(r'<link rel="stylesheet" href="https://fonts.googleapis.com[^"]*">','<link rel="stylesheet" href="vendor/fonts.css">',dp)
-for cdn,loc in [('https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js','vendor/jszip.min.js'),('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js','vendor/jspdf.umd.min.js'),('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js','vendor/pdf.min.js'),('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js','vendor/pdf.worker.min.js'),('https://cdnjs.cloudflare.com/ajax/libs/opentype.js/1.3.4/opentype.min.js','vendor/opentype.min.js'),('https://cdn.jsdelivr.net/npm/clipper-lib@6.4.2/clipper.js','vendor/clipper.js')]:
+for cdn,loc in [('https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js','vendor/jszip.min.js'),('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js','vendor/jspdf.umd.min.js'),('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js','vendor/pdf.min.js'),('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js','vendor/pdf.worker.min.js'),('https://cdnjs.cloudflare.com/ajax/libs/opentype.js/1.3.4/opentype.min.js','vendor/opentype.min.js'),('https://cdn.jsdelivr.net/npm/clipper-lib@6.4.2/clipper.js','vendor/clipper.js'),('https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js','vendor/qrcode.js')]:
     assert cdn in dp, cdn
     dp=dp.replace(cdn,loc)
 assert 'https://' not in re.sub(r'https://(fonts\.google|www\.w3\.org|github\.com|electron)[^"\' ]*','',dp) or True

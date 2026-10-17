@@ -165,7 +165,29 @@ label.fld{display:grid;gap:3px;font-size:12px;color:var(--ink-2)}
 .bitem.on{border-color:var(--accent);background:var(--accent-soft)}
 .bitem canvas{width:64px;height:48px}
 .bitem .t{font-weight:600}.bitem .m{font-size:11.5px;color:var(--ink-2);font-family:var(--f-mono)}
+.jcard{border:1px solid var(--line);border-radius:var(--r);background:var(--surface);min-width:0}
+.jcard>.bcard-h{border-bottom:1px solid var(--line-2)}
+.jbody{padding:10px 12px;display:grid;gap:10px}
+.jgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+.jitem{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;border:1px solid var(--line-2);border-radius:var(--r);padding:9px 10px;cursor:pointer;background:var(--surface)}
+.jitem.on{border-color:var(--accent);background:var(--accent-soft)}
+.jitem .no{font-family:var(--f-mono);font-weight:600}
+.jitem .t{grid-column:1/-1;font-size:12.5px;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pill.st-new{border-color:var(--ink-3)}.pill.st-nest{border-color:var(--warn);color:var(--warn)}.pill.st-cut{border-color:var(--accent);color:var(--accent)}.pill.st-weld{border-color:#6f5bd6;color:#6f5bd6}.pill.st-done,.pill.st-given{border-color:var(--ok);color:var(--ok)}
+.late{color:var(--bad);font-weight:600}
+.jlog{font-size:12.5px;color:var(--ink-2);display:grid;gap:3px;max-height:180px;overflow:auto}
+.jlog .mono{color:var(--ink-3);margin-right:6px}
+.cmpv{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));border:1px solid var(--line-2);border-radius:var(--r);overflow:hidden}
+.cmpv>div{padding:8px 10px;border-right:1px solid var(--line-2)}
+.cmpv .k{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3)}
+.cmpv .v{font-family:var(--f-mono);font-size:14.5px}
+.cmpv .d{font-size:12px;font-family:var(--f-mono)}
+.d-up{color:var(--bad)}.d-dn{color:var(--ok)}
+.dt input,.dt select{border:1px solid var(--line);background:var(--surface-2);border-radius:4px;padding:3px 5px;font-size:12.5px;min-width:0;width:100%}
+.jempty{border:1px dashed var(--line);border-radius:var(--r);padding:40px 20px;text-align:center;color:var(--ink-2);background:var(--surface)}
 .exports{display:flex;gap:8px;flex-wrap:wrap}
+.gcd{margin-top:12px;border:1px solid var(--line-2);border-radius:var(--r);padding:8px 10px}.gcd summary{cursor:pointer;font-weight:500}
+textarea.inp{width:100%;border:1px solid var(--line);background:var(--surface-2);border-radius:var(--r);padding:6px 8px;color:var(--ink);font-size:12.5px}
 .rtabs{display:flex;gap:2px;border-bottom:1px solid var(--line)}
 .rtabs button{border:0;background:transparent;padding:8px 12px;border-bottom:2px solid transparent;cursor:pointer;color:var(--ink-2);font-weight:500}
 .rtabs button.on{color:var(--ink);border-bottom-color:var(--accent)}
@@ -183,6 +205,8 @@ table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
 .pill.bad{border-color:var(--bad);color:var(--bad)}
 .pill.ok{border-color:var(--ok);color:var(--ok)}
 .warnbox{border:1px solid var(--bad);color:var(--bad);border-radius:var(--r);padding:8px 12px;font-size:13px;background:var(--surface)}
+.wb-warn{border-color:var(--warn);color:var(--warn)}
+#warn{display:grid;gap:6px}#warn:empty{display:none}
 .note{font-size:12.5px;color:var(--ink-3)}
 
 .modal{position:fixed;inset:0;background:rgba(10,14,20,.45);display:grid;place-items:center;z-index:50;padding:16px}
@@ -239,6 +263,7 @@ table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
       <b>KH Fab</b>
     </div>
     <nav class="modtabs" role="tablist">
+      <button data-mod="jobs" role="tab">Ажил · захиалга</button>
       <button data-mod="nest" class="on" role="tab">Nesting · өрөлт</button>
       <button data-mod="bend" role="tab">Bending · нугалалт</button>
     </nav>
@@ -250,6 +275,50 @@ table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
       <input type="file" id="projFile" accept=".json,application/json" hidden>
     </div>
   </header>
+
+  <aside class="side" id="jobsSide" hidden>
+    <nav class="tabs" role="tablist">
+      <button data-jtab="jobs" class="on">Ажлууд <span class="badge" id="cntJobs"></span></button>
+      <button data-jtab="kits">Иж бүрдэл <span class="badge" id="cntKits"></span></button>
+      <button data-jtab="certs">Материал</button>
+    </nav>
+    <div class="panel-body">
+      <section id="jtab-jobs">
+        <div class="ptools"><button class="btn primary" id="jNew">+ Шинэ ажил</button></div>
+        <div class="grid2" style="margin:10px 0">
+          <input id="jSearch" class="inp" placeholder="Хайх: дугаар, захиалагч…" aria-label="Хайх">
+          <select id="jFilter" class="inp" aria-label="Төлөв"><option value="open">Идэвхтэй</option><option value="all">Бүгд</option><option value="closed">Дууссан</option></select>
+        </div>
+        <div id="jList" class="plist"></div>
+        <h3>ISO 9001 маягт</h3>
+        <div class="grid2">
+          <label class="fld">Ажлын картын маягтын код<input id="iso_formTrace"></label>
+          <label class="fld">Хувилбар<input id="iso_rev"></label>
+        </div>
+        <label class="fld" style="margin-top:8px">Операторууд (таслалаар)<input id="iso_operators" placeholder="Б. Бат, Д. Дорж"></label>
+      </section>
+      <section id="jtab-kits" hidden>
+        <p class="hint">Иж бүрдэл гэдэг нь нэг бүтээгдэхүүний (жишээ нь PC200 шанага) бүх хавтгай эд анги, ширхэгийг хадгалсан загвар. Ажилд «иж бүрдэл × тоо» гэж оруулахад партууд автоматаар үржинэ.</p>
+        <div class="ptools"><button class="btn primary" id="kFromParts">Nesting-ийн партуудаас шинэ</button></div>
+        <div id="kList" class="plist" style="margin-top:10px"></div>
+      </section>
+      <section id="jtab-certs" hidden>
+        <p class="hint">Ирсэн хавтангийн гэрчилгээ (heat/хайлалтын дугаар). Зүсэлт бүртгэхэд аль хайлалтаас хэрэглэснийг сонгож ISO ул мөрийг хадгална.</p>
+        <div class="grid2">
+          <label class="fld">Хайлалт (heat) №<input id="c_heat"></label>
+          <label class="fld">Гэрчилгээ №<input id="c_cert"></label>
+          <label class="fld">Материал<select id="c_mat"></select></label>
+          <label class="fld">Зузаан, мм<input id="c_thk" type="number" min="0.1" step="0.1"></label>
+          <label class="fld">Урт, мм<input id="c_L" type="number" min="1"></label>
+          <label class="fld">Өргөн, мм<input id="c_W" type="number" min="1"></label>
+          <label class="fld">Тоо, ш<input id="c_qty" type="number" min="1" value="1"></label>
+          <label class="fld">Нийлүүлэгч<input id="c_sup"></label>
+        </div>
+        <div class="addrow"><button class="btn primary sm" id="cAdd">Бүртгэх</button></div>
+      </section>
+    </div>
+  </aside>
+  <main class="main" id="jobsMain" hidden></main>
 
   <aside class="side" id="nestSide">
     <nav class="tabs" role="tablist">
@@ -264,6 +333,7 @@ table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
           <input type="file" id="dxfIn" accept=".dxf,.svg,.pdf,.ai,.plt,.hpgl,.hgl,.cdr,.dwg,.eps" multiple hidden>
           <button class="btn" id="btnShape">Хэлбэр нэмэх</button>
           <button class="btn" id="btnText">Текст нэмэх</button>
+          <button class="btn ghost" id="btnKitFrom" title="Одоогийн партуудыг дахин ашиглах иж бүрдэл болгож хадгална">Иж бүрдэл болгох</button>
           <button class="btn ghost" id="btnClear">Бүгдийг устгах</button>
         </div>
         <div class="defaults">
@@ -289,7 +359,8 @@ table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
           <input id="remThk" class="inp" type="number" step="0.1" placeholder="Зузаан" aria-label="Зузаан">
           <div class="row3"><input id="remL" class="inp" type="number" placeholder="Урт" aria-label="Урт"><input id="remW" class="inp" type="number" placeholder="Өргөн" aria-label="Өргөн"><input id="remQ" class="inp" type="number" value="1" min="1" aria-label="Тоо"><button class="btn sm" id="remAdd">Нэмэх</button></div>
         </div>
-        <div class="addrow"><label class="btn sm" for="remDxf">Хэлбэртэй үлдэгдэл файлаас</label><input type="file" id="remDxf" accept=".dxf,.svg,.pdf,.ai,.plt" hidden></div>
+        <input id="remLoc" class="inp" placeholder="Байршил (жишээ: B тавиур, 3-р давхар)" aria-label="Байршил" style="margin-top:6px">
+        <div class="addrow"><label class="btn sm" for="remDxf">Хэлбэртэй үлдэгдэл файлаас</label><input type="file" id="remDxf" accept=".dxf,.svg,.pdf,.ai,.plt" hidden><button class="btn sm" id="remLabels">Шошго хэвлэх (QR)</button></div>
         <p class="note">Үлдэгдэл зөвхөн ижил материал, ижил зузаантай партуудад ашиглагдана. DXF-ийн хамгийн том контур листийн хэлбэр болж, доторх контурууд нь гэмтэлтэй (ашиглахгүй) хэсэг болно.</p>
       </section>
 
@@ -329,6 +400,40 @@ table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
           <label class="fld">Lead-in урт, мм (0 = үгүй)<input id="s_lead" type="number" min="0" step="0.5"></label>
         </div>
         <p class="note">Хурд, үнийн утгууд жишээ. Өөрийн машин, материалын үнээр засна уу.</p>
+        <h3>Лазер · микро холбоос, дараалал</h3>
+        <div class="grid2">
+          <label class="fld">Микро холбоос, ш/парт<select id="l_tabN"><option value="0">Үгүй</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></label>
+          <label class="fld">Холбоосны өргөн, мм<input id="l_tabW" type="number" min="0.1" step="0.1"></label>
+          <label class="fld">Зөвхөн ийм хэмжээнээс бага партад, мм (0 = бүгд)<input id="l_tabMax" type="number" min="0" step="10"></label>
+          <label class="fld">Зүсэх дараалал<select id="l_order"><option value="near">Хамгийн ойр нь</option><option value="strip">Туузаар — мөргөлтөөс сэргийлэх</option></select></label>
+          <label class="fld">Туузны өргөн, мм<input id="l_strip" type="number" min="50" step="10"></label>
+          <label class="fld">Зүсэлтийн өргөн (kerf), мм<input id="l_kerf" type="number" min="0" step="0.05"></label>
+          <label class="fld">Нүхний доод хэмжээ, × зузаан<input id="l_holeK" type="number" min="0" step="0.1"></label>
+        </div>
+        <p class="note">Микро холбоос нь жижиг партыг листтэй холбож унах, толгой мөргөхөөс сэргийлнэ. «Туузаар» дараалал нь листийг баганаар зүсэж, толгой тасарсан партын дээгүүр явахыг багасгана.</p>
+        <h3>Лазер тэмдэглэгээ</h3>
+        <label class="check"><input type="checkbox" id="m_on"><span><b>Парт бүр дээр дугаар тэмдэглэх</b> — ажлын дугаар ба партын дугаарыг бага чадлаар сийлнэ (MARK давхарга)</span></label>
+        <div class="grid2">
+          <label class="fld">Текстийн өндөр, мм<input id="m_h" type="number" min="1" step="0.5"></label>
+          <label class="fld">Багтахгүй бол доод өндөр, мм<input id="m_minH" type="number" min="1" step="0.5"></label>
+          <label class="fld">Ирмэгээс зай, мм<input id="m_clear" type="number" min="0" step="0.5"></label>
+          <label class="fld">Хэлбэр ({short}, {no}, {p})<input id="m_fmt"></label>
+          <label class="fld">Тэмдэглэх хурд, мм/мин<input id="l_markFeed" type="number" min="500" step="500"></label>
+        </div>
+        <details class="gcd"><summary>G-code тохиргоо (Weihong болон бусад контроллер)</summary>
+          <div class="grid2" style="margin-top:8px">
+            <label class="fld">Лазер асаах<input id="g_on" class="mono"></label>
+            <label class="fld">Лазер унтраах<input id="g_off" class="mono"></label>
+            <label class="fld">Тэмдэглэгээ асаах<input id="g_mOn" class="mono"></label>
+            <label class="fld">Тэмдэглэгээ унтраах<input id="g_mOff" class="mono"></label>
+            <label class="fld">Цоолох ({t} = сек)<input id="g_pierce" class="mono"></label>
+            <label class="fld">Аравтын орон<input id="g_dec" type="number" min="0" max="5"></label>
+            <label class="fld">Файлын өргөтгөл<input id="g_ext" class="mono"></label>
+          </div>
+          <label class="fld" style="margin-top:8px">Эхлэл ({job}, {sheet}, {mat}, {thk}, {L}, {W}, {date})<textarea id="g_head" rows="4" class="inp mono"></textarea></label>
+          <label class="fld" style="margin-top:8px">Төгсгөл<textarea id="g_foot" rows="2" class="inp mono"></textarea></label>
+          <p class="note">Эдгээр код машин бүрт өөр байдаг. Эхлээд жижиг туршилтын файлаар шалгаад, контроллерийнхоо гарын авлагын дагуу засна уу.</p>
+        </details>
         <div id="appBox" hidden>
           <h3>Програм</h3>
           <p class="mono" style="margin:0 0 6px"><b id="appVer"></b> · <span id="appUpd" class="muted"></span></p>
@@ -363,6 +468,7 @@ table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
         <button class="tog" id="vEdit">Засах</button>
         <button class="btn sm" id="vFit">Багтаах</button>
         <button class="btn sm" id="vDxf">Энэ листийн DXF</button>
+        <button class="btn sm" id="vNc">G-code</button>
       </div>
       <div class="sheetstrip" id="sheetStrip"></div>
       <div class="ebar" id="ebar" hidden>
@@ -380,6 +486,7 @@ table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
     </div>
     <div class="exports">
       <button class="btn primary" id="xDxfAll">DXF — бүх лист (ZIP)</button>
+      <button class="btn" id="xNcAll">G-code — бүх лист (ZIP)</button>
       <button class="btn" id="xPdf">PDF тайлан</button>
       <button class="btn" id="xCsv">CSV хүснэгт</button>
     </div>
@@ -520,6 +627,7 @@ table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <script type="text/plain" id="nestWorker">
 {{WORKER}}
 </script>

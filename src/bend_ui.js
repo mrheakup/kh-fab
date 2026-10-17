@@ -13,7 +13,8 @@ function setModule(m) {
   $$('.modtabs button').forEach(b => b.classList.toggle('on', b.dataset.mod === m));
   $('#nestSide').hidden = $('#nestMain').hidden = m !== 'nest';
   $('#bendSide').hidden = $('#bendMain').hidden = m !== 'bend';
-  if (m === 'bend') renderBend(); else drawView();
+  $('#jobsSide').hidden = $('#jobsMain').hidden = m !== 'jobs';
+  if (m === 'bend') renderBend(); else if (m === 'jobs') renderJobs(); else drawView();
   try { localStorage.setItem(KEY + ':mod', m); } catch (e) { }
 }
 $$('.modtabs button').forEach(b => b.addEventListener('click', () => setModule(b.dataset.mod)));
@@ -193,4 +194,4 @@ async function bendPdf() {
 }
 $('#bPdf').addEventListener('click', bendPdf);
 new ResizeObserver(() => { if (!$('#bendMain').hidden) renderBEditor(); }).observe($('#bendMain'));
-try { if (localStorage.getItem(KEY + ':mod') === 'bend') setModule('bend'); } catch (e) { }
+try { const m0 = localStorage.getItem(KEY + ':mod'); if (m0 === 'bend' || m0 === 'jobs') setModule(m0); } catch (e) { }

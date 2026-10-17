@@ -24,6 +24,10 @@ function defaults() {
     quote: { customer: '', no: 'ҮС-001', valid: 7, markup: 20, setup: 0, vat: true, by: 'Х. Очирбат', contact: '', note: 'Үнэд материал болон лазер зүсэлт багтсан. Гулзайлт, гагнуур, будаг ороогүй.' },
     cut: { speeds: [[1, 20000, 0.3], [2, 9000, 0.5], [3, 5000, 0.8], [4, 3800, 1], [5, 3000, 1.2], [6, 2500, 1.5], [8, 1800, 2], [10, 1300, 2.5], [12, 1000, 3], [16, 700, 4], [20, 500, 6]], cutPrice: 1200, piercePrice: 100 },
     defMat: 'Ст3 / S235', defThk: 6,
+    laser: laserDefaults(),
+    mark: { on: false, h: 6, minH: 3, clear: 1.5, fmt: '{short}-{p}' },
+    iso: { formTrace: 'KH-F-', formLabel: '', rev: '01', operators: '' },
+    jobs: [], kits: [], certs: [], jobSeq: 0, remSeq: 0, activeJob: null, jobYear: new Date().getFullYear(),
     parts: []
   };
 }
@@ -43,10 +47,11 @@ function sampleParts() {
   ];
 }
 function load() { try { const t = localStorage.getItem(KEY); if (!t) return null; const o = JSON.parse(t); if (!o || o.v !== 1 || !Array.isArray(o.parts)) return null; return mergeState(o); } catch (e) { return null; } }
-function mergeState(o) { const d = defaults(); const r = Object.assign(d, o); r.s = Object.assign(defaults().s, o.s || {}); r.cut = Object.assign(defaults().cut, o.cut || {}); r.quote = Object.assign(defaults().quote, o.quote || {}); return r; }
+function mergeState(o) { const d = defaults(); const r = Object.assign(d, o); r.s = Object.assign(defaults().s, o.s || {}); r.cut = Object.assign(defaults().cut, o.cut || {}); r.quote = Object.assign(defaults().quote, o.quote || {}); r.laser = Object.assign(laserDefaults(), o.laser || {}); r.laser.gc = Object.assign(laserDefaults().gc, (o.laser || {}).gc || {}); r.mark = Object.assign(defaults().mark, o.mark || {}); r.iso = Object.assign(defaults().iso, o.iso || {}); r.remnants.forEach(x => { if (!x.no) x.no = 'R-' + String(++r.remSeq).padStart(4, '0'); }); return r; }
 let S = load();
 let firstRun = false;
-if (!S) { S = defaults(); S.parts = sampleParts(); firstRun = true; }
+if (!S) { S = mergeState(defaults()); S.parts = sampleParts(); firstRun = true; }
+function remNo() { return 'R-' + String(++S.remSeq).padStart(4, '0'); }
 let saveT = 0;
 function save() { clearTimeout(saveT); saveT = setTimeout(() => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { } }, 250); }
 
@@ -98,7 +103,7 @@ function renderParts() {
       <canvas class="thumb" data-i="${i}"></canvas>
       <div style="min-width:0">
         <input class="pname" data-f="name" value="${esc(p.name)}" aria-label="Партын нэр">
-        <div class="pmeta mono">${nf(inf.w, 1)} × ${nf(inf.h, 1)} · ${p.holes.length} нүх · ${nf(kg, 2)} кг${p.bends && p.bends.length ? ` · ${p.bends.length} нугалаа` : ''}</div>
+        <div class="pmeta mono">${nf(inf.w, 1)} × ${nf(inf.h, 1)} · ${p.holes.length} нүх · ${nf(kg, 2)} кг${p.bends && p.bends.length ? ` · ${p.bends.length} нугалаа` : ''}${p.job ? ` <span class="pill">${esc(p.job)} · №${esc(p.pno)}</span>` : ''}${(() => { const f = smallFeatures(p, +p.thk, +S.laser.holeK || 1, +S.laser.kerf || 0.2); return f.small ? ` <span class="pill bad" title="Нүхний хэмжээ материалын зузаанаас бага">${f.small} жижиг нүх</span>` : ''; })()}</div>
         <div class="prow">
           <select data-f="mat" aria-label="Материал">${matOptions(p.mat)}</select>
           <span class="nowrap"><input class="pthk" data-f="thk" type="number" min="0.1" step="0.1" value="${p.thk}" aria-label="Зузаан, мм">мм</span>
@@ -203,7 +208,7 @@ function renderStock() {
   $$('input[name=smode]').forEach(r => r.checked = r.value === S.sheetMode);
   $('#useRem').checked = S.useRem;
   $('#remMat').innerHTML = matOptions(S.defMat); $('#remThk').value = S.defThk;
-  $('#remList').innerHTML = S.remnants.length ? S.remnants.map(r => `<div class="srow" data-id="${r.id}" style="grid-template-columns:minmax(0,1fr) auto 24px"><span><b class="mono">${nf(r.L)} × ${nf(r.W)}</b> <span class="muted">· ${esc(r.mat)} · ${r.thk} мм</span>${r.shape ? ' <span class="pill rem">хэлбэртэй</span>' : ''}</span><span class="mono">${r.qty} ш</span><button class="x" aria-label="Устгах">×</button></div>`).join('') : '<div class="note">Бүртгэлтэй үлдэгдэл алга.</div>';
+  $('#remList').innerHTML = S.remnants.length ? S.remnants.map(r => `<div class="srow" data-id="${r.id}" style="grid-template-columns:minmax(0,1fr) auto 24px"><span><span class="pill">${esc(r.no || '')}</span> <b class="mono">${nf(r.L)} × ${nf(r.W)}</b> <span class="muted">· ${esc(r.mat)} · ${r.thk} мм${r.loc ? ' · ' + esc(r.loc) : ''}${r.src ? ' · ' + esc(r.src) : ''}</span>${r.shape ? ' <span class="pill rem">хэлбэртэй</span>' : ''}</span><span class="mono">${r.qty} ш</span><button class="x" aria-label="Устгах">×</button></div>`).join('') : '<div class="note">Бүртгэлтэй үлдэгдэл алга.</div>';
 }
 $('#stdList').addEventListener('click', e => { const row = e.target.closest('.srow'); if (!row) return; const i = +row.dataset.i; if (e.target.matches('.x')) { S.std.splice(i, 1); if (S.fixedIdx >= S.std.length) S.fixedIdx = 0; } else if (e.target.matches('input')) S.std[i].on = e.target.checked; else return; save(); renderStock(); });
 $('#stdAdd').addEventListener('click', () => { const L = +$('#stdL').value, W = +$('#stdW').value; if (!(L > 0 && W > 0)) { toast('Урт, өргөнийг оруулна уу'); return; } S.std.push({ L: Math.max(L, W), W: Math.min(L, W), on: true }); $('#stdL').value = $('#stdW').value = ''; save(); renderStock(); });
@@ -221,12 +226,12 @@ $('#remDxf').addEventListener('change', async e => {
     const outer = loops[0].v, fo = flattenLoop(outer, 0.1);
     const holes = loops.slice(1).filter(l => { const p = flattenLoop(l.v, 0.5)[0]; return pointInPoly(p[0], p[1], fo); }).map(l => l.v);
     const n = normalizePart(outer, holes), inf = partInfo({ outer: n.outer, holes: n.holes });
-    S.remnants.push({ id: uid(), mat: $('#remMat').value, thk: t, L: Math.round(inf.w * 10) / 10, W: Math.round(inf.h * 10) / 10, qty: q, shape: { outer: n.outer, holes: n.holes } });
+    S.remnants.push({ id: uid(), no: remNo(), loc: $('#remLoc').value.trim(), date: new Date().toISOString().slice(0, 10), src: '', mat: $('#remMat').value, thk: t, L: Math.round(inf.w * 10) / 10, W: Math.round(inf.h * 10) / 10, qty: q, shape: { outer: n.outer, holes: n.holes } });
     save(); renderStock(); toast(`Хэлбэртэй үлдэгдэл нэмэгдлээ · ${nf(inf.w)}×${nf(inf.h)} мм, ${holes.length} гэмтэлтэй хэсэг`);
   } catch (err) { toast(err && err.message ? err.message : 'Файлаас хаалттай контур олдсонгүй', 7000); }
 });
 $('#remList').addEventListener('click', e => { if (!e.target.matches('.x')) return; const id = e.target.closest('.srow').dataset.id; S.remnants = S.remnants.filter(r => r.id !== id); save(); renderStock(); });
-$('#remAdd').addEventListener('click', () => { const L = +$('#remL').value, W = +$('#remW').value, q = Math.max(1, Math.round(+$('#remQ').value || 1)), t = +$('#remThk').value; if (!(L > 0 && W > 0 && t > 0)) { toast('Үлдэгдлийн хэмжээ, зузааныг оруулна уу'); return; } S.remnants.push({ id: uid(), mat: $('#remMat').value, thk: t, L: Math.max(L, W), W: Math.min(L, W), qty: q }); $('#remL').value = $('#remW').value = ''; save(); renderStock(); });
+$('#remAdd').addEventListener('click', () => { const L = +$('#remL').value, W = +$('#remW').value, q = Math.max(1, Math.round(+$('#remQ').value || 1)), t = +$('#remThk').value; if (!(L > 0 && W > 0 && t > 0)) { toast('Үлдэгдлийн хэмжээ, зузааныг оруулна уу'); return; } S.remnants.push({ id: uid(), no: remNo(), loc: $('#remLoc').value.trim(), date: new Date().toISOString().slice(0, 10), src: '', mat: $('#remMat').value, thk: t, L: Math.max(L, W), W: Math.min(L, W), qty: q }); $('#remL').value = $('#remW').value = ''; save(); renderStock(); });
 
 /* ---------- settings tab ---------- */
 const SET = [['s_gap', 'gap', 'n'], ['s_margin', 'margin', 'n'], ['s_rot', 'rot', 'n'], ['s_prec', 'prec', 's'], ['s_opt', 'opt', 'n'], ['s_sag', 'sag', 'n'], ['s_keep', 'keep', 'b'], ['s_pip', 'pip', 'b'], ['s_mir', 'mir', 'b'], ['s_cl', 'cl', 'b'], ['s_lead', 'leadIn', 'n'], ['s_rapid', 'rapid', 'n'], ['s_trim', 'trim', 'b'], ['s_trimScope', 'trimScope', 's'], ['s_trimStep', 'trimStep', 'n'], ['s_minRem', 'minRem', 'n'], ['s_dxfSheet', 'dxfSheet', 'n'], ['s_dxfBend', 'dxfBend', 'n']];
@@ -236,7 +241,13 @@ function renderSettings() {
   $('#spdBody').innerHTML = S.cut.speeds.map((r, i) => `<tr data-i="${i}"><td><input data-k="0" type="number" step="0.5" value="${r[0]}"></td><td><input data-k="1" type="number" step="50" value="${r[1]}"></td><td><input data-k="2" type="number" step="0.1" value="${r[2]}"></td><td><button class="x" aria-label="Устгах">×</button></td></tr>`).join('');
   $('#c_cut').value = S.cut.cutPrice; $('#c_pierce').value = S.cut.piercePrice;
   $('#jobName').value = S.jobName;
+  renderLaserSet();
 }
+const LSET = [['l_tabN', () => S.laser, 'tabN', 'n'], ['l_tabW', () => S.laser, 'tabW', 'n'], ['l_tabMax', () => S.laser, 'tabMax', 'n'], ['l_order', () => S.laser, 'order', 's'], ['l_strip', () => S.laser, 'strip', 'n'], ['l_kerf', () => S.laser, 'kerf', 'n'], ['l_holeK', () => S.laser, 'holeK', 'n'], ['l_markFeed', () => S.laser, 'markFeed', 'n'],
+  ['m_on', () => S.mark, 'on', 'b'], ['m_h', () => S.mark, 'h', 'n'], ['m_minH', () => S.mark, 'minH', 'n'], ['m_clear', () => S.mark, 'clear', 'n'], ['m_fmt', () => S.mark, 'fmt', 's'],
+  ...['on', 'off', 'mOn', 'mOff', 'pierce', 'ext', 'head', 'foot'].map(k => ['g_' + k, () => S.laser.gc, k, 's']), ['g_dec', () => S.laser.gc, 'dec', 'n']];
+function renderLaserSet() { for (const [id, o, k, t] of LSET) { const el = $('#' + id); if (t === 'b') el.checked = !!o()[k]; else el.value = o()[k]; } }
+for (const [id, o, k, t] of LSET) $('#' + id).addEventListener('change', e => { o()[k] = t === 'b' ? e.target.checked : t === 'n' ? Math.max(0, +e.target.value || 0) : e.target.value; save(); if (R) recomputeResult(); });
 for (const [id, k, t] of SET) $('#' + id).addEventListener('change', e => { S.s[k] = t === 'b' ? e.target.checked : t === 'n' ? Math.max(0, +e.target.value || 0) : e.target.value; save(); if (R && ['trim', 'trimScope', 'trimStep', 'minRem', 'leadIn', 'rapid'].includes(k)) { recomputeResult(); } });
 $('#matBody').addEventListener('change', e => { const tr = e.target.closest('tr'); const m = S.materials[+tr.dataset.i]; const k = e.target.dataset.k; if (k === 'name') { const old = m.name, nw = e.target.value.trim() || old; S.parts.forEach(p => { if (p.mat === old) p.mat = nw; }); S.remnants.forEach(r => { if (r.mat === old) r.mat = nw; }); if (S.defMat === old) S.defMat = nw; m.name = nw; } else m[k] = Math.max(0, +e.target.value || 0); save(); renderParts(); renderDefaults(); if (R) recomputeResult(); });
 $('#matBody').addEventListener('click', e => { if (!e.target.matches('.x')) return; if (S.materials.length <= 1) return; S.materials.splice(+e.target.closest('tr').dataset.i, 1); save(); renderSettings(); renderDefaults(); renderParts(); });
@@ -286,7 +297,7 @@ function buildJob() {
   const std = stockStd(), tol = Math.max(0.01, +S.s.sag || 0.05);
   S.parts.forEach((p, i) => {
     const inf = partInfo(p);
-    snapshot.set(p.id, { id: p.id, idx: i, name: p.name, mat: p.mat, thk: p.thk, qty: p.qty, outer: p.outer, holes: p.holes, bends: p.bends || [], info: inf, flat: { outer: flattenLoop(p.outer, 0.05), holes: p.holes.map(h => flattenLoop(h, 0.05)) } });
+    snapshot.set(p.id, { id: p.id, idx: i, name: p.name, mat: p.mat, thk: p.thk, qty: p.qty, outer: p.outer, holes: p.holes, bends: p.bends || [], info: inf, job: p.job || '', jobShort: p.jobShort || '', pno: p.pno || String(i + 1).padStart(2, '0'), jobId: p.jobId || null, flat: { outer: flattenLoop(p.outer, 0.05), holes: p.holes.map(h => flattenLoop(h, 0.05)) } });
     if (!(p.qty > 0)) return;
     const key = p.mat + '|' + p.thk;
     if (!groups.has(key)) groups.set(key, { key, mat: p.mat, thk: p.thk, label: `${p.mat} ${p.thk}мм`, types: [] });
@@ -372,17 +383,33 @@ function finishRun() { $('#btnRun').disabled = false; $('#btnStop').hidden = tru
 $('#btnRun').addEventListener('click', () => runNesting(false));
 $('#btnStop').addEventListener('click', () => { stopWorkers(); finishRun(); $('#progBar').style.width = '0'; $('#progMsg').textContent = 'Зогсоосон'; });
 
-/* ---------- cut order: holes first, nearest-next, lead-ins ---------- */
+/* ---------- cut order: marks first, holes before outer, nearest-next or strips, lead-ins, micro-joints ---------- */
+function partMarkText(p) {
+  if (!S.mark.on) return null;
+  if (!p.job) return p.pno;
+  const t = String(S.mark.fmt || '{short}-{p}').replace(/\{(\w+)\}/g, (m, k) => ({ short: p.jobShort, no: p.job, p: p.pno }[k] ?? '')).replace(/^-+|-+$/g, '').trim();
+  return t || p.pno;
+}
+function partSpot(p) {
+  const txt = partMarkText(p); if (!txt) return null;
+  const key = [txt, S.mark.h, S.mark.minH, S.mark.clear].join('|');
+  if (p._spotKey !== key) { p._spotKey = key; p._spot = markSpot(p.flat.outer, p.flat.holes, txt, Math.max(1, +S.mark.h || 6), Math.max(1, Math.min(+S.mark.h || 6, +S.mark.minH || 3)), Math.max(0, +S.mark.clear || 0)); }
+  return p._spot ? { spot: p._spot, txt } : { miss: true, txt };
+}
 function cutPlan(s) {
-  const LI = Math.max(0, +S.s.leadIn || 0), units = [];
+  const LI = Math.max(0, +S.s.leadIn || 0), LZ = S.laser, units = [];
+  const tabN = Math.max(0, Math.round(+LZ.tabN || 0)), tabW = Math.max(0.05, +LZ.tabW || 0.6), tabMax = Math.max(0, +LZ.tabMax || 0);
   const blk = new Map((s.blocks || []).map(b => [b.key, { b, holes: [] }]));
+  const marks = []; let markMiss = 0;
   s.pl.forEach(pl => {
     const p = R.parts.get(pl.id);
+    const m = partSpot(p);
+    if (m && m.spot) marks.push({ strokes: markOnSheet(m.spot, m.txt, pl), txt: m.txt }); else if (m && m.miss) markMiss++;
     const holes = p.holes.map(h => orientLoop(xformLoop(h, pl.ang, pl.mir, pl.tx, pl.ty), false));
     if (pl.blk && blk.has(pl.blk)) { blk.get(pl.blk).holes.push(...holes); return; }
     const outer = orientLoop(xformLoop(p.outer, pl.ang, pl.mir, pl.tx, pl.ty), true);
     const flat = xformPts(p.flat.outer, pl.ang, pl.mir, pl.tx, pl.ty);
-    units.push({ outer, holes, flat, bb: bboxPts(flat), deps: [] });
+    units.push({ outer, holes, flat, bb: bboxPts(flat), deps: [], tabs: tabN && (!tabMax || Math.max(p.info.w, p.info.h) <= tabMax) });
   });
   for (const { b, holes } of blk.values()) {
     const lines = [], W = b.c * b.cw, H = b.r * b.ch;
@@ -394,10 +421,21 @@ function cutPlan(s) {
     if (P === Q || !P.outer || !Q.outer) continue;
     if (Q.bb.x0 >= P.bb.x0 && Q.bb.x1 <= P.bb.x1 && Q.bb.y0 >= P.bb.y0 && Q.bb.y1 <= P.bb.y1 && pointInPoly(Q.flat[0][0], Q.flat[0][1], P.flat)) P.deps.push(Q);
   }
-  const seq = []; let pos = [0, 0], travel = 0, cut = 0;
+  const seq = [], freed = []; let pos = [0, 0], travel = 0, cut = 0, markL = 0, tabs = 0, cross = 0;
+  const rapid = to => { travel += Math.hypot(to[0] - pos[0], to[1] - pos[1]); cross += crossesCut(pos, to, freed); };
+  // 1) marking first, while every part still lies flat in the sheet
+  const ms = marks.slice();
+  while (ms.length) {
+    let bi = 0, bd = Infinity; ms.forEach((m, i) => { const d = Math.hypot(m.strokes[0][0][0] - pos[0], m.strokes[0][0][1] - pos[1]); if (d < bd) { bd = d; bi = i; } });
+    const m = ms.splice(bi, 1)[0];
+    for (const st of m.strokes) { travel += Math.hypot(st[0][0] - pos[0], st[0][1] - pos[1]); for (let i = 1; i < st.length; i++) markL += Math.hypot(st[i][0] - st[i - 1][0], st[i][1] - st[i - 1][1]); pos = st[st.length - 1]; }
+    seq.push({ type: 'mark', strokes: m.strokes, txt: m.txt, entry: m.strokes[0][0] });
+  }
   const nearV = vs => { let k = 0, d = Infinity; vs.forEach((v, i) => { const e = Math.hypot(v.x - pos[0], v.y - pos[1]); if (e < d) { d = e; k = i; } }); return [k, d]; };
-  const emitLoop = (vs, layer) => {
-    const lp = rotateLoop(vs, nearV(vs)[0]), st = lp[0];
+  const emitLoop = (vs, layer, withTabs, toward) => {
+    let k0 = nearV(vs)[0];
+    if (toward) { let d = Infinity; vs.forEach((v, i) => { const e = Math.hypot(v.x - toward[0], v.y - toward[1]); if (e < d) { d = e; k0 = i; } }); }
+    const lp = rotateLoop(vs, k0), st = lp[0];
     let lead = null;
     if (LI > 0 && lp.length > 1) {
       const a = lp[0], b = lp[1]; let cx = b.x - a.x, cy = b.y - a.y; const cl = Math.hypot(cx, cy) || 1; cx /= cl; cy /= cl;
@@ -406,31 +444,48 @@ function cutPlan(s) {
       lead = [st.x + ty * Lr, st.y - tx * Lr];
     }
     const entry = lead || [st.x, st.y];
-    travel += Math.hypot(entry[0] - pos[0], entry[1] - pos[1]);
-    cut += loopLen(lp) + (lead ? Math.hypot(lead[0] - st.x, lead[1] - st.y) : 0);
-    seq.push({ type: 'loop', loop: lp, layer, lead, entry });
+    rapid(entry);
+    const pieces = withTabs ? splitTabs(lp, tabN, tabW) : null;
+    cut += (pieces ? pieces.reduce((a, pc) => a + openLen(pc), 0) : loopLen(lp)) + (lead ? Math.hypot(lead[0] - st.x, lead[1] - st.y) : 0);
+    if (pieces) { tabs += pieces.length - 1; travel += (loopLen(lp) - pieces.reduce((a, pc) => a + openLen(pc), 0)); }
+    seq.push({ type: 'loop', loop: lp, layer, lead, entry, pieces });
     pos = [st.x, st.y];
   };
   const emitLine = ln => {
     const d1 = Math.hypot(ln[0] - pos[0], ln[1] - pos[1]), d2 = Math.hypot(ln[2] - pos[0], ln[3] - pos[1]);
     const l = d2 < d1 ? [ln[2], ln[3], ln[0], ln[1]] : ln;
-    travel += Math.min(d1, d2); cut += Math.hypot(l[2] - l[0], l[3] - l[1]);
+    rapid([l[0], l[1]]); cut += Math.hypot(l[2] - l[0], l[3] - l[1]);
     seq.push({ type: 'line', line: l, layer: 'OUTER', entry: [l[0], l[1]] });
     pos = [l[2], l[3]];
   };
   const bbDist = bb => Math.hypot(Math.max(bb.x0 - pos[0], 0, pos[0] - bb.x1), Math.max(bb.y0 - pos[1], 0, pos[1] - bb.y1));
+  // 2) strip order: columns from the origin outwards, snaking, so the head moves over uncut sheet
+  let order = null;
+  if (LZ.order === 'strip') {
+    const sw = Math.max(50, +LZ.strip || 300);
+    order = units.map(u => { const cx = (u.bb.x0 + u.bb.x1) / 2, cy = (u.bb.y0 + u.bb.y1) / 2, k = Math.floor(cx / sw); return { u, k: k * 1e7 + (k % 2 ? -cy : cy) }; }).sort((a, b) => a.k - b.k).map(o => o.u);
+  }
   const done = new Set();
   while (done.size < units.length) {
-    let best = null, bd = Infinity;
-    for (const u of units) { if (done.has(u) || u.deps.some(d => !done.has(d))) continue; const d = bbDist(u.bb); if (d < bd) { bd = d; best = u; } }
+    let best = null;
+    if (order) best = order.find(u => !done.has(u) && u.deps.every(d => done.has(d)));
+    else { let bd = Infinity; for (const u of units) { if (done.has(u) || u.deps.some(d => !done.has(d))) continue; const d = bbDist(u.bb); if (d < bd) { bd = d; best = u; } } }
     if (!best) best = units.find(u => !done.has(u));
     done.add(best);
     const hs = best.holes.slice();
-    while (hs.length) { let bi = 0, bdd = Infinity; hs.forEach((h, i) => { const d = nearV(h)[1]; if (d < bdd) { bdd = d; bi = i; } }); emitLoop(hs.splice(bi, 1)[0], 'INNER'); }
+    while (hs.length) { let bi = 0, bdd = Infinity; hs.forEach((h, i) => { const d = nearV(h)[1]; if (d < bdd) { bdd = d; bi = i; } }); emitLoop(hs.splice(bi, 1)[0], 'INNER', false); }
     if (best.lines) { const ls = best.lines.slice(); while (ls.length) { let bi = 0, bdd = Infinity; ls.forEach((l, i) => { const d = Math.min(Math.hypot(l[0] - pos[0], l[1] - pos[1]), Math.hypot(l[2] - pos[0], l[3] - pos[1])); if (d < bdd) { bdd = d; bi = i; } }); emitLine(ls.splice(bi, 1)[0]); } }
-    if (best.outer) emitLoop(best.outer, 'OUTER');
+    if (best.outer) {
+      // finish the outer contour on the side that faces the next part, so the head leaves over uncut sheet
+      const avail = u => !done.has(u) && u.deps.every(d => done.has(d));
+      const c0 = [(best.bb.x0 + best.bb.x1) / 2, (best.bb.y0 + best.bb.y1) / 2];
+      let nx = order ? order.find(avail) : null;
+      if (!order) { let bd = Infinity; for (const u of units) { if (!avail(u)) continue; const d = Math.hypot((u.bb.x0 + u.bb.x1) / 2 - c0[0], (u.bb.y0 + u.bb.y1) / 2 - c0[1]); if (d < bd) { bd = d; nx = u; } } }
+      emitLoop(best.outer, 'OUTER', best.tabs, nx ? [(nx.bb.x0 + nx.bb.x1) / 2, (nx.bb.y0 + nx.bb.y1) / 2] : null);
+    }
+    if (!best.tabs) freed.push(best);
   }
-  return { seq, travel, cut };
+  return { seq, travel, cut, markL, markN: marks.length, markMiss, tabs, cross };
 }
 
 /* ---------- result processing ---------- */
@@ -453,7 +508,7 @@ function recomputeResult() {
       const trimmed = !!st.trim && s.kind === 'std' && (st.trimScope === 'all' || isLast) && usedR < s.L - 1e-6;
       const cL = trimmed ? usedR : s.L, left = trimmed ? s.L - usedR : 0;
       const sheetArea = shp ? shp.area : cL * s.W;
-      return Object.assign(s, { area, plan, cut: plan.cut, pierce: plan.seq.length, travel: plan.travel, n: s.pl.length, trimmed, cL, left, remOk: trimmed && left >= st.minRem, util: area / sheetArea, sheetArea, kg: sheetArea * thk * mat.rho / 1e6, time: plan.cut / sp.v + plan.seq.length * sp.p / 60 + plan.travel / rapid });
+      return Object.assign(s, { area, plan, cut: plan.cut, travel: plan.travel, n: s.pl.length, trimmed, cL, left, remOk: trimmed && left >= st.minRem, util: area / sheetArea, sheetArea, kg: sheetArea * thk * mat.rho / 1e6, pierce: plan.seq.filter(it => it.type !== 'mark').length, time: plan.cut / sp.v + plan.seq.filter(it => it.type !== 'mark').length * sp.p / 60 + plan.travel / rapid + plan.markL / Math.max(500, +S.laser.markFeed || 6000) + plan.tabs * 0.5 / 60 });
     });
     const lays = [], bySig = new Map();
     sheets.forEach(s => {
@@ -461,7 +516,7 @@ function recomputeResult() {
       if (bySig.has(sig)) bySig.get(sig).sheets.push(s); else { const L = { sheet: s, sheets: [s] }; bySig.set(sig, L); lays.push(L); }
     });
     lays.forEach((l, i) => { l.no = i + 1; l.count = l.sheets.length; });
-    const tot = sheets.reduce((a, s) => ({ area: a.area + s.area, cut: a.cut + s.cut, pierce: a.pierce + s.pierce, kg: a.kg + s.kg, sheetArea: a.sheetArea + s.sheetArea, time: a.time + s.time, travel: a.travel + s.travel, n: a.n + s.n }), { area: 0, cut: 0, pierce: 0, kg: 0, sheetArea: 0, time: 0, travel: 0, n: 0 });
+    const tot = sheets.reduce((a, s) => ({ area: a.area + s.area, cut: a.cut + s.cut, pierce: a.pierce + s.pierce, kg: a.kg + s.kg, sheetArea: a.sheetArea + s.sheetArea, time: a.time + s.time, travel: a.travel + s.travel, n: a.n + s.n, markN: a.markN + s.plan.markN, markMiss: a.markMiss + s.plan.markMiss, tabs: a.tabs + s.plan.tabs, cross: a.cross + s.plan.cross }), { area: 0, cut: 0, pierce: 0, kg: 0, sheetArea: 0, time: 0, travel: 0, n: 0, markN: 0, markMiss: 0, tabs: 0, cross: 0 });
     tot.partsKg = tot.area * thk * mat.rho / 1e6;
     tot.scrapKg = tot.kg - tot.partsKg;
     tot.util = tot.sheetArea ? tot.area / tot.sheetArea : 0;
@@ -477,6 +532,7 @@ function recomputeResult() {
   if (R.groups[V.g] && V.l >= R.groups[V.g].lays.length) V.l = 0;
   EX = null;
   renderResults();
+  if (typeof jobsOnResult === 'function') jobsOnResult();
 }
 
 /* ---------- results UI ---------- */
@@ -493,13 +549,17 @@ function renderResults() {
   }
   $('#vEmpty').hidden = true;
   const t = g.tot, un = Object.entries(g.unplaced).filter(([, n]) => n > 0);
-  $('#warn').innerHTML = un.length ? `<div class="warnbox"><b>Багтаагүй:</b> ${un.map(([id, n]) => `${esc(R.parts.get(id)?.name)} — ${n} ш`).join(', ')}. Листийн хэмжээ партаас бага эсвэл захын зай хэт их байна.</div>` : '';
+  const sf = [...R.parts.values()].filter(p => (p.mat + '|' + p.thk) === g.key && (g.placed[p.id] || 0) > 0).map(p => ({ p, f: smallFeatures(p, +p.thk, +S.laser.holeK || 1, +S.laser.kerf || 0.2) })).filter(o => o.f.small || o.f.tiny);
+  $('#warn').innerHTML = (un.length ? `<div class="warnbox"><b>Багтаагүй:</b> ${un.map(([id, n]) => `${esc(R.parts.get(id)?.name)} — ${n} ш`).join(', ')}. Листийн хэмжээ партаас бага эсвэл захын зай хэт их байна.</div>` : '')
+    + (sf.length ? `<div class="warnbox wb-warn"><b>Зүсэхэд эрсдэлтэй:</b> ${sf.map(o => `${esc(o.p.name)} — ${[o.f.small ? `${o.f.small} нүх зузаанаас (${o.p.thk} мм) жижиг` : '', o.f.tiny ? `${o.f.tiny} хэт богино элемент` : ''].filter(Boolean).join(', ')}`).join('; ')}.</div>` : '')
+    + (t.markMiss ? `<div class="warnbox wb-warn"><b>Тэмдэглэгээ багтаагүй:</b> ${t.markMiss} партад ${S.mark.minH} мм-ийн текст багтахгүй байна.</div>` : '');
   const sizes = Object.entries(g.bySize).map(([k, n]) => `${k} ×${n}`).join(', ');
   const stats = [
     ['Лист', `${g.sheets.length}`, sizes],
     ['Ашиглалт', `${nf(t.util * 100, 1)}<small>%</small>`, `хаягдал ${nf(t.scrapKg, 1)} кг`],
     ['Зүсэх урт', `${nf(t.cut / 1000, 2)}<small>м</small>`, `${nf(t.n)} парт` + (g.clN ? ` · ${g.clN} хамтын шугамтай` : '')],
-    ['Цоолт', `${nf(t.pierce)}`, `хоосон явалт ${nf(t.travel / 1000, 1)} м`],
+    ['Цоолт', `${nf(t.pierce)}`, `хоосон явалт ${nf(t.travel / 1000, 1)} м` + (t.tabs ? ` · ${t.tabs} микро холбоос` : '') + (t.markN ? ` · ${t.markN} тэмдэглэгээ` : '')],
+    ['Дээгүүр явалт', `${nf(t.cross)}`, t.cross ? 'тасарсан партын дээгүүр — «Тохиргоо → Лазер»' : 'тасарсан партын дээгүүр явахгүй'],
     ['Материал', `${nf(t.kg, 1)}<small>кг</small>`, `партын жин ${nf(t.partsKg, 1)} кг`],
     ['Хугацаа', fmtTime(t.time), `${g.label}`],
     ['Өртөг', `${nf(t.cost / 1000, 0)}<small>мян₮</small>`, `материал + зүсэлт`]
@@ -542,7 +602,8 @@ function renderTable() {
     const b = $('#remApply'); if (b) b.addEventListener('click', () => {
       for (const [id, n] of Object.entries(used)) { const r = S.remnants.find(x => x.id === id); if (r) r.qty = Math.max(0, r.qty - n); }
       S.remnants = S.remnants.filter(r => r.qty > 0);
-      nw.forEach(s => S.remnants.push({ id: uid(), mat: g.mat, thk: g.thk, L: Math.max(s.left, s.W), W: Math.min(s.left, s.W), qty: 1 }));
+      nw.forEach(s => S.remnants.push({ id: uid(), no: remNo(), loc: '', date: new Date().toISOString().slice(0, 10), src: S.jobName, mat: g.mat, thk: g.thk, L: Math.max(s.left, s.W), W: Math.min(s.left, s.W), qty: 1 }));
+      if (typeof jobLog === 'function') jobLog(`Үлдэгдэл: ${Object.values(used).reduce((a, n) => a + n, 0)} ашигласан, ${nw.length} шинээр бүртгэсэн`);
       save(); renderStock(); b.disabled = true; b.textContent = 'Бүртгэлд тусгасан'; toast('Үлдэгдлийн бүртгэл шинэчлэгдлээ');
     });
   }
@@ -559,8 +620,8 @@ function layPaths(l) {
   });
 }
 function palette(dark, print) {
-  if (print) return { bg: '#ffffff', sheet: '#e8ecf0', edge: '#55626f', margin: '#9aa5b1', stroke: '#2c3640', label: '#10161c', labelBg: 'rgba(255,255,255,.85)', trim: '#cf4a0c', left: 'rgba(207,74,12,.10)', path: '#cf4a0c', bad: '#c43131', dark: false };
-  return { bg: cssv('--view'), sheet: cssv('--sheet'), edge: cssv('--sheet-edge'), margin: cssv('--ink-3'), stroke: dark ? 'rgba(10,14,20,.85)' : 'rgba(20,28,36,.75)', label: cssv('--ink'), labelBg: dark ? 'rgba(22,29,37,.8)' : 'rgba(255,255,255,.8)', trim: cssv('--accent'), left: dark ? 'rgba(255,123,58,.12)' : 'rgba(207,74,12,.10)', path: cssv('--accent'), bad: cssv('--bad'), dark };
+  if (print) return { bg: '#ffffff', sheet: '#e8ecf0', edge: '#55626f', margin: '#9aa5b1', stroke: '#2c3640', label: '#10161c', labelBg: 'rgba(255,255,255,.85)', trim: '#cf4a0c', left: 'rgba(207,74,12,.10)', path: '#cf4a0c', bad: '#c43131', mark: '#1b4f8a', dark: false };
+  return { bg: cssv('--view'), sheet: cssv('--sheet'), edge: cssv('--sheet-edge'), margin: cssv('--ink-3'), stroke: dark ? 'rgba(10,14,20,.85)' : 'rgba(20,28,36,.75)', label: cssv('--ink'), labelBg: dark ? 'rgba(22,29,37,.8)' : 'rgba(255,255,255,.8)', trim: cssv('--accent'), left: dark ? 'rgba(255,123,58,.12)' : 'rgba(207,74,12,.10)', path: cssv('--accent'), bad: cssv('--bad'), mark: dark ? '#9cc8ff' : '#1b4f8a', dark };
 }
 function drawLayout(x, l, T, pal, opt = {}) {
   const k = opt.lw || 1;
@@ -602,6 +663,15 @@ function drawLayout(x, l, T, pal, opt = {}) {
     for (let i = 0; i <= b.c; i++) { x.moveTo(X(b.x + off[0] + i * b.cw), Y(b.y + off[1])); x.lineTo(X(b.x + off[0] + i * b.cw), Y(b.y + off[1] + b.r * b.ch)); }
     x.stroke();
   }
+  if (s.plan && !mv) {
+    // laser marks and micro-joints
+    x.strokeStyle = pal.mark || pal.stroke; x.lineWidth = Math.max(0.6 * k, Math.min(1.4 * k, 0.4 * T.sc)); x.lineCap = 'round'; x.lineJoin = 'round';
+    x.beginPath();
+    for (const it of s.plan.seq) if (it.type === 'mark') for (const st of it.strokes) st.forEach((p, i) => i ? x.lineTo(X(p[0]), Y(p[1])) : x.moveTo(X(p[0]), Y(p[1])));
+    x.stroke(); x.lineCap = 'butt'; x.lineJoin = 'miter';
+    x.fillStyle = pal.trim;
+    for (const it of s.plan.seq) if (it.pieces) for (let i = 0; i + 1 < it.pieces.length; i++) { const e = it.pieces[i][it.pieces[i].length - 1]; x.beginPath(); x.arc(X(e.x), Y(e.y), Math.max(1.6 * k, Math.min(3 * k, 0.8 * T.sc)), 0, TAU); x.fill(); }
+  }
   if (s.trimmed) {
     x.strokeStyle = pal.trim; x.lineWidth = 2 * k; x.setLineDash([8 * k, 5 * k]); x.beginPath(); x.moveTo(X(s.cL), Y(0) + 8 * k); x.lineTo(X(s.cL), Y(s.W) - 8 * k); x.stroke(); x.setLineDash([]);
   }
@@ -612,7 +682,7 @@ function drawLayout(x, l, T, pal, opt = {}) {
       x.setLineDash([3 * k, 3 * k]); x.globalAlpha = 0.7; x.beginPath(); x.moveTo(X(pos[0]), Y(pos[1])); x.lineTo(X(it.entry[0]), Y(it.entry[1])); x.stroke(); x.setLineDash([]); x.globalAlpha = 1;
       if (it.lead) { const st = it.loop[0]; x.beginPath(); x.moveTo(X(it.lead[0]), Y(it.lead[1])); x.lineTo(X(st.x), Y(st.y)); x.stroke(); }
       x.beginPath(); x.arc(X(it.entry[0]), Y(it.entry[1]), 2.2 * k, 0, TAU); x.fill();
-      pos = it.type === 'line' ? [it.line[2], it.line[3]] : [it.loop[0].x, it.loop[0].y];
+      pos = it.type === 'line' ? [it.line[2], it.line[3]] : it.type === 'mark' ? it.strokes[it.strokes.length - 1].slice(-1)[0] : [it.loop[0].x, it.loop[0].y];
     });
   }
   const fs = opt.fs || 12, font = opt.font || 'IBM Plex Sans, Arial, sans-serif';
@@ -621,6 +691,7 @@ function drawLayout(x, l, T, pal, opt = {}) {
     for (const P of paths) {
       const w = (P.bb.x1 - P.bb.x0) * T.sc, h = (P.bb.y1 - P.bb.y0) * T.sc;
       if (Math.min(w, h) < fs * 1.5) continue;
+      if (S.mark.on && P.p._spot && s.plan && s.plan.markN && h > fs * 3) continue; // the engraved number already identifies it
       const o = mv && mv.set.has(P.i) ? [mv.dx, mv.dy] : [0, 0];
       const cx = X((P.bb.x0 + P.bb.x1) / 2 + o[0]), cy = Y((P.bb.y0 + P.bb.y1) / 2 + o[1]), t = String(P.p.idx + 1);
       x.font = `600 ${fs}px ${font}`; const tw = x.measureText(t).width + fs * 0.6;
@@ -908,9 +979,10 @@ function layoutDXF(l) {
   // contours in cutting order: holes before the outer contour, nearest next, part-in-part first
   if (+S.s.dxfBend) for (const pl of s.pl) { const p = R.parts.get(pl.id); (p.bends || []).forEach(b => { const q = xformPts([[b.x1, b.y1], [b.x2, b.y2]], pl.ang, pl.mir, pl.tx, pl.ty); w.line(b.up ? 'BEND_UP' : 'BEND_DOWN', q[0][0], q[0][1], q[1][0], q[1][1]); }); }
   for (const it of s.plan.seq) {
+    if (it.type === 'mark') { it.strokes.forEach(st => w.poly('MARK', st)); continue; }
     if (it.type === 'line') { w.line('OUTER', ...it.line); continue; }
     if (it.lead) w.line('LEADIN', it.lead[0], it.lead[1], it.loop[0].x, it.loop[0].y);
-    w.loop(it.layer, it.loop);
+    if (it.pieces) it.pieces.forEach(pc => w.open(it.layer, pc)); else w.loop(it.layer, it.loop);
   }
   return w.doc();
 }
@@ -926,8 +998,29 @@ $('#xDxfAll').addEventListener('click', async () => {
   if (!window.JSZip) { toast('ZIP сан ачаалагдсангүй — интернэт холболтоо шалгана уу'); return; }
   const z = new JSZip();
   R.groups.forEach(g => g.lays.forEach(l => z.file(layFile(g, l), layoutDXF(l))));
-  z.file('README.txt', 'KH Nesting\r\nOUTER - gadna kontur ba hamtyn shugam, INNER - nuh, LEADIN - orolt, SHEET - listiin huree, TRIM - tairah shugam.\r\nKonturuud zusekh daraallaar bichigdsen (nuh ehelj, oir dotroo).\r\n_xN - ijil listiig N udaa zusne.\r\n');
+  z.file('README.txt', 'Kh International - KH Fab\r\nOUTER - gadna kontur ba hamtyn shugam (mikro holboostoi bol neelttei polyline), INNER - nuh, LEADIN - orolt, MARK - laser temdeglegee (bagaa chadal), SHEET - listiin huree, TRIM - tairah shugam.\r\nKonturuud zusekh daraallaar bichigdsen (nuh ehelj, oir dotroo).\r\n_xN - ijil listiig N udaa zusne.\r\n');
   saveFile(safeName(S.jobName) + '_DXF.zip', await z.generateAsync({ type: 'blob', compression: 'DEFLATE' }));
+});
+
+/* ---------- G-code (NC) export ---------- */
+function layoutNC(g, l) {
+  const sp = speedFor(+g.thk), s = l.sheet;
+  return gcodeSheet(s.plan.seq, { gc: S.laser.gc, feed: sp.v, pierceSec: sp.p, markFeed: +S.laser.markFeed || 6000, vars: { job: S.jobName, sheet: l.no, mat: g.mat, thk: g.thk, L: s.L, W: s.W, count: l.count, date: new Date().toLocaleDateString('mn-MN') } });
+}
+function ncFile(g, l) { return layFile(g, l).replace(/\.dxf$/, '.' + (String(S.laser.gc.ext || 'nc').replace(/[^a-z0-9]/gi, '') || 'nc')); }
+$('#vNc').addEventListener('click', async () => {
+  const g = curG(), l = curL(); if (!l) { toast('Эхлээд өрөлт хийнэ үү'); return; }
+  const name = ncFile(g, l), txt = layoutNC(g, l);
+  if (inHost) { const z = new JSZip(); z.file(name, txt); saveFile(name.replace(/\.[^.]+$/, '.zip'), await z.generateAsync({ type: 'blob' })); }
+  else saveFile(name, txt, 'text/plain');
+});
+$('#xNcAll').addEventListener('click', async () => {
+  if (!R) { toast('Эхлээд өрөлт хийнэ үү'); return; }
+  if (!window.JSZip) { toast('ZIP сан ачаалагдсангүй'); return; }
+  const z = new JSZip();
+  R.groups.forEach(g => g.lays.forEach(l => z.file(ncFile(g, l), layoutNC(g, l))));
+  z.file('README.txt', 'Kh International - KH Fab G-code\r\nG21 mm, G90 absolute. Laser on/off, pierce, marking codes are set in Tohirgoo -> Laser -> G-code.\r\nANHAAR: ehleed jijig turshiltiin listeer machine deeree shalgana uu.\r\n');
+  saveFile(safeName(S.jobName) + '_NC.zip', await z.generateAsync({ type: 'blob', compression: 'DEFLATE' }));
 });
 
 /* ---------- CSV ---------- */

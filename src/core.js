@@ -394,10 +394,16 @@ function dxfWriter() {
       for (const v of vs) { w(0, 'VERTEX'); w(8, layer); w(10, fmt(v.x)); w(20, fmt(v.y)); w(30, 0); if (Math.abs(v.b) > 1e-9) w(42, fmt(v.b)); }
       w(0, 'SEQEND'); w(8, layer);
     },
+    open(layer, vs) {
+      w(0, 'POLYLINE'); w(8, layer); w(66, 1); w(10, 0); w(20, 0); w(30, 0); w(70, 0);
+      vs.forEach((v, i) => { w(0, 'VERTEX'); w(8, layer); w(10, fmt(v.x)); w(20, fmt(v.y)); w(30, 0); if (i < vs.length - 1 && Math.abs(v.b) > 1e-9) w(42, fmt(v.b)); });
+      w(0, 'SEQEND'); w(8, layer);
+    },
+    poly(layer, pts) { this.open(layer, pts.map(p => ({ x: p[0], y: p[1], b: 0 }))); },
     line(layer, x1, y1, x2, y2) { w(0, 'LINE'); w(8, layer); w(10, fmt(x1)); w(20, fmt(y1)); w(30, 0); w(11, fmt(x2)); w(21, fmt(y2)); w(31, 0); },
     text(layer, x, y, h, s) { w(0, 'TEXT'); w(8, layer); w(10, fmt(x)); w(20, fmt(y)); w(30, 0); w(40, fmt(h)); w(1, dxfText(s)); w(72, 1); w(11, fmt(x)); w(21, fmt(y)); w(31, 0); },
     doc() {
-      const layers = [['OUTER', 7], ['INNER', 3], ['LEADIN', 4], ['BEND_UP', 5], ['BEND_DOWN', 140], ['SHEET', 8], ['TRIM', 6], ['LABEL', 2]];
+      const layers = [['OUTER', 7], ['INNER', 3], ['LEADIN', 4], ['BEND_UP', 5], ['BEND_DOWN', 140], ['SHEET', 8], ['TRIM', 6], ['LABEL', 2], ['MARK', 1]];
       const h = ['0', 'SECTION', '2', 'HEADER', '9', '$ACADVER', '1', 'AC1009', '9', '$INSUNITS', '70', '4', '0', 'ENDSEC',
         '0', 'SECTION', '2', 'TABLES', '0', 'TABLE', '2', 'LTYPE', '70', '1', '0', 'LTYPE', '2', 'CONTINUOUS', '70', '0', '3', 'Solid line', '72', '65', '73', '0', '40', '0.0', '0', 'ENDTAB',
         '0', 'TABLE', '2', 'LAYER', '70', String(layers.length)];
