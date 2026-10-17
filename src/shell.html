@@ -1,0 +1,528 @@
+<title>KH Nesting</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: workshop console — part list on the left, the steel sheet as the hero on the right */
+:root{
+  --bg:#e9edf1; --surface:#fbfcfd; --surface-2:#f1f4f7; --line:#d2d9e1; --line-2:#e3e8ee;
+  --ink:#131a22; --ink-2:#4f5b68; --ink-3:#86919d;
+  --accent:#cf4a0c; --accent-ink:#ffffff; --accent-soft:#fbe4d7;
+  --sheet:#cdd5de; --sheet-edge:#6f7d8c; --view:#dfe4ea;
+  --ok:#2b7d40; --warn:#a96400; --bad:#bf2f2f;
+  --f-ui:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Consolas,monospace;
+  --r:6px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f141a; --surface:#161d25; --surface-2:#1c2530; --line:#2a3542; --line-2:#222c37;
+  --ink:#e5eaef; --ink-2:#a3afbb; --ink-3:#6f7c89;
+  --accent:#ff7b3a; --accent-ink:#1a0e06; --accent-soft:#3a2216;
+  --sheet:#3b4755; --sheet-edge:#8d9bab; --view:#121920;
+  --ok:#5cc27a; --warn:#e3a33c; --bad:#ef6b6b; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f141a; --surface:#161d25; --surface-2:#1c2530; --line:#2a3542; --line-2:#222c37;
+  --ink:#e5eaef; --ink-2:#a3afbb; --ink-3:#6f7c89;
+  --accent:#ff7b3a; --accent-ink:#1a0e06; --accent-soft:#3a2216;
+  --sheet:#3b4755; --sheet-edge:#8d9bab; --view:#121920;
+  --ok:#5cc27a; --warn:#e3a33c; --bad:#ef6b6b; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font:14px/1.45 var(--f-ui);-webkit-font-smoothing:antialiased}
+button,input,select{font:inherit;color:inherit}
+.mono,.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.muted{color:var(--ink-2)}
+h3{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2);margin:18px 0 8px;font-weight:600}
+h3:first-child{margin-top:4px}
+
+.app{display:grid;grid-template-columns:400px minmax(0,1fr);grid-template-rows:auto minmax(0,1fr);height:100%}
+.top{grid-column:1/-1;display:flex;align-items:center;gap:16px;flex-wrap:wrap;background:var(--surface);border-bottom:1px solid var(--line);padding-block:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.brand b{font-size:16px;letter-spacing:.01em}
+.brand .sub{color:var(--ink-3);font-size:12.5px}
+.mark{width:26px;height:26px;flex:none}
+.top-actions{margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.job{width:170px;border:1px solid var(--line);background:var(--surface-2);border-radius:var(--r);padding:6px 10px}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:var(--r);padding:7px 12px;cursor:pointer;white-space:nowrap;font-weight:500;line-height:1.2}
+.btn:hover{border-color:var(--ink-3)}
+.btn:focus-visible,.tog:focus-visible,input:focus-visible,select:focus-visible,.chip:focus-visible,.tabs button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.primary:hover{filter:brightness(1.06)}
+.btn.ghost{background:transparent}
+.btn.big{padding:11px 18px;font-size:15px;font-weight:600}
+.btn:disabled{opacity:.5;cursor:default}
+.btn.sm{padding:4px 9px;font-size:12.5px}
+
+.side{display:flex;flex-direction:column;min-height:0;background:var(--surface);border-right:1px solid var(--line)}
+.tabs{display:flex;gap:2px;padding:8px 12px 0;border-bottom:1px solid var(--line)}
+.tabs button{border:0;background:transparent;padding:9px 12px;border-bottom:2px solid transparent;cursor:pointer;color:var(--ink-2);font-weight:500}
+.tabs button.on{color:var(--ink);border-bottom-color:var(--accent)}
+.tabs .badge{font-family:var(--f-mono);font-size:11.5px;color:var(--ink-3);margin-left:2px}
+.panel-body{flex:1;min-height:0;overflow:auto;padding-block:14px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:16px}
+.runbar{border-top:1px solid var(--line);padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));display:grid;gap:8px;background:var(--surface)}
+.runrow{display:flex;gap:8px}
+.runrow .btn.big{flex:1}
+.prog{height:4px;background:var(--line-2);border-radius:2px;overflow:hidden}
+.prog>div{height:100%;width:0;background:var(--accent);transition:width .2s}
+#progMsg{font-size:12.5px;min-height:18px}
+
+.ptools{display:flex;gap:8px;flex-wrap:wrap}
+.defaults{display:grid;grid-template-columns:1fr 110px;gap:8px;margin:12px 0 6px}
+label.fld{display:grid;gap:3px;font-size:12px;color:var(--ink-2)}
+.fld input,.fld select,.inp{border:1px solid var(--line);background:var(--surface-2);border-radius:var(--r);padding:6px 8px;width:100%;min-width:0;color:var(--ink)}
+.hint{font-size:12.5px;color:var(--ink-3);margin:6px 0 12px}
+.plist{display:grid;gap:8px}
+.pitem{display:grid;grid-template-columns:56px minmax(0,1fr) 64px 24px;gap:10px;align-items:start;border:1px solid var(--line-2);border-radius:var(--r);padding:8px;background:var(--surface)}
+.pitem.sel{border-color:var(--accent)}
+.thumb{width:56px;height:56px;border-radius:4px;background:var(--surface-2)}
+.pname{width:100%;border:0;background:transparent;font-weight:600;padding:0;min-width:0;text-overflow:ellipsis}
+.pname:focus{outline:1px dashed var(--line)}
+.pmeta{font-size:11.5px;color:var(--ink-2);margin:1px 0 6px}
+.prow{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.prow select{flex:1 1 100px;max-width:160px;min-width:0}
+.prow .pthk{width:58px}
+.prow select,.prow input{border:1px solid var(--line);background:var(--surface-2);border-radius:4px;padding:3px 5px;font-size:12.5px}
+.tog{border:1px solid var(--line);background:var(--surface-2);border-radius:4px;padding:2px 7px;font-size:12px;cursor:pointer;color:var(--ink-3)}
+.tog.on{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+.pqty label{font-size:11px;color:var(--ink-3);display:block}
+.pqty input{width:100%;border:1px solid var(--line);background:var(--surface-2);border-radius:4px;padding:5px 6px;font-family:var(--f-mono);font-weight:500}
+.x{border:0;background:transparent;color:var(--ink-3);font-size:18px;line-height:1;cursor:pointer;padding:2px}
+.x:hover{color:var(--bad)}
+.emptyp{border:1px dashed var(--line);border-radius:var(--r);padding:22px;text-align:center;color:var(--ink-2)}
+
+.stk{display:grid;gap:6px}
+.srow{display:grid;grid-template-columns:22px minmax(0,1fr) auto 24px;gap:8px;align-items:center;padding:6px 8px;border:1px solid var(--line-2);border-radius:var(--r)}
+.addrow{display:flex;gap:6px;align-items:center;margin-top:8px;flex-wrap:wrap}
+.addrow .inp{width:84px}
+.radio,.check{display:flex;gap:8px;align-items:flex-start;margin:6px 0;cursor:pointer}
+.radio input,.check input{margin-top:3px;accent-color:var(--accent)}
+.remgrid{display:grid;grid-template-columns:1fr 64px;gap:6px;margin-top:8px}
+.remgrid .row3{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr 64px auto;gap:6px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mtab{width:100%;border-collapse:collapse;font-size:12.5px}
+.mtab th{text-align:left;font-weight:500;color:var(--ink-3);padding:3px 4px}
+.mtab td{padding:2px 4px}
+.mtab input{width:100%;border:1px solid var(--line);background:var(--surface-2);border-radius:4px;padding:3px 5px;font-family:var(--f-mono);font-size:12.5px;min-width:0}
+
+.main{min-width:0;min-height:0;overflow:auto;padding-block:14px;padding-left:16px;padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:12px}
+.main>*{flex-shrink:0}
+.nowrap{white-space:nowrap;display:inline-flex;align-items:center;gap:4px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 12px;cursor:pointer;font-size:13px;display:inline-flex;gap:6px;align-items:center}
+.chip.on{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.chip .mono{font-size:12px;opacity:.8}
+.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));border:1px solid var(--line);border-radius:var(--r);background:var(--surface);overflow:hidden}
+.stat{padding:10px 12px;border-right:1px solid var(--line-2);border-bottom:1px solid var(--line-2);min-width:0}
+.stat .k{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.stat .v{font-family:var(--f-mono);font-size:18px;font-weight:500;font-variant-numeric:tabular-nums;white-space:nowrap}
+.stat .v small{font-size:12px;color:var(--ink-2);margin-left:2px}
+.stat .s{font-size:11.5px;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.viewer{border:1px solid var(--line);border-radius:var(--r);background:var(--surface);overflow:hidden;display:flex;flex-direction:column}
+.vbar{display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid var(--line-2);flex-wrap:wrap}
+.vbar .title{font-weight:600;min-width:0}
+.vbar .title .mono{font-weight:400;color:var(--ink-2);margin-left:6px;font-size:12.5px}
+.vbar .sp{flex:1}
+.sheetstrip{display:flex;gap:6px;overflow-x:auto;padding:8px 10px;border-bottom:1px solid var(--line-2)}
+.sheetstrip .chip{flex:none;border-radius:var(--r)}
+.util{display:inline-block;width:34px;height:5px;background:var(--line-2);border-radius:3px;overflow:hidden;vertical-align:middle}
+.util i{display:block;height:100%;background:var(--ok)}
+.chip.on .util{background:rgba(255,255,255,.25)}
+.cwrap{position:relative;height:clamp(320px,58vh,680px);background:var(--view);touch-action:none;cursor:grab}
+.cwrap.drag{cursor:grabbing}
+#view{position:absolute;inset:0;width:100%;height:100%;display:block}
+.tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--surface);padding:6px 9px;border-radius:5px;font-size:12px;max-width:260px;z-index:2;box-shadow:0 4px 14px rgba(0,0,0,.18)}
+.tip b{display:block;font-weight:600}
+.empty{position:absolute;inset:0;display:grid;place-items:center;text-align:center;color:var(--ink-2);padding:24px}
+.legend{position:absolute;left:10px;bottom:10px;font-size:11.5px;color:var(--ink-2);background:color-mix(in srgb,var(--surface) 85%,transparent);padding:4px 8px;border-radius:4px;font-family:var(--f-mono)}
+.ebar{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:8px 10px;border-bottom:1px solid var(--line-2);background:var(--accent-soft)}
+.ebar .sp{flex:1}
+.cwrap.editing{cursor:default}
+.qgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-bottom:12px}
+.qtot{display:grid;justify-content:end;gap:4px;margin-top:10px;font-family:var(--f-mono)}
+.qtot div{display:flex;gap:24px;justify-content:space-between}
+.qtot .big{font-size:17px;font-weight:600}
+.modtabs{display:flex;gap:2px;background:var(--surface-2);border:1px solid var(--line);border-radius:999px;padding:3px}
+.modtabs button{border:0;background:transparent;border-radius:999px;padding:6px 14px;cursor:pointer;font-weight:500;color:var(--ink-2)}
+.modtabs button.on{background:var(--ink);color:var(--surface)}
+.bhead{display:flex;flex-wrap:wrap;gap:8px;align-items:end;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);padding:10px 12px}
+.bhead .fld{min-width:120px}.bhead .fld.sm{min-width:84px;width:96px}.bhead .grow{flex:1 1 200px}
+.bgrid{display:grid;grid-template-columns:minmax(260px,320px) minmax(0,1fr) minmax(0,1fr);gap:12px}
+.bgrid2{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:12px}
+.bcard{border:1px solid var(--line);border-radius:var(--r);background:var(--surface);display:flex;flex-direction:column;min-width:0}
+.bcard-h{display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid var(--line-2);font-weight:600;font-size:13px}
+.bcard-h .sp{flex:1}
+.bcv{width:100%;height:260px;display:block;background:var(--view)}
+.bcv.tall{height:300px}
+.bsegs{padding:8px 12px;display:grid;gap:6px;max-height:340px;overflow:auto}
+.brow{display:grid;grid-template-columns:76px 1fr auto;gap:6px;align-items:center;font-size:13px}
+.brow.bend{padding-left:14px;color:var(--accent)}
+.brow input,.brow select{border:1px solid var(--line);background:var(--surface-2);border-radius:4px;padding:4px 6px;font-family:var(--f-mono);min-width:0;width:100%}
+.bcard .tblwrap{border:0;border-radius:0}
+.bitem{display:grid;grid-template-columns:64px minmax(0,1fr) 24px;gap:10px;align-items:center;border:1px solid var(--line-2);border-radius:var(--r);padding:8px;cursor:pointer;background:var(--surface)}
+.bitem.on{border-color:var(--accent);background:var(--accent-soft)}
+.bitem canvas{width:64px;height:48px}
+.bitem .t{font-weight:600}.bitem .m{font-size:11.5px;color:var(--ink-2);font-family:var(--f-mono)}
+.exports{display:flex;gap:8px;flex-wrap:wrap}
+.rtabs{display:flex;gap:2px;border-bottom:1px solid var(--line)}
+.rtabs button{border:0;background:transparent;padding:8px 12px;border-bottom:2px solid transparent;cursor:pointer;color:var(--ink-2);font-weight:500}
+.rtabs button.on{color:var(--ink);border-bottom-color:var(--accent)}
+.tblwrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
+.dt th{text-align:left;font-weight:500;font-size:11.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-3);padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+.dt td{padding:7px 10px;border-bottom:1px solid var(--line-2);white-space:nowrap}
+.dt td.r,.dt th.r{text-align:right}
+.dt td.num{font-family:var(--f-mono)}
+.dt tr:last-child td{border-bottom:0}
+.dt tr.tot td{font-weight:600;background:var(--surface-2)}
+.sw{display:inline-block;width:10px;height:10px;border-radius:2px;vertical-align:-1px;margin-right:6px}
+.pill{display:inline-block;font-size:11px;padding:1px 7px;border-radius:999px;border:1px solid var(--line);color:var(--ink-2)}
+.pill.rem{border-color:var(--accent);color:var(--accent)}
+.pill.bad{border-color:var(--bad);color:var(--bad)}
+.pill.ok{border-color:var(--ok);color:var(--ok)}
+.warnbox{border:1px solid var(--bad);color:var(--bad);border-radius:var(--r);padding:8px 12px;font-size:13px;background:var(--surface)}
+.note{font-size:12.5px;color:var(--ink-3)}
+
+.modal{position:fixed;inset:0;background:rgba(10,14,20,.45);display:grid;place-items:center;z-index:50;padding:16px}
+.dlg{background:var(--surface);border-radius:10px;border:1px solid var(--line);width:min(640px,100%);max-height:calc(100% - 32px);overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.dlg header{display:flex;align-items:center;padding:14px 18px;border-bottom:1px solid var(--line-2)}
+.dlg header b{font-size:16px}
+.dlg header .x{margin-left:auto}
+.dlg .body{padding:16px 18px;display:grid;grid-template-columns:minmax(0,1fr) 220px;gap:16px}
+.dlg .fields{display:grid;gap:8px;align-content:start}
+.dlg .fields .grid2,.dlg .fields .grid3{align-items:end}
+.dlg footer{display:flex;justify-content:flex-end;gap:8px;padding:12px 18px;border-top:1px solid var(--line-2)}
+.prev{width:220px;height:220px;background:var(--surface-2);border-radius:6px}
+.dlg.wide{width:min(980px,100%)}
+.shbody{grid-template-columns:270px minmax(0,1fr) 220px!important}
+.shpick{max-height:min(60vh,520px);overflow:auto;display:grid;gap:10px;align-content:start;padding-right:4px}
+.shpick h4{margin:4px 0 0;font-size:11.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+.shgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.shcard{border:1px solid var(--line-2);background:var(--surface);border-radius:6px;padding:5px 4px;cursor:pointer;display:grid;justify-items:center;gap:3px;font-size:11px;line-height:1.2;text-align:center;color:var(--ink-2)}
+.shcard canvas{width:56px;height:44px}
+.shcard:hover{border-color:var(--ink-3)}
+.shcard.on{border-color:var(--accent);background:var(--accent-soft);color:var(--ink)}
+.shname{font-weight:600;font-size:15px}
+.tbody{grid-template-columns:minmax(0,1fr) minmax(0,1.1fr)!important}
+.tprev{width:100%;height:300px;background:var(--surface-2);border-radius:6px;display:block}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.seg{display:flex;border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.seg button{flex:1;border:0;background:var(--surface);padding:7px 8px;cursor:pointer;font-weight:500;color:var(--ink-2);border-right:1px solid var(--line)}
+.seg button:last-child{border-right:0}
+.seg button.on{background:var(--ink);color:var(--surface)}
+.err{color:var(--bad);font-size:12.5px;min-height:18px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--surface);padding:9px 16px;border-radius:6px;z-index:60;font-size:13.5px;max-width:calc(100% - 32px)}
+.drop{position:fixed;inset:0;z-index:70;background:color-mix(in srgb,var(--accent) 18%,transparent);border:3px dashed var(--accent);display:grid;place-items:center;font-size:20px;font-weight:600;color:var(--ink);pointer-events:none}
+
+@media (max-width:1180px){.bgrid{grid-template-columns:1fr 1fr}.bgrid>.bcard:first-child{grid-column:1/-1}.bgrid2{grid-template-columns:1fr}}
+@media (max-width:980px){
+  .bgrid{grid-template-columns:1fr}
+  .app{grid-template-columns:1fr;grid-template-rows:auto auto auto;height:auto}
+  .side{border-right:0;border-bottom:1px solid var(--line)}
+  .panel-body{max-height:none;overflow:visible;padding-right:max(16px,env(safe-area-inset-right,0px))}
+  .main{overflow:visible;padding-left:max(16px,env(safe-area-inset-left,0px))}
+  .dlg .body,.shbody{grid-template-columns:1fr!important}
+  .shpick{max-height:240px}
+  .tbody{grid-template-columns:1fr!important}
+  .grid3{grid-template-columns:1fr 1fr}
+  .prev{width:100%;height:200px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <svg class="mark" viewBox="0 0 26 26" aria-hidden="true"><rect x="1" y="4" width="24" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="8" cy="11" r="3.4" fill="var(--accent)"/><path d="M13 8h7v6h-7z" fill="var(--accent)" opacity=".75"/><path d="M5 17h9l-3 3H5z" fill="var(--accent)" opacity=".5"/></svg>
+      <b>KH Fab</b>
+    </div>
+    <nav class="modtabs" role="tablist">
+      <button data-mod="nest" class="on" role="tab">Nesting · өрөлт</button>
+      <button data-mod="bend" role="tab">Bending · нугалалт</button>
+    </nav>
+    <span id="updBadge" class="pill rem" hidden></span>
+    <div class="top-actions">
+      <input id="jobName" class="job" aria-label="Ажлын нэр">
+      <button id="btnOpenProj" class="btn ghost sm">Төсөл нээх</button>
+      <button id="btnSaveProj" class="btn ghost sm">Төсөл хадгалах</button>
+      <input type="file" id="projFile" accept=".json,application/json" hidden>
+    </div>
+  </header>
+
+  <aside class="side" id="nestSide">
+    <nav class="tabs" role="tablist">
+      <button data-tab="parts" class="on" role="tab">Партууд <span class="badge" id="cntParts"></span></button>
+      <button data-tab="stock" role="tab">Лист</button>
+      <button data-tab="settings" role="tab">Тохиргоо</button>
+    </nav>
+    <div class="panel-body">
+      <section id="tab-parts">
+        <div class="ptools">
+          <label class="btn primary" for="dxfIn">Файл нэмэх</label>
+          <input type="file" id="dxfIn" accept=".dxf,.svg,.pdf,.ai,.plt,.hpgl,.hgl,.cdr,.dwg,.eps" multiple hidden>
+          <button class="btn" id="btnShape">Хэлбэр нэмэх</button>
+          <button class="btn" id="btnText">Текст нэмэх</button>
+          <button class="btn ghost" id="btnClear">Бүгдийг устгах</button>
+        </div>
+        <div class="defaults">
+          <label class="fld">Шинэ партын материал<select id="defMat"></select></label>
+          <label class="fld">Зузаан, мм<input id="defThk" type="number" min="0.1" step="0.1"></label>
+        </div>
+        <p class="hint">DXF, SVG, PDF, AI, PLT файлаа энэ цонх руу чирч оруулж болно (CorelDRAW-оос эдгээр форматаар экспортлоно). Нэг файлд хэд хэдэн хаалттай контур байвал тус бүрийг парт болгож, ижил хэлбэрүүдийг тоогоор нь нэгтгэнэ.</p>
+        <div id="partList" class="plist"></div>
+      </section>
+
+      <section id="tab-stock" hidden>
+        <h3>Стандарт листүүд, мм</h3>
+        <div id="stdList" class="stk"></div>
+        <div class="addrow"><input class="inp" id="stdL" type="number" placeholder="Урт"> × <input class="inp" id="stdW" type="number" placeholder="Өргөн"><button class="btn sm" id="stdAdd">Нэмэх</button></div>
+        <h3>Листийн сонголт</h3>
+        <label class="radio"><input type="radio" name="smode" value="auto"><span>Авто — идэвхтэй хэмжээнүүдээс хамгийн бага материал зарцуулахыг сонгоно</span></label>
+        <label class="radio"><input type="radio" name="smode" value="fixed"><span>Тогтмол хэмжээ: <select id="stdFixed" class="inp" style="width:auto;display:inline-block;padding:3px 6px"></select></span></label>
+        <h3>Үлдэгдэл (remnant)</h3>
+        <label class="check"><input type="checkbox" id="useRem"><span>Үлдэгдлийг стандарт листээс өмнө ашиглах</span></label>
+        <div id="remList" class="stk"></div>
+        <div class="remgrid">
+          <select id="remMat" class="inp" aria-label="Материал"></select>
+          <input id="remThk" class="inp" type="number" step="0.1" placeholder="Зузаан" aria-label="Зузаан">
+          <div class="row3"><input id="remL" class="inp" type="number" placeholder="Урт" aria-label="Урт"><input id="remW" class="inp" type="number" placeholder="Өргөн" aria-label="Өргөн"><input id="remQ" class="inp" type="number" value="1" min="1" aria-label="Тоо"><button class="btn sm" id="remAdd">Нэмэх</button></div>
+        </div>
+        <div class="addrow"><label class="btn sm" for="remDxf">Хэлбэртэй үлдэгдэл файлаас</label><input type="file" id="remDxf" accept=".dxf,.svg,.pdf,.ai,.plt" hidden></div>
+        <p class="note">Үлдэгдэл зөвхөн ижил материал, ижил зузаантай партуудад ашиглагдана. DXF-ийн хамгийн том контур листийн хэлбэр болж, доторх контурууд нь гэмтэлтэй (ашиглахгүй) хэсэг болно.</p>
+      </section>
+
+      <section id="tab-settings" hidden>
+        <h3>Өрөлт</h3>
+        <div class="grid2">
+          <label class="fld">Партын хоорондын зай, мм<input id="s_gap" type="number" min="0" step="0.5"></label>
+          <label class="fld">Листийн захын зай, мм<input id="s_margin" type="number" min="0" step="1"></label>
+          <label class="fld">Эргүүлэлтийн алхам<select id="s_rot"><option value="0">Эргүүлэхгүй</option><option value="180">180°</option><option value="90">90°</option><option value="45">45°</option><option value="30">30°</option><option value="15">15° (удаан)</option></select></label>
+          <label class="fld">Нарийвчлал<select id="s_prec"><option value="fast">Хурдан</option><option value="normal">Энгийн</option><option value="fine">Нарийн (удаан)</option></select></label>
+          <label class="fld">Оновчлолын хугацаа, сек<input id="s_opt" type="number" min="0" max="120" step="1"></label>
+          <label class="fld">Нум хуваах алдаа, мм<input id="s_sag" type="number" min="0.01" max="1" step="0.01"></label>
+        </div>
+        <label class="check"><input type="checkbox" id="s_keep"><span><b>Ижил партуудыг салгахгүй</b> — нэг төрлийн партуудыг нэг листэд бүхэлд нь багтаана; багтахгүй бол шинэ лист дээр эхлүүлнэ</span></label>
+        <label class="check"><input type="checkbox" id="s_pip"><span>Партын нүхэн дотор жижиг парт байрлуулах</span></label>
+        <label class="check"><input type="checkbox" id="s_mir"><span>Толин тусгалаар эргүүлэхийг зөвшөөрөх</span></label>
+        <label class="check"><input type="checkbox" id="s_cl"><span><b>Хамтын шугам</b> — 4 ба түүнээс олон ширхэг тэгш өнцөгт партыг зайгүй нийлүүлж, хамтын ирмэгийг нэг удаа зүснэ</span></label>
+        <h3>Лист тайралт</h3>
+        <label class="check"><input type="checkbox" id="s_trim"><span>Ашиглаагүй хэсгийг тайрч үлдэгдэл болгох</span></label>
+        <div class="grid2">
+          <label class="fld">Хамрах<select id="s_trimScope"><option value="last">Сүүлийн лист</option><option value="all">Бүх лист</option></select></label>
+          <label class="fld">Тайрах алхам, мм<input id="s_trimStep" type="number" min="1" step="1"></label>
+          <label class="fld">Үлдэгдлийн доод урт, мм<input id="s_minRem" type="number" min="0" step="10"></label>
+          <label class="fld">DXF-д листийн хүрээ<select id="s_dxfSheet"><option value="1">Оруулах</option><option value="0">Оруулахгүй</option></select></label>
+          <label class="fld">DXF-д нугалах шугам<select id="s_dxfBend"><option value="0">Оруулахгүй</option><option value="1">BEND давхаргад</option></select></label>
+        </div>
+        <h3>Материал</h3>
+        <table class="mtab"><thead><tr><th>Нэр</th><th style="width:70px">Нягт г/см³</th><th style="width:84px">Үнэ ₮/кг</th><th style="width:22px"></th></tr></thead><tbody id="matBody"></tbody></table>
+        <div class="addrow"><button class="btn sm" id="matAdd">Материал нэмэх</button></div>
+        <h3>Зүсэлт</h3>
+        <table class="mtab"><thead><tr><th>Зузаан, мм</th><th>Хурд, мм/мин</th><th>Цоолох, сек</th><th style="width:22px"></th></tr></thead><tbody id="spdBody"></tbody></table>
+        <div class="addrow"><button class="btn sm" id="spdAdd">Мөр нэмэх</button></div>
+        <div class="grid2" style="margin-top:10px">
+          <label class="fld">Зүсэлтийн үнэ, ₮/м<input id="c_cut" type="number" min="0" step="10"></label>
+          <label class="fld">Цоолтын үнэ, ₮/ш<input id="c_pierce" type="number" min="0" step="10"></label>
+          <label class="fld">Хоосон явалтын хурд, мм/мин<input id="s_rapid" type="number" min="1000" step="1000"></label>
+          <label class="fld">Lead-in урт, мм (0 = үгүй)<input id="s_lead" type="number" min="0" step="0.5"></label>
+        </div>
+        <p class="note">Хурд, үнийн утгууд жишээ. Өөрийн машин, материалын үнээр засна уу.</p>
+        <div id="appBox" hidden>
+          <h3>Програм</h3>
+          <p class="mono" style="margin:0 0 6px"><b id="appVer"></b> · <span id="appUpd" class="muted"></span></p>
+          <div class="grid2">
+            <label class="fld">GitHub эзэмшигч<input id="appOwner" placeholder="жишээ: kh-international"></label>
+            <label class="fld">Репозитор<input id="appRepo" placeholder="kh-fab"></label>
+          </div>
+          <div class="addrow"><button class="btn sm" id="appSaveFeed">Хадгалах</button><button class="btn sm" id="appCheck">Шинэчлэл шалгах</button><button class="btn primary sm" id="appInstall" hidden>Шинэчлэлийг суулгах</button></div>
+          <p class="note">Шинэ хувилбар GitHub Releases-д гармагц програм өөрөө татаж, дараагийн нээлтэд суулгана.</p>
+        </div>
+      </section>
+    </div>
+    <div class="runbar">
+      <div class="runrow"><button id="btnRun" class="btn primary big">Өрөх</button><button id="btnStop" class="btn" hidden>Зогсоох</button></div>
+      <div class="prog"><div id="progBar"></div></div>
+      <div id="progMsg" class="muted"></div>
+    </div>
+  </aside>
+
+  <main class="main" id="nestMain">
+    <div id="groupChips" class="chips"></div>
+    <div id="warn"></div>
+    <div id="summary" class="summary"></div>
+    <div class="viewer">
+      <div class="vbar">
+        <div class="title" id="vTitle">Лист</div>
+        <span class="sp"></span>
+        <button class="btn sm" id="vPrev" aria-label="Өмнөх лист">‹</button>
+        <button class="btn sm" id="vNext" aria-label="Дараагийн лист">›</button>
+        <button class="tog on" id="vLabels">Дугаар</button>
+        <button class="tog" id="vPath">Зүсэх зам</button>
+        <button class="tog" id="vEdit">Засах</button>
+        <button class="btn sm" id="vFit">Багтаах</button>
+        <button class="btn sm" id="vDxf">Энэ листийн DXF</button>
+      </div>
+      <div class="sheetstrip" id="sheetStrip"></div>
+      <div class="ebar" id="ebar" hidden>
+        <span id="eSel" class="muted">Партыг чирж зөөнө. Сонгоод эргүүлэх, устгах боломжтой.</span>
+        <span class="sp"></span>
+        <button class="btn sm" id="eRot" disabled>↻ 90°</button>
+        <button class="btn sm" id="eDel" disabled>Листээс хасах</button>
+        <button class="btn sm" id="eCompact">Шахах</button>
+        <select id="eAddSel" class="inp" style="width:auto;padding:4px 6px" aria-label="Байрлаагүй парт"></select>
+        <button class="btn sm" id="eAdd">Байрлуулах</button>
+        <label class="check" style="margin:0"><input type="checkbox" id="eAll" checked><span>Ижил бүх листэд</span></label>
+        <button class="btn sm" id="eUndo" disabled>Буцаах</button>
+      </div>
+      <div class="cwrap" id="cwrap"><canvas id="view"></canvas><div id="tip" class="tip" hidden></div><div id="vEmpty" class="empty"></div><div class="legend" id="legend" hidden></div></div>
+    </div>
+    <div class="exports">
+      <button class="btn primary" id="xDxfAll">DXF — бүх лист (ZIP)</button>
+      <button class="btn" id="xPdf">PDF тайлан</button>
+      <button class="btn" id="xCsv">CSV хүснэгт</button>
+    </div>
+    <div class="rtabs" role="tablist">
+      <button data-r="sheets" class="on">Листүүд</button>
+      <button data-r="parts">Партууд</button>
+      <button data-r="rem">Үлдэгдэл</button>
+      <button data-r="quote">Үнийн санал</button>
+    </div>
+    <div id="rtable"></div>
+  </main>
+
+  <aside class="side" id="bendSide" hidden>
+    <nav class="tabs" role="tablist">
+      <button data-btab="prof" class="on">Профиль</button>
+      <button data-btab="tools">Багаж, машин</button>
+    </nav>
+    <div class="panel-body">
+      <section id="btab-prof">
+        <div class="ptools">
+          <select id="bNewT" class="inp" style="width:auto" aria-label="Загвар"><option value="">+ Шинэ профиль…</option></select>
+          <button class="btn ghost" id="bDup">Хуулбар</button>
+        </div>
+        <p class="hint">Профилийн мөрийн урт, нугалах өнцгөөр дэлгэмэл, багаж, хүч, дарааллыг тооцно. Nesting-ээс нугалах шугамтай партыг «Bending руу» товчоор оруулж болно.</p>
+        <div id="bList" class="plist"></div>
+      </section>
+      <section id="btab-tools" hidden>
+        <h3>Машин</h3>
+        <div class="grid2">
+          <label class="fld">Нэр<input id="m_name"></label>
+          <label class="fld">Хүч, тонн<input id="m_ton" type="number" min="1"></label>
+          <label class="fld">Ажлын урт, мм<input id="m_len" type="number" min="100"></label>
+          <label class="fld">Back-gauge дээд хэмжээ, мм<input id="m_bg" type="number" min="10"></label>
+          <label class="fld">Gauge хурууны өндөр, мм<input id="m_fin" type="number" min="5"></label>
+        </div>
+        <h3>Пуансон</h3>
+        <table class="mtab"><thead><tr><th>Нэр</th><th>R</th><th>Өндөр</th><th>Өргөн</th><th>Хүзүүт</th><th></th></tr></thead><tbody id="punBody"></tbody></table>
+        <div class="addrow"><button class="btn sm" id="punAdd">Пуансон нэмэх</button></div>
+        <h3>Матриц (V)</h3>
+        <table class="mtab"><thead><tr><th>Нэр</th><th>V, мм</th><th>Өнцөг</th><th></th></tr></thead><tbody id="dieBody"></tbody></table>
+        <div class="addrow"><button class="btn sm" id="dieAdd">Матриц нэмэх</button></div>
+        <h3>Материалын бат бөх</h3>
+        <table class="mtab"><thead><tr><th>Материал</th><th>σb, МПа</th></tr></thead><tbody id="rmBody"></tbody></table>
+        <p class="note">Багажийн жагсаалт жишээ. Танай байгаа пуансон, матрицаар солино уу. Хүчийг P[кН] = 650·S²·L[м]/V томьёогоор σb 450 МПа-д тооцоод материалын бат бөхөөр масштаблана.</p>
+      </section>
+    </div>
+  </aside>
+  <main class="main" id="bendMain" hidden>
+    <div class="bhead">
+      <label class="fld grow">Нэр<input id="b_name"></label>
+      <label class="fld">Материал<select id="b_mat"></select></label>
+      <label class="fld sm">Зузаан, мм<input id="b_thk" type="number" min="0.3" step="0.1"></label>
+      <label class="fld sm">Нугалах урт, мм<input id="b_len" type="number" min="1"></label>
+      <label class="fld sm">Тоо<input id="b_qty" type="number" min="1"></label>
+      <label class="fld">Хэмжээ<select id="b_dims"><option value="out">Гадна хэмжээ</option><option value="in">Дотор хэмжээ</option></select></label>
+      <label class="fld">Матриц<select id="b_die"></select></label>
+      <label class="fld">Пуансон<select id="b_pun"></select></label>
+      <label class="fld sm">R (авто)<input id="b_r" type="number" min="0" step="0.1" placeholder="авто"></label>
+      <label class="fld sm">K (авто)<input id="b_k" type="number" min="0" max="0.5" step="0.01" placeholder="авто"></label>
+    </div>
+    <div class="bgrid">
+      <div class="bcard"><div class="bcard-h">Мөр ба нугалаа</div><div id="bSegs" class="bsegs"></div><div class="addrow"><button class="btn sm" id="bAddF">+ Нугалаа, мөр</button><button class="btn sm ghost" id="bDelF">− Сүүлийнхийг хасах</button></div></div>
+      <div class="bcard"><div class="bcard-h">Профиль</div><canvas id="bProf" class="bcv"></canvas></div>
+      <div class="bcard"><div class="bcard-h">Дэлгэмэл <span class="muted" id="bFlatDim"></span></div><canvas id="bFlat" class="bcv"></canvas></div>
+    </div>
+    <div id="bSum" class="summary"></div>
+    <div id="bWarn"></div>
+    <div class="bgrid2">
+      <div class="bcard"><div class="bcard-h">Нугалах дараалал <span class="muted" id="bSeqNote"></span></div><div id="bSeq" class="tblwrap"></div></div>
+      <div class="bcard"><div class="bcard-h">Пресс дээр <span class="sp"></span><button class="btn sm" id="bStPrev">‹</button><span id="bStLbl" class="mono"></span><button class="btn sm" id="bStNext">›</button></div><canvas id="bSim" class="bcv tall"></canvas></div>
+    </div>
+    <div class="exports">
+      <button class="btn primary" id="bToNest">Nesting руу нэмэх</button>
+      <button class="btn" id="bPdf">Операторын хуудас PDF</button>
+      <button class="btn" id="bDxf">Дэлгэмэл DXF</button>
+      <button class="btn ghost" id="bDel">Профиль устгах</button>
+    </div>
+  </main>
+</div>
+
+<div id="modal" class="modal" hidden>
+  <div class="dlg wide" role="dialog" aria-modal="true" aria-labelledby="dlgTitle">
+    <header><b id="dlgTitle">Хэлбэр нэмэх</b><button class="x" id="dlgX" aria-label="Хаах">×</button></header>
+    <div class="body shbody">
+      <div class="shpick" id="shPick"></div>
+      <div class="fields">
+        <div class="shname" id="shLabel"></div>
+        <div id="shFields" class="grid2"></div>
+        <div class="grid2">
+          <label class="fld">Нэр<input id="shName"></label>
+          <label class="fld">Тоо ширхэг<input id="shQty" type="number" min="1" value="1"></label>
+        </div>
+        <div class="err" id="shErr"></div>
+      </div>
+      <div><canvas id="shPrev" class="prev"></canvas><div class="note mono" id="shDim"></div></div>
+    </div>
+    <footer><button class="btn" id="dlgCancel">Болих</button><button class="btn primary" id="dlgOk">Нэмэх</button></footer>
+  </div>
+</div>
+<div id="tmodal" class="modal" hidden>
+  <div class="dlg wide" role="dialog" aria-modal="true" aria-labelledby="tTitle">
+    <header><b id="tTitle">Текст нэмэх</b><button class="x" id="tX" aria-label="Хаах">×</button></header>
+    <div class="body tbody">
+      <div class="fields">
+        <label class="fld">Текст<textarea id="tText" rows="2" class="inp" style="resize:vertical;font-size:16px">Kh International</textarea></label>
+        <div class="grid2">
+          <label class="fld">Фонт<select id="tFont"></select></label>
+          <label class="fld">Өөрийн фонт (TTF, OTF)<input id="tFontFile" type="file" accept=".ttf,.otf,.woff"></label>
+        </div>
+        <div class="seg" id="tMode" role="radiogroup" aria-label="Хэлбэр">
+          <button data-m="letters" class="on">Тусдаа үсэг</button>
+          <button data-m="sign">Холбоотой самбар</button>
+          <button data-m="plate">Хавтан дээр stencil</button>
+        </div>
+        <p class="note" id="tModeNote"></p>
+        <div class="grid3">
+          <label class="fld">Том үсгийн өндөр, мм<input id="tH" type="number" min="3" step="1" value="80"></label>
+          <label class="fld">Үсэг хоорондын нэмэлт зай, мм<input id="tSp" type="number" step="0.5" value="0"></label>
+          <label class="fld">Мөр хоорондын харьцаа<input id="tLead" type="number" min="1" step="0.1" value="1.6"></label>
+          <label class="fld">Байрлал<select id="tAlign"><option value="left">Зүүн</option><option value="center" selected>Төв</option><option value="right">Баруун</option></select></label>
+          <label class="fld" data-for="sign">Холбох туузны өндөр, мм<input id="tBar" type="number" min="0" step="1" value="12"></label>
+          <label class="fld" data-for="sign">Туузны илүүдэл, мм<input id="tBarPad" type="number" min="0" step="1" value="10"></label>
+          <label class="fld" data-for="plate">Хавтангийн захын зай, мм<input id="tMargin" type="number" min="2" step="1" value="30"></label>
+          <label class="fld" data-for="plate">Булангийн радиус, мм<input id="tRad" type="number" min="0" step="1" value="10"></label>
+          <label class="fld" data-for="plate">Бэхэлгээний нүх Ø (0 = үгүй)<input id="tHole" type="number" min="0" step="1" value="10"></label>
+          <label class="fld" data-for="plate">Гүүрийн өргөн, мм (0 = үгүй)<input id="tBridge" type="number" min="0" step="0.5" value="6"></label>
+          <label class="fld">Тоо ширхэг<input id="tQty" type="number" min="1" value="1"></label>
+        </div>
+        <div class="err" id="tErr"></div>
+      </div>
+      <div><canvas id="tPrev" class="tprev"></canvas><div class="note mono" id="tInfo"></div></div>
+    </div>
+    <footer><button class="btn" id="tCancel">Болих</button><button class="btn primary" id="tOk">Нэмэх</button></footer>
+  </div>
+</div>
+<div id="toast" class="toast" hidden></div>
+<div id="drop" class="drop" hidden>DXF, SVG, PDF, AI, PLT файлаа энд тавина уу</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script type="text/plain" id="nestWorker">
+{{WORKER}}
+</script>
+<script>
+{{APP}}
+</script>

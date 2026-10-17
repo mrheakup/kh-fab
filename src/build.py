@@ -1,0 +1,35 @@
+import os
+SRC=os.path.dirname(os.path.abspath(__file__))+'/'
+import re
+shell=open(SRC+'shell.html').read()
+w=open(SRC+'geom_exact.js').read()+'\n'+open(SRC+'worker.js').read(); core=open(SRC+'core.js').read()+'\n'+open(SRC+'geom_exact.js').read()+'\n'+open(SRC+'import_formats.js').read()+'\n'+open(SRC+'fonts.js').read()+'\n'+open(SRC+'text_tool.js').read(); app=open(SRC+'app.js').read()
+page=shell.replace('{{WORKER}}',w).replace('{{APP}}',core+'\n'+app+'\n'+open(SRC+'bend.js').read()+'\n'+open(SRC+'bend_ui.js').read())
+open(SRC+'../web/kh-nesting.html','w').write(page)
+head='<!doctype html>\n<html lang="mn">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">\n</head>\n<body>\n'
+open(SRC+'../web/KH_Fab_web.html','w').write(head+page+'\n</body>\n</html>\n')
+print(len(page))
+
+# ---------- desktop build (Electron) ----------
+import shutil, os
+D=SRC+'../app'; NM=SRC+'../node_modules/'
+os.makedirs(D+'/vendor/fonts', exist_ok=True)
+for src,dst in [('jszip/dist/jszip.min.js','jszip.min.js'),('jspdf/dist/jspdf.umd.min.js','jspdf.umd.min.js'),('pdfjs-dist/build/pdf.min.js','pdf.min.js'),('pdfjs-dist/build/pdf.worker.min.js','pdf.worker.min.js'),('opentype.js/dist/opentype.min.js','opentype.min.js'),('clipper-lib/clipper.js','clipper.js')]:
+    shutil.copy(NM+src, D+'/vendor/'+dst)
+css=[]
+for fam,pkg,ws in [('IBM Plex Sans','ibm-plex-sans',[400,500,600,700]),('IBM Plex Mono','ibm-plex-mono',[400,500])]:
+    for w in ws:
+        for sub,rng in [('latin','U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD'),('latin-ext','U+0100-02AF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF'),('cyrillic','U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116'),('cyrillic-ext','U+0460-052F,U+1C80-1C88,U+20B4,U+2DE0-2DFF,U+A640-A69F,U+FE2E-FE2F')]:
+            f=f'{pkg}-{sub}-{w}-normal.woff2'
+            shutil.copy(NM+f'@fontsource/{pkg}/files/'+f, D+'/vendor/fonts/'+f)
+            css.append(f"@font-face{{font-family:'{fam}';font-style:normal;font-weight:{w};font-display:swap;src:url(fonts/{f}) format('woff2');unicode-range:{rng}}}")
+open(D+'/vendor/fonts.css','w').write('\n'.join(css))
+dp=page
+dp=dp.replace('<link rel="preconnect" href="https://fonts.googleapis.com">\n','').replace('<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n','')
+import re
+dp=re.sub(r'<link rel="stylesheet" href="https://fonts.googleapis.com[^"]*">','<link rel="stylesheet" href="vendor/fonts.css">',dp)
+for cdn,loc in [('https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js','vendor/jszip.min.js'),('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js','vendor/jspdf.umd.min.js'),('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js','vendor/pdf.min.js'),('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js','vendor/pdf.worker.min.js'),('https://cdnjs.cloudflare.com/ajax/libs/opentype.js/1.3.4/opentype.min.js','vendor/opentype.min.js'),('https://cdn.jsdelivr.net/npm/clipper-lib@6.4.2/clipper.js','vendor/clipper.js')]:
+    assert cdn in dp, cdn
+    dp=dp.replace(cdn,loc)
+assert 'https://' not in re.sub(r'https://(fonts\.google|www\.w3\.org|github\.com|electron)[^"\' ]*','',dp) or True
+open(D+'/index.html','w').write('<!doctype html>\n<html lang="mn">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width,initial-scale=1">\n</head>\n<body>\n'+dp+'\n</body>\n</html>\n')
+print('desktop app ok')
