@@ -2665,5 +2665,15 @@
 "Будагчин": "Painter",
 "Чанар (QC)": "Quality (QC)",
 "Худалдан авалт": "Procurement",
-"Даалгавар нэмсэн:": "Task added:"
+"Даалгавар нэмсэн:": "Task added:",
+"⇪ Импорт": "⇪ Import",
+"SQ фолдеруудаас бэлдсэн импорт файл (.json)": "Import file prepared from the SQ folders (.json)",
+"үнийн санал нэмэгдлээ": "quotations added",
+"шинэчлэгдлээ": "updated",
+"нь аль хэдийн байсан тул алгассан": "already existed and were skipped",
+"📁 Фолдер": "📁 Folder",
+"Фолдер олдсонгүй:": "Folder not found:",
+"Excel-ээс оруулсан мөрүүд": "Lines imported from Excel",
+"Задаргаа (Excel):": "Breakdown (Excel):",
+"Excel-ээс оруулсан — өртөг оруулаагүй": "Imported from Excel — no cost entered"
 }

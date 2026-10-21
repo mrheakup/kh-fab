@@ -28,6 +28,25 @@ function newQuote() {
   S.jobs.unshift(job); jx(job); job.quote.no = no; jobLog('Үнийн санал нээсэн', job);
   J.sel = job.id; J.sub = 'quote'; J.dash = false; save(); return job;
 }
+/* import quotations prepared from the SQ… folders (Excel quote files) */
+function importQuotes(arr) {
+  let n = 0, u = 0; const skip = [];
+  arr.forEach(r => {
+    if (!r || !r.no) return;
+    let job = S.jobs.find(j => (j.quote && j.quote.no) === r.no || j.no === r.no);
+    const isNew = !job;
+    if (isNew) { job = { id: uid(), owner: S.me || '', kind: 'quote', qst: r.qst || 'sent', no: r.no, short: r.no.replace(/^\D+/, ''), customer: '', title: '', due: '', status: 'new', note: '', items: [], extra: [], est: null, act: { hours: '', kg: '', other: '' }, trace: [], log: [], created: r.date || today() }; S.jobs.push(job); jx(job); job.scope.stages = []; }
+    else if (!job.quote.imported) { skip.push(r.no); return; }
+    const q = job.quote; job.customer = r.customer || job.customer; job.title = r.title || job.title;
+    Object.assign(q, { no: r.no, date: r.date || q.date, valid: r.valid || q.valid, vat: r.vat != null ? r.vat : q.vat, fixedNet: +r.net || 0, lines: r.lines || [], imported: true, noCost: true, srcFolder: r.folder || '', srcFiles: r.files || [] });
+    q.qf = Object.assign(qfDefaults(job), r.qf || {}, { mode: (r.lines || []).length ? 'fixed' : 'single' });
+    if (r.breakdown && r.breakdown.length) job.scope.desc = 'Задаргаа (Excel):\n' + r.breakdown.map(b => `• ${b.d} — ${b.q} ${b.u} × ${money(b.p)}`).join('\n');
+    if (job.customer) orgLearn({ org: job.customer, ...q.qf });
+    if (isNew) { jobLog(`Үнийн санал импортолсон (${r.src || 'Excel'})`, job); n++; } else u++;
+  });
+  S.jobs.sort((a, b) => String((b.quote && b.quote.date) || b.created || '').localeCompare(String((a.quote && a.quote.date) || a.created || '')));
+  save(); return { n, u, skip };
+}
 function quoteToJob(job) {
   const y = new Date().getFullYear();
   if (S.jobYear !== y) { S.jobYear = y; S.jobSeq = 0; }
@@ -112,6 +131,8 @@ function renderJList() {
 }
 $('#jDash').addEventListener('click', () => setModule('dash'));
 $('#jList').addEventListener('click', e => { const it = e.target.closest('.jitem'); if (!it) return; J.sel = it.dataset.id; { const v = document.documentElement.dataset.jview, q = isQ(findJob(J.sel)); if (v === 'dash' || (v === 'quotes' && !q) || (v === 'jobs' && q)) { setModule(q ? 'quotes' : 'jobs'); J.sel = it.dataset.id; } } J.traceForm = false; J.dash = false; renderJList(); renderJobMain(); });
+$('#qImp').addEventListener('click', () => $('#qImpIn').click());
+$('#qImpIn').addEventListener('change', async e => { const f = e.target.files[0]; e.target.value = ''; if (!f) return; try { const d = JSON.parse(await f.text()); const r = importQuotes(Array.isArray(d) ? d : d.quotes || []); setModule('quotes'); renderJobs(); toast(`${r.n} үнийн санал нэмэгдлээ${r.u ? `, ${r.u} шинэчлэгдлээ` : ''}${r.skip.length ? ` · ${r.skip.length} нь аль хэдийн байсан тул алгассан` : ''}`); } catch (err) { console.error(err); toast('Файл уншигдсангүй: ' + err.message); } });
 $('#qNew').addEventListener('click', () => { const q = newQuote(); setModule('quotes'); J.sel = q.id; J.sub = 'quote'; renderJobs(); setTimeout(() => { const el = $('#qb_no'); if (el) { el.focus(); el.setSelectionRange(el.value.length, el.value.length); } }, 50); });
 $('#jNew').addEventListener('click', () => { const nj = newJob(); setModule('jobs'); J.sel = nj.id; J.dash = false; J.sub = 'main'; renderJobs(); setTimeout(() => { const el = $('#jf_title'); if (el) el.focus(); }, 50); });
 $('#jSearch').addEventListener('input', renderJList);
@@ -434,10 +455,10 @@ async function jobCardPdf(job) {
 const DPER = [['month', 'Энэ сар'], ['quarter', 'Энэ улирал'], ['year', 'Энэ жил'], ['all', 'Бүгд']];
 function perStart(p) { const t = new Date(today() + 'T00:00:00'); if (p === 'month') t.setDate(1); else if (p === 'quarter') { t.setMonth(Math.floor(t.getMonth() / 3) * 3); t.setDate(1); } else if (p === 'year') { t.setMonth(0); t.setDate(1); } else return ''; return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-01`; }
 function quoteStats(per) {
-  const from = perStart(per), Q = S.jobs.filter(j => (isQ(j) || j.qst) && j.quote).map(j => { let c = null; try { c = quoteCalc(j); } catch (e) { } const net = c ? c.net : 0; return { j, st: isQ(j) ? (j.qst || 'draft') : 'won', date: j.quote.date || j.created || '', net, profit: c ? c.profit : 0, pct: net ? c.profit / net * 100 : null }; }).filter(o => !from || o.date >= from);
+  const from = perStart(per), Q = S.jobs.filter(j => (isQ(j) || j.qst) && j.quote).map(j => { let c = null; try { c = quoteCalc(j); } catch (e) { } const net = c ? c.net : 0, nc = !!j.quote.noCost; return { j, st: isQ(j) ? (j.qst || 'draft') : 'won', date: j.quote.date || j.created || '', net, nc, profit: c && !nc ? c.profit : 0, pct: net && !nc ? c.profit / net * 100 : null }; }).filter(o => !from || o.date >= from);
   const by = k => Q.filter(o => o.st === k), sum = (a, f) => a.reduce((x, o) => x + (f(o) || 0), 0);
   const given = Q.filter(o => o.st !== 'draft'), won = by('won'), lost = by('lost'), sent = by('sent'), draft = by('draft');
-  return { Q, given, won, lost, sent, draft, sum, conv: given.length ? won.length / given.length * 100 : null, convV: sum(given, o => o.net) ? sum(won, o => o.net) / sum(given, o => o.net) * 100 : null, mAll: sum(given, o => o.net) ? sum(given, o => o.profit) / sum(given, o => o.net) * 100 : null, mWon: sum(won, o => o.net) ? sum(won, o => o.profit) / sum(won, o => o.net) * 100 : null };
+  return { Q, given, won, lost, sent, draft, sum, conv: given.length ? won.length / given.length * 100 : null, convV: sum(given, o => o.net) ? sum(won, o => o.net) / sum(given, o => o.net) * 100 : null, mAll: sum(given.filter(o => !o.nc), o => o.net) ? sum(given, o => o.profit) / sum(given.filter(o => !o.nc), o => o.net) * 100 : null, mWon: sum(won.filter(o => !o.nc), o => o.net) ? sum(won, o => o.profit) / sum(won.filter(o => !o.nc), o => o.net) * 100 : null };
 }
 function quoteDashHTML() {
   const per = J.dper || 'year', Sx = quoteStats(per), { Q, given, won, lost, sent, draft, sum } = Sx, mm = v => nf(v / 1e6, 1);

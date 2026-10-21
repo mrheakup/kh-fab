@@ -2,6 +2,7 @@ const { contextBridge, ipcRenderer } = require('electron');
 contextBridge.exposeInMainWorld('kh', {
   saveFile: (name, data) => ipcRenderer.invoke('save-file', name, data),
   showInFolder: p => ipcRenderer.invoke('show-in-folder', p),
+  openPath: p => ipcRenderer.invoke('open-path', p),
   printHtml: (html, opt) => ipcRenderer.invoke('print-html', html, opt),
   info: () => ipcRenderer.invoke('info'),
   setFeed: (owner, repo) => ipcRenderer.invoke('set-feed', owner, repo),

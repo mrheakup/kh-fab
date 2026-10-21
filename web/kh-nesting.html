@@ -357,7 +357,7 @@ tr.rcut td:first-child{box-shadow:inset 3px 0 0 var(--accent)}
 /* jobs module views: quotes / jobs / dashboard / documents */
 html[data-jview="docs"] [data-jtab="jobs"]{display:none}
 html:not([data-jview="docs"]) [data-jtab="kits"],html:not([data-jview="docs"]) [data-jtab="certs"]{display:none}
-html[data-jview="quotes"] #jNew,html[data-jview="jobs"] #qNew{display:none}
+html[data-jview="quotes"] #jNew,html[data-jview="jobs"] #qNew,html[data-jview="jobs"] #qImp,html[data-jview="dash"] #qImp{display:none}
 /* team & tasks */
 .av{display:inline-grid;place-items:center;border-radius:50%;color:#fff;font-weight:700;flex:none;line-height:1}.av.none{background:var(--surface-2);color:var(--ink-3);box-shadow:inset 0 0 0 1px var(--line);font-size:11px}
 .pdot{display:inline-block;width:8px;height:8px;border-radius:50%;flex:none}.sdot{display:inline-block;width:9px;height:9px;border-radius:50%}
@@ -589,7 +589,7 @@ html[data-skin="modern"][data-var="bento"] .stepper{border-radius:999px;backgrou
     </nav>
     <div class="panel-body">
       <section id="jtab-jobs">
-        <div class="ptools"><button class="btn primary" id="jNew">+ Шинэ ажил</button><button class="btn" id="qNew" title="Зөвхөн үнийн санал — батлагдвал ажил болгоно">+ Үнийн санал</button><button class="btn" id="jDash">Самбар</button></div>
+        <div class="ptools"><button class="btn primary" id="jNew">+ Шинэ ажил</button><button class="btn" id="qNew" title="Зөвхөн үнийн санал — батлагдвал ажил болгоно">+ Үнийн санал</button><button class="btn ghost" id="qImp" title="SQ фолдеруудаас бэлдсэн импорт файл (.json)">⇪ Импорт</button><input type="file" id="qImpIn" accept=".json,application/json" hidden><button class="btn" id="jDash">Самбар</button></div>
         <div class="grid2" style="margin:10px 0">
           <input id="jSearch" class="inp" placeholder="Хайх: дугаар, захиалагч, хүн, үнийн санал…" aria-label="Хайх">
           <select id="jFilter" class="inp" aria-label="Төлөв"><option value="open">Идэвхтэй (ажил + санал)</option><option value="jobs">Зөвхөн ажил</option><option value="quotes">Зөвхөн үнийн санал</option><option value="all">Бүгд</option><option value="closed">Дууссан / татгалзсан</option></select>
@@ -4288,7 +4288,17 @@ const I18N_EN = {
 "Будагчин": "Painter",
 "Чанар (QC)": "Quality (QC)",
 "Худалдан авалт": "Procurement",
-"Даалгавар нэмсэн:": "Task added:"
+"Даалгавар нэмсэн:": "Task added:",
+"⇪ Импорт": "⇪ Import",
+"SQ фолдеруудаас бэлдсэн импорт файл (.json)": "Import file prepared from the SQ folders (.json)",
+"үнийн санал нэмэгдлээ": "quotations added",
+"шинэчлэгдлээ": "updated",
+"нь аль хэдийн байсан тул алгассан": "already existed and were skipped",
+"📁 Фолдер": "📁 Folder",
+"Фолдер олдсонгүй:": "Folder not found:",
+"Excel-ээс оруулсан мөрүүд": "Lines imported from Excel",
+"Задаргаа (Excel):": "Breakdown (Excel):",
+"Excel-ээс оруулсан — өртөг оруулаагүй": "Imported from Excel — no cost entered"
 };
 /* ================= KH Fab — language (МН / EN) and theme (Day / Night) =================
    The UI is written in Mongolian. In English mode every Mongolian fragment that reaches the
@@ -7546,6 +7556,25 @@ function newQuote() {
   S.jobs.unshift(job); jx(job); job.quote.no = no; jobLog('Үнийн санал нээсэн', job);
   J.sel = job.id; J.sub = 'quote'; J.dash = false; save(); return job;
 }
+/* import quotations prepared from the SQ… folders (Excel quote files) */
+function importQuotes(arr) {
+  let n = 0, u = 0; const skip = [];
+  arr.forEach(r => {
+    if (!r || !r.no) return;
+    let job = S.jobs.find(j => (j.quote && j.quote.no) === r.no || j.no === r.no);
+    const isNew = !job;
+    if (isNew) { job = { id: uid(), owner: S.me || '', kind: 'quote', qst: r.qst || 'sent', no: r.no, short: r.no.replace(/^\D+/, ''), customer: '', title: '', due: '', status: 'new', note: '', items: [], extra: [], est: null, act: { hours: '', kg: '', other: '' }, trace: [], log: [], created: r.date || today() }; S.jobs.push(job); jx(job); job.scope.stages = []; }
+    else if (!job.quote.imported) { skip.push(r.no); return; }
+    const q = job.quote; job.customer = r.customer || job.customer; job.title = r.title || job.title;
+    Object.assign(q, { no: r.no, date: r.date || q.date, valid: r.valid || q.valid, vat: r.vat != null ? r.vat : q.vat, fixedNet: +r.net || 0, lines: r.lines || [], imported: true, noCost: true, srcFolder: r.folder || '', srcFiles: r.files || [] });
+    q.qf = Object.assign(qfDefaults(job), r.qf || {}, { mode: (r.lines || []).length ? 'fixed' : 'single' });
+    if (r.breakdown && r.breakdown.length) job.scope.desc = 'Задаргаа (Excel):\n' + r.breakdown.map(b => `• ${b.d} — ${b.q} ${b.u} × ${money(b.p)}`).join('\n');
+    if (job.customer) orgLearn({ org: job.customer, ...q.qf });
+    if (isNew) { jobLog(`Үнийн санал импортолсон (${r.src || 'Excel'})`, job); n++; } else u++;
+  });
+  S.jobs.sort((a, b) => String((b.quote && b.quote.date) || b.created || '').localeCompare(String((a.quote && a.quote.date) || a.created || '')));
+  save(); return { n, u, skip };
+}
 function quoteToJob(job) {
   const y = new Date().getFullYear();
   if (S.jobYear !== y) { S.jobYear = y; S.jobSeq = 0; }
@@ -7630,6 +7659,8 @@ function renderJList() {
 }
 $('#jDash').addEventListener('click', () => setModule('dash'));
 $('#jList').addEventListener('click', e => { const it = e.target.closest('.jitem'); if (!it) return; J.sel = it.dataset.id; { const v = document.documentElement.dataset.jview, q = isQ(findJob(J.sel)); if (v === 'dash' || (v === 'quotes' && !q) || (v === 'jobs' && q)) { setModule(q ? 'quotes' : 'jobs'); J.sel = it.dataset.id; } } J.traceForm = false; J.dash = false; renderJList(); renderJobMain(); });
+$('#qImp').addEventListener('click', () => $('#qImpIn').click());
+$('#qImpIn').addEventListener('change', async e => { const f = e.target.files[0]; e.target.value = ''; if (!f) return; try { const d = JSON.parse(await f.text()); const r = importQuotes(Array.isArray(d) ? d : d.quotes || []); setModule('quotes'); renderJobs(); toast(`${r.n} үнийн санал нэмэгдлээ${r.u ? `, ${r.u} шинэчлэгдлээ` : ''}${r.skip.length ? ` · ${r.skip.length} нь аль хэдийн байсан тул алгассан` : ''}`); } catch (err) { console.error(err); toast('Файл уншигдсангүй: ' + err.message); } });
 $('#qNew').addEventListener('click', () => { const q = newQuote(); setModule('quotes'); J.sel = q.id; J.sub = 'quote'; renderJobs(); setTimeout(() => { const el = $('#qb_no'); if (el) { el.focus(); el.setSelectionRange(el.value.length, el.value.length); } }, 50); });
 $('#jNew').addEventListener('click', () => { const nj = newJob(); setModule('jobs'); J.sel = nj.id; J.dash = false; J.sub = 'main'; renderJobs(); setTimeout(() => { const el = $('#jf_title'); if (el) el.focus(); }, 50); });
 $('#jSearch').addEventListener('input', renderJList);
@@ -7952,10 +7983,10 @@ async function jobCardPdf(job) {
 const DPER = [['month', 'Энэ сар'], ['quarter', 'Энэ улирал'], ['year', 'Энэ жил'], ['all', 'Бүгд']];
 function perStart(p) { const t = new Date(today() + 'T00:00:00'); if (p === 'month') t.setDate(1); else if (p === 'quarter') { t.setMonth(Math.floor(t.getMonth() / 3) * 3); t.setDate(1); } else if (p === 'year') { t.setMonth(0); t.setDate(1); } else return ''; return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-01`; }
 function quoteStats(per) {
-  const from = perStart(per), Q = S.jobs.filter(j => (isQ(j) || j.qst) && j.quote).map(j => { let c = null; try { c = quoteCalc(j); } catch (e) { } const net = c ? c.net : 0; return { j, st: isQ(j) ? (j.qst || 'draft') : 'won', date: j.quote.date || j.created || '', net, profit: c ? c.profit : 0, pct: net ? c.profit / net * 100 : null }; }).filter(o => !from || o.date >= from);
+  const from = perStart(per), Q = S.jobs.filter(j => (isQ(j) || j.qst) && j.quote).map(j => { let c = null; try { c = quoteCalc(j); } catch (e) { } const net = c ? c.net : 0, nc = !!j.quote.noCost; return { j, st: isQ(j) ? (j.qst || 'draft') : 'won', date: j.quote.date || j.created || '', net, nc, profit: c && !nc ? c.profit : 0, pct: net && !nc ? c.profit / net * 100 : null }; }).filter(o => !from || o.date >= from);
   const by = k => Q.filter(o => o.st === k), sum = (a, f) => a.reduce((x, o) => x + (f(o) || 0), 0);
   const given = Q.filter(o => o.st !== 'draft'), won = by('won'), lost = by('lost'), sent = by('sent'), draft = by('draft');
-  return { Q, given, won, lost, sent, draft, sum, conv: given.length ? won.length / given.length * 100 : null, convV: sum(given, o => o.net) ? sum(won, o => o.net) / sum(given, o => o.net) * 100 : null, mAll: sum(given, o => o.net) ? sum(given, o => o.profit) / sum(given, o => o.net) * 100 : null, mWon: sum(won, o => o.net) ? sum(won, o => o.profit) / sum(won, o => o.net) * 100 : null };
+  return { Q, given, won, lost, sent, draft, sum, conv: given.length ? won.length / given.length * 100 : null, convV: sum(given, o => o.net) ? sum(won, o => o.net) / sum(given, o => o.net) * 100 : null, mAll: sum(given.filter(o => !o.nc), o => o.net) ? sum(given, o => o.profit) / sum(given.filter(o => !o.nc), o => o.net) * 100 : null, mWon: sum(won.filter(o => !o.nc), o => o.net) ? sum(won, o => o.profit) / sum(won.filter(o => !o.nc), o => o.net) * 100 : null };
 }
 function quoteDashHTML() {
   const per = J.dper || 'year', Sx = quoteStats(per), { Q, given, won, lost, sent, draft, sum } = Sx, mm = v => nf(v / 1e6, 1);
@@ -8136,7 +8167,7 @@ function jobSubBar(job) {
     <input id="qb_title" class="inp" placeholder="Ажлын нэр" value="${esc(job.title)}" style="flex:1 1 200px;min-width:0">
     <select id="qb_owner" class="inp" style="width:auto;max-width:200px" title="Үнийн санал хариуцагч">${peopleOpts(job.owner, '— хариуцагч —')}</select>
     <select id="qb_st" class="inp" style="width:auto">${QST.filter(x => x[0] !== 'won').map(([k, n]) => `<option value="${k}"${(job.qst || 'draft') === k ? ' selected' : ''}>${n}</option>`).join('')}</select>
-    <button class="btn primary" id="qb_won" title="Захиалагч баталсан — бүх алхам (scope, үйлдвэрлэл, явц, хүлээлгэх) нээгдэнэ">✓ Ажил болгох</button><button class="btn ghost" id="qb_del">Устгах</button></nav>`;
+    ${job.quote.srcFolder ? `<button class="btn ghost" id="qb_dir" title="${esc(job.quote.srcFolder)}">📁 Фолдер</button>` : ''}<button class="btn primary" id="qb_won" title="Захиалагч баталсан — бүх алхам (scope, үйлдвэрлэл, явц, хүлээлгэх) нээгдэнэ">✓ Ажил болгох</button><button class="btn ghost" id="qb_del">Устгах</button></nav>`;
   return `<nav class="rtabs jsub stepper">${JSUB.map(([k, n, d], i) => `${i ? '<span class="arr">›</span>' : ''}<button data-jsub="${k}" title="${d}" class="${(J.sub || 'main') === k ? 'on' : ''}${jobStepDone(job, k) ? ' done' : ''}"><span class="sn">${jobStepDone(job, k) ? '✓' : i + 1}</span>${n}</button>`).join('')}<span class="sp" style="flex:1"></span><span class="muted mono" style="align-self:center;font-size:12px;padding-right:6px">${esc(job.no)}${job.title ? ' · ' + esc(job.title) : ''}</span></nav>`;
 }
 function bindSubBar(el) {
@@ -8146,6 +8177,7 @@ function bindSubBar(el) {
   const c = el.querySelector('#qb_cust'), t = el.querySelector('#qb_title'), st = el.querySelector('#qb_st');
   if (c) c.addEventListener('change', () => { job.customer = c.value.trim(); if (job.customer) { orgLearn({ org: job.customer }); if (job.quote.qf) qfFillFromDir(job.quote.qf, job.customer); } save(); renderJList(); renderJobMain(); });
   if (t) t.addEventListener('change', () => { job.title = t.value.trim(); if (job.quote.qf && !job.quote.qf.title) { job.quote.qf.title = job.title; job.quote.qf.rfqName = job.quote.qf.rfqName || job.title; } save(); renderJList(); renderJobMain(); });
+  const dir = el.querySelector('#qb_dir'); if (dir) dir.addEventListener('click', async () => { if (window.kh && window.kh.openPath) { const e = await window.kh.openPath(job.quote.srcFolder); if (e) toast('Фолдер олдсонгүй: ' + job.quote.srcFolder); } else toast(job.quote.srcFolder); });
   const ow = el.querySelector('#qb_owner'); if (ow) ow.addEventListener('change', () => { job.owner = ow.value; jobLog('Хариуцагч: ' + (pName(job.owner) || '—'), job); renderJList(); });
   if (st) st.addEventListener('change', () => { job.qst = st.value; jobLog('Саналын төлөв: ' + qstName(job.qst), job); renderJList(); });
   const w = el.querySelector('#qb_won'); if (w) w.addEventListener('click', () => { if (!confirm(`${job.no} саналыг баталж ажил болгох уу? Бүх мэдээлэл хадгалагдана.`)) return; quoteToJob(job); setModule('jobs'); J.sel = job.id; J.sub = 'main'; renderJobs(); toast('Ажил боллоо: ' + job.no); });
@@ -8221,7 +8253,7 @@ function renderJQuote(el, job) {
   const sumRow = (label, v, ex = 0) => `<tr class="tot"><td></td><td colspan="${4 + ex}">${label}</td><td class="r num">${money(v)}</td><td colspan="2"></td></tr>`;
   el.innerHTML = `${jobSubBar(job)}
     <div class="exports">${outBtns('quote', 'Дэлгэрэнгүй задаргаа')}${outBtns('cost', 'Дотоод тооцоо')}<span class="sp" style="flex:1"></span><button class="btn" id="qFromNest"${job.est ? '' : ' disabled title="Ажлыг өрөлтөд ачаалж өрнө үү"'}>Өрөлтөөс материал, зүсэлт</button></div>
-    <div class="summary">${[['Материал + consumable', money(c.matTotal)], ['Ажиллах хүч', money(c.laborTotal), `${nf(c.laborH, 0)} цаг × ${money(c.rate)}`], ['Тоног, үйлчилгээ', money(c.equip)], ['Өртөг', money(c.cost)], ['Ашиг', money(c.profit), c.net ? nf(c.profit / c.net * 100, 1) + '%' : ''], ['Санал (НӨАТ-гүй)', money(c.net)], ['Нийт (НӨАТ-тай)', money(c.total)]].map(s => `<div class="stat"><div class="k">${s[0]}</div><div class="v">${s[1]}<small>₮</small></div><div class="s">${s[2] || ''}</div></div>`).join('')}</div>
+    <div class="summary">${[['Материал + consumable', money(c.matTotal)], ['Ажиллах хүч', money(c.laborTotal), `${nf(c.laborH, 0)} цаг × ${money(c.rate)}`], ['Тоног, үйлчилгээ', money(c.equip)], ['Өртөг', money(c.cost)], (q.noCost && !c.cost ? ['Ашиг', '—', 'Excel-ээс оруулсан — өртөг оруулаагүй'] : ['Ашиг', money(c.profit), c.net ? nf(c.profit / c.net * 100, 1) + '%' : '']), ['Санал (НӨАТ-гүй)', money(c.net)], ['Нийт (НӨАТ-тай)', money(c.total)]].map(s => `<div class="stat"><div class="k">${s[0]}</div><div class="v">${s[1]}<small>₮</small></div><div class="s">${s[2] || ''}</div></div>`).join('')}</div>
     ${qfCardHTML(job)}
     <div class="jcard"><div class="bcard-h">Саналын мэдээлэл</div><div class="jbody"><div class="jgrid">
       ${fldIn('q_no', 'Саналын дугаар', q.no, { ph: job.no + '-Q1' })}${fldIn('q_date', 'Огноо', q.date, { type: 'date' })}${fldIn('q_valid', 'Хүчинтэй хугацаа, хоног', q.valid, { num: 1 })}${fldIn('q_delivery', 'Хийж дуусгах хугацаа', q.delivery, { ph: `${progCalc(job).end} хоног` })}
@@ -9215,6 +9247,7 @@ function qfDefaults(job) {
 function qfLines(job) {
   if (job._linesFn) return job._linesFn();
   const q = job.quote, c = quoteCalc(job), f = qfDefaults(job), k = c.k;
+  if (f.mode === 'fixed' && Array.isArray(q.lines) && q.lines.length) return q.lines.map(l => ({ d: l.d, u: l.u || 'ea', q: +l.q || 1, p: +l.p || 0 }));
   if (f.mode === 'single') return [{ d: f.title || job.title || 'Fabrication work', u: 'set', q: 1, p: c.net, b: 1 }];
   if (f.mode === 'sections') return [['Materials and purchasing (incl. scrap allowance, transport)', c.matTotal - c.cons], ['Consumables', c.cons], ['Labour', c.laborTotal], ['Equipment and services', c.equip], ['Other', c.other]].filter(r => r[1] > 0).map(([d, v]) => ({ d, u: 'lot', q: 1, p: v * k }));
   const L = []; const add = (arr) => arr.filter(r => r.name && +r.qty).forEach(r => L.push({ d: r.name, u: r.unit || 'pcs', q: +r.qty, p: (+r.price || 0) * k }));
@@ -9305,7 +9338,7 @@ function qfCardHTML(job) {
       ${fldIn('qf_title', 'Ажлын нэр (Description)', f.title)}${fldIn('qf_rfqName', 'RFQ name', f.rfqName)}${fldIn('qf_rfqNo', 'RFQ number', f.rfqNo)}${fldIn('qf_custId', 'Customer ID', f.custId)}
       ${fldIn('qf_person', 'Name / Position', f.person, { list: 'dl-person', ph: 'Нэр (албан тушаал)' })}${fldIn('qf_email', 'Email', f.email)}${fldIn('qf_phone', 'Phone number', f.phone)}${fldIn('qf_lead', 'Lead time', f.lead, { ph: '5 business days' })}
       ${fldIn('qf_address', "Customer's address", f.address)}${fldIn('qf_pay', 'Payment term', f.pay)}${fldIn('qf_delivery', 'Delivery term', f.delivery)}${fldIn('qf_discount', 'Discount, ₮', f.discount || '', { num: 1 })}
-      <label class="fld">Мөрийн хэлбэр<select id="qf_mode"><option value="single"${f.mode === 'single' ? ' selected' : ''}>Нэг мөр (set × 1)</option><option value="sections"${f.mode === 'sections' ? ' selected' : ''}>Хэсгээр (материал, хүч, тоног…)</option><option value="detail"${f.mode === 'detail' ? ' selected' : ''}>Дэлгэрэнгүй (мөр бүр)</option></select></label>
+      <label class="fld">Мөрийн хэлбэр<select id="qf_mode"><option value="single"${f.mode === 'single' ? ' selected' : ''}>Нэг мөр (set × 1)</option><option value="sections"${f.mode === 'sections' ? ' selected' : ''}>Хэсгээр (материал, хүч, тоног…)</option><option value="detail"${f.mode === 'detail' ? ' selected' : ''}>Дэлгэрэнгүй (мөр бүр)</option>${Array.isArray(job.quote && job.quote.lines) && job.quote.lines.length ? `<option value="fixed"${f.mode === 'fixed' ? ' selected' : ''}>Excel-ээс оруулсан мөрүүд (${job.quote.lines.length})</option>` : ''}</select></label>
     </div>
     ${fldIn('qf_note', 'Special note', f.note, { area: 1, rows: 2 })}
     <div class="jgrid qfcl"><div class="fld">Quote included — үнэд багтсан<div class="clbox" data-ck="incl"></div></div><div class="fld">Quote excluded — үнэд ороогүй<div class="clbox" data-ck="excl"></div></div></div>

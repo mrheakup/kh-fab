@@ -357,7 +357,7 @@ tr.rcut td:first-child{box-shadow:inset 3px 0 0 var(--accent)}
 /* jobs module views: quotes / jobs / dashboard / documents */
 html[data-jview="docs"] [data-jtab="jobs"]{display:none}
 html:not([data-jview="docs"]) [data-jtab="kits"],html:not([data-jview="docs"]) [data-jtab="certs"]{display:none}
-html[data-jview="quotes"] #jNew,html[data-jview="jobs"] #qNew{display:none}
+html[data-jview="quotes"] #jNew,html[data-jview="jobs"] #qNew,html[data-jview="jobs"] #qImp,html[data-jview="dash"] #qImp{display:none}
 /* team & tasks */
 .av{display:inline-grid;place-items:center;border-radius:50%;color:#fff;font-weight:700;flex:none;line-height:1}.av.none{background:var(--surface-2);color:var(--ink-3);box-shadow:inset 0 0 0 1px var(--line);font-size:11px}
 .pdot{display:inline-block;width:8px;height:8px;border-radius:50%;flex:none}.sdot{display:inline-block;width:9px;height:9px;border-radius:50%}
@@ -589,7 +589,7 @@ html[data-skin="modern"][data-var="bento"] .stepper{border-radius:999px;backgrou
     </nav>
     <div class="panel-body">
       <section id="jtab-jobs">
-        <div class="ptools"><button class="btn primary" id="jNew">+ Шинэ ажил</button><button class="btn" id="qNew" title="Зөвхөн үнийн санал — батлагдвал ажил болгоно">+ Үнийн санал</button><button class="btn" id="jDash">Самбар</button></div>
+        <div class="ptools"><button class="btn primary" id="jNew">+ Шинэ ажил</button><button class="btn" id="qNew" title="Зөвхөн үнийн санал — батлагдвал ажил болгоно">+ Үнийн санал</button><button class="btn ghost" id="qImp" title="SQ фолдеруудаас бэлдсэн импорт файл (.json)">⇪ Импорт</button><input type="file" id="qImpIn" accept=".json,application/json" hidden><button class="btn" id="jDash">Самбар</button></div>
         <div class="grid2" style="margin:10px 0">
           <input id="jSearch" class="inp" placeholder="Хайх: дугаар, захиалагч, хүн, үнийн санал…" aria-label="Хайх">
           <select id="jFilter" class="inp" aria-label="Төлөв"><option value="open">Идэвхтэй (ажил + санал)</option><option value="jobs">Зөвхөн ажил</option><option value="quotes">Зөвхөн үнийн санал</option><option value="all">Бүгд</option><option value="closed">Дууссан / татгалзсан</option></select>

@@ -84,6 +84,7 @@ ipcMain.handle('save-file', async (e, name, data) => {
   return r.filePath;
 });
 ipcMain.handle('show-in-folder', (e, p) => shell.showItemInFolder(p));
+ipcMain.handle('open-path', async (e, p) => { const r = await shell.openPath(String(p || '')); return r || ''; });
 ipcMain.handle('print-html', async (e, html, opt) => {
   const tmp = path.join(app.getPath('temp'), `kh-print-${Date.now()}.html`);
   fs.writeFileSync(tmp, html, 'utf8');
