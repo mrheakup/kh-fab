@@ -209,14 +209,16 @@ function srcFolderHTML(job) {
   const q = job.quote || {}, el = !!(window.kh && window.kh.listDir);
   if (!q.srcFolder && !el) return '';
   return `<div class="jcard sfcard" data-v="main"><div class="bcard-h">📁 Фолдер — файлууд <span class="pill" id="sfN">${q.srcFolder ? '…' : '—'}</span><span class="sp"></span>
-    ${q.srcFolder && el ? '<button class="btn sm ghost" id="sfOpen">Explorer-т нээх</button><button class="btn sm ghost" id="sfRe" title="Дахин унших">↻</button>' : ''}${el ? `<button class="btn sm ghost" id="sfPick">${q.srcFolder ? 'Фолдер солих' : 'Фолдер холбох'}</button>` : ''}</div>
+    ${q.srcFolder && el ? '<button class="btn sm ghost" id="sfOpen">Explorer-т нээх</button><button class="btn sm ghost" id="sfRe" title="Дахин унших">↻</button>' : ''}${el ? `<button class="btn sm ghost" id="sfPick">${q.srcFolder ? 'Фолдер солих' : 'Фолдер холбох'}</button>` : ''}${q.srcFolder ? '<button class="btn sm ghost" id="sfDel" title="Фолдерыг энэ ажлаас салгана (компьютерын файлууд устахгүй)">✕ Салгах</button>' : ''}</div>
     <div class="jbody"><div class="muted mono sfpath">${esc(q.srcFolder || 'Энэ ажил, саналд компьютерын фолдер холбоогүй байна — «Фолдер холбох».')}</div><div class="jfgrid sfgrid" id="sfList">${!el && q.srcFiles ? q.srcFiles.map(n => `<figure class="jf"><div class="th"><span class="ext">${esc(jfExt(n))}</span></div><figcaption><b>${esc(n)}</b></figcaption></figure>`).join('') : ''}</div></div></div>`;
 }
 async function bindSrcFolder(el, job) {
-  const card = el.querySelector('.sfcard'); if (!card || !(window.kh && window.kh.listDir)) return;
+  const card = el.querySelector('.sfcard'); if (!card) return;
+  if (!(window.kh && window.kh.listDir)) { const dz = card.querySelector('#sfDel'); if (dz) dz.addEventListener('click', () => { if (!confirm('Фолдерыг салгах уу?')) return; job.quote.srcFolder = ''; job.quote.srcFiles = []; save(); renderJobMain(); }); return; }
   const q = job.quote; jx(job);
   const pk = card.querySelector('#sfPick'); if (pk) pk.addEventListener('click', async () => { const d = await window.kh.pickDir(); if (d) { q.srcFolder = d; jobLog('Фолдер холбосон: ' + d, job); save(); renderJobMain(); } });
   const op = card.querySelector('#sfOpen'); if (op) op.addEventListener('click', async () => { const e = await window.kh.openPath(q.srcFolder); if (e) toast('Фолдер олдсонгүй'); });
+  const dz = card.querySelector('#sfDel'); if (dz) dz.addEventListener('click', () => { if (!confirm('Фолдерыг энэ ажил/саналаас салгах уу? (Компьютер дээрх файлууд устахгүй)')) return; jobLog('Фолдер салгасан: ' + q.srcFolder, job); q.srcFolder = ''; q.srcFiles = []; save(); renderJobMain(); });
   const rr = card.querySelector('#sfRe'); if (rr) rr.addEventListener('click', () => renderJobMain());
   if (!q.srcFolder) return;
   const list = card.querySelector('#sfList'), n = card.querySelector('#sfN');

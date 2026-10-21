@@ -28,8 +28,50 @@ function stepInfo(job, k) {
   if (k === 'acc') return job.dock && job.dock.issued ? `Docket ${job.dock.no} · ${job.dock.issued}` : (job.acc && job.acc.done ? 'акт ' + job.acc.done : 'хүлээлгээгүй');
   return job.customer || 'захиалагч бөглөөгүй';
 }
+/* «Ажлын байдал» — where the job is, who owns it, what is needed now (no money here) */
+function jobNeeds(job) {
+  const N = [], T = (typeof tasks === 'function' ? tasks() : []).filter(t => t.jobId === job.id && t.status !== 'done'), st = job.status, parts = (() => { try { return jobParts(job).length; } catch (e) { return 0; } })();
+  if (!job.owner) N.push(['Хариуцагч сонгох', null]);
+  if (!job.due) N.push(['Дуусах хугацаа тогтоох', null]);
+  if (st === 'new' && !parts && !(job.files || []).length) N.push(['Зураг, парт оруулах', 'prod']);
+  if (st === 'new' && parts && !job.est) N.push(['Өрөлт хийх (Зүсэлт)', 'prod']);
+  if (['nest', 'cut'].includes(st) && !(job.trace || []).length) N.push(['Зүсэлтийн бүртгэл хөтлөх', 'prod']);
+  if (st === 'done' && !(job.dock && job.dock.issued)) N.push(['Packing list гаргах', 'acc']);
+  if (st === 'given' && !(job.acc && job.acc.done)) N.push(['Хүлээн авалтын акт', 'acc']);
+  const dl = daysLeft(job.due); if (dl != null && dl < 0 && !['done', 'given'].includes(st)) N.unshift([`Хугацаа ${-dl} хоног хэтэрсэн!`, null, 'bad']);
+  return { N, T };
+}
 function jobNextHTML(job) {
-  return `<div class="jcard" data-v="main"><div class="bcard-h">Ажлын явц</div><div class="jbody"><div class="jsteps">${JSTEP.slice(1).map(([k, n, d], i) => `<button class="jstep" data-go="${k}"><span class="sn">${i + 2}</span><span><b>${n}</b><small>${esc(stepInfo(job, k))}</small></span></button>`).join('')}</div></div></div>`;
+  jx(job); const { N, T } = jobNeeds(job), dl = daysLeft(job.due), si = JST.findIndex(s => s[0] === job.status), P = (() => { try { return progCalc(job); } catch (e) { return null; } })();
+  const pct = P ? Math.round(P.pct * 100) : 0;
+  return `<div class="jcard jstate" data-v="main"><div class="bcard-h">Ажлын байдал <span class="sp"></span><span class="muted" style="font-weight:400;font-size:12.5px">${pct ? `гүйцэтгэл ${pct}%` : ''}</span></div><div class="jbody">
+    <div class="spipe">${JST.map(([k, n], i) => `<button data-st="${k}" class="${i < si ? 'past' : i === si ? 'now' : ''}"><i>${i < si ? '✓' : i + 1}</i>${n}</button>`).join('')}</div>
+    <div class="sgrid">
+      <div><small>Хариуцагч</small><div class="sown">${typeof avatar === 'function' ? avatar(job.owner, 30) : ''}<select id="jf_owner" class="inp">${typeof peopleOpts === 'function' ? peopleOpts(job.owner) : ''}</select></div></div>
+      <div><small>Дуусах хугацаа</small><div class="sbig ${dl != null && dl < 0 && !['done', 'given'].includes(job.status) ? 'late' : ''}">${job.due ? esc(job.due) + (dl != null ? ` <span class="muted">(${dl >= 0 ? dl + ' хоног үлдсэн' : -dl + ' хоног хэтэрсэн'})</span>` : '') : '<span class="muted">тогтоогоогүй</span>'}</div></div>
+      <div><small>Захиалагч</small><div class="sbig">${esc(job.customer || '—')}${job.quote && job.quote.no ? ` <span class="muted mono">· ${esc(job.quote.no)}</span>` : ''}</div></div>
+    </div>
+    <div class="sneed"><small>Одоо юу хэрэгтэй вэ</small>
+      ${N.map(([t, go, cls]) => `<div class="nrow ${cls || ''}">${cls === 'bad' ? '⚠' : '○'} <span>${esc(t)}</span>${go ? `<button class="linkbtn" data-go="${go === 'prod' ? 'make' : go}">нээх →</button>` : ''}</div>`).join('')}
+      ${T.slice(0, 5).map(t => `<div class="nrow">□ <span>${esc(t.title || '(гарчиггүй)')}</span><span class="muted">${esc(typeof pName === 'function' ? pName(t.assignee) || 'хариуцагчгүй' : '')}${t.due ? ' · ' + esc(t.due) : ''}</span></div>`).join('')}
+      ${!N.length && !T.length ? '<div class="nrow ok">✓ Одоогоор хүлээгдэж буй зүйл алга</div>' : ''}
+      <label class="fld" style="margin-top:6px">Тэмдэглэл — саад, хүлээж буй зүйл (материал ирээгүй, захиалагчийн хариу…)<input id="jf_need" value="${esc(job.need || '')}" placeholder="жишээ: Hardox 20мм хүлээж байна"></label>
+    </div>
+  </div></div>
+  ${jobMoneyHTML(job)}`;
+}
+/* «Санхүү» — quotation, budget, actual cost, profit (kept apart from the status) */
+function jobMoneyHTML(job) {
+  let m = null, c = null; try { m = jobMoney(job); c = quoteCalc(job); } catch (e) { }
+  if (!m) return '';
+  const q = job.quote || {}, P = (() => { try { return progCalc(job); } catch (e) { return null; } })(), act = P && P.AC ? P.AC : m.act;
+  const cell = (k, v, s, cls) => `<div class="stat"><div class="k">${k}</div><div class="v ${cls || ''}">${v}</div><div class="s">${s || ''}</div></div>`;
+  return `<div class="jcard" data-v="main"><div class="bcard-h">Санхүү <span class="sp"></span><button class="linkbtn" data-go="quote">үнийн санал →</button><button class="linkbtn" data-go="make">зардал бүртгэх →</button></div><div class="jbody"><div class="summary">
+    ${cell('Үнийн санал / гэрээ', m.price ? money(m.price) + '<small>₮</small>' : '—', q.no ? q.no + (q.date ? ' · ' + q.date : '') : 'санал оруулаагүй')}
+    ${cell('Төсөвт өртөг', m.plan ? money(m.plan) + '<small>₮</small>' : '—', q.noCost ? 'Excel-ээс — өртөг оруулаагүй' : 'үнийн саналын тооцоо')}
+    ${cell('Бодит зардал', act ? money(act) + '<small>₮</small>' : '—', act && m.plan ? `төсвийн ${Math.round(act / m.plan * 100)}%` : 'зардал бүртгээгүй', act && m.plan && act > m.plan ? 'late' : '')}
+    ${cell('Ашиг (таамаг)', m.price && (act || m.plan) ? money(m.price - (act || m.plan)) + '<small>₮</small>' : '—', m.price && (act || m.plan) ? Math.round((m.price - (act || m.plan)) / m.price * 100) + '%' : '')}
+  </div></div></div>`;
 }
 
 function costDef() { S.costDef = Object.assign({}, COST_DEF, S.costDef || {}); return S.costDef; }
@@ -117,7 +159,7 @@ function jobSubBar(job) {
     ${job.quote.srcFolder ? `<button class="btn ghost" id="qb_dir" title="${esc(job.quote.srcFolder)}">📁 Фолдер</button>` : ''}<button class="btn primary" id="qb_won" title="Захиалагч баталсан — бүх алхам (scope, үйлдвэрлэл, явц, хүлээлгэх) нээгдэнэ">✓ Ажил болгох</button><button class="btn ghost" id="qb_del">Устгах</button></nav>`;
   const cur = stepOf(J.sub);
   return `<nav class="rtabs jsub stepper">${JSTEP.map(([k, n, d], i) => `${i ? '<span class="arr">›</span>' : ''}<button data-jsub="${k}" title="${d}" class="${cur === k ? 'on' : ''}"><span class="sn">${i + 1}</span>${n}</button>`).join('')}<span class="sp" style="flex:1"></span>
-    <label class="jstat" title="Ажлын төлөв">Төлөв <select id="sb_status" class="inp">${JST.map(([k, n]) => `<option value="${k}"${k === job.status ? ' selected' : ''}>${n}</option>`).join('')}</select></label><span class="muted mono jno">${esc(job.no)}</span></nav>
+    ${cur === 'main' ? '' : `<label class="jstat" title="Ажлын төлөв">Төлөв <select id="sb_status" class="inp">${JST.map(([k, n]) => `<option value="${k}"${k === job.status ? ' selected' : ''}>${n}</option>`).join('')}</select></label>`}<span class="muted mono jno">${esc(job.no)}</span></nav>
     ${cur === 'make' ? `<nav class="rtabs mktabs">${MAKE.map(([k, n]) => `<button data-jsub="${k}" class="${J.sub === k ? 'on' : ''}">${n}</button>`).join('')}</nav>` : ''}`;
 }
 function bindSubBar(el) {

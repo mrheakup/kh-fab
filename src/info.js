@@ -227,4 +227,4 @@ function renderLib(el) {
   }
 }
 
-try { const m0 = localStorage.getItem(KEY + ':mod'); if (['bend', 'jobs', 'info', 'insp', 'dash', 'quotes', 'docs', 'team'].includes(m0)) setModule(m0); } catch (e) { }
+try { const m0 = localStorage.getItem(KEY + ':mod'); if (['bend', 'jobs', 'info', 'insp', 'dash', 'quotes', 'docs', 'team', 'ideas'].includes(m0)) setModule(m0); } catch (e) { }

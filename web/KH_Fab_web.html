@@ -353,6 +353,20 @@ table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
 .jset{margin-top:16px;border-top:1px solid var(--line);padding-top:10px}.jset summary{cursor:pointer;color:var(--ink-2);font-size:13px;font-weight:500}
 html[data-jview="jobs"] .grid2:has(#jSearch),html[data-jview="quotes"] .grid2:has(#jSearch){grid-template-columns:1fr}
 .jseg{display:flex;width:100%}.jseg button{flex:1}
+.spipe{display:flex;gap:4px;flex-wrap:wrap}.spipe button{flex:1 1 110px;display:flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 10px;cursor:pointer;font-size:13px;color:var(--ink-3)}
+.spipe button i{font-style:normal;display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--surface-2);font:600 11px var(--f-mono)}
+.spipe button.past{color:var(--ink-2)}.spipe button.past i{background:#12b76a;color:#fff}.spipe button.now{border-color:var(--accent);background:var(--accent-soft);color:var(--ink);font-weight:600}.spipe button.now i{background:var(--accent);color:var(--accent-ink)}
+.sgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}.sgrid small,.sneed>small{display:block;color:var(--ink-3);font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+.sown{display:flex;gap:8px;align-items:center}.sown select{flex:1}.sbig{font-size:15px;font-weight:600}.sbig .muted{font-weight:400;font-size:12.5px}
+.sneed{display:grid;gap:4px;border-top:1px solid var(--line-2);padding-top:10px}.nrow{display:flex;gap:8px;align-items:baseline;font-size:13.5px}.nrow .muted{font-size:12px}.nrow .linkbtn{margin-left:auto}.nrow.bad{color:#b42318;font-weight:600}.nrow.ok{color:#027a48}
+.idst{display:flex;flex-wrap:wrap;border-radius:12px}.idst button{flex:1 1 auto}
+.ikb{grid-template-columns:repeat(7,minmax(170px,1fr))}
+.tag{display:inline-block;font-size:11px;padding:1px 7px;border-radius:6px;margin:0 3px 3px 0;background:color-mix(in srgb,var(--h) 14%,transparent);color:var(--h)}.ttags{display:flex;flex-wrap:wrap}
+.subl{display:grid;gap:4px;margin-top:4px}.subr{display:flex;gap:6px;align-items:center}.subr .inp{flex:1;padding:4px 8px;width:auto;min-width:0}.subr input[type=checkbox]{width:auto;flex:none}.cmts{display:grid;gap:8px;margin-top:4px}.cmt{display:flex;gap:8px;font-size:13px}
+.ttable .cell{border-color:transparent;background:transparent;padding:4px 6px}.ttable .cell:hover,.ttable .cell:focus{border-color:var(--line);background:var(--surface)}.ttable td{padding:3px 6px}
+.tcal{display:grid;grid-template-columns:repeat(7,1fr);border-top:1px solid var(--line-2)}.tch{padding:6px 8px;font-size:11.5px;color:var(--ink-3);text-transform:uppercase;border-bottom:1px solid var(--line-2)}
+.tcd{min-height:96px;border-right:1px solid var(--line-2);border-bottom:1px solid var(--line-2);padding:4px;display:grid;align-content:start;gap:3px;cursor:default}.tcd.blank{background:var(--surface-2)}.tcd.now .tdn{background:var(--accent);color:#fff;border-radius:999px;padding:0 6px}
+.tdn{font:600 11.5px var(--f-mono);color:var(--ink-2);justify-self:end}.tce{font-size:11.5px;background:var(--surface-2);border-left:3px solid;border-radius:4px;padding:2px 5px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .jfcard.drop{outline:2px dashed var(--accent);outline-offset:-4px}
 .clbox{display:grid;gap:6px}.clist{margin:0;padding-left:22px;display:grid;gap:4px}.clist li{display:flex;gap:4px;align-items:center}.clist li.sub{margin-left:22px;list-style:disc}.clist li .inp{flex:1;min-width:0;padding:4px 6px}
 .cladd{display:flex;gap:6px;flex-wrap:wrap}.cladd select{flex:1 1 200px;min-width:0}.cladd input{flex:1 1 160px;min-width:0}
@@ -507,6 +521,7 @@ html[data-skin="modern"][data-var="bento"] .stepper{border-radius:999px;backgrou
       <button data-mod="bend" role="tab" title="Нугалах пресс, 3 булт галзуу"><svg class="mico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h7l9-9"/><path d="M4 16h5l8-8"/><circle cx="17" cy="5" r="1.5"/></svg>Нугалалт</button>
       <span class="mgrp">Баг · хяналт</span>
       <button data-mod="team" role="tab" title="Даалгавар, хэн юу хийж байна, хүмүүс"><svg class="mico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M7 12l2 2 4-4M14 16h3"/></svg>Даалгавар</button>
+      <button data-mod="ideas" role="tab" title="Үйлдвэрийн тохижуулалт, сайжруулалтын санаа — төсөв, захиралд танилцуулах"><svg class="mico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.6.5 1 1.2 1.1 2V16h5v-.2c.1-.8.5-1.5 1.1-2A6 6 0 0 0 12 3z"/></svg>Санаа, сайжруулалт</button>
       <button data-mod="insp" role="tab" title="Тоног төхөөрөмжийн өдөр тутмын үзлэг, ажлын заавар, ханын самбар"><svg class="mico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v2h6V3M9 12l2 2 4-4M9 17h6"/></svg>Үзлэг · ХАБ</button>
       <span class="mgrp">Баримт бичиг</span>
       <button data-mod="docs" role="tab" title="Иж бүрдэл (парт жагсаалт), материалын гэрчилгээ"><svg class="mico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7a2 2 0 0 1 2-2h4l2 2h6a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M9 13h6"/></svg>Packing list, баримт</button>
@@ -584,6 +599,16 @@ html[data-skin="modern"][data-var="bento"] .stepper{border-radius:999px;backgrou
     </div>
   </aside>
   <main class="main" id="infoMain" hidden></main>
+  <aside class="side" id="ideasSide" hidden>
+    <div class="ptitle">Санаа, сайжруулалт<small>Тохижуулалт · сайжруулалт · төсөв · шийдвэр</small></div>
+    <div class="panel-body">
+      <div class="ptools"><button class="btn primary" id="idNew">+ Шинэ санаа</button></div>
+      <input id="idQ" class="inp" placeholder="Хайх…" style="margin:10px 0">
+      <div class="seg idst" id="idSt"></div>
+      <div id="idList" class="plist" style="margin-top:10px"></div>
+    </div>
+  </aside>
+  <main class="main" id="ideaMain" hidden></main>
   <aside class="side" id="teamSide" hidden>
     <div class="ptitle">Даалгавар<small>Хэн юу хийж байна · хүмүүс</small></div>
     <nav class="tabs" role="tablist"><button data-ttab="tasks" class="on">Даалгавар</button><button data-ttab="people">Хүмүүс</button></nav>
@@ -4374,7 +4399,118 @@ const I18N_EN = {
 "Бараа": "Item",
 "Packing list алга. Ажил бүртгэлгүй бол «+ Шинэ Packing list»-ээр шууд гаргана.": "No packing lists. Without a job, use «+ New packing list».",
 "Ажилд бүртгэгдээгүй — бие даасан баримт": "Not linked to a job — stand-alone document",
-"← Жагсаалт": "← List"
+"← Жагсаалт": "← List",
+"Ажлын байдал": "Job status",
+"гүйцэтгэл": "done",
+"Дуусах хугацаа": "Due",
+"хоног үлдсэн": "days left",
+"тогтоогоогүй": "not set",
+"Одоо юу хэрэгтэй вэ": "What's needed now",
+"нээх →": "open →",
+"хариуцагчгүй": "unassigned",
+"✓ Одоогоор хүлээгдэж буй зүйл алга": "✓ Nothing pending",
+"Тэмдэглэл — саад, хүлээж буй зүйл (материал ирээгүй, захиалагчийн хариу…)": "Note — blockers, waiting for (material, customer reply…)",
+"жишээ: Hardox 20мм хүлээж байна": "e.g. waiting for Hardox 20mm",
+"Хариуцагч сонгох": "Choose an owner",
+"Дуусах хугацаа тогтоох": "Set a due date",
+"Зураг, парт оруулах": "Add drawings / parts",
+"Өрөлт хийх (Зүсэлт)": "Run nesting (Cutting)",
+"Зүсэлтийн бүртгэл хөтлөх": "Record cutting log",
+"Packing list гаргах": "Issue packing list",
+"Санхүү": "Finance",
+"үнийн санал →": "quotation →",
+"зардал бүртгэх →": "record costs →",
+"Үнийн санал / гэрээ": "Quote / contract",
+"санал оруулаагүй": "no quotation",
+"Төсөвт өртөг": "Budgeted cost",
+"Excel-ээс — өртөг оруулаагүй": "from Excel — no cost",
+"үнийн саналын тооцоо": "from quotation",
+"Бодит зардал": "Actual cost",
+"төсвийн": "of budget",
+"зардал бүртгээгүй": "no costs recorded",
+"Ашиг (таамаг)": "Profit (forecast)",
+"Тэмдэглэл:": "Note:",
+"✕ Салгах": "✕ Unlink",
+"Фолдерыг энэ ажлаас салгана (компьютерын файлууд устахгүй)": "Unlink folder from this job (files on the PC are not deleted)",
+"Фолдерыг энэ ажил/саналаас салгах уу? (Компьютер дээрх файлууд устахгүй)": "Unlink the folder from this job/quote? (Files on the PC are not deleted)",
+"Фолдер салгасан:": "Folder unlinked:",
+"Фолдерыг салгах уу?": "Unlink the folder?",
+"Хүснэгт": "Table",
+"Календарь": "Calendar",
+"Шошго (таслалаар)": "Tags (comma separated)",
+"жишээ: засвар, яаралтай, худалдан авалт": "e.g. repair, urgent, purchasing",
+"Дэд даалгавар": "Subtasks",
+"+ Дэд даалгавар нэмэх (Enter)": "+ Add subtask (Enter)",
+"Сэтгэгдэл": "Comments",
+"Сэтгэгдэл бичих… (Enter)": "Write a comment… (Enter)",
+"Холбоос": "Link",
+"Шошго": "Tags",
+"нээх": "open",
+"+ Шинэ мөр": "+ New row",
+"Өнөөдөр": "Today",
+"Өдөр дээр давхар дарж даалгавар нэмнэ": "Double-click a day to add a task",
+"-р сар": "",
+"Санаа, сайжруулалт": "Ideas, improvements",
+"Үйлдвэрийн тохижуулалт, сайжруулалтын санаа — төсөв, захиралд танилцуулах": "Shop improvement ideas — budget, present to director",
+"Тохижуулалт · сайжруулалт · төсөв · шийдвэр": "Improvements · budget · decision",
+"+ Шинэ санаа": "+ New idea",
+"Санаа алга. «+ Шинэ санаа» дарж эхэлнэ.": "No ideas yet. Click «+ New idea».",
+"Үйлдвэрийн тохижуулалт, сайжруулалтын санал — төсөв, үр ашиг, захирлын шийдвэр": "Shop improvement proposals — budget, benefit, director's decision",
+"Нэгдсэн жагсаалт PDF": "Combined list PDF",
+"Нийт санаа": "Total ideas",
+"шинэ": "new",
+"Шийдвэр хүлээж буй": "Awaiting decision",
+"Хүлээгдэж буй хэмнэлт": "Expected savings",
+"батлагдсан санаануудаар": "from approved ideas",
+"Санаа": "Idea",
+"Судалж буй": "Studying",
+"Захиралд танилцуулсан": "Presented to director",
+"Хэрэгжиж буй": "In progress",
+"Үйлдвэрийн тохижуулалт": "Shop improvement",
+"Үйл явцын сайжруулалт": "Process improvement",
+"ХАБ, аюулгүй байдал": "HSE, safety",
+"Чанар": "Quality",
+"Зардал хэмнэлт": "Cost saving",
+"Ажилчдын нөхцөл": "Working conditions",
+"Шинэ санаа": "New idea",
+"санаачлагч": "proposed by",
+"← Самбар": "← Board",
+"Захиралд танилцуулах PDF": "Present to director PDF",
+"Санааны нэр": "Idea title",
+"Санаачлагч": "Proposed by",
+"Хэрэгжүүлэх хугацаа": "Target date",
+"Одоогийн байдал / асуудал": "Current situation / problem",
+"Санал болгож буй шийдэл": "Proposed solution",
+"Үр ашиг (аюулгүй байдал, бүтээмж, чанар…)": "Benefit (safety, productivity, quality…)",
+"Хэмнэлт, ₮ / сар (тооцож болох бол)": "Saving, ₮ / month (if measurable)",
+"Зардлын нэр (материал, ажил, худалдан авалт)": "Cost item (material, work, purchase)",
+"Нийт төсөв": "Total budget",
+"Материал, consumable-ийг үнийн сангаас сонгоход үнэ нь автоматаар бөглөгдөнө.": "Prices fill in automatically when picked from the price library.",
+"Өөрийгөө нөхөх хугацаа ≈": "Payback ≈",
+"сар": "months",
+"Зураг (одоогийн байдал, санаа)": "Photos (current state, idea)",
+"+ Зураг": "+ Photo",
+"Захирлын шийдвэр": "Director's decision",
+"Шийдвэр": "Decision",
+"— хүлээгдэж буй —": "— pending —",
+"Засвартай зөвшөөрсөн": "Approved with changes",
+"Хойшлуулсан": "Postponed",
+"Тайлбар, батлагдсан төсөв": "Note, approved budget",
+"→ Даалгавар болгох": "→ Make a task",
+"Батлагдсаны дараа хэрэгжүүлэх ажлыг Даалгавар руу илгээнэ.": "Once approved, send the implementation to Tasks.",
+"Энэ санааг устгах уу?": "Delete this idea?",
+"САНАЛ — ҮЙЛДВЭРИЙН САЙЖРУУЛАЛТ": "PROPOSAL — SHOP IMPROVEMENT",
+"Үр ашиг": "Benefit",
+"Хэмнэлт:": "Saving:",
+"өөрийгөө нөхөх": "payback",
+"Зардлын нэр": "Cost item",
+"Төсөв оруулаагүй": "No budget entered",
+"Зураг": "Photos",
+"Батлагдсан төсөв: ____________________ ₮": "Approved budget: ____________________ ₮",
+"Санал гаргасан": "Proposed by",
+"Захирал": "Director",
+"САНАА, САЙЖРУУЛАЛТЫН ЖАГСААЛТ": "IDEAS & IMPROVEMENTS LIST",
+"Хэмнэлт/сар": "Saving/month"
 };
 /* ================= KH Fab — language (МН / EN) and theme (Day / Night) =================
    The UI is written in Mongolian. In English mode every Mongolian fragment that reaches the
@@ -7755,7 +7891,7 @@ function renderJList() {
   const list = S.jobs.filter(j => fOk(j) && (!inOrg || inOrg.has(j)) && (!q || hay(j).includes(q)));
   $('#jList').innerHTML = list.length ? list.map(j => {
     const late = j.due && j.due < today() && !['done', 'given'].includes(j.status);
-    return `<div class="jitem${J.sel === j.id && J.tab === 'jobs' ? ' on' : ''}" data-id="${j.id}"><span class="no">${esc(j.no)}${S.activeJob === j.id ? ' <span class="pill rem">өрөлтөд</span>' : ''}</span>${isQ(j) ? `<span class="pill qst-${j.qst || 'draft'}">Санал · ${qstName(j.qst)}</span>` : `<span class="pill st-${j.status}">${jstName(j.status)}</span>`}<span class="t">${esc(j.title || '—')}${j.customer ? ' · ' + esc(j.customer) : ''}${j.quote && j.quote.qf && j.quote.qf.person ? ' · ' + esc(personSplit(j.quote.qf.person).name) : ''}${j.owner && typeof pName === 'function' && pName(j.owner) ? ' · 👤 ' + esc(pName(j.owner)) : ''}${j.due ? ` · <span class="${late ? 'late' : ''}">${esc(j.due)}</span>` : ''}</span></div>`;
+    return `<div class="jitem${J.sel === j.id && J.tab === 'jobs' ? ' on' : ''}" data-id="${j.id}"><span class="no">${esc(j.no)}${S.activeJob === j.id ? ' <span class="pill rem">өрөлтөд</span>' : ''}</span>${isQ(j) ? `<span class="pill qst-${j.qst || 'draft'}">Санал · ${qstName(j.qst)}</span>` : `<span class="pill st-${j.status}">${jstName(j.status)}</span>`}<span class="t">${esc(j.title || '—')}${j.customer ? ' · ' + esc(j.customer) : ''}${j.quote && j.quote.qf && j.quote.qf.person ? ' · ' + esc(personSplit(j.quote.qf.person).name) : ''}${j.owner && typeof pName === 'function' && pName(j.owner) ? ' · 👤 ' + esc(pName(j.owner)) : ''}${j.need ? ' · ⚠ ' + esc(j.need) : ''}${j.due ? ` · <span class="${late ? 'late' : ''}">${esc(j.due)}</span>` : ''}</span></div>`;
   }).join('') : `<div class="emptyp">${S.jobs.length ? 'Хайлтад тохирох ажил алга.' : 'Ажил алга. <b>+ Шинэ ажил</b> товчоор эхэлнэ.'}</div>`;
   ['formTrace', 'rev', 'operators', 'formQuote', 'formScope', 'formInstr'].forEach(k => $('#iso_' + k).value = S.iso[k] || '');
 }
@@ -7874,6 +8010,8 @@ function renderJobMain() {
     ${jobNextHTML(job)}${jobTasksHTML(job)}${jobFilesHTML(job)}${srcFolderHTML(job)}<div class="jcard" data-v="main"><div class="bcard-h">Түүх</div><div class="jbody"><div class="jlog">${job.log.map(l => `<div><span class="mono">${esc(l.t)}</span>${esc(l.m)}</div>`).join('') || '<span class="note">—</span>'}</div></div></div>
     <datalist id="opList">${ops.map(o => `<option value="${esc(o)}">`).join('')}</datalist>`;
   bindSubBar(el); bindJobFiles(el, job); bindJobTasks(el, job); bindSrcFolder(el, job);
+  el.querySelectorAll('[data-st]').forEach(b => b.addEventListener('click', () => { if (b.dataset.st === job.status) return; const o = jstName(job.status); job.status = b.dataset.st; jobLog(`Төлөв: ${o} → ${jstName(job.status)}`, job); save(); renderJList(); renderJobMain(); }));
+  { const nd = el.querySelector('#jf_need'); if (nd) nd.addEventListener('change', () => { job.need = nd.value.trim(); if (job.need) jobLog('Тэмдэглэл: ' + job.need, job); save(); renderJList(); }); }
   { const v = J.sub === 'prod' ? 'prod' : 'main'; el.querySelectorAll('[data-v]').forEach(n => { n.hidden = n.dataset.v !== v; }); el.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => { J.sub = b.dataset.go === 'make' ? (J.mk || 'prod') : b.dataset.go; renderJobMain(); })); }
   // field bindings
   ['no', 'title', 'customer', 'due', 'note'].forEach(k => $('#jf_' + k).addEventListener('change', ev => { const v = ev.target.value.trim(); if (k === 'no' && !v) return; if (k === 'no') { job.no = v; job.short = (v.match(/(\d+)\s*$/) || [, v])[1]; } else job[k] = v; if (k === 'customer' && v) { orgLearn({ org: v }); if (job.quote && job.quote.qf && qfFillFromDir(job.quote.qf, v)) toast('Захиалагчийн хаяг, ID үнийн саналд бөглөгдлөө'); } save(); renderJList(); }));
@@ -8196,8 +8334,50 @@ function stepInfo(job, k) {
   if (k === 'acc') return job.dock && job.dock.issued ? `Docket ${job.dock.no} · ${job.dock.issued}` : (job.acc && job.acc.done ? 'акт ' + job.acc.done : 'хүлээлгээгүй');
   return job.customer || 'захиалагч бөглөөгүй';
 }
+/* «Ажлын байдал» — where the job is, who owns it, what is needed now (no money here) */
+function jobNeeds(job) {
+  const N = [], T = (typeof tasks === 'function' ? tasks() : []).filter(t => t.jobId === job.id && t.status !== 'done'), st = job.status, parts = (() => { try { return jobParts(job).length; } catch (e) { return 0; } })();
+  if (!job.owner) N.push(['Хариуцагч сонгох', null]);
+  if (!job.due) N.push(['Дуусах хугацаа тогтоох', null]);
+  if (st === 'new' && !parts && !(job.files || []).length) N.push(['Зураг, парт оруулах', 'prod']);
+  if (st === 'new' && parts && !job.est) N.push(['Өрөлт хийх (Зүсэлт)', 'prod']);
+  if (['nest', 'cut'].includes(st) && !(job.trace || []).length) N.push(['Зүсэлтийн бүртгэл хөтлөх', 'prod']);
+  if (st === 'done' && !(job.dock && job.dock.issued)) N.push(['Packing list гаргах', 'acc']);
+  if (st === 'given' && !(job.acc && job.acc.done)) N.push(['Хүлээн авалтын акт', 'acc']);
+  const dl = daysLeft(job.due); if (dl != null && dl < 0 && !['done', 'given'].includes(st)) N.unshift([`Хугацаа ${-dl} хоног хэтэрсэн!`, null, 'bad']);
+  return { N, T };
+}
 function jobNextHTML(job) {
-  return `<div class="jcard" data-v="main"><div class="bcard-h">Ажлын явц</div><div class="jbody"><div class="jsteps">${JSTEP.slice(1).map(([k, n, d], i) => `<button class="jstep" data-go="${k}"><span class="sn">${i + 2}</span><span><b>${n}</b><small>${esc(stepInfo(job, k))}</small></span></button>`).join('')}</div></div></div>`;
+  jx(job); const { N, T } = jobNeeds(job), dl = daysLeft(job.due), si = JST.findIndex(s => s[0] === job.status), P = (() => { try { return progCalc(job); } catch (e) { return null; } })();
+  const pct = P ? Math.round(P.pct * 100) : 0;
+  return `<div class="jcard jstate" data-v="main"><div class="bcard-h">Ажлын байдал <span class="sp"></span><span class="muted" style="font-weight:400;font-size:12.5px">${pct ? `гүйцэтгэл ${pct}%` : ''}</span></div><div class="jbody">
+    <div class="spipe">${JST.map(([k, n], i) => `<button data-st="${k}" class="${i < si ? 'past' : i === si ? 'now' : ''}"><i>${i < si ? '✓' : i + 1}</i>${n}</button>`).join('')}</div>
+    <div class="sgrid">
+      <div><small>Хариуцагч</small><div class="sown">${typeof avatar === 'function' ? avatar(job.owner, 30) : ''}<select id="jf_owner" class="inp">${typeof peopleOpts === 'function' ? peopleOpts(job.owner) : ''}</select></div></div>
+      <div><small>Дуусах хугацаа</small><div class="sbig ${dl != null && dl < 0 && !['done', 'given'].includes(job.status) ? 'late' : ''}">${job.due ? esc(job.due) + (dl != null ? ` <span class="muted">(${dl >= 0 ? dl + ' хоног үлдсэн' : -dl + ' хоног хэтэрсэн'})</span>` : '') : '<span class="muted">тогтоогоогүй</span>'}</div></div>
+      <div><small>Захиалагч</small><div class="sbig">${esc(job.customer || '—')}${job.quote && job.quote.no ? ` <span class="muted mono">· ${esc(job.quote.no)}</span>` : ''}</div></div>
+    </div>
+    <div class="sneed"><small>Одоо юу хэрэгтэй вэ</small>
+      ${N.map(([t, go, cls]) => `<div class="nrow ${cls || ''}">${cls === 'bad' ? '⚠' : '○'} <span>${esc(t)}</span>${go ? `<button class="linkbtn" data-go="${go === 'prod' ? 'make' : go}">нээх →</button>` : ''}</div>`).join('')}
+      ${T.slice(0, 5).map(t => `<div class="nrow">□ <span>${esc(t.title || '(гарчиггүй)')}</span><span class="muted">${esc(typeof pName === 'function' ? pName(t.assignee) || 'хариуцагчгүй' : '')}${t.due ? ' · ' + esc(t.due) : ''}</span></div>`).join('')}
+      ${!N.length && !T.length ? '<div class="nrow ok">✓ Одоогоор хүлээгдэж буй зүйл алга</div>' : ''}
+      <label class="fld" style="margin-top:6px">Тэмдэглэл — саад, хүлээж буй зүйл (материал ирээгүй, захиалагчийн хариу…)<input id="jf_need" value="${esc(job.need || '')}" placeholder="жишээ: Hardox 20мм хүлээж байна"></label>
+    </div>
+  </div></div>
+  ${jobMoneyHTML(job)}`;
+}
+/* «Санхүү» — quotation, budget, actual cost, profit (kept apart from the status) */
+function jobMoneyHTML(job) {
+  let m = null, c = null; try { m = jobMoney(job); c = quoteCalc(job); } catch (e) { }
+  if (!m) return '';
+  const q = job.quote || {}, P = (() => { try { return progCalc(job); } catch (e) { return null; } })(), act = P && P.AC ? P.AC : m.act;
+  const cell = (k, v, s, cls) => `<div class="stat"><div class="k">${k}</div><div class="v ${cls || ''}">${v}</div><div class="s">${s || ''}</div></div>`;
+  return `<div class="jcard" data-v="main"><div class="bcard-h">Санхүү <span class="sp"></span><button class="linkbtn" data-go="quote">үнийн санал →</button><button class="linkbtn" data-go="make">зардал бүртгэх →</button></div><div class="jbody"><div class="summary">
+    ${cell('Үнийн санал / гэрээ', m.price ? money(m.price) + '<small>₮</small>' : '—', q.no ? q.no + (q.date ? ' · ' + q.date : '') : 'санал оруулаагүй')}
+    ${cell('Төсөвт өртөг', m.plan ? money(m.plan) + '<small>₮</small>' : '—', q.noCost ? 'Excel-ээс — өртөг оруулаагүй' : 'үнийн саналын тооцоо')}
+    ${cell('Бодит зардал', act ? money(act) + '<small>₮</small>' : '—', act && m.plan ? `төсвийн ${Math.round(act / m.plan * 100)}%` : 'зардал бүртгээгүй', act && m.plan && act > m.plan ? 'late' : '')}
+    ${cell('Ашиг (таамаг)', m.price && (act || m.plan) ? money(m.price - (act || m.plan)) + '<small>₮</small>' : '—', m.price && (act || m.plan) ? Math.round((m.price - (act || m.plan)) / m.price * 100) + '%' : '')}
+  </div></div></div>`;
 }
 
 function costDef() { S.costDef = Object.assign({}, COST_DEF, S.costDef || {}); return S.costDef; }
@@ -8285,7 +8465,7 @@ function jobSubBar(job) {
     ${job.quote.srcFolder ? `<button class="btn ghost" id="qb_dir" title="${esc(job.quote.srcFolder)}">📁 Фолдер</button>` : ''}<button class="btn primary" id="qb_won" title="Захиалагч баталсан — бүх алхам (scope, үйлдвэрлэл, явц, хүлээлгэх) нээгдэнэ">✓ Ажил болгох</button><button class="btn ghost" id="qb_del">Устгах</button></nav>`;
   const cur = stepOf(J.sub);
   return `<nav class="rtabs jsub stepper">${JSTEP.map(([k, n, d], i) => `${i ? '<span class="arr">›</span>' : ''}<button data-jsub="${k}" title="${d}" class="${cur === k ? 'on' : ''}"><span class="sn">${i + 1}</span>${n}</button>`).join('')}<span class="sp" style="flex:1"></span>
-    <label class="jstat" title="Ажлын төлөв">Төлөв <select id="sb_status" class="inp">${JST.map(([k, n]) => `<option value="${k}"${k === job.status ? ' selected' : ''}>${n}</option>`).join('')}</select></label><span class="muted mono jno">${esc(job.no)}</span></nav>
+    ${cur === 'main' ? '' : `<label class="jstat" title="Ажлын төлөв">Төлөв <select id="sb_status" class="inp">${JST.map(([k, n]) => `<option value="${k}"${k === job.status ? ' selected' : ''}>${n}</option>`).join('')}</select></label>`}<span class="muted mono jno">${esc(job.no)}</span></nav>
     ${cur === 'make' ? `<nav class="rtabs mktabs">${MAKE.map(([k, n]) => `<button data-jsub="${k}" class="${J.sub === k ? 'on' : ''}">${n}</button>`).join('')}</nav>` : ''}`;
 }
 function bindSubBar(el) {
@@ -9814,14 +9994,16 @@ function srcFolderHTML(job) {
   const q = job.quote || {}, el = !!(window.kh && window.kh.listDir);
   if (!q.srcFolder && !el) return '';
   return `<div class="jcard sfcard" data-v="main"><div class="bcard-h">📁 Фолдер — файлууд <span class="pill" id="sfN">${q.srcFolder ? '…' : '—'}</span><span class="sp"></span>
-    ${q.srcFolder && el ? '<button class="btn sm ghost" id="sfOpen">Explorer-т нээх</button><button class="btn sm ghost" id="sfRe" title="Дахин унших">↻</button>' : ''}${el ? `<button class="btn sm ghost" id="sfPick">${q.srcFolder ? 'Фолдер солих' : 'Фолдер холбох'}</button>` : ''}</div>
+    ${q.srcFolder && el ? '<button class="btn sm ghost" id="sfOpen">Explorer-т нээх</button><button class="btn sm ghost" id="sfRe" title="Дахин унших">↻</button>' : ''}${el ? `<button class="btn sm ghost" id="sfPick">${q.srcFolder ? 'Фолдер солих' : 'Фолдер холбох'}</button>` : ''}${q.srcFolder ? '<button class="btn sm ghost" id="sfDel" title="Фолдерыг энэ ажлаас салгана (компьютерын файлууд устахгүй)">✕ Салгах</button>' : ''}</div>
     <div class="jbody"><div class="muted mono sfpath">${esc(q.srcFolder || 'Энэ ажил, саналд компьютерын фолдер холбоогүй байна — «Фолдер холбох».')}</div><div class="jfgrid sfgrid" id="sfList">${!el && q.srcFiles ? q.srcFiles.map(n => `<figure class="jf"><div class="th"><span class="ext">${esc(jfExt(n))}</span></div><figcaption><b>${esc(n)}</b></figcaption></figure>`).join('') : ''}</div></div></div>`;
 }
 async function bindSrcFolder(el, job) {
-  const card = el.querySelector('.sfcard'); if (!card || !(window.kh && window.kh.listDir)) return;
+  const card = el.querySelector('.sfcard'); if (!card) return;
+  if (!(window.kh && window.kh.listDir)) { const dz = card.querySelector('#sfDel'); if (dz) dz.addEventListener('click', () => { if (!confirm('Фолдерыг салгах уу?')) return; job.quote.srcFolder = ''; job.quote.srcFiles = []; save(); renderJobMain(); }); return; }
   const q = job.quote; jx(job);
   const pk = card.querySelector('#sfPick'); if (pk) pk.addEventListener('click', async () => { const d = await window.kh.pickDir(); if (d) { q.srcFolder = d; jobLog('Фолдер холбосон: ' + d, job); save(); renderJobMain(); } });
   const op = card.querySelector('#sfOpen'); if (op) op.addEventListener('click', async () => { const e = await window.kh.openPath(q.srcFolder); if (e) toast('Фолдер олдсонгүй'); });
+  const dz = card.querySelector('#sfDel'); if (dz) dz.addEventListener('click', () => { if (!confirm('Фолдерыг энэ ажил/саналаас салгах уу? (Компьютер дээрх файлууд устахгүй)')) return; jobLog('Фолдер салгасан: ' + q.srcFolder, job); q.srcFolder = ''; q.srcFiles = []; save(); renderJobMain(); });
   const rr = card.querySelector('#sfRe'); if (rr) rr.addEventListener('click', () => renderJobMain());
   if (!q.srcFolder) return;
   const list = card.querySelector('#sfList'), n = card.querySelector('#sfN');
@@ -10303,7 +10485,8 @@ function setModule(v) {
   if ($('#infoSide')) $('#infoSide').hidden = $('#infoMain').hidden = m !== 'info';
   if ($('#inspSide')) $('#inspSide').hidden = $('#inspMain').hidden = m !== 'insp';
   if ($('#teamSide')) $('#teamSide').hidden = $('#teamMain').hidden = m !== 'team';
-  if (m === 'info') { if (typeof renderInfo === 'function') renderInfo(); } else if (m === 'insp') { if (typeof renderInsp === 'function') renderInsp(); } else if (m === 'team') { if (typeof renderTeam === 'function') renderTeam(); } else if (m === 'bend') { renderBend(); if (typeof showBendTab === 'function') showBendTab(RT.tab); } else if (m === 'jobs') renderJobs(); else drawView();
+  if ($('#ideasSide')) $('#ideasSide').hidden = $('#ideaMain').hidden = m !== 'ideas';
+  if (m === 'info') { if (typeof renderInfo === 'function') renderInfo(); } else if (m === 'insp') { if (typeof renderInsp === 'function') renderInsp(); } else if (m === 'team') { if (typeof renderTeam === 'function') renderTeam(); } else if (m === 'ideas') { if (typeof renderIdeas === 'function') renderIdeas(); } else if (m === 'bend') { renderBend(); if (typeof showBendTab === 'function') showBendTab(RT.tab); } else if (m === 'jobs') renderJobs(); else drawView();
   try { localStorage.setItem(KEY + ':mod', v); } catch (e) { }
 }
 $$('.modtabs button').forEach(b => b.addEventListener('click', () => setModule(b.dataset.mod)));
@@ -12488,19 +12671,45 @@ function taskCard(t) {
   const j = findJob(t.jobId);
   return `<div class="tcard${TM.sel === t.id ? ' on' : ''}" draggable="true" data-tid="${t.id}"><div class="tt">${prioDot(t.prio)}<b>${esc(t.title || '(гарчиггүй)')}</b></div>
     ${j ? `<div class="tj">${esc(jobLabel(j))}</div>` : `<div class="tj muted">${(TTYPE.find(x => x[0] === t.type) || TTYPE[2])[1]}</div>`}
-    <div class="tf">${avatar(t.assignee, 22)}<span class="sp" style="flex:1"></span>${dueTag(t)}</div></div>`;
+    ${(t.tags || []).length ? `<div class="ttags">${t.tags.map(g => `<span class="tag" style="--h:${avCol(g)}">${esc(g)}</span>`).join('')}</div>` : ''}
+    <div class="tf">${avatar(t.assignee, 22)}${(t.sub || []).length ? `<span class="muted mono" style="font-size:11.5px">☑ ${t.sub.filter(x => x.done).length}/${t.sub.length}</span>` : ''}${(t.comments || []).length ? `<span class="muted mono" style="font-size:11.5px">💬 ${t.comments.length}</span>` : ''}<span class="sp" style="flex:1"></span>${dueTag(t)}</div></div>`;
 }
 function renderTasksMain(el) {
   const L = taskFilter(), who = TM.who === '-' ? 'Хариуцагчгүй' : TM.who ? pName(TM.who) : 'Бүх хүн';
-  const views = [['board', 'Самбар'], ['list', 'Жагсаалт'], ['load', 'Хэн юу хийж байна']];
+  const views = [['board', 'Самбар'], ['table', 'Хүснэгт'], ['list', 'Жагсаалт'], ['cal', 'Календарь'], ['load', 'Хэн юу хийж байна']];
   let body = '';
   if (TM.view === 'board') body = `<div class="kanban">${TSTAT.map(([k, n, c]) => { const a = L.filter(t => t.status === k); return `<div class="kcol" data-col="${k}"><div class="kh"><i style="background:${c}"></i>${n}<span class="muted mono">${a.length}</span><button class="linkbtn" data-kadd="${k}" title="Энэ баганад нэмэх">+</button></div><div class="kl">${a.map(taskCard).join('')}</div></div>`; }).join('')}</div>`;
   else if (TM.view === 'list') body = TSTAT.map(([k, n, c]) => { const a = L.filter(t => t.status === k).sort((x, y) => TPRIO.findIndex(p => p[0] === x.prio) - TPRIO.findIndex(p => p[0] === y.prio) || String(x.due || '9').localeCompare(String(y.due || '9'))); return a.length ? `<div class="jcard"><div class="bcard-h"><i class="sdot" style="background:${c}"></i>${n} <span class="pill">${a.length}</span></div><div class="tlist">${a.map(t => { const j = findJob(t.jobId); return `<div class="trow${TM.sel === t.id ? ' on' : ''}" data-tid="${t.id}">${prioDot(t.prio)}<b>${esc(t.title || '(гарчиггүй)')}</b><span class="muted">${esc(j ? jobLabel(j) : (TTYPE.find(x => x[0] === t.type) || TTYPE[2])[1])}</span><span class="sp" style="flex:1"></span>${dueTag(t)}${avatar(t.assignee, 22)}</div>`; }).join('')}</div></div>` : ''; }).join('') || '<p class="note">Даалгавар алга.</p>';
+  else if (TM.view === 'table') body = taskTableHTML(L);
+  else if (TM.view === 'cal') body = taskCalHTML(L);
   else body = workloadHTML();
   el.innerHTML = `<div class="dhead"><div><h2>Даалгавар</h2><p class="muted">${esc(who)}${TM.type ? ' · ' + TTYPE.find(x => x[0] === TM.type)[1] : ''} · ${L.filter(t => t.status !== 'done').length} нээлттэй</p></div><span class="sp" style="flex:1"></span>
       <input class="inp" id="tmQ" placeholder="Хайх…" value="${esc(TM.q)}" style="width:200px"><div class="seg">${views.map(([k, n]) => `<button data-tview="${k}" class="${TM.view === k ? 'on' : ''}">${n}</button>`).join('')}</div></div>
     <div class="tmwrap${TM.sel ? ' withd' : ''}"><div class="tmbody">${body}</div>${TM.sel ? taskDetailHTML(tasks().find(t => t.id === TM.sel)) : ''}</div>`;
   bindTasksMain(el);
+}
+/* Notion-style database table: inline-editable properties, sortable columns */
+function taskTableHTML(L) {
+  const k = TM.sort || 'due', dir = TM.sdir || 1, val = t => k === 'prio' ? TPRIO.findIndex(p => p[0] === t.prio) : k === 'status' ? TSTAT.findIndex(p => p[0] === t.status) : k === 'assignee' ? pName(t.assignee) : k === 'job' ? jobLabel(findJob(t.jobId)) : String(t[k] || (k === 'due' ? '9999' : ''));
+  const R = L.slice().sort((a, b) => (val(a) > val(b) ? 1 : val(a) < val(b) ? -1 : 0) * dir);
+  const H = [['title', 'Нэр'], ['status', 'Төлөв'], ['prio', 'Ач холбогдол'], ['assignee', 'Хариуцагч'], ['due', 'Огноо'], ['job', 'Холбоос'], ['tags', 'Шошго']];
+  return `<div class="jcard"><div class="tblwrap" style="border:0"><table class="dt ttable"><thead><tr>${H.map(([c, n]) => `<th data-sort="${c}" style="cursor:pointer">${n}${k === c ? (dir > 0 ? ' ↑' : ' ↓') : ''}</th>`).join('')}</tr></thead><tbody>
+    ${R.map(t => `<tr data-trow="${t.id}"><td><input class="inp cell" data-tc="title" value="${esc(t.title)}"></td>
+      <td><select class="inp cell" data-tc="status">${TSTAT.map(([v, n]) => `<option value="${v}"${t.status === v ? ' selected' : ''}>${n}</option>`).join('')}</select></td>
+      <td><select class="inp cell" data-tc="prio">${TPRIO.map(([v, n]) => `<option value="${v}"${t.prio === v ? ' selected' : ''}>${n}</option>`).join('')}</select></td>
+      <td><select class="inp cell" data-tc="assignee">${peopleOpts(t.assignee, '—')}</select></td>
+      <td><input class="inp cell" type="date" data-tc="due" value="${esc(t.due)}"></td>
+      <td class="muted" style="font-size:12.5px">${esc(jobLabel(findJob(t.jobId)) || (TTYPE.find(x => x[0] === t.type) || TTYPE[2])[1])}</td>
+      <td>${(t.tags || []).map(g => `<span class="tag" style="--h:${avCol(g)}">${esc(g)}</span>`).join('')} <button class="linkbtn" data-tid="${t.id}">нээх</button></td></tr>`).join('')}
+    <tr><td colspan="7"><button class="linkbtn" id="ttNew">+ Шинэ мөр</button></td></tr></tbody></table></div></div>`;
+}
+/* month calendar by due date */
+function taskCalHTML(L) {
+  const base = TM.month || today().slice(0, 7), d0 = new Date(base + '-01T00:00:00'), y = d0.getFullYear(), m = d0.getMonth(), first = (d0.getDay() + 6) % 7, days = new Date(y, m + 1, 0).getDate();
+  const cells = []; for (let i = 0; i < first; i++) cells.push(''); for (let d = 1; d <= days; d++) cells.push(`${base}-${String(d).padStart(2, '0')}`); while (cells.length % 7) cells.push('');
+  const shift = n => { const t = new Date(y, m + n, 1); return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}`; };
+  return `<div class="jcard"><div class="bcard-h"><button class="btn sm ghost" data-mon="${shift(-1)}">‹</button><b style="min-width:140px;text-align:center">${y} · ${m + 1}-р сар</b><button class="btn sm ghost" data-mon="${shift(1)}">›</button><button class="btn sm ghost" data-mon="${today().slice(0, 7)}">Өнөөдөр</button><span class="sp"></span><span class="muted" style="font-weight:400;font-size:12px">Өдөр дээр давхар дарж даалгавар нэмнэ</span></div>
+    <div class="tcal">${['Да', 'Мя', 'Лх', 'Пү', 'Ба', 'Бя', 'Ня'].map(d => `<div class="tch">${d}</div>`).join('')}${cells.map(c => `<div class="tcd${c === today() ? ' now' : ''}${!c ? ' blank' : ''}" data-day="${c}">${c ? `<span class="tdn">${+c.slice(8)}</span>${L.filter(t => t.due === c).map(t => `<div class="tce" data-tid="${t.id}" style="border-left-color:${(TSTAT.find(x => x[0] === t.status) || TSTAT[0])[2]}">${esc(t.title || '(гарчиггүй)')}</div>`).join('')}` : ''}</div>`).join('')}</div></div>`;
 }
 function workloadHTML() {
   const P = people().filter(p => p.active !== false), T = tasks(), act = S.jobs.filter(j => !['done', 'given'].includes(j.status) && j.qst !== 'lost');
@@ -12528,7 +12737,10 @@ function taskDetailHTML(t) {
       <label class="fld">Төрөл<select id="tk_type">${TTYPE.map(([k, n]) => `<option value="${k}"${t.type === k ? ' selected' : ''}>${n}</option>`).join('')}</select></label>
       <label class="fld">Холбоотой ажил / санал<select id="tk_jobId"><option value="">—</option>${J.map(j => `<option value="${j.id}"${t.jobId === j.id ? ' selected' : ''}>${esc(jobLabel(j))}</option>`).join('')}</select></label>
     </div>
+    <label class="fld">Шошго (таслалаар)<input id="tk_tags" value="${esc((t.tags || []).join(', '))}" placeholder="жишээ: засвар, яаралтай, худалдан авалт" list="dl-ttags"></label><datalist id="dl-ttags">${[...new Set(tasks().flatMap(x => x.tags || []))].map(g => `<option value="${esc(g)}">`).join('')}</datalist>
+    <div class="fld">Дэд даалгавар ${(t.sub || []).length ? `<span class="muted">${t.sub.filter(x => x.done).length}/${t.sub.length}</span>` : ''}<div class="subl">${(t.sub || []).map((x, k) => `<div class="subr"><input type="checkbox" data-sd="${k}"${x.done ? ' checked' : ''}><input class="inp" data-se="${k}" value="${esc(x.t)}"${x.done ? ' style="text-decoration:line-through;color:var(--ink-3)"' : ''}><button class="linkbtn" data-sx="${k}">✕</button></div>`).join('')}<input class="inp" id="tk_subnew" placeholder="+ Дэд даалгавар нэмэх (Enter)"></div></div>
     <label class="fld">Тайлбар<textarea id="tk_desc" class="inp" rows="6" placeholder="Дэлгэрэнгүй, шалгах зүйлс…">${esc(t.desc)}</textarea></label>
+    <div class="fld">Сэтгэгдэл<div class="cmts">${(t.comments || []).map(c => `<div class="cmt">${avatar(c.who, 22)}<div><b>${esc(pName(c.who) || 'Би')}</b> <span class="muted mono" style="font-size:11px">${esc(c.at)}</span><div>${esc(c.text)}</div></div></div>`).join('')}<div class="cmtadd"><input class="inp" id="tk_cmt" placeholder="Сэтгэгдэл бичих… (Enter)"></div></div></div>
     <p class="note">Үүсгэсэн ${esc(t.created)}${t.done ? ' · дууссан ' + esc(t.done) : ''}</p>
   </div></aside>`;
 }
@@ -12538,12 +12750,24 @@ function bindTasksMain(el) {
   el.querySelectorAll('[data-tview]').forEach(b => b.addEventListener('click', () => { TM.view = b.dataset.tview; re(); }));
   el.querySelectorAll('[data-tid]').forEach(c => c.addEventListener('click', e => { e.stopPropagation(); TM.sel = c.dataset.tid; re(); }));
   el.querySelectorAll('[data-job]').forEach(a => a.addEventListener('click', () => openJobFrom(a.dataset.job)));
+  el.querySelectorAll('[data-sort]').forEach(h => h.addEventListener('click', () => { if (TM.sort === h.dataset.sort) TM.sdir = -(TM.sdir || 1); else { TM.sort = h.dataset.sort; TM.sdir = 1; } re(); }));
+  el.querySelectorAll('[data-tc]').forEach(c => { c.addEventListener('click', e => e.stopPropagation()); c.addEventListener('change', () => { const t = tasks().find(x => x.id === c.closest('[data-trow]').dataset.trow); if (!t) return; if (c.dataset.tc === 'status') setTaskStatus(t, c.value); else t[c.dataset.tc] = c.value; save(); if (c.dataset.tc !== 'title') re(); }); });
+  { const n = el.querySelector('#ttNew'); if (n) n.addEventListener('click', () => { newTask({ assignee: TM.who && TM.who !== '-' ? TM.who : (S.me || ''), type: TM.type || 'internal' }); re(); setTimeout(() => { const i = el.querySelector('[data-tc="title"]'); if (i) i.focus(); }, 50); }); }
+  el.querySelectorAll('[data-mon]').forEach(b => b.addEventListener('click', () => { TM.month = b.dataset.mon; re(); }));
+  el.querySelectorAll('.tcd[data-day]').forEach(c => c.addEventListener('dblclick', () => { if (!c.dataset.day) return; const t = newTask({ due: c.dataset.day, assignee: TM.who && TM.who !== '-' ? TM.who : (S.me || '') }); TM.sel = t.id; re(); setTimeout(() => { const i = $('#tk_title'); if (i) i.focus(); }, 50); }));
   el.querySelectorAll('[data-kadd]').forEach(b => b.addEventListener('click', () => { const t = newTask({ status: b.dataset.kadd, assignee: TM.who && TM.who !== '-' ? TM.who : (S.me || ''), type: TM.type || 'internal' }); TM.sel = t.id; re(); setTimeout(() => { const i = $('#tk_title'); if (i) i.focus(); }, 50); }));
   // drag & drop between columns
   el.querySelectorAll('.tcard').forEach(c => c.addEventListener('dragstart', e => { e.dataTransfer.setData('text/plain', c.dataset.tid); c.classList.add('drag'); }));
   el.querySelectorAll('.kcol').forEach(col => { col.addEventListener('dragover', e => { e.preventDefault(); col.classList.add('over'); }); col.addEventListener('dragleave', () => col.classList.remove('over')); col.addEventListener('drop', e => { e.preventDefault(); const t = tasks().find(x => x.id === e.dataTransfer.getData('text/plain')); if (t) setTaskStatus(t, col.dataset.col); re(); }); });
   const d = el.querySelector('.tdetail'); if (!d) return; const t = tasks().find(x => x.id === TM.sel);
   ['title', 'status', 'prio', 'assignee', 'due', 'type', 'jobId', 'desc'].forEach(k => { const i = d.querySelector('#tk_' + k); if (i) i.addEventListener('change', () => { if (k === 'status') setTaskStatus(t, i.value); else t[k] = i.value; if (k === 'jobId' && t.jobId) { const j = findJob(t.jobId); t.type = j && j.kind === 'quote' ? 'quote' : 'job'; } save(); re(); }); });
+  d.querySelector('#tk_tags').addEventListener('change', e => { t.tags = e.target.value.split(',').map(x => x.trim()).filter(Boolean); save(); re(); });
+  t.sub = t.sub || []; t.comments = t.comments || [];
+  d.querySelectorAll('[data-sd]').forEach(c => c.addEventListener('change', () => { t.sub[+c.dataset.sd].done = c.checked; save(); re(); }));
+  d.querySelectorAll('[data-se]').forEach(c => c.addEventListener('change', () => { t.sub[+c.dataset.se].t = c.value; save(); }));
+  d.querySelectorAll('[data-sx]').forEach(c => c.addEventListener('click', () => { t.sub.splice(+c.dataset.sx, 1); save(); re(); }));
+  const sn = d.querySelector('#tk_subnew'); sn.addEventListener('keydown', e => { if (e.key === 'Enter' && sn.value.trim()) { t.sub.push({ t: sn.value.trim(), done: false }); save(); re(); setTimeout(() => { const n = $('#tk_subnew'); if (n) n.focus(); }, 30); } });
+  const cm = d.querySelector('#tk_cmt'); cm.addEventListener('keydown', e => { if (e.key === 'Enter' && cm.value.trim()) { t.comments.push({ who: S.me || '', at: new Date().toISOString().slice(0, 16).replace('T', ' '), text: cm.value.trim() }); save(); re(); } });
   d.querySelector('[data-tclose]').addEventListener('click', () => { TM.sel = null; re(); });
   d.querySelector('[data-tdel]').addEventListener('click', () => { if (!confirm('Энэ даалгаврыг устгах уу?')) return; S.tasks = tasks().filter(x => x !== t); TM.sel = null; save(); re(); });
 }
@@ -12574,8 +12798,7 @@ function bindTasksMain2(el) {
 /* ---------- inside a job / quote: owner + its tasks ---------- */
 function jobTasksHTML(job) {
   const T = tasks().filter(t => t.jobId === job.id);
-  return `<div class="jcard" data-v="main"><div class="bcard-h">Хариуцагч, даалгавар <span class="pill">${T.filter(t => t.status !== 'done').length} нээлттэй</span><span class="sp"></span><button class="btn sm" id="jtAdd">+ Даалгавар</button></div><div class="jbody">
-    <div class="jtrow"><label class="fld" style="max-width:320px">Ажлын хариуцагч<select id="jf_owner">${peopleOpts(job.owner)}</select></label><span class="muted" style="font-size:12.5px;align-self:end;padding-bottom:8px">Хүн нэмэх: зүүн цэс → «Даалгавар» → Хүмүүс</span></div>
+  return `<div class="jcard" data-v="main"><div class="bcard-h">Даалгавар <span class="pill">${T.filter(t => t.status !== 'done').length} нээлттэй</span><span class="sp"></span><button class="btn sm" id="jtAdd">+ Даалгавар</button></div><div class="jbody">
     ${T.length ? `<div class="tlist">${T.map(t => `<div class="trow" data-tid="${t.id}"><input type="checkbox" data-tdone="${t.id}"${t.status === 'done' ? ' checked' : ''}>${prioDot(t.prio)}<span class="${t.status === 'done' ? 'muted' : ''}" style="${t.status === 'done' ? 'text-decoration:line-through' : ''}">${esc(t.title || '(гарчиггүй)')}</span><span class="pill">${TSTAT.find(x => x[0] === t.status)[1]}</span><span class="sp" style="flex:1"></span>${dueTag(t)}${avatar(t.assignee, 22)}</div>`).join('')}</div>` : '<p class="note">Энэ ажилд хэн юу хийхийг даалгавар болгон нэмнэ (зүсэлт — оператор, гагнуур — гагнуурчин, QC…).</p>'}
   </div></div>`;
 }
@@ -12584,6 +12807,111 @@ function bindJobTasks(el, job) {
   const a = el.querySelector('#jtAdd'); if (a) a.addEventListener('click', () => { const title = prompt('Даалгавар (юу хийх вэ?):', ''); if (!title) return; const who = people().length ? prompt('Хэн хийх вэ? (нэр, хоосон бол дараа сонгоно)\n' + people().map(p => p.name).join(', '), '') : ''; const p = who && people().find(x => x.name.toLowerCase().startsWith(who.toLowerCase())); newTask({ title, jobId: job.id, type: job.kind === 'quote' ? 'quote' : 'job', assignee: p ? p.id : '' }); jobLog('Даалгавар нэмсэн: ' + title, job); renderJobMain(); });
   el.querySelectorAll('[data-tdone]').forEach(c => c.addEventListener('click', e => { e.stopPropagation(); const t = tasks().find(x => x.id === c.dataset.tdone); if (t) { setTaskStatus(t, c.checked ? 'done' : 'todo'); renderJobMain(); } }));
   el.querySelectorAll('.jcard [data-tid]').forEach(r => r.addEventListener('click', e => { if (e.target.matches('input')) return; TM.sel = r.dataset.tid; TM.tab = 'tasks'; setModule('team'); }));
+}
+
+/* ================= Kh International — ideas & shop-floor improvements (Санаа, сайжруулалт) =================
+   Anyone records an idea (тохижуулалт, сайжруулалт, ХАБ, чанар…) with the problem, the proposal, the expected
+   benefit and a costed budget; it moves Санаа → Судалж буй → Захиралд танилцуулсан → Батлагдсан → Хэрэгжиж буй →
+   Дууссан (or Татгалзсан). One click prints a «Захиралд танилцуулах» proposal with budget, payback and a decision box. */
+const ICAT = ['Үйлдвэрийн тохижуулалт', 'Үйл явцын сайжруулалт', 'ХАБ, аюулгүй байдал', 'Чанар', 'Тоног төхөөрөмж', 'Зардал хэмнэлт', 'Ажилчдын нөхцөл', 'Бусад'];
+const IST = [['idea', 'Санаа', '#98a2b3'], ['study', 'Судалж буй', '#3e63dd'], ['present', 'Захиралд танилцуулсан', '#f79009'], ['ok', 'Батлагдсан', '#12b76a'], ['doing', 'Хэрэгжиж буй', '#7a5af8'], ['done', 'Дууссан', '#027a48'], ['no', 'Татгалзсан', '#f04438']];
+const istName = k => (IST.find(s => s[0] === k) || IST[0])[1];
+const IV = { sel: null, st: '', q: '' };
+const ideas = () => (Array.isArray(S.ideas) ? S.ideas : (S.ideas = []));
+const ideaCost = i => (i.budget || []).reduce((a, r) => a + (+r.qty || 0) * (+r.price || 0), 0);
+const ideaPayback = i => { const c = ideaCost(i), s = +i.saving || 0; return c && s ? c / s : null; };
+function newIdea() {
+  S.ideaSeq = (+S.ideaSeq || 0) + 1;
+  const i = { id: uid(), no: 'ID-' + String(S.ideaSeq).padStart(3, '0'), title: '', cat: ICAT[0], st: 'idea', prio: 'med', by: S.me || '', owner: '', problem: '', proposal: '', benefit: '', saving: '', due: '', budget: [], photos: [], decision: '', decisionDate: '', decisionNote: '', created: today(), log: [] };
+  ideas().unshift(i); save(); return i;
+}
+function renderIdeasSide() {
+  const el = $('#idList'); if (!el) return; const q = IV.q.toLowerCase();
+  const L = ideas().filter(i => (!IV.st || i.st === IV.st) && (!q || [i.no, i.title, i.cat, i.problem, i.proposal].join(' ').toLowerCase().includes(q)));
+  $('#idSt').innerHTML = `<button data-ist="" class="${!IV.st ? 'on' : ''}">Бүгд <span class="mono">${ideas().length}</span></button>` + IST.map(([k, n]) => { const c = ideas().filter(i => i.st === k).length; return c ? `<button data-ist="${k}" class="${IV.st === k ? 'on' : ''}">${n} <span class="mono">${c}</span></button>` : ''; }).join('');
+  el.innerHTML = L.length ? L.map(i => `<div class="jitem${IV.sel === i.id ? ' on' : ''}" data-id="${i.id}"><span class="no" style="font-family:inherit">${esc(i.title || '(гарчиггүй)')}</span><span class="pill" style="background:${(IST.find(s => s[0] === i.st) || IST[0])[2]}22;color:${(IST.find(s => s[0] === i.st) || IST[0])[2]};box-shadow:none">${istName(i.st)}</span><span class="t">${esc(i.no)} · ${esc(i.cat)}${ideaCost(i) ? ' · ' + money(ideaCost(i)) + ' ₮' : ''}</span></div>`).join('') : '<div class="emptyp">Санаа алга. «+ Шинэ санаа» дарж эхэлнэ.</div>';
+}
+(() => {
+  const a = $('#idNew'); if (a) a.addEventListener('click', () => { const i = newIdea(); IV.sel = i.id; renderIdeas(); setTimeout(() => { const t = $('#ii_title'); if (t) t.focus(); }, 60); });
+  const s = $('#idQ'); if (s) s.addEventListener('input', () => { IV.q = s.value; renderIdeasSide(); });
+  const st = $('#idSt'); if (st) st.addEventListener('click', e => { const b = e.target.closest('[data-ist]'); if (b) { IV.st = b.dataset.ist; renderIdeasSide(); } });
+  const l = $('#idList'); if (l) l.addEventListener('click', e => { const it = e.target.closest('[data-id]'); if (it) { IV.sel = it.dataset.id; renderIdeas(); } });
+})();
+function renderIdeas() { renderIdeasSide(); const el = $('#ideaMain'); const i = ideas().find(x => x.id === IV.sel); if (i) renderIdea(el, i); else renderIdeasBoard(el); }
+function renderIdeasBoard(el) {
+  const I = ideas(), sum = a => a.reduce((s, i) => s + ideaCost(i), 0), by = k => I.filter(i => i.st === k);
+  const pend = I.filter(i => ['study', 'present'].includes(i.st)), okd = I.filter(i => ['ok', 'doing', 'done'].includes(i.st)), sav = okd.reduce((a, i) => a + (+i.saving || 0), 0);
+  el.innerHTML = `<div class="dhead"><div><h2>Санаа, сайжруулалт</h2><p class="muted">Үйлдвэрийн тохижуулалт, сайжруулалтын санал — төсөв, үр ашиг, захирлын шийдвэр</p></div><span class="sp" style="flex:1"></span><button class="btn primary" id="idNew2">+ Шинэ санаа</button><button class="btn" data-iout="pdf">Нэгдсэн жагсаалт PDF</button><button class="btn ghost" data-iout="print">🖨</button></div>
+    <div class="summary">${[['Нийт санаа', I.length, `${by('idea').length} шинэ`], ['Шийдвэр хүлээж буй', pend.length, `${money(sum(pend))} ₮ төсөв`], ['Батлагдсан', okd.length, `${money(sum(okd))} ₮ төсөв`], ['Хүлээгдэж буй хэмнэлт', money(sav) + '<small>₮/сар</small>', 'батлагдсан санаануудаар']].map(s => `<div class="stat"><div class="k">${s[0]}</div><div class="v">${s[1]}</div><div class="s">${s[2]}</div></div>`).join('')}</div>
+    <div class="kanban ikb">${IST.map(([k, n, c]) => { const a = by(k); return `<div class="kcol" data-col="${k}"><div class="kh"><i style="background:${c}"></i>${n}<span class="muted mono">${a.length}</span></div><div class="kl">${a.map(i => `<div class="tcard" draggable="true" data-iid="${i.id}"><div class="tt"><b>${esc(i.title || '(гарчиггүй)')}</b></div><div class="tj">${esc(i.cat)}</div><div class="tf">${typeof avatar === 'function' ? avatar(i.owner || i.by, 22) : ''}<span class="sp" style="flex:1"></span>${ideaCost(i) ? `<span class="tdue">${money(ideaCost(i))} ₮</span>` : ''}</div></div>`).join('')}</div></div>`; }).join('')}</div>`;
+  el.querySelector('#idNew2').addEventListener('click', () => $('#idNew').click());
+  el.querySelectorAll('[data-iid]').forEach(c => { c.addEventListener('click', () => { IV.sel = c.dataset.iid; renderIdeas(); }); c.addEventListener('dragstart', e => e.dataTransfer.setData('text/plain', c.dataset.iid)); });
+  el.querySelectorAll('.kcol').forEach(col => { col.addEventListener('dragover', e => { e.preventDefault(); col.classList.add('over'); }); col.addEventListener('dragleave', () => col.classList.remove('over')); col.addEventListener('drop', e => { e.preventDefault(); const i = ideas().find(x => x.id === e.dataTransfer.getData('text/plain')); if (i && i.st !== col.dataset.col) { i.log.push({ t: today(), m: `${istName(i.st)} → ${istName(col.dataset.col)}` }); i.st = col.dataset.col; save(); } renderIdeas(); }); });
+  el.querySelectorAll('[data-iout]').forEach(b => b.addEventListener('click', () => docOut(b.dataset.iout, ideasListDoc, 'Санаа_сайжруулалт_жагсаалт')));
+}
+const IB_COLS = [{ k: 'name', t: 'Зардлын нэр (материал, ажил, худалдан авалт)', list: 'dl-any' }, { k: 'qty', t: 'Тоо', num: 1, w: 80 }, { k: 'unit', t: 'Нэгж', w: 70 }, { k: 'price', t: 'Нэгж үнэ, ₮', num: 1, w: 110 }, { k: 'sum', t: 'Нийт, ₮', calc: r => money((+r.qty || 0) * (+r.price || 0)) }, { k: 'note', t: 'Нийлүүлэгч / тайлбар' }];
+function renderIdea(el, i) {
+  const pb = ideaPayback(i), cost = ideaCost(i);
+  el.innerHTML = `<div class="dhead"><div><h2>${esc(i.title || 'Шинэ санаа')}</h2><p class="muted">${esc(i.no)} · ${esc(i.created)}${i.by ? ' · санаачлагч ' + esc(pName(i.by)) : ''}</p></div><span class="sp" style="flex:1"></span><button class="btn ghost" id="iiBack">← Самбар</button><button class="btn primary" data-iout="pdf">Захиралд танилцуулах PDF</button><button class="btn ghost" data-iout="print">🖨 Хэвлэх</button><button class="btn ghost" id="iiDel">Устгах</button></div>
+    <div class="spipe">${IST.map(([k, n]) => `<button data-ist2="${k}" class="${i.st === k ? 'now' : ''}"><i>${IST.findIndex(s => s[0] === k) + 1}</i>${n}</button>`).join('')}</div>
+    <div class="jcard"><div class="jbody">
+      <div class="jgrid">${fldIn('ii_title', 'Санааны нэр', i.title, { cls: 'grow' })}<label class="fld">Ангилал<select id="ii_cat">${ICAT.map(c => `<option${c === i.cat ? ' selected' : ''}>${esc(c)}</option>`).join('')}</select></label>
+        <label class="fld">Санаачлагч<select id="ii_by">${peopleOpts(i.by, '—')}</select></label><label class="fld">Хариуцагч<select id="ii_owner">${peopleOpts(i.owner, '—')}</select></label>
+        <label class="fld">Ач холбогдол<select id="ii_prio">${TPRIO.map(([k, n]) => `<option value="${k}"${i.prio === k ? ' selected' : ''}>${n}</option>`).join('')}</select></label>${fldIn('ii_due', 'Хэрэгжүүлэх хугацаа', i.due, { type: 'date' })}</div>
+      ${fldIn('ii_problem', 'Одоогийн байдал / асуудал', i.problem, { area: 1, rows: 3 })}
+      ${fldIn('ii_proposal', 'Санал болгож буй шийдэл', i.proposal, { area: 1, rows: 3 })}
+      <div class="jgrid">${fldIn('ii_benefit', 'Үр ашиг (аюулгүй байдал, бүтээмж, чанар…)', i.benefit, { area: 1, rows: 2 })}${fldIn('ii_saving', 'Хэмнэлт, ₮ / сар (тооцож болох бол)', i.saving, { num: 1 })}</div>
+    </div></div>
+    <div class="jcard"><div class="bcard-h">Төсөвт өртөг <span class="sp"></span><span class="mono" style="font-size:15px">${money(cost)} ₮</span></div><div class="jbody">
+      ${edTable('ib', IB_COLS, i.budget, { foot: `<tr class="tot"><td></td><td colspan="4">Нийт төсөв</td><td class="r num">${money(cost)}</td><td colspan="2"></td></tr>` })}
+      <p class="note">Материал, consumable-ийг үнийн сангаас сонгоход үнэ нь автоматаар бөглөгдөнө. ${pb ? `Өөрийгөө нөхөх хугацаа ≈ <b>${nf(pb, 1)} сар</b>.` : ''}</p>
+    </div></div>
+    <div class="jcard"><div class="bcard-h">Зураг (одоогийн байдал, санаа)</div><div class="jbody"><div class="dkph">${(i.photos || []).map((p, k) => `<figure><img src="${p}" alt=""><button class="x" data-iph="${k}">×</button></figure>`).join('')}<button class="btn sm" id="iiPhoto">+ Зураг</button></div></div></div>
+    <div class="jcard"><div class="bcard-h">Захирлын шийдвэр</div><div class="jbody"><div class="jgrid">
+      <label class="fld">Шийдвэр<select id="ii_decision"><option value="">— хүлээгдэж буй —</option><option value="ok"${i.decision === 'ok' ? ' selected' : ''}>Зөвшөөрсөн</option><option value="mod"${i.decision === 'mod' ? ' selected' : ''}>Засвартай зөвшөөрсөн</option><option value="later"${i.decision === 'later' ? ' selected' : ''}>Хойшлуулсан</option><option value="no"${i.decision === 'no' ? ' selected' : ''}>Татгалзсан</option></select></label>
+      ${fldIn('ii_decisionDate', 'Огноо', i.decisionDate, { type: 'date' })}${fldIn('ii_decisionNote', 'Тайлбар, батлагдсан төсөв', i.decisionNote, { cls: 'grow' })}</div>
+      <div class="addrow"><button class="btn" id="iiTask">→ Даалгавар болгох</button><span class="note">Батлагдсаны дараа хэрэгжүүлэх ажлыг Даалгавар руу илгээнэ.</span></div>
+    </div></div>
+    <div class="jcard"><div class="bcard-h">Түүх</div><div class="jbody"><div class="jlog">${(i.log || []).slice().reverse().map(l => `<div><span class="mono">${esc(l.t)}</span>${esc(l.m)}</div>`).join('') || '<span class="note">—</span>'}</div></div></div>`;
+  const re = () => renderIdeas();
+  [['title'], ['cat'], ['by'], ['owner'], ['prio'], ['due'], ['problem'], ['proposal'], ['benefit'], ['saving', 1], ['decisionDate'], ['decisionNote']].forEach(([k, n]) => { const f = el.querySelector('#ii_' + k); if (f) f.addEventListener('change', () => { i[k] = n ? (f.value === '' ? '' : +f.value) : f.value.trim(); save(); if (['title', 'cat', 'saving', 'by'].includes(k)) re(); }); });
+  el.querySelector('#ii_decision').addEventListener('change', e => { i.decision = e.target.value; if (!i.decisionDate) i.decisionDate = today(); const map = { ok: 'ok', mod: 'ok', no: 'no' }; if (map[i.decision] && i.st !== map[i.decision]) { i.log.push({ t: today(), m: `Захирлын шийдвэр: ${e.target.selectedOptions[0].text}` }); i.st = map[i.decision]; } save(); re(); });
+  el.querySelectorAll('[data-ist2]').forEach(b => b.addEventListener('click', () => { if (i.st === b.dataset.ist2) return; i.log.push({ t: today(), m: `${istName(i.st)} → ${istName(b.dataset.ist2)}` }); i.st = b.dataset.ist2; save(); re(); }));
+  bindEd(el, { ib: { arr: () => i.budget, cols: IB_COLS, blank: () => ({ name: '', qty: 1, unit: 'ш', price: '', note: '' }) } }, () => { save(); re(); }, (id, row, key) => { if (key === 'name') { const c = catFindExact(row.name); if (c) { row.unit = c.unit; row.price = c.price; row.note = c.sup || ''; } } });
+  el.querySelector('#iiBack').addEventListener('click', () => { IV.sel = null; re(); });
+  el.querySelector('#iiDel').addEventListener('click', () => { if (!confirm('Энэ санааг устгах уу?')) return; S.ideas = ideas().filter(x => x !== i); IV.sel = null; save(); re(); });
+  el.querySelector('#iiPhoto').addEventListener('click', () => { const f = document.createElement('input'); f.type = 'file'; f.accept = 'image/*'; f.multiple = true; f.onchange = async () => { for (const file of f.files) i.photos.push(await imgThumb(file, 1400)); i.photos = i.photos.slice(0, 6); save(); re(); }; f.click(); });
+  el.querySelectorAll('[data-iph]').forEach(b => b.addEventListener('click', () => { i.photos.splice(+b.dataset.iph, 1); save(); re(); }));
+  el.querySelector('#iiTask').addEventListener('click', () => { const t = newTask({ title: i.title || 'Сайжруулалт', desc: `${i.no}\n${i.proposal || ''}`, type: 'internal', assignee: i.owner || '', due: i.due || '' }); i.log.push({ t: today(), m: 'Даалгавар үүсгэсэн' }); if (i.st === 'ok') i.st = 'doing'; save(); TM.sel = t.id; TM.tab = 'tasks'; setModule('team'); });
+  el.querySelectorAll('[data-iout]').forEach(b => b.addEventListener('click', () => { if (i.st === 'idea' || i.st === 'study') { i.log.push({ t: today(), m: 'Захиралд танилцуулах баримт гаргасан' }); i.st = 'present'; save(); } docOut(b.dataset.iout, () => ideaDoc(i), `${i.no}_${i.title || 'санаа'}`).then(re); }));
+}
+/* «Захиралд танилцуулах» — one-page proposal */
+async function ideaDoc(i) {
+  const D = await kdoc({ title: 'САНАЛ — ҮЙЛДВЭРИЙН САЙЖРУУЛАЛТ', sub: `${i.no} · ${today()}` });
+  D.kv([['Санааны нэр', i.title || '—'], ['Ангилал', i.cat], ['Санаачлагч', pName(i.by) || '—'], ['Хариуцагч', pName(i.owner) || '—'], ['Ач холбогдол', (TPRIO.find(p => p[0] === i.prio) || TPRIO[2])[1]], ['Хэрэгжүүлэх хугацаа', i.due || '—']], 2);
+  if (i.problem) D.box('Одоогийн байдал / асуудал', [i.problem]);
+  if (i.proposal) D.box('Санал болгож буй шийдэл', [i.proposal]);
+  if (i.benefit || i.saving) D.box('Үр ашиг', [i.benefit || '', i.saving ? `Хэмнэлт: ${money(i.saving)} ₮ / сар${ideaPayback(i) ? ` · өөрийгөө нөхөх ≈ ${nf(ideaPayback(i), 1)} сар` : ''}` : ''].filter(Boolean));
+  D.h2('Төсөвт өртөг');
+  const rows = (i.budget || []).filter(r => r.name).map((r, k) => [k + 1, r.name, Number.isInteger(+r.qty) ? String(+r.qty) : nf(+r.qty || 0, 2), r.unit || '', money(r.price), money((+r.qty || 0) * (+r.price || 0)), r.note || '']);
+  D.table([{ t: '№', w: 8, m: 1 }, { t: 'Зардлын нэр' }, { t: 'Тоо', w: 14, a: 'r', m: 1 }, { t: 'Нэгж', w: 12 }, { t: 'Нэгж үнэ, ₮', w: 24, a: 'r', m: 1 }, { t: 'Нийт, ₮', w: 26, a: 'r', m: 1 }, { t: 'Тайлбар', w: 34 }], rows.length ? rows : [['', 'Төсөв оруулаагүй', '', '', '', '', '']]);
+  D.totals([['Нийт төсөв', money(ideaCost(i)) + ' ₮', 1]]);
+  if ((i.photos || []).length) {
+    D.h2('Зураг'); const ims = (await Promise.all(i.photos.slice(0, 4).map(imgLoad))).filter(Boolean), w = (D.W - 6) / 2, h = 55;
+    for (let k = 0; k < ims.length; k += 2) { D.need(h + 4); ims.slice(k, k + 2).forEach((im, j) => { const s = Math.min(w / im.naturalWidth, h / im.naturalHeight), iw = im.naturalWidth * s, ih = im.naturalHeight * s; D.x.drawImage(im, D.M + j * (w + 6) + (w - iw) / 2, D.y, iw, ih); }); D.y += h + 4; }
+  }
+  D.h2('Захирлын шийдвэр');
+  const dec = { ok: 'Зөвшөөрсөн', mod: 'Засвартай зөвшөөрсөн', later: 'Хойшлуулсан', no: 'Татгалзсан' }[i.decision];
+  D.box('Шийдвэр', [dec ? `${dec}${i.decisionDate ? ' · ' + i.decisionDate : ''}${i.decisionNote ? ' — ' + i.decisionNote : ''}` : '☐ Зөвшөөрсөн     ☐ Засвартай зөвшөөрсөн     ☐ Хойшлуулсан     ☐ Татгалзсан', 'Батлагдсан төсөв: ____________________ ₮']);
+  D.sigs(['Санал гаргасан', 'Хянасан', 'Захирал'], { names: [pName(i.by) || '', pName(i.owner) || '', ''] });
+  return D;
+}
+async function ideasListDoc() {
+  const D = await kdoc({ title: 'САНАА, САЙЖРУУЛАЛТЫН ЖАГСААЛТ', sub: today() });
+  IST.forEach(([k, n]) => { const L = ideas().filter(i => i.st === k); if (!L.length) return; D.h2(n, `${L.length} санаа · ${money(L.reduce((a, i) => a + ideaCost(i), 0))} ₮`);
+    D.table([{ t: '№', w: 16, m: 1 }, { t: 'Санаа' }, { t: 'Ангилал', w: 34 }, { t: 'Хариуцагч', w: 28 }, { t: 'Төсөв, ₮', w: 24, a: 'r', m: 1 }, { t: 'Хэмнэлт/сар', w: 22, a: 'r', m: 1 }], L.map(i => [i.no, i.title || '—', i.cat, pName(i.owner) || '—', money(ideaCost(i)), i.saving ? money(i.saving) : ''])); });
+  D.sigs(['Бэлтгэсэн', 'Захирал']);
+  return D;
 }
 
 /* ================= KH Fab — «Мэдээлэл · сан»: mining machines, bucket types, product templates, own file library ================= */
@@ -12815,7 +13143,7 @@ function renderLib(el) {
   }
 }
 
-try { const m0 = localStorage.getItem(KEY + ':mod'); if (['bend', 'jobs', 'info', 'insp', 'dash', 'quotes', 'docs', 'team'].includes(m0)) setModule(m0); } catch (e) { }
+try { const m0 = localStorage.getItem(KEY + ':mod'); if (['bend', 'jobs', 'info', 'insp', 'dash', 'quotes', 'docs', 'team', 'ideas'].includes(m0)) setModule(m0); } catch (e) { }
 
 applyLogoUI(); contactLists();
 </script>
