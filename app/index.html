@@ -4023,7 +4023,10 @@ const I18N_EN = {
 "Дууссан / татгалзсан": "Done / declined",
 "санал": "quotes",
 "Ажил / үе шат (гагнуурчин, слесарь, будаг…)": "Work / stage (welder, fitter, painter…)",
-"Энд засахад «Хамрах хүрээ»-ний хуваарь мөн шинэчлэгдэнэ": "Editing here also updates the «Scope» schedule"
+"Энд засахад «Хамрах хүрээ»-ний хуваарь мөн шинэчлэгдэнэ": "Editing here also updates the «Scope» schedule",
+"Үнийн саналын дугаар — өөрөө оруулна": "Quotation number — enter your own",
+"Анхаар:": "Warning:",
+"дугаар өөр санал/ажилд байна": "is already used by another quote/job"
 };
 /* ================= KH Fab — language (МН / EN) and theme (Day / Night) =================
    The UI is written in Mongolian. In English mode every Mongolian fragment that reaches the
@@ -7266,11 +7269,15 @@ const QST = [['draft', 'Ноорог'], ['sent', 'Илгээсэн'], ['won', '�
 const qstName = k => (QST.find(x => x[0] === k) || QST[0])[1];
 const isQ = j => j && j.kind === 'quote';
 /* quick quotation: only customer + quote; «Ажил болгох» turns it into a full job keeping everything */
+/* SQ number is the user's own (e.g. SQ1756); the next one is only suggested from the last used */
+function nextSQ() {
+  let mx = 0, pre = 'SQ', w = 0;
+  S.jobs.forEach(j => { const m = String((j.quote && j.quote.no) || '').match(/^(.*?)(\d+)\s*$/); if (m && /^SQ/i.test(m[1]) && +m[2] > mx) { mx = +m[2]; pre = m[1]; w = m[2].length; } });
+  return mx ? pre + String(mx + 1).padStart(w, '0') : 'SQ';
+}
 function newQuote() {
-  const y = new Date().getFullYear();
-  if (S.qYear !== y) { S.qYear = y; S.qSeq = 0; }
-  const n = ++S.qSeq, no = `SQ-${y}-${String(n).padStart(3, '0')}`;
-  const job = { id: uid(), kind: 'quote', qst: 'draft', no, short: String(n).padStart(3, '0'), customer: '', title: '', due: '', status: 'new', note: '', items: [], extra: [], est: null, act: { hours: '', kg: '', other: '' }, trace: [], log: [], created: today() };
+  const no = nextSQ();
+  const job = { id: uid(), kind: 'quote', qst: 'draft', no, short: no.replace(/^\D+/, ''), customer: '', title: '', due: '', status: 'new', note: '', items: [], extra: [], est: null, act: { hours: '', kg: '', other: '' }, trace: [], log: [], created: today() };
   S.jobs.unshift(job); jx(job); job.quote.no = no; jobLog('Үнийн санал нээсэн', job);
   J.sel = job.id; J.sub = 'quote'; J.dash = false; save(); return job;
 }
@@ -7358,7 +7365,7 @@ function renderJList() {
 }
 $('#jDash').addEventListener('click', () => { J.dash = true; renderJList(); renderJobMain(); });
 $('#jList').addEventListener('click', e => { const it = e.target.closest('.jitem'); if (!it) return; J.sel = it.dataset.id; J.traceForm = false; J.dash = false; renderJList(); renderJobMain(); });
-$('#qNew').addEventListener('click', () => { newQuote(); renderJobs(); setTimeout(() => { const el = $('#qb_cust'); if (el) el.focus(); }, 50); });
+$('#qNew').addEventListener('click', () => { newQuote(); renderJobs(); setTimeout(() => { const el = $('#qb_no'); if (el) { el.focus(); el.setSelectionRange(el.value.length, el.value.length); } }, 50); });
 $('#jNew').addEventListener('click', () => { J.dash = false; J.sub = 'main'; newJob(); renderJobs(); setTimeout(() => { const el = $('#jf_title'); if (el) el.focus(); }, 50); });
 $('#jSearch').addEventListener('input', renderJList);
 $('#jFilter').addEventListener('change', renderJList);
@@ -7811,7 +7818,7 @@ function bindFields(root, obj, keys, after) {
 
 /* ---------- sub-tab bar ---------- */
 function jobSubBar(job) {
-  if (job.kind === 'quote') return `<nav class="rtabs jsub stepper qbar"><span class="pill qst-${job.qst || 'draft'}" style="align-self:center">ҮНИЙН САНАЛ</span><b class="mono" style="align-self:center">${esc(job.no)}</b>
+  if (job.kind === 'quote') return `<nav class="rtabs jsub stepper qbar"><span class="pill qst-${job.qst || 'draft'}" style="align-self:center">ҮНИЙН САНАЛ</span><label class="mono" style="align-self:center;display:flex;gap:6px;align-items:center">№<input id="qb_no" class="inp mono" value="${esc(job.quote.no || job.no)}" placeholder="SQ1756" title="Үнийн саналын дугаар — өөрөө оруулна" style="width:120px"></label>
     <input id="qb_cust" class="inp" list="dl-org" placeholder="Захиалагч (байгууллага)" value="${esc(job.customer)}" style="flex:1 1 200px;min-width:0">
     <input id="qb_title" class="inp" placeholder="Ажлын нэр" value="${esc(job.title)}" style="flex:1 1 200px;min-width:0">
     <select id="qb_st" class="inp" style="width:auto">${QST.filter(x => x[0] !== 'won').map(([k, n]) => `<option value="${k}"${(job.qst || 'draft') === k ? ' selected' : ''}>${n}</option>`).join('')}</select>
@@ -7821,6 +7828,7 @@ function jobSubBar(job) {
 function bindSubBar(el) {
   el.querySelectorAll('[data-jsub]').forEach(b => b.addEventListener('click', () => { J.sub = b.dataset.jsub; renderJobMain(); }));
   const job = findJob(J.sel); if (!job || job.kind !== 'quote') return;
+  const qn = el.querySelector('#qb_no'); if (qn) qn.addEventListener('change', () => { const v = qn.value.trim(); if (!v) { qn.value = job.quote.no; return; } if (S.jobs.some(j => j !== job && ((j.quote && j.quote.no) === v || j.no === v))) toast('Анхаар: ' + v + ' дугаар өөр санал/ажилд байна'); job.quote.no = v; job.no = v; save(); renderJList(); });
   const c = el.querySelector('#qb_cust'), t = el.querySelector('#qb_title'), st = el.querySelector('#qb_st');
   if (c) c.addEventListener('change', () => { job.customer = c.value.trim(); if (job.customer) { orgLearn({ org: job.customer }); if (job.quote.qf) qfFillFromDir(job.quote.qf, job.customer); } save(); renderJList(); renderJobMain(); });
   if (t) t.addEventListener('change', () => { job.title = t.value.trim(); if (job.quote.qf && !job.quote.qf.title) { job.quote.qf.title = job.title; job.quote.qf.rfqName = job.quote.qf.rfqName || job.title; } save(); renderJList(); renderJobMain(); });

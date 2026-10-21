@@ -16,11 +16,15 @@ const QST = [['draft', 'Ноорог'], ['sent', 'Илгээсэн'], ['won', '�
 const qstName = k => (QST.find(x => x[0] === k) || QST[0])[1];
 const isQ = j => j && j.kind === 'quote';
 /* quick quotation: only customer + quote; «Ажил болгох» turns it into a full job keeping everything */
+/* SQ number is the user's own (e.g. SQ1756); the next one is only suggested from the last used */
+function nextSQ() {
+  let mx = 0, pre = 'SQ', w = 0;
+  S.jobs.forEach(j => { const m = String((j.quote && j.quote.no) || '').match(/^(.*?)(\d+)\s*$/); if (m && /^SQ/i.test(m[1]) && +m[2] > mx) { mx = +m[2]; pre = m[1]; w = m[2].length; } });
+  return mx ? pre + String(mx + 1).padStart(w, '0') : 'SQ';
+}
 function newQuote() {
-  const y = new Date().getFullYear();
-  if (S.qYear !== y) { S.qYear = y; S.qSeq = 0; }
-  const n = ++S.qSeq, no = `SQ-${y}-${String(n).padStart(3, '0')}`;
-  const job = { id: uid(), kind: 'quote', qst: 'draft', no, short: String(n).padStart(3, '0'), customer: '', title: '', due: '', status: 'new', note: '', items: [], extra: [], est: null, act: { hours: '', kg: '', other: '' }, trace: [], log: [], created: today() };
+  const no = nextSQ();
+  const job = { id: uid(), kind: 'quote', qst: 'draft', no, short: no.replace(/^\D+/, ''), customer: '', title: '', due: '', status: 'new', note: '', items: [], extra: [], est: null, act: { hours: '', kg: '', other: '' }, trace: [], log: [], created: today() };
   S.jobs.unshift(job); jx(job); job.quote.no = no; jobLog('Үнийн санал нээсэн', job);
   J.sel = job.id; J.sub = 'quote'; J.dash = false; save(); return job;
 }
@@ -108,7 +112,7 @@ function renderJList() {
 }
 $('#jDash').addEventListener('click', () => { J.dash = true; renderJList(); renderJobMain(); });
 $('#jList').addEventListener('click', e => { const it = e.target.closest('.jitem'); if (!it) return; J.sel = it.dataset.id; J.traceForm = false; J.dash = false; renderJList(); renderJobMain(); });
-$('#qNew').addEventListener('click', () => { newQuote(); renderJobs(); setTimeout(() => { const el = $('#qb_cust'); if (el) el.focus(); }, 50); });
+$('#qNew').addEventListener('click', () => { newQuote(); renderJobs(); setTimeout(() => { const el = $('#qb_no'); if (el) { el.focus(); el.setSelectionRange(el.value.length, el.value.length); } }, 50); });
 $('#jNew').addEventListener('click', () => { J.dash = false; J.sub = 'main'; newJob(); renderJobs(); setTimeout(() => { const el = $('#jf_title'); if (el) el.focus(); }, 50); });
 $('#jSearch').addEventListener('input', renderJList);
 $('#jFilter').addEventListener('change', renderJList);

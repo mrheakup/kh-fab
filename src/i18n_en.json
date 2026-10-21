@@ -2553,5 +2553,8 @@
 "Дууссан / татгалзсан": "Done / declined",
 "санал": "quotes",
 "Ажил / үе шат (гагнуурчин, слесарь, будаг…)": "Work / stage (welder, fitter, painter…)",
-"Энд засахад «Хамрах хүрээ»-ний хуваарь мөн шинэчлэгдэнэ": "Editing here also updates the «Scope» schedule"
+"Энд засахад «Хамрах хүрээ»-ний хуваарь мөн шинэчлэгдэнэ": "Editing here also updates the «Scope» schedule",
+"Үнийн саналын дугаар — өөрөө оруулна": "Quotation number — enter your own",
+"Анхаар:": "Warning:",
+"дугаар өөр санал/ажилд байна": "is already used by another quote/job"
 }
