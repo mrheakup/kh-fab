@@ -7,7 +7,19 @@ const DEF_EQUIP = [['Fiber Laser 15kW', 'Үндсэн', 1, 'ш', 'Цех', 'Аж
 const DEF_CHECKS = [['Хэмжээс зурагтай тохирч байгаа эсэх', 'Зураг дээрхтэй тохирно'], ['Гагнуурын чанар (визуал)', 'Crack, porosity байхгүй'], ['NDT / Ultrasonic шалгалт', 'Тайлан бэлэн байна'], ['Гадаргуугийн чанар (будаг)', 'Spec-д нийцсэн'], ['Материалын үлдэгдэл буцаасан', 'Бүрэн буцаасан'], ['Ажлын талбай цэвэрлэсэн', 'Цэвэрхэн болсон'], ['Баримт бичгүүд бүрдсэн', 'Зураг, тайлан бэлэн']];
 const XCATS = [['mat', 'Материал'], ['cons', 'Consumable'], ['labor', 'Ажиллах хүч'], ['equip', 'Тоног, үйлчилгээ'], ['trans', 'Тээвэр'], ['other', 'Бусад']];
 const xcat = k => (XCATS.find(c => c[0] === k) || XCATS[5])[1];
-const JSUB = [['main', 'Ерөнхий'], ['scope', 'Scope · хуваарь'], ['quote', 'Үнийн санал'], ['prog', 'Явц · зардал'], ['acc', 'Акт · өөрчлөлт']];
+const JSUB = [['main', 'Мэдээлэл', 'Захиалагч, хугацаа, төлөв'], ['scope', 'Хамрах хүрээ', 'Ажлын тайлбар, үе шат, хуваарь, эрсдэл, халаалт'], ['quote', 'Үнийн санал', 'Материал, хүч, тоног, ашиг → захиалагчид PDF'], ['prod', 'Үйлдвэрлэл', 'Парт, өрөлт, зүсэлтийн бүртгэл, шошго, ажлын карт'], ['prog', 'Явц, зардал', 'Гүйцэтгэл %, зарлага, төсөв ба бодит'], ['acc', 'Хүлээлгэх', 'Хүлээн авалтын акт, өөрчлөлт']];
+function jobStepDone(job, k) {
+  const q = job.quote, a = job.acc, sc = job.scope;
+  if (k === 'main') return !!(job.title && job.customer);
+  if (k === 'scope') return !!(sc && (sc.desc || sc.contract));
+  if (k === 'quote') return !!(+job.price || (q && (q.mats.length || +q.fixedNet)));
+  if (k === 'prod') return !!(job.est || (job.trace && job.trace.length));
+  if (k === 'prog') return !!(sc && sc.stages.length && sc.stages.every(s => +s.pct >= 100));
+  if (k === 'acc') return !!(a && a.done);
+}
+function jobNextHTML(job) {
+  return `<div class="jcard" data-v="main"><div class="bcard-h">Ажлын алхмууд</div><div class="jbody"><div class="jsteps">${JSUB.slice(1).map(([k, n, d], i) => `<button class="jstep${jobStepDone(job, k) ? ' done' : ''}" data-go="${k}"><span class="sn">${jobStepDone(job, k) ? '✓' : i + 2}</span><span><b>${n}</b><small>${d}</small></span></button>`).join('')}</div></div></div>`;
+}
 
 function costDef() { S.costDef = Object.assign({}, COST_DEF, S.costDef || {}); return S.costDef; }
 function jx(job) {
@@ -86,7 +98,7 @@ function bindFields(root, obj, keys, after) {
 
 /* ---------- sub-tab bar ---------- */
 function jobSubBar(job) {
-  return `<nav class="rtabs jsub">${JSUB.map(([k, n]) => `<button data-jsub="${k}" class="${(J.sub || 'main') === k ? 'on' : ''}">${n}</button>`).join('')}<span class="sp" style="flex:1"></span><span class="muted mono" style="align-self:center;font-size:12px;padding-right:6px">${esc(job.no)}${job.title ? ' · ' + esc(job.title) : ''}</span></nav>`;
+  return `<nav class="rtabs jsub stepper">${JSUB.map(([k, n, d], i) => `${i ? '<span class="arr">›</span>' : ''}<button data-jsub="${k}" title="${d}" class="${(J.sub || 'main') === k ? 'on' : ''}${jobStepDone(job, k) ? ' done' : ''}"><span class="sn">${jobStepDone(job, k) ? '✓' : i + 1}</span>${n}</button>`).join('')}<span class="sp" style="flex:1"></span><span class="muted mono" style="align-self:center;font-size:12px;padding-right:6px">${esc(job.no)}${job.title ? ' · ' + esc(job.title) : ''}</span></nav>`;
 }
 function bindSubBar(el) { el.querySelectorAll('[data-jsub]').forEach(b => b.addEventListener('click', () => { J.sub = b.dataset.jsub; renderJobMain(); })); }
 function renderJobSub(el, job) {

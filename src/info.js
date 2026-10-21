@@ -1,5 +1,5 @@
 /* ================= KH Fab — «Мэдээлэл · сан»: mining machines, bucket types, product templates, own file library ================= */
-const IN = { tab: 'mach', cat: 'all', q: '', sel: null, bt: null, tpl: 'pegboard', lib: null, p: {} };
+const IN = { tab: 'cat', cat: 'all', q: '', sel: null, bt: null, tpl: 'pegboard', lib: null, p: {} };
 let LIB = (() => { try { return JSON.parse(localStorage.getItem('kh-lib') || '[]'); } catch (e) { return []; } })();
 function saveLib() { try { localStorage.setItem('kh-lib', JSON.stringify(LIB)); return true; } catch (e) { toast('Санд хадгалах зай дүүрсэн — хуучин зүйлсээ устгана уу', 6000); return false; } }
 const catName = c => (MCAT.find(x => x[0] === c) || [, c])[1];
@@ -36,8 +36,8 @@ function bucketPreset(m, V, type) {
 $$('[data-itab]').forEach(b => b.addEventListener('click', () => { IN.tab = b.dataset.itab; renderInfo(); }));
 function renderInfo() {
   $$('[data-itab]').forEach(x => x.classList.toggle('on', x.dataset.itab === IN.tab));
-  ['mach', 'bt', 'tpl', 'lib', 'std'].forEach(t => $('#itab-' + t).hidden = t !== IN.tab);
-  if (IN.tab === 'mach') renderMachList(); else if (IN.tab === 'bt') renderBtList(); else if (IN.tab === 'tpl') renderTplList(); else if (IN.tab === 'std') { renderStdSide(); renderInfoMain(); } else renderLibSide();
+  ['mach', 'bt', 'tpl', 'lib', 'std', 'cat'].forEach(t => $('#itab-' + t).hidden = t !== IN.tab);
+  if (IN.tab === 'mach') renderMachList(); else if (IN.tab === 'bt') renderBtList(); else if (IN.tab === 'tpl') renderTplList(); else if (IN.tab === 'std') { renderStdSide(); renderInfoMain(); } else if (IN.tab === 'cat') { renderCatSide(); renderInfoMain(); } else renderLibSide();
   renderInfoMain();
 }
 function renderMachList() {
@@ -69,6 +69,7 @@ function renderInfoMain() {
   if (IN.tab === 'bt') return renderBucketTypes(el);
   if (IN.tab === 'tpl') return renderTemplate(el);
   if (IN.tab === 'std') return renderStdMain(el);
+  if (IN.tab === 'cat') return renderCatMain(el);
   return renderLib(el);
 }
 function renderMachOverview(el) {

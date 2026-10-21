@@ -1,5 +1,5 @@
 /* ================= Kh International — «Үзлэг» module: daily inspection sheets, work instructions, logs ================= */
-const IN2 = { sel: null, tab: 'sheet', recId: null, month: today().slice(0, 7) };
+const IN2 = { sel: null, tab: 'today', recId: null, month: today().slice(0, 7) };
 const IC = { dark: '#2b2f33', acc: '#e0650f', soft: '#fdf1e8', zebra: '#eef2f8', line: '#a4adb7', key: '#f3f4f6', ink: '#141a20', mute: '#5c6773' };
 function IS() {
   if (!S.insp) S.insp = {};
@@ -115,9 +115,9 @@ async function inspOut(mode, kind, m, extra) {
     else if (kind === 'sheet') { await logoImg(); imgs = [{ url: await pageImg(true, twoUp(x => drawSheet(x, m, null))), alias: 's' }]; name = `${m.no}_${m.name}_үзлэг`; }
     else if (kind === 'log') { const rows = I.logs.filter(r => r.mid === m.id); const per = m.kind === 'vehicle' ? 16 : 18, pages = Math.max(1, Math.ceil(rows.length / per)); imgs = []; for (let p = 0; p < pages; p++) { const sl = rows.slice(p * per, (p + 1) * per); imgs.push({ url: await pageImg(false, x => { x.save(); x.scale(Math.SQRT2, Math.SQRT2); drawLog(x, m, sl, p * per); x.restore(); }), alias: 'l' + p }); } land = false; name = `${m.no}_${m.name}_${m.kind === 'vehicle' ? 'жолооны' : 'засварын'}_бүртгэл`; }
     else if (kind === 'rec') { await logoImg(); imgs = [{ url: await pageImg(false, x => { x.save(); x.scale(Math.SQRT2, Math.SQRT2); drawSheet(x, m, extra); x.restore(); }), alias: 'r' }]; land = false; name = `${m.no}_${m.name}_үзлэг_${extra.date}`; }
-    else if (kind === 'instr') { const D = await instrDoc(m); if (mode === 'print') docPrint(D); else docPdf(D, `${m.no}_${m.name}_ажлын_заавар`); return; }
+    else if (kind === 'instr') { const D = await instrDoc(m); if (mode === 'print') docPrint(D, `${m.no}_${m.name}_ажлын_заавар`); else docPdf(D, `${m.no}_${m.name}_ажлын_заавар`); return; }
     else if (kind === 'instrAll') { const all = []; for (const q of I.machines) all.push(...docImgs(await instrDoc(q)).map((p, i) => ({ url: p.url, alias: q.id + i }))); imgs = all; land = false; name = 'Kh_International_ажлын_заавар_бүгд'; }
-    if (mode === 'print') printImgs(imgs, land); else pdfImgs(imgs, land, name);
+    if (mode === 'print') printImgs(imgs, land, 'a4', name); else pdfImgs(imgs, land, name);
   } catch (e) { console.error(e); toast('Алдаа: ' + e.message); }
 }
 async function instrDoc(m) {
@@ -141,7 +141,7 @@ function renderInspSide() {
   const t = today(), grp = [['machine', 'Тоног төхөөрөмж'], ['vehicle', 'Автомашин']];
   el.innerHTML = grp.map(([k, n]) => { const ms = I.machines.filter(m => (m.kind === 'vehicle') === (k === 'vehicle')); return ms.length ? `<div class="igrp">${n}</div>` + ms.map(m => { const r = recsOf(m.id)[0], done = r && r.date === t; return `<div class="jitem${m.id === IN2.sel ? ' on' : ''}" data-id="${m.id}"><span class="no">${esc(m.no)} · ${esc(m.name)}</span><span class="pill ${done ? (r.concl === 'ok' && !r.res.includes('bad') ? 'st-done' : 'st-weld') : ''}">${done ? 'өнөөдөр ✓' : r ? esc(r.date.slice(5)) : 'үзлэггүй'}</span><span class="t">${esc(m.model)}${m.added ? ' · нэмсэн загвар' : ''}</span></div>`; }).join('') : ''; }).join('');
 }
-const ITABS = [['sheet', 'Үзлэгийн хуудас'], ['today', 'Цахим үзлэг'], ['instr', 'Ажлын заавар'], ['log', 'Засвар / жолооны бүртгэл'], ['hist', 'Түүх']];
+const ITABS = [['today', 'Өнөөдрийн үзлэг'], ['hist', 'Түүх, сарын хяналт'], ['sheet', 'Хэвлэх хуудас'], ['instr', 'Заавар, ханын самбар'], ['log', 'Засвар / жолооны бүртгэл']];
 function renderInspMain() {
   const I = IS(), el = $('#inspMain'); if (!el) return;
   const m = imach(IN2.sel) || I.machines[0]; if (!m) { el.innerHTML = '<div class="jempty">Тоног төхөөрөмж алга</div>'; return; }
@@ -204,7 +204,7 @@ function renderInspMain() {
       <div class="ical">${['Да', 'Мя', 'Лх', 'Пү', 'Ба', 'Бя', 'Ня'].map(d => `<b>${d}</b>`).join('')}${'<span></span>'.repeat(first)}${Array.from({ length: nd }, (_, i) => { const r = (byDay[i + 1] || [])[0], c = r ? (r.concl === 'stop' ? 'c-stop' : r.concl === 'fix' || r.res.includes('bad') ? 'c-fix' : 'c-ok') : ''; return `<span class="${c}${r ? ' has' : ''}" ${r ? `data-rid="${r.id}"` : ''}>${i + 1}</span>`; }).join('')}</div>
       <div class="note">Ногоон — хэвийн · шар — асуудалтай / засвар · улаан — ашиглахыг хориглосон. Өдөр дээр дарж нээнэ.</div></div></div>
       <div class="jcard"><div class="bcard-h">Үзлэгийн түүх</div><div class="jbody">${rs.length ? `<div class="tblwrap"><table class="dt"><thead><tr><th>Огноо</th><th>Ээлж</th><th>Үзсэн</th><th class="r">Хэвийн</th><th class="r">Асуудалтай</th><th>Дүгнэлт</th><th>Асуудал</th><th></th></tr></thead><tbody>
-      ${rs.map(r => `<tr data-rid="${r.id}" style="cursor:pointer"><td class="num">${esc(r.date)}</td><td>${r.shift === 'pm' ? 'Үдэш' : 'Өглөө'}</td><td>${esc(r.by)}</td><td class="r num">${r.res.filter(v => v === 'ok').length}</td><td class="r num ${r.res.includes('bad') ? 'late' : ''}">${r.res.filter(v => v === 'bad').length}</td><td><span class="pill ${r.concl === 'ok' ? 'st-done' : r.concl ? 'st-weld' : ''}">${conclName(r.concl)}</span></td><td style="white-space:normal">${esc(r.res.map((v, i) => v === 'bad' ? (m.items[i] ? m.items[i][1] : '') + (r.notes[i] ? ': ' + r.notes[i] : '') : '').filter(Boolean).join('; '))}</td><td><button class="x" data-rdel="${r.id}" aria-label="Устгах">×</button></td></tr>`).join('')}</tbody></table></div>` : '<p class="note">Үзлэг бүртгэгдээгүй. «Цахим үзлэг» табд өдөр бүр бөглөнө.</p>'}</div></div>`;
+      ${rs.map(r => `<tr data-rid="${r.id}" style="cursor:pointer"><td class="num">${esc(r.date)}</td><td>${r.shift === 'pm' ? 'Үдэш' : 'Өглөө'}</td><td>${esc(r.by)}</td><td class="r num">${r.res.filter(v => v === 'ok').length}</td><td class="r num ${r.res.includes('bad') ? 'late' : ''}">${r.res.filter(v => v === 'bad').length}</td><td><span class="pill ${r.concl === 'ok' ? 'st-done' : r.concl ? 'st-weld' : ''}">${conclName(r.concl)}</span></td><td style="white-space:normal">${esc(r.res.map((v, i) => v === 'bad' ? (m.items[i] ? m.items[i][1] : '') + (r.notes[i] ? ': ' + r.notes[i] : '') : '').filter(Boolean).join('; '))}</td><td><button class="x" data-rdel="${r.id}" aria-label="Устгах">×</button></td></tr>`).join('')}</tbody></table></div>` : '<p class="note">Үзлэг бүртгэгдээгүй. «Өнөөдрийн үзлэг» табд өдөр бүр бөглөнө.</p>'}</div></div>`;
   }
   el.innerHTML = bar + head + body;
   el.querySelectorAll('[data-itab2]').forEach(b => b.addEventListener('click', () => { IN2.tab = b.dataset.itab2; if (IN2.tab !== 'today') IN2.recId = null; renderInspMain(); }));

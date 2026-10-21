@@ -69,7 +69,7 @@ function jobMoney(job) {
 const daysLeft = d => d ? Math.round((new Date(d + 'T00:00:00') - new Date(today() + 'T00:00:00')) / 864e5) : null;
 
 /* ---------- side panel ---------- */
-$$('[data-jtab]').forEach(b => b.addEventListener('click', () => { J.tab = b.dataset.jtab; $$('[data-jtab]').forEach(x => x.classList.toggle('on', x === b)); ['jobs', 'kits', 'certs', 'cat'].forEach(t => $('#jtab-' + t).hidden = t !== J.tab); renderJobs(); }));
+$$('[data-jtab]').forEach(b => b.addEventListener('click', () => { J.tab = b.dataset.jtab; $$('[data-jtab]').forEach(x => x.classList.toggle('on', x === b)); ['jobs', 'kits', 'certs'].forEach(t => $('#jtab-' + t).hidden = t !== J.tab); renderJobs(); }));
 function renderJobs() { renderJList(); renderKList(); renderCertSide(); renderJobMain(); }
 function renderJList() {
   $('#cntJobs').textContent = S.jobs.filter(j => !['done', 'given'].includes(j.status)).length || '';
@@ -127,12 +127,11 @@ function renderJobMain() {
   const el = $('#jobsMain');
   if (J.tab === 'kits') { if (J.bucket) renderBucketMain(el); else renderKitMain(el); return; }
   if (J.tab === 'certs') { renderCertMain(el); return; }
-  if (J.tab === 'cat') { renderCatMain(el); renderCatSide(); return; }
   if (J.dash && S.jobs.length) { renderDash(el); return; }
   const job = findJob(J.sel) || findJob(S.activeJob) || S.jobs[0];
   if (!job) { el.innerHTML = '<div class="jempty"><b>Ажил алга</b><br>Зүүн талын <b>+ Шинэ ажил</b> товчоор ажлын дугаар үүсгэнэ. Дугаар нь <span class="mono">KH-' + new Date().getFullYear() + '-001</span> хэлбэртэй, жил бүр шинээр эхэлнэ.</div>'; return; }
   J.sel = job.id;
-  if (J.sub && J.sub !== 'main') { renderJobSub(el, job); return; }
+  if (J.sub && !['main', 'prod'].includes(J.sub)) { renderJobSub(el, job); return; }
   const parts = jobParts(job), pcs = parts.reduce((a, p) => a + p.qty, 0), kg = jobWeight(parts);
   const kitOpts = sel => '<option value="">— сонгох —</option>' + S.kits.map(k => `<option value="${k.id}"${k.id === sel ? ' selected' : ''}>${esc(k.name)}</option>`).join('');
   const e = job.est, a = job.act || {};
@@ -143,7 +142,7 @@ function renderJobMain() {
   const ops = (S.iso.operators || '').split(',').map(x => x.trim()).filter(Boolean);
   const rows = job.trace.map((t, i) => `<tr data-i="${i}"><td class="num">${esc(t.date)}</td><td>${esc(t.lay)}</td><td class="num">${esc(t.size)}</td><td>${esc(t.mat)} ${t.thk}мм</td><td class="r num">${t.count}</td><td class="num">${esc(t.heat)}</td><td class="num">${esc(t.cert || '')}</td><td>${esc(t.op || '')}</td><td><button class="x" data-tdel aria-label="Устгах">×</button></td></tr>`).join('');
   el.innerHTML = `${jobSubBar(job)}
-    <div class="bhead">
+    <div class="bhead" data-v="main">
       <label class="fld sm" style="width:150px">Ажлын дугаар<input id="jf_no" class="mono" value="${esc(job.no)}"></label>
       <label class="fld grow">Ажлын нэр<input id="jf_title" value="${esc(job.title)}" placeholder="жишээ: PC200 шанага ×2"></label>
       <label class="fld grow">Захиалагч<input id="jf_customer" value="${esc(job.customer)}"></label>
@@ -152,22 +151,22 @@ function renderJobMain() {
       <label class="fld grow">Тайлбар<input id="jf_note" value="${esc(job.note)}"></label>
       <label class="fld">Гэрээний үнэ, ₮<input id="jf_price" type="number" min="0" step="10000" value="${esc(job.price || '')}" class="mono"></label>
     </div>
-    <div class="exports">
+    <div class="exports" data-v="prod">
       <button class="btn primary" id="jLoad">Өрөлтөд ачаалах</button>
       <button class="btn" id="jLabels">Шошго PDF (QR)</button>
       <label class="check" style="margin:0 6px 0 0"><input type="checkbox" id="jEach"><span>Ширхэг бүрт шошго</span></label>
-      <button class="btn" id="jCard">Ажлын карт PDF (ISO)</button>
+      <span class="outb"><button class="btn" id="jCard">Ажлын карт PDF (ISO)</button><button class="btn ghost" id="jCardPrint" title="Хэвлэх">🖨</button></span>
       <span class="sp" style="flex:1"></span>
       <button class="btn ghost" id="jDel">Ажил устгах</button>
     </div>
-    <div class="jcard"><div class="bcard-h">Бүрэлдэхүүн <span class="sp"></span><span class="muted mono" style="font-weight:400">${parts.length} төрөл · ${pcs} ш · ${nf(kg, 1)} кг</span></div><div class="jbody">
+    <div class="jcard" data-v="prod"><div class="bcard-h">Бүрэлдэхүүн <span class="sp"></span><span class="muted mono" style="font-weight:400">${parts.length} төрөл · ${pcs} ш · ${nf(kg, 1)} кг</span></div><div class="jbody">
       <div class="tblwrap"><table class="dt"><thead><tr><th>Иж бүрдэл</th><th class="r" style="width:110px">Тоо</th><th class="r">Парт, ш</th><th class="r">Жин, кг</th><th style="width:30px"></th></tr></thead><tbody>
       ${job.items.map((it, i) => { const k = findKit(it.kitId); const n = k ? k.parts.reduce((a, p) => a + p.qty, 0) * (+it.n || 0) : 0; return `<tr data-i="${i}"><td><select data-k="kitId">${kitOpts(it.kitId)}</select></td><td><input data-k="n" type="number" min="0" value="${it.n}" class="mono" style="text-align:right"></td><td class="r num">${n}</td><td class="r num">${k ? nf(jobWeight(k.parts) * (+it.n || 0), 1) : '—'}</td><td><button class="x" data-idel aria-label="Хасах">×</button></td></tr>`; }).join('')}
       ${job.extra.length ? `<tr><td>Нэмэлт партууд <span class="muted">(${job.extra.length} төрөл)</span></td><td class="r num">—</td><td class="r num">${job.extra.reduce((a, p) => a + p.qty, 0)}</td><td class="r num">${nf(jobWeight(job.extra), 1)}</td><td><button class="x" data-xdel title="Нэмэлт партуудыг хасах">×</button></td></tr>` : ''}
       </tbody></table></div>
       <div class="addrow"><button class="btn sm" id="jAddKit"${S.kits.length ? '' : ' disabled title="Эхлээд иж бүрдэл үүсгэнэ"'}>+ Иж бүрдэл</button><button class="btn sm" id="jAddExtra">+ Nesting-ийн одоогийн партуудыг нэмэх</button>${S.kits.length ? '' : '<span class="note">Иж бүрдэл алга — «Иж бүрдэл» таб эсвэл Nesting дээрх «Иж бүрдэл болгох» товчоор үүсгэнэ.</span>'}</div>
     </div></div>
-    <div class="jcard"><div class="bcard-h">Тооцоо — төлөвлөсөн ба бодит <span class="sp"></span><span class="muted" style="font-weight:400;font-size:12px">${e ? 'өрөлт: ' + esc(e.date) : 'өрөлт хийгдээгүй'}</span></div><div class="jbody">
+    <div class="jcard" data-v="prod"><div class="bcard-h">Тооцоо — төлөвлөсөн ба бодит <span class="sp"></span><span class="muted" style="font-weight:400;font-size:12px">${e ? 'өрөлт: ' + esc(e.date) : 'өрөлт хийгдээгүй'}</span></div><div class="jbody">
       ${e ? `<div class="cmpv">
         <div><div class="k">Лист</div><div class="v">${e.sheets}</div><div class="d muted">${esc(e.groups.map(g => g.label + ': ' + g.sizes).join('; '))}</div></div>
         <div><div class="k">Материал, кг</div><div class="v">${nf(e.kg, 1)}${actKg ? ` → ${nf(actKg, 1)}` : ''}</div>${dlt(e.kg, actKg)}</div>
@@ -183,13 +182,14 @@ function renderJobMain() {
       </div>
       ${money.price ? `<p class="note" style="margin-top:8px">Гэрээ ${nf(money.price)} ₮ · төсөв ${nf(money.plan)} ₮${money.has ? ` · бодит ${nf(money.act)} ₮` : ''} · <b class="${money.margin < 0 ? 'late' : ''}">ашиг ${nf(money.margin)} ₮ (${nf(money.margin / money.price * 100, 1)}%)</b></p>` : ''}
     </div></div>
-    <div class="jcard"><div class="bcard-h">Зүсэлтийн бүртгэл — ISO 9001 ул мөр <span class="sp"></span><button class="btn sm" id="jTraceNest">Өрөлтөөс бүртгэх</button><button class="btn sm ghost" id="jTraceAdd">+ Гараар</button></div><div class="jbody">
+    <div class="jcard" data-v="prod"><div class="bcard-h">Зүсэлтийн бүртгэл — ISO 9001 ул мөр <span class="sp"></span><button class="btn sm" id="jTraceNest">Өрөлтөөс бүртгэх</button><button class="btn sm ghost" id="jTraceAdd">+ Гараар</button></div><div class="jbody">
       <div id="jTraceForm"></div>
       ${job.trace.length ? `<div class="tblwrap"><table class="dt"><thead><tr><th>Огноо</th><th>Лист</th><th>Хэмжээ</th><th>Материал</th><th class="r">Тоо</th><th>Хайлалт №</th><th>Гэрчилгээ №</th><th>Оператор</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>` : '<p class="note">Зүссэн лист бүрийн хавтангийн хайлалтын дугаар, операторыг энд бүртгэнэ. ISO аудитад бүтээгдэхүүнээс материалын гэрчилгээ хүртэл мөрдөх боломжтой болно.</p>'}
     </div></div>
-    <div class="jcard"><div class="bcard-h">Түүх</div><div class="jbody"><div class="jlog">${job.log.map(l => `<div><span class="mono">${esc(l.t)}</span>${esc(l.m)}</div>`).join('') || '<span class="note">—</span>'}</div></div></div>
+    ${jobNextHTML(job)}<div class="jcard" data-v="main"><div class="bcard-h">Түүх</div><div class="jbody"><div class="jlog">${job.log.map(l => `<div><span class="mono">${esc(l.t)}</span>${esc(l.m)}</div>`).join('') || '<span class="note">—</span>'}</div></div></div>
     <datalist id="opList">${ops.map(o => `<option value="${esc(o)}">`).join('')}</datalist>`;
   bindSubBar(el);
+  { const v = J.sub === 'prod' ? 'prod' : 'main'; el.querySelectorAll('[data-v]').forEach(n => { n.hidden = n.dataset.v !== v; }); el.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => { J.sub = b.dataset.go; renderJobMain(); })); }
   // field bindings
   ['no', 'title', 'customer', 'due', 'note'].forEach(k => $('#jf_' + k).addEventListener('change', ev => { const v = ev.target.value.trim(); if (k === 'no' && !v) return; if (k === 'no') { job.no = v; job.short = (v.match(/(\d+)\s*$/) || [, v])[1]; } else job[k] = v; save(); renderJList(); }));
   $('#jf_status').addEventListener('change', ev => { const o = jstName(job.status); job.status = ev.target.value; jobLog(`Төлөв: ${o} → ${jstName(job.status)}`, job); renderJList(); renderJobMain(); });
@@ -203,6 +203,7 @@ function renderJobMain() {
   $('#jLoad').addEventListener('click', () => loadJobToNest(job));
   $('#jLabels').addEventListener('click', () => jobLabelsPdf(job, $('#jEach').checked));
   $('#jCard').addEventListener('click', () => jobCardPdf(job));
+  $('#jCardPrint').addEventListener('click', () => { window.__pv = 1; jobCardPdf(job); });
   $('#jDel').addEventListener('click', ev => { const b = ev.currentTarget; if (!b.dataset.arm) { b.dataset.arm = 1; b.textContent = 'Дахин дарж баталгаажуулна'; setTimeout(() => { delete b.dataset.arm; b.textContent = 'Ажил устгах'; }, 3000); return; } S.jobs = S.jobs.filter(j => j !== job); if (S.activeJob === job.id) S.activeJob = null; J.sel = null; save(); renderJobs(); });
   const tb = el.querySelectorAll('tbody')[1]; if (tb) tb.addEventListener('click', ev => { if (!ev.target.matches('[data-tdel]')) return; const t = job.trace.splice(+ev.target.closest('tr').dataset.i, 1)[0]; const c = S.certs.find(x => x.heat === t.heat && x.mat === t.mat && +x.thk === +t.thk); if (c) c.used = Math.max(0, c.used - t.count); jobLog(`Бүртгэл устгасан: ${t.lay} (${t.heat})`, job); renderJobMain(); });
   $('#jTraceAdd').addEventListener('click', () => traceForm(job, null));
@@ -389,6 +390,7 @@ async function jobCardPdf(job) {
   need(40); y += 6;
   x.font = `400 3.2px ${F}`; x.fillStyle = '#10161c';
   [['Бэлтгэсэн', 15], ['Хянасан (ЧХ)', 80], ['Хүлээн авсан', 145]].forEach(([t, X]) => { x.fillText(t, X, y); x.strokeStyle = '#8a95a1'; x.lineWidth = 0.25; x.beginPath(); x.moveTo(X, y + 12); x.lineTo(X + 50, y + 12); x.stroke(); x.font = `400 2.6px ${F}`; x.fillStyle = '#6a7684'; x.fillText('гарын үсэг / огноо', X, y + 15.5); x.font = `400 3.2px ${F}`; x.fillStyle = '#10161c'; });
+  if (window.__pv) { window.__pv = 0; printImgs(pages.map((c, i) => ({ url: c.toDataURL('image/jpeg', 0.92), alias: 'p' + i })), false, 'a4', job.no + "_ажлын_карт"); return; }
   const pdf = i18nPdf(new window.jspdf.jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true }));
   pages.forEach((c, i) => { if (i) pdf.addPage(); pdf.addImage(c.toDataURL('image/jpeg', 0.92), 'JPEG', 0, 0, PW, PH); });
   saveFile(safeName(`${job.no}_ажлын_карт`) + '.pdf', pdf.output('blob'), 'application/pdf');

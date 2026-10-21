@@ -170,7 +170,7 @@ label.fld{display:grid;gap:3px;font-size:12px;color:var(--ink-2)}
 .dt.ed td{padding:4px 6px}.dt.ed input,.dt.ed select{min-width:60px}
 .sgantt .grow{grid-template-columns:200px minmax(0,1fr) 175px;cursor:default}
 .igrp{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);margin:6px 2px 0}
-.ibulk{display:flex;gap:8px;align-items:end;flex-wrap:wrap;margin:10px 0}.ibulk .fld{width:150px}
+.ibulk{border:1px solid var(--line);border-radius:var(--r);padding:8px 10px;margin:10px 0;display:grid;gap:8px}.ibulk summary{cursor:pointer;font-weight:600;font-size:13px}.ibulk .fld{width:200px}
 .iprev{width:100%;height:auto;border:1px solid var(--line);border-radius:4px;background:#fff}
 .irt td{white-space:normal}.irt tr.bad td{background:color-mix(in srgb,var(--bad) 12%,transparent)}.irt input[type=radio]{width:18px;height:18px;accent-color:var(--accent)}
 .igrid{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}.igrid textarea{width:100%;font:inherit;line-height:1.5}
@@ -178,6 +178,20 @@ label.fld{display:grid;gap:3px;font-size:12px;color:var(--ink-2)}
 @media (max-width:900px){.pst{grid-template-columns:1fr}}
 .phint{border:1px solid var(--line);border-left:4px solid var(--ok);border-radius:var(--r);padding:8px 10px;font-size:13px;background:var(--surface)}.phint.need{border-left-color:var(--accent);background:var(--accent-soft)}
 .stdview{width:100%;height:75vh;border:0;background:#fff}.stdl{margin:6px 0 0;padding-left:18px;line-height:1.7;font-size:13px}
+.pvmodal{position:fixed;inset:0;z-index:200;background:rgba(15,20,26,.72);display:flex;flex-direction:column}
+.pvbar{display:flex;gap:10px;align-items:center;padding:10px 16px;background:var(--surface);border-bottom:1px solid var(--line);flex-wrap:wrap}
+.pvpages{flex:1;overflow:auto;padding:24px;display:flex;flex-direction:column;align-items:center;gap:22px}
+.pvpages figure{margin:0;width:min(820px,94vw)}.pvpages figure.land{width:min(1100px,94vw)}.pvpages img{width:100%;display:block;background:#fff;box-shadow:0 6px 28px rgba(0,0,0,.45)}
+.pvpages figcaption{color:#cfd6dd;font-size:12px;text-align:center;margin-top:6px}
+.qfwrap{grid-template-columns:minmax(220px,300px) minmax(0,1fr);align-items:start}.qfprevbox{cursor:zoom-in;position:sticky;top:0}.qfprev{width:100%;border:1px solid var(--line);border-radius:4px;background:#fff;display:block;min-height:120px}.qffields{display:grid;gap:10px;min-width:0}
+@media (max-width:900px){.qfwrap{grid-template-columns:1fr}}
+.modtabs .mi{display:inline-grid;place-items:center;width:17px;height:17px;border-radius:50%;background:var(--line);color:var(--ink-2);font:600 10.5px var(--f-mono);font-style:normal;margin-right:6px;vertical-align:1px}
+.modtabs button.on .mi{background:var(--accent);color:var(--accent-ink)}.msep{width:1px;background:var(--line);margin:4px 4px;flex:0 0 1px}
+.jsub.stepper{gap:0;padding:4px;border-bottom:1px solid var(--line)}.stepper button{display:flex;align-items:center;gap:7px;border-bottom:0!important;border-radius:6px;padding:7px 12px}
+.stepper button .sn{width:20px;height:20px;border-radius:50%;display:inline-grid;place-items:center;font:600 11px var(--f-mono);background:var(--surface-2);border:1px solid var(--line);color:var(--ink-2)}
+.stepper button.done .sn{background:var(--ok);border-color:var(--ok);color:#fff}.stepper button.on{background:var(--accent-soft);color:var(--ink)}.stepper button.on .sn{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.stepper .arr{color:var(--ink-3);align-self:center;font-size:11px}
+.jsteps{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px}.jstep{display:flex;gap:10px;align-items:flex-start;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:var(--r);padding:10px;cursor:pointer;color:var(--ink)}.jstep:hover{border-color:var(--accent)}.jstep small{display:block;color:var(--ink-3);font-size:12px;margin-top:2px}.jstep .sn{flex:0 0 22px;height:22px;border-radius:50%;display:grid;place-items:center;font:600 11px var(--f-mono);background:var(--surface-2);border:1px solid var(--line)}.jstep.done .sn{background:var(--ok);color:#fff;border-color:var(--ok)}
 .ical{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;max-width:460px}.ical b{font-size:11px;color:var(--ink-3);text-align:center;font-weight:500}
 .ical span{border:1px solid var(--line-2);border-radius:4px;text-align:center;padding:6px 0;font-family:var(--f-mono);font-size:12px}
 .ical span.has{cursor:pointer}.ical .c-ok{background:color-mix(in srgb,var(--ok) 25%,transparent)}.ical .c-fix{background:color-mix(in srgb,var(--warn) 30%,transparent)}.ical .c-stop{background:color-mix(in srgb,var(--bad) 35%,transparent)}
@@ -323,11 +337,12 @@ table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
   <header class="top">
     <div class="brand"><span class="logo-wrap"><img class="brand-logo" alt="Kh International" src=""></span></div>
     <nav class="modtabs" role="tablist">
-      <button data-mod="jobs" role="tab">Ажил · захиалга</button>
-      <button data-mod="nest" class="on" role="tab">Nesting · өрөлт</button>
-      <button data-mod="bend" role="tab">Bending · нугалалт</button>
-      <button data-mod="insp" role="tab">Үзлэг · заавар</button>
-      <button data-mod="info" role="tab">Мэдээлэл · сан</button>
+      <button data-mod="jobs" role="tab" title="Захиалга, үнийн санал, хуваарь, явц, зардал, хүлээлгэх"><i class="mi">1</i>Ажил</button>
+      <button data-mod="nest" class="on" role="tab" title="Лист дээр парт өрөх, лазер зүсэлт, G-code, DXF"><i class="mi">2</i>Зүсэлт</button>
+      <button data-mod="bend" role="tab" title="Нугалах пресс, 3 булт галзуу"><i class="mi">3</i>Нугалалт</button>
+      <span class="msep"></span>
+      <button data-mod="insp" role="tab" title="Тоног төхөөрөмжийн өдөр тутмын үзлэг, ажлын заавар, ханын самбар">Үзлэг · ХАБ</button>
+      <button data-mod="info" role="tab" title="Үнийн сан, стандарт, загвар, уул уурхайн техник, файлууд">Сан</button>
     </nav>
     <span id="updBadge" class="pill rem" hidden></span>
     <div class="top-actions">
@@ -342,23 +357,27 @@ table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
 
   <aside class="side" id="inspSide" hidden>
     <div class="panel-body">
-      <div class="ptools"><button class="btn primary" id="iAdd">+ Тоног нэмэх</button><button class="btn" id="iInstrAll">Бүх заавар PDF</button><button class="btn" id="iPosterAll">Бүх ханын самбар A3</button></div>
-      <div class="ibulk"><label class="fld">Сарын багцад өдрийн хуудас<input id="iDaily" type="number" min="1" max="40" class="mono"></label><button class="btn" id="iAllPdf">Бүх тоногийн багц PDF</button><button class="btn ghost" id="iAllPrint" title="Шууд хэвлэх">🖨</button></div>
-      <p class="note">Өдөр тутмын үзлэгийн хуудас, засвар / жолооны бүртгэл, ажлын байрны заавар. Хуудсыг хэвлэж бөглөх эсвэл «Цахим үзлэг»-ээр бөглөж хадгална.</p>
+      <div class="ptools"><button class="btn primary" id="iAdd">+ Тоног нэмэх</button></div>
+      <details class="ibulk"><summary>Бүх тоногоор хэвлэх</summary>
+        <label class="fld">Сарын багцад өдрийн хуудас<input id="iDaily" type="number" min="1" max="40" class="mono"></label>
+        <div class="exports"><span class="outb"><button class="btn" id="iAllPdf">Үзлэгийн багц PDF</button><button class="btn ghost" id="iAllPrint" title="Хэвлэх">🖨</button></span><button class="btn" id="iInstrAll">Заавар PDF</button><button class="btn" id="iPosterAll">Ханын самбар A3</button></div>
+      </details>
+      <p class="note">Тоногоо сонгоод «Өнөөдрийн үзлэг» табд бөглөнө. Хэвлэх хуудас, заавар, ханын самбар тоног бүрийн табд байна.</p>
       <div id="iList" class="plist"></div>
     </div>
   </aside>
   <main class="main" id="inspMain" hidden></main>
   <aside class="side" id="infoSide" hidden>
     <nav class="tabs" role="tablist">
-      <button data-itab="mach" class="on">Техник</button>
-      <button data-itab="bt">Шанага</button>
-      <button data-itab="tpl">Загвар</button>
-      <button data-itab="lib">Миний сан</button>
+      <button data-itab="cat" class="on">Үнийн сан</button>
       <button data-itab="std">Стандарт</button>
+      <button data-itab="tpl">Загвар</button>
+      <button data-itab="mach">Техник</button>
+      <button data-itab="bt">Шанага</button>
+      <button data-itab="lib">Файлууд</button>
     </nav>
     <div class="panel-body">
-      <section id="itab-mach">
+      <section id="itab-mach" hidden>
         <input id="mSearch" class="inp" placeholder="Хайх: Sandvik, PC2000…" aria-label="Хайх">
         <div id="mCats" class="chips" style="margin:10px 0"></div>
         <div id="mList" class="plist"></div>
@@ -370,6 +389,10 @@ table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
       <section id="itab-tpl" hidden>
         <p class="hint">Зүсэж, нугалж хийх бүтээгдэхүүний параметрт загвар. Хэмжээг өөрчлөхөд эд анги, 3D, iLogic бүгд шинэчлэгдэнэ.</p>
         <div id="tplList" class="plist"></div>
+      </section>
+      <section id="itab-cat">
+        <p class="note">Материал, consumable, үйлчилгээний үнийн сан. Үнийн саналын мөрөнд нэр шивэхэд эндээс санал болгож, үнэ, нэгж, кг-ыг автоматаар бөглөнө. Санд байхгүй материалыг үнэ, нийлүүлэгчтэй нь шивбэл энд автоматаар нэмэгдэнэ.</p>
+        <div id="catSups" class="plist"></div>
       </section>
       <section id="itab-std" hidden>
         <p class="note">Гагнуурын урьдчилан халаалтын тооцоолуур (AWS D1.1, SSAB) болон компанийн стандарт, каталогийн архив. Файл зөвхөн энэ компьютерт хадгалагдана.</p>
@@ -387,8 +410,7 @@ table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
     <nav class="tabs" role="tablist">
       <button data-jtab="jobs" class="on">Ажлууд <span class="badge" id="cntJobs"></span></button>
       <button data-jtab="kits">Иж бүрдэл <span class="badge" id="cntKits"></span></button>
-      <button data-jtab="certs">Материал</button>
-      <button data-jtab="cat">Үнийн сан</button>
+      <button data-jtab="certs">Гэрчилгээ</button>
     </nav>
     <div class="panel-body">
       <section id="jtab-jobs">
@@ -413,10 +435,6 @@ table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
         <div class="logoset"><span class="logo-wrap"><img class="brand-logo" alt="лого" src=""></span>
           <button class="btn sm" id="logoPick">Лого солих</button><button class="btn sm ghost" id="logoReset">Анхны лого</button><input type="file" id="logoFile" accept="image/png,image/jpeg,image/svg+xml,image/webp" hidden></div>
         <p class="note">Лого програмын толгой болон бүх PDF, хэвлэх баримтад гарна. PNG (тунгалаг фонтой) хамгийн тохиромжтой.</p>
-      </section>
-      <section id="jtab-cat" hidden>
-        <p class="note">Материал, consumable, үйлчилгээний үнийн сан. Үнийн саналын мөрөнд нэр шивэхэд эндээс санал болгож, үнэ, нэгж, кг-ыг автоматаар бөглөнө. Санд байхгүй материалыг үнэ, нийлүүлэгчтэй нь шивбэл энд автоматаар нэмэгдэнэ.</p>
-        <div id="catSups" class="plist"></div>
       </section>
       <section id="jtab-kits" hidden>
         <p class="hint">Иж бүрдэл гэдэг нь нэг бүтээгдэхүүний (жишээ нь PC200 шанага) бүх хавтгай эд анги, ширхэгийг хадгалсан загвар. Ажилд «иж бүрдэл × тоо» гэж оруулахад партууд автоматаар үржинэ.</p>
@@ -647,7 +665,7 @@ table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
     <div class="exports">
       <button class="btn primary" id="xDxfAll">DXF — бүх лист (ZIP)</button>
       <button class="btn" id="xNcAll">G-code — бүх лист (ZIP)</button>
-      <button class="btn" id="xPdf">PDF тайлан</button>
+      <span class="outb"><button class="btn" id="xPdf">PDF тайлан</button><button class="btn ghost" id="xPrint" title="Хэвлэх">🖨</button></span>
       <button class="btn" id="xCsv">CSV хүснэгт</button>
     </div>
     <div class="rtabs" role="tablist">
@@ -662,9 +680,9 @@ table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
 
   <aside class="side" id="bendSide" hidden>
     <nav class="tabs" role="tablist">
-      <button data-btab="prof" class="on">Профиль</button>
+      <button data-btab="prof" class="on">Нугалах профиль</button>
+      <button data-btab="roll">Галзуу (булт)</button>
       <button data-btab="tools">Багаж, машин</button>
-      <button data-btab="roll">Галзуу</button>
     </nav>
     <div class="panel-body">
       <section id="btab-prof">
@@ -738,7 +756,7 @@ table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
     </div>
     <div class="exports">
       <button class="btn primary" id="bToNest">Nesting руу нэмэх</button>
-      <button class="btn" id="bPdf">Операторын хуудас PDF</button>
+      <span class="outb"><button class="btn" id="bPdf">Операторын хуудас PDF</button><button class="btn ghost" id="bPrint" title="Хэвлэх">🖨</button></span>
       <button class="btn" id="bDxf">Дэлгэмэл DXF</button>
       <button class="btn ghost" id="bDel">Профиль устгах</button>
     </div>

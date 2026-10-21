@@ -116,5 +116,5 @@ function renderCatSide() {
   const el = $('#catSups'); if (!el) return; const C = CAT(), by = {};
   C.forEach(c => { const k = c.sup || '— нийлүүлэгчгүй'; by[k] = by[k] || { n: 0, d: '' }; by[k].n++; if ((c.date || '') > by[k].d) by[k].d = c.date || ''; });
   el.innerHTML = Object.entries(by).sort((a, b) => b[1].n - a[1].n).map(([k, v]) => `<div class="jitem${CV.sup === k ? ' on' : ''}" data-sup="${esc(k)}"><span class="no" style="font-family:inherit">${esc(k)}</span><span class="pill">${v.n}</span><span class="t">${v.d ? 'үнэ: ' + esc(v.d) : ''}</span></div>`).join('');
-  el.querySelectorAll('[data-sup]').forEach(x => x.addEventListener('click', () => { CV.sup = CV.sup === x.dataset.sup || x.dataset.sup.startsWith('—') ? '' : x.dataset.sup; renderCatSide(); renderCatMain($('#jobsMain')); }));
+  el.querySelectorAll('[data-sup]').forEach(x => x.addEventListener('click', () => { CV.sup = CV.sup === x.dataset.sup || x.dataset.sup.startsWith('—') ? '' : x.dataset.sup; renderCatSide(); renderCatMain($('#infoMain')); }));
 }

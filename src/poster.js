@@ -130,7 +130,7 @@ async function posterImg(m, fmt) {
   return c.toDataURL('image/jpeg', 0.92);
 }
 async function posterOut(mode, ms, fmt) {
-  try { const imgs = []; for (const m of ms) imgs.push({ url: await posterImg(m, fmt), alias: 'pst' + m.id }); const name = ms.length === 1 ? `${ms[0].no}_${ms[0].name}_ханын_самбар_${fmt.toUpperCase()}` : `Kh_International_ханын_самбар_бүгд_${fmt.toUpperCase()}`; if (mode === 'print') printImgs(imgs, false, fmt); else pdfImgs(imgs, false, name, fmt); }
+  try { const imgs = []; for (const m of ms) imgs.push({ url: await posterImg(m, fmt), alias: 'pst' + m.id }); const name = ms.length === 1 ? `${ms[0].no}_${ms[0].name}_ханын_самбар_${fmt.toUpperCase()}` : `Kh_International_ханын_самбар_бүгд_${fmt.toUpperCase()}`; if (mode === 'print') printImgs(imgs, false, fmt, name); else pdfImgs(imgs, false, name, fmt); }
   catch (e) { console.error(e); toast('Алдаа: ' + e.message); }
 }
 /* store a machine photo, downscaled */

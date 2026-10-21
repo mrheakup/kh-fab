@@ -190,9 +190,11 @@ async function bendPdf() {
   });
   if (c.warn.length) { yy = Math.min(PH - 25, yy + sh + 12); x.fillStyle = '#c43131'; x.font = `400 3px ${F}`; c.warn.forEach(w => { x.fillText('• ' + w, 15, yy); yy += 4.5; }); }
   pages.forEach(cv => { const g = cv.getContext('2d'); g.font = `400 2.6px ${F}`; g.fillStyle = '#6a7684'; g.textAlign = 'left'; g.fillText('Kh International · ISO 9001 чанарын удирдлагын тогтолцоо · Бэлтгэсэн: ________  Хянасан: ________  Оператор: ________', 15, PH - 8); });
+  if (window.__pv) { window.__pv = 0; printImgs(pages.map((c, i) => ({ url: c.toDataURL('image/jpeg', 0.92), alias: 'p' + i })), false, 'a4', "Нугалах_хуудас"); return; }
   const pdf = i18nPdf(new window.jspdf.jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true }));
   pages.forEach((cv, i) => { if (i) pdf.addPage(); pdf.addImage(cv.toDataURL('image/jpeg', 0.92), 'JPEG', 0, 0, PW, PH); });
   saveFile(safeName(`Нугалах_${p.name}`) + '.pdf', pdf.output('blob'), 'application/pdf');
 }
 $('#bPdf').addEventListener('click', bendPdf);
+$('#bPrint').addEventListener('click', () => { window.__pv = 1; bendPdf(); });
 new ResizeObserver(() => { if (!$('#bendMain').hidden) renderBEditor(); }).observe($('#bendMain'));

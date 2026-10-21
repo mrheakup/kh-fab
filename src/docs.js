@@ -142,19 +142,32 @@ function pdfImgs(imgs, land, name, fmt = 'a4') {
   imgs.forEach((im, i) => { if (i) pdf.addPage(); pdf.addImage(im.url, 'JPEG', 0, 0, PW, PH, im.alias, 'FAST'); });
   saveFile(safeName(tr(String(name).replace(/_/g, ' '))) + '.pdf', pdf.output('blob'), 'application/pdf');
 }
-function printImgs(imgs, land, fmt = 'a4') {
-  const fr = document.createElement('iframe'); fr.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden';
-  document.body.appendChild(fr);
+/* print: open an in-app preview, then print (Electron: main process; browser: off-screen iframe) */
+function printHtml(imgs, land, fmt) {
   const [sa, sb] = PAPERS[fmt] || PAPERS.a4, w = (land ? sb : sa) + 'mm', h = (land ? sa : sb) + 'mm';
-  const doc = fr.contentDocument; doc.open();
-  doc.write(`<!doctype html><html><head><meta charset="utf-8"><style>@page{size:${fmt.toUpperCase()} ${land ? 'landscape' : 'portrait'};margin:0}html,body{margin:0;padding:0}img{display:block;width:${w};height:${h};page-break-after:always;break-after:page}img:last-child{page-break-after:auto;break-after:auto}</style></head><body>${imgs.map(i => `<img src="${i.url}">`).join('')}</body></html>`);
-  doc.close();
+  return `<!doctype html><html><head><meta charset="utf-8"><title>Kh International</title><style>@page{size:${fmt === 'letter' ? 'letter' : fmt.toUpperCase()} ${land ? 'landscape' : 'portrait'};margin:0}html,body{margin:0;padding:0;background:#fff}img{display:block;width:${w};height:${h};page-break-after:always;break-after:page}img:last-child{page-break-after:auto;break-after:auto}</style></head><body>${imgs.map(i => `<img src="${i.url}">`).join('')}</body></html>`;
+}
+async function doPrint(imgs, land, fmt) {
+  const html = printHtml(imgs, land, fmt);
+  if (window.kh && window.kh.printHtml) { try { const r = await window.kh.printHtml(html, { landscape: !!land, pageSize: fmt === 'letter' ? 'Letter' : fmt.toUpperCase() }); if (r && r.error) toast('Хэвлэж чадсангүй: ' + r.error); } catch (e) { toast('Хэвлэж чадсангүй'); } return; }
+  const fr = document.createElement('iframe'); fr.style.cssText = 'position:fixed;left:-10000px;top:0;width:900px;height:1200px;border:0';
+  document.body.appendChild(fr); const doc = fr.contentDocument; doc.open(); doc.write(html); doc.close();
   const go = () => { try { fr.contentWindow.focus(); fr.contentWindow.print(); } catch (e) { toast('Хэвлэж чадсангүй'); } setTimeout(() => fr.remove(), 60000); };
-  const ims = [...doc.images]; let n = ims.filter(i => !i.complete).length; if (!n) setTimeout(go, 80); else ims.forEach(i => { if (!i.complete) i.onload = i.onerror = () => { if (--n === 0) setTimeout(go, 80); }; });
+  const ims = [...doc.images]; let n = ims.filter(i => !i.complete).length; if (!n) setTimeout(go, 120); else ims.forEach(i => { if (!i.complete) i.onload = i.onerror = () => { if (--n === 0) setTimeout(go, 120); }; });
+}
+function printImgs(imgs, land, fmt = 'a4', name = 'Kh_International') {
+  const old = document.getElementById('pvModal'); if (old) old.remove();
+  const m = document.createElement('div'); m.id = 'pvModal'; m.className = 'pvmodal';
+  m.innerHTML = `<div class="pvbar"><b>Хэвлэхийн өмнө харах</b><span class="muted">${imgs.length} хуудас · ${fmt === 'letter' ? 'Letter' : fmt.toUpperCase()} ${land ? 'хэвтээ' : 'босоо'}</span><span class="sp" style="flex:1"></span><button class="btn primary" data-pv="print">🖨 Хэвлэх</button><button class="btn" data-pv="pdf">PDF хадгалах</button><button class="btn ghost" data-pv="close">Хаах ✕</button></div>
+    <div class="pvpages">${imgs.map((i, k) => `<figure class="${land ? 'land' : ''}"><img src="${i.url}" alt="хуудас ${k + 1}"><figcaption>${k + 1} / ${imgs.length}</figcaption></figure>`).join('')}</div>`;
+  document.body.appendChild(m);
+  const close = () => { m.remove(); document.removeEventListener('keydown', esc); }, esc = e => { if (e.key === 'Escape') close(); };
+  document.addEventListener('keydown', esc);
+  m.addEventListener('click', e => { const b = e.target.closest('[data-pv]'); if (e.target === m) close(); if (!b) return; const a = b.dataset.pv; if (a === 'close') close(); else if (a === 'pdf') pdfImgs(imgs, land, name, fmt); else doPrint(imgs, land, fmt); });
 }
 const docImgs = D => D.pages.map((c, i) => ({ url: c.toDataURL('image/jpeg', 0.9), alias: 'p' + i }));
 function docPdf(D, name) { pdfImgs(docImgs(D), D.land, name); }
-function docPrint(D) { printImgs(docImgs(D), D.land); }
+function docPrint(D, name) { printImgs(docImgs(D), D.land, 'a4', name); }
 /* draw one page on a fresh canvas and return it as an image */
 async function pageImg(land, draw, K = 5) {
   const PW = land ? 297 : 210, PH = land ? 210 : 297, c = document.createElement('canvas'); c.width = PW * K; c.height = PH * K;
@@ -163,7 +176,7 @@ async function pageImg(land, draw, K = 5) {
 }
 /* run a builder and send it to pdf / print */
 async function docOut(mode, build, name) {
-  try { const D = await build(); if (!D) return; if (mode === 'print') docPrint(D); else docPdf(D, name || 'Kh_International'); }
+  try { const D = await build(); if (!D) return; if (mode === 'print') docPrint(D, name || 'Kh_International'); else docPdf(D, name || 'Kh_International'); }
   catch (e) { console.error(e); toast('Алдаа: ' + e.message); }
 }
 const outBtns = (id, label) => `<span class="outb"><button class="btn" data-out="pdf" data-doc="${id}">${label} PDF</button><button class="btn ghost" data-out="print" data-doc="${id}" title="Шууд хэвлэх">🖨 Хэвлэх</button></span>`;

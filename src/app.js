@@ -1317,6 +1317,7 @@ $('#xPdf').addEventListener('click', async () => {
   toast('PDF бэлтгэж байна…');
   try { await document.fonts.ready; } catch (e) { } await logoImg();
   const pages = reportPages();
+  if (window.__pv) { window.__pv = 0; printImgs(pages.map((c, i) => ({ url: c.toDataURL('image/jpeg', 0.92), alias: 'p' + i })), true, 'a4', S.jobName + "_тайлан"); return; }
   const pdf = i18nPdf(new window.jspdf.jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4', compress: true }));
   pages.forEach((c, i) => { if (i) pdf.addPage(); pdf.addImage(c.toDataURL('image/jpeg', 0.9), 'JPEG', 0, 0, 297, 210); });
   saveFile(safeName(S.jobName) + '_тайлан.pdf', pdf.output('blob'), 'application/pdf');
@@ -1349,10 +1350,12 @@ function renderQuote(el) {
     ${d.setup ? `<tr><td></td><td colspan="6">Бэлтгэл ажил</td><td class="r num">${nf(d.setup)}</td></tr>` : ''}
     </tbody></table></div>
     <div class="qtot"><div><span>Дүн</span><span>${nf(d.sub)} ₮</span></div>${S.quote.vat ? `<div><span>НӨАТ 10%</span><span>${nf(d.vat)} ₮</span></div>` : ''}<div class="big"><span>Нийт</span><span>${nf(d.total)} ₮</span></div><div class="muted" style="font-size:12px"><span>Өртөг</span><span>${nf(d.cost)} ₮</span></div></div>
-    <div class="addrow"><button class="btn primary" id="qPdf">Үнийн санал PDF</button><span class="note">Материалын өртгийг партын талбайгаар, зүсэлтийн өртгийг зүсэх уртаар хуваарилж, ашгийн хувийг нэмсэн.</span></div>`;
+    <div id="qfNest"></div>
+    <div class="addrow"><button class="btn" id="qPdf">Задаргаа PDF (дотоод)</button><span class="note">Материалын өртгийг партын талбайгаар, зүсэлтийн өртгийг зүсэх уртаар хуваарилж, ашгийн хувийг нэмсэн.</span></div>`;
   [...QF.map(f => f[0]), 'note'].forEach(k => $('#q_' + k).addEventListener('change', e => { S.quote[k] = e.target.type === 'number' ? Math.max(0, +e.target.value || 0) : e.target.value; save(); renderQuote(el); }));
   $('#q_vat').addEventListener('change', e => { S.quote.vat = e.target.checked; save(); renderQuote(el); });
   $('#qPdf').addEventListener('click', quotePdf);
+  { const box = $('#qfNest'), J0 = nestQuoteJob(); box.innerHTML = qfCardHTML(J0); bindQfCard(box, J0); }
 }
 function wrapText(x, text, maxW) { const words = String(text).split(/\s+/), lines = []; let cur = ''; for (const w of words) { const t = cur ? cur + ' ' + w : w; if (x.measureText(t).width > maxW && cur) { lines.push(cur); cur = w; } else cur = t; } if (cur) lines.push(cur); return lines; }
 async function quotePdf() {
@@ -1503,3 +1506,5 @@ if (window.kh) {
     if (proj.length) { try { S = mergeState(JSON.parse(new TextDecoder().decode(proj[0].data))); save(); R = null; renderAll(); toast('Төсөл нээгдлээ'); } catch (e) { toast('Төслийн файл буруу байна'); } }
   });
 }
+
+$('#xPrint').addEventListener('click', () => { window.__pv = 1; $('#xPdf').click(); });

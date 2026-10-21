@@ -84,6 +84,17 @@ ipcMain.handle('save-file', async (e, name, data) => {
   return r.filePath;
 });
 ipcMain.handle('show-in-folder', (e, p) => shell.showItemInFolder(p));
+ipcMain.handle('print-html', async (e, html, opt) => {
+  const tmp = path.join(app.getPath('temp'), `kh-print-${Date.now()}.html`);
+  fs.writeFileSync(tmp, html, 'utf8');
+  const pw = new BrowserWindow({ show: false, parent: win, webPreferences: { sandbox: true } });
+  try {
+    await pw.loadFile(tmp);
+    await pw.webContents.executeJavaScript('Promise.all([...document.images].map(i => i.complete ? 1 : new Promise(r => { i.onload = i.onerror = r; })))');
+    return await new Promise(res => pw.webContents.print({ silent: false, printBackground: true, landscape: !!(opt && opt.landscape), pageSize: (opt && opt.pageSize) || 'A4', margins: { marginType: 'none' } }, (ok, err) => res(ok || err === 'cancelled' ? { ok: true } : { error: err })));
+  } catch (err) { return { error: String(err && err.message || err) }; }
+  finally { setTimeout(() => { try { pw.destroy(); fs.unlinkSync(tmp); } catch (x) { } }, 2000); }
+});
 ipcMain.handle('info', () => { const c = readCfg(); return { version: app.getVersion(), ghOwner: c.ghOwner || '', ghRepo: c.ghRepo || 'kh-fab', packaged: app.isPackaged, upd: updState }; });
 ipcMain.handle('set-feed', (e, owner, repo) => { const c = readCfg(); c.ghOwner = String(owner || '').trim(); c.ghRepo = String(repo || 'kh-fab').trim() || 'kh-fab'; writeCfg(c); checkUpdates(false); return true; });
 ipcMain.handle('check-update', () => { checkUpdates(true); return true; });

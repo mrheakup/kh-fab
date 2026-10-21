@@ -175,7 +175,7 @@ label.fld{display:grid;gap:3px;font-size:12px;color:var(--ink-2)}
 .dt.ed td{padding:4px 6px}.dt.ed input,.dt.ed select{min-width:60px}
 .sgantt .grow{grid-template-columns:200px minmax(0,1fr) 175px;cursor:default}
 .igrp{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);margin:6px 2px 0}
-.ibulk{display:flex;gap:8px;align-items:end;flex-wrap:wrap;margin:10px 0}.ibulk .fld{width:150px}
+.ibulk{border:1px solid var(--line);border-radius:var(--r);padding:8px 10px;margin:10px 0;display:grid;gap:8px}.ibulk summary{cursor:pointer;font-weight:600;font-size:13px}.ibulk .fld{width:200px}
 .iprev{width:100%;height:auto;border:1px solid var(--line);border-radius:4px;background:#fff}
 .irt td{white-space:normal}.irt tr.bad td{background:color-mix(in srgb,var(--bad) 12%,transparent)}.irt input[type=radio]{width:18px;height:18px;accent-color:var(--accent)}
 .igrid{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}.igrid textarea{width:100%;font:inherit;line-height:1.5}
@@ -183,6 +183,20 @@ label.fld{display:grid;gap:3px;font-size:12px;color:var(--ink-2)}
 @media (max-width:900px){.pst{grid-template-columns:1fr}}
 .phint{border:1px solid var(--line);border-left:4px solid var(--ok);border-radius:var(--r);padding:8px 10px;font-size:13px;background:var(--surface)}.phint.need{border-left-color:var(--accent);background:var(--accent-soft)}
 .stdview{width:100%;height:75vh;border:0;background:#fff}.stdl{margin:6px 0 0;padding-left:18px;line-height:1.7;font-size:13px}
+.pvmodal{position:fixed;inset:0;z-index:200;background:rgba(15,20,26,.72);display:flex;flex-direction:column}
+.pvbar{display:flex;gap:10px;align-items:center;padding:10px 16px;background:var(--surface);border-bottom:1px solid var(--line);flex-wrap:wrap}
+.pvpages{flex:1;overflow:auto;padding:24px;display:flex;flex-direction:column;align-items:center;gap:22px}
+.pvpages figure{margin:0;width:min(820px,94vw)}.pvpages figure.land{width:min(1100px,94vw)}.pvpages img{width:100%;display:block;background:#fff;box-shadow:0 6px 28px rgba(0,0,0,.45)}
+.pvpages figcaption{color:#cfd6dd;font-size:12px;text-align:center;margin-top:6px}
+.qfwrap{grid-template-columns:minmax(220px,300px) minmax(0,1fr);align-items:start}.qfprevbox{cursor:zoom-in;position:sticky;top:0}.qfprev{width:100%;border:1px solid var(--line);border-radius:4px;background:#fff;display:block;min-height:120px}.qffields{display:grid;gap:10px;min-width:0}
+@media (max-width:900px){.qfwrap{grid-template-columns:1fr}}
+.modtabs .mi{display:inline-grid;place-items:center;width:17px;height:17px;border-radius:50%;background:var(--line);color:var(--ink-2);font:600 10.5px var(--f-mono);font-style:normal;margin-right:6px;vertical-align:1px}
+.modtabs button.on .mi{background:var(--accent);color:var(--accent-ink)}.msep{width:1px;background:var(--line);margin:4px 4px;flex:0 0 1px}
+.jsub.stepper{gap:0;padding:4px;border-bottom:1px solid var(--line)}.stepper button{display:flex;align-items:center;gap:7px;border-bottom:0!important;border-radius:6px;padding:7px 12px}
+.stepper button .sn{width:20px;height:20px;border-radius:50%;display:inline-grid;place-items:center;font:600 11px var(--f-mono);background:var(--surface-2);border:1px solid var(--line);color:var(--ink-2)}
+.stepper button.done .sn{background:var(--ok);border-color:var(--ok);color:#fff}.stepper button.on{background:var(--accent-soft);color:var(--ink)}.stepper button.on .sn{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.stepper .arr{color:var(--ink-3);align-self:center;font-size:11px}
+.jsteps{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px}.jstep{display:flex;gap:10px;align-items:flex-start;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:var(--r);padding:10px;cursor:pointer;color:var(--ink)}.jstep:hover{border-color:var(--accent)}.jstep small{display:block;color:var(--ink-3);font-size:12px;margin-top:2px}.jstep .sn{flex:0 0 22px;height:22px;border-radius:50%;display:grid;place-items:center;font:600 11px var(--f-mono);background:var(--surface-2);border:1px solid var(--line)}.jstep.done .sn{background:var(--ok);color:#fff;border-color:var(--ok)}
 .ical{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;max-width:460px}.ical b{font-size:11px;color:var(--ink-3);text-align:center;font-weight:500}
 .ical span{border:1px solid var(--line-2);border-radius:4px;text-align:center;padding:6px 0;font-family:var(--f-mono);font-size:12px}
 .ical span.has{cursor:pointer}.ical .c-ok{background:color-mix(in srgb,var(--ok) 25%,transparent)}.ical .c-fix{background:color-mix(in srgb,var(--warn) 30%,transparent)}.ical .c-stop{background:color-mix(in srgb,var(--bad) 35%,transparent)}
@@ -328,11 +342,12 @@ table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
   <header class="top">
     <div class="brand"><span class="logo-wrap"><img class="brand-logo" alt="Kh International" src=""></span></div>
     <nav class="modtabs" role="tablist">
-      <button data-mod="jobs" role="tab">Ажил · захиалга</button>
-      <button data-mod="nest" class="on" role="tab">Nesting · өрөлт</button>
-      <button data-mod="bend" role="tab">Bending · нугалалт</button>
-      <button data-mod="insp" role="tab">Үзлэг · заавар</button>
-      <button data-mod="info" role="tab">Мэдээлэл · сан</button>
+      <button data-mod="jobs" role="tab" title="Захиалга, үнийн санал, хуваарь, явц, зардал, хүлээлгэх"><i class="mi">1</i>Ажил</button>
+      <button data-mod="nest" class="on" role="tab" title="Лист дээр парт өрөх, лазер зүсэлт, G-code, DXF"><i class="mi">2</i>Зүсэлт</button>
+      <button data-mod="bend" role="tab" title="Нугалах пресс, 3 булт галзуу"><i class="mi">3</i>Нугалалт</button>
+      <span class="msep"></span>
+      <button data-mod="insp" role="tab" title="Тоног төхөөрөмжийн өдөр тутмын үзлэг, ажлын заавар, ханын самбар">Үзлэг · ХАБ</button>
+      <button data-mod="info" role="tab" title="Үнийн сан, стандарт, загвар, уул уурхайн техник, файлууд">Сан</button>
     </nav>
     <span id="updBadge" class="pill rem" hidden></span>
     <div class="top-actions">
@@ -347,23 +362,27 @@ table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
 
   <aside class="side" id="inspSide" hidden>
     <div class="panel-body">
-      <div class="ptools"><button class="btn primary" id="iAdd">+ Тоног нэмэх</button><button class="btn" id="iInstrAll">Бүх заавар PDF</button><button class="btn" id="iPosterAll">Бүх ханын самбар A3</button></div>
-      <div class="ibulk"><label class="fld">Сарын багцад өдрийн хуудас<input id="iDaily" type="number" min="1" max="40" class="mono"></label><button class="btn" id="iAllPdf">Бүх тоногийн багц PDF</button><button class="btn ghost" id="iAllPrint" title="Шууд хэвлэх">🖨</button></div>
-      <p class="note">Өдөр тутмын үзлэгийн хуудас, засвар / жолооны бүртгэл, ажлын байрны заавар. Хуудсыг хэвлэж бөглөх эсвэл «Цахим үзлэг»-ээр бөглөж хадгална.</p>
+      <div class="ptools"><button class="btn primary" id="iAdd">+ Тоног нэмэх</button></div>
+      <details class="ibulk"><summary>Бүх тоногоор хэвлэх</summary>
+        <label class="fld">Сарын багцад өдрийн хуудас<input id="iDaily" type="number" min="1" max="40" class="mono"></label>
+        <div class="exports"><span class="outb"><button class="btn" id="iAllPdf">Үзлэгийн багц PDF</button><button class="btn ghost" id="iAllPrint" title="Хэвлэх">🖨</button></span><button class="btn" id="iInstrAll">Заавар PDF</button><button class="btn" id="iPosterAll">Ханын самбар A3</button></div>
+      </details>
+      <p class="note">Тоногоо сонгоод «Өнөөдрийн үзлэг» табд бөглөнө. Хэвлэх хуудас, заавар, ханын самбар тоног бүрийн табд байна.</p>
       <div id="iList" class="plist"></div>
     </div>
   </aside>
   <main class="main" id="inspMain" hidden></main>
   <aside class="side" id="infoSide" hidden>
     <nav class="tabs" role="tablist">
-      <button data-itab="mach" class="on">Техник</button>
-      <button data-itab="bt">Шанага</button>
-      <button data-itab="tpl">Загвар</button>
-      <button data-itab="lib">Миний сан</button>
+      <button data-itab="cat" class="on">Үнийн сан</button>
       <button data-itab="std">Стандарт</button>
+      <button data-itab="tpl">Загвар</button>
+      <button data-itab="mach">Техник</button>
+      <button data-itab="bt">Шанага</button>
+      <button data-itab="lib">Файлууд</button>
     </nav>
     <div class="panel-body">
-      <section id="itab-mach">
+      <section id="itab-mach" hidden>
         <input id="mSearch" class="inp" placeholder="Хайх: Sandvik, PC2000…" aria-label="Хайх">
         <div id="mCats" class="chips" style="margin:10px 0"></div>
         <div id="mList" class="plist"></div>
@@ -375,6 +394,10 @@ table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
       <section id="itab-tpl" hidden>
         <p class="hint">Зүсэж, нугалж хийх бүтээгдэхүүний параметрт загвар. Хэмжээг өөрчлөхөд эд анги, 3D, iLogic бүгд шинэчлэгдэнэ.</p>
         <div id="tplList" class="plist"></div>
+      </section>
+      <section id="itab-cat">
+        <p class="note">Материал, consumable, үйлчилгээний үнийн сан. Үнийн саналын мөрөнд нэр шивэхэд эндээс санал болгож, үнэ, нэгж, кг-ыг автоматаар бөглөнө. Санд байхгүй материалыг үнэ, нийлүүлэгчтэй нь шивбэл энд автоматаар нэмэгдэнэ.</p>
+        <div id="catSups" class="plist"></div>
       </section>
       <section id="itab-std" hidden>
         <p class="note">Гагнуурын урьдчилан халаалтын тооцоолуур (AWS D1.1, SSAB) болон компанийн стандарт, каталогийн архив. Файл зөвхөн энэ компьютерт хадгалагдана.</p>
@@ -392,8 +415,7 @@ table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
     <nav class="tabs" role="tablist">
       <button data-jtab="jobs" class="on">Ажлууд <span class="badge" id="cntJobs"></span></button>
       <button data-jtab="kits">Иж бүрдэл <span class="badge" id="cntKits"></span></button>
-      <button data-jtab="certs">Материал</button>
-      <button data-jtab="cat">Үнийн сан</button>
+      <button data-jtab="certs">Гэрчилгээ</button>
     </nav>
     <div class="panel-body">
       <section id="jtab-jobs">
@@ -418,10 +440,6 @@ table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
         <div class="logoset"><span class="logo-wrap"><img class="brand-logo" alt="лого" src=""></span>
           <button class="btn sm" id="logoPick">Лого солих</button><button class="btn sm ghost" id="logoReset">Анхны лого</button><input type="file" id="logoFile" accept="image/png,image/jpeg,image/svg+xml,image/webp" hidden></div>
         <p class="note">Лого програмын толгой болон бүх PDF, хэвлэх баримтад гарна. PNG (тунгалаг фонтой) хамгийн тохиромжтой.</p>
-      </section>
-      <section id="jtab-cat" hidden>
-        <p class="note">Материал, consumable, үйлчилгээний үнийн сан. Үнийн саналын мөрөнд нэр шивэхэд эндээс санал болгож, үнэ, нэгж, кг-ыг автоматаар бөглөнө. Санд байхгүй материалыг үнэ, нийлүүлэгчтэй нь шивбэл энд автоматаар нэмэгдэнэ.</p>
-        <div id="catSups" class="plist"></div>
       </section>
       <section id="jtab-kits" hidden>
         <p class="hint">Иж бүрдэл гэдэг нь нэг бүтээгдэхүүний (жишээ нь PC200 шанага) бүх хавтгай эд анги, ширхэгийг хадгалсан загвар. Ажилд «иж бүрдэл × тоо» гэж оруулахад партууд автоматаар үржинэ.</p>
@@ -652,7 +670,7 @@ table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
     <div class="exports">
       <button class="btn primary" id="xDxfAll">DXF — бүх лист (ZIP)</button>
       <button class="btn" id="xNcAll">G-code — бүх лист (ZIP)</button>
-      <button class="btn" id="xPdf">PDF тайлан</button>
+      <span class="outb"><button class="btn" id="xPdf">PDF тайлан</button><button class="btn ghost" id="xPrint" title="Хэвлэх">🖨</button></span>
       <button class="btn" id="xCsv">CSV хүснэгт</button>
     </div>
     <div class="rtabs" role="tablist">
@@ -667,9 +685,9 @@ table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
 
   <aside class="side" id="bendSide" hidden>
     <nav class="tabs" role="tablist">
-      <button data-btab="prof" class="on">Профиль</button>
+      <button data-btab="prof" class="on">Нугалах профиль</button>
+      <button data-btab="roll">Галзуу (булт)</button>
       <button data-btab="tools">Багаж, машин</button>
-      <button data-btab="roll">Галзуу</button>
     </nav>
     <div class="panel-body">
       <section id="btab-prof">
@@ -743,7 +761,7 @@ table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
     </div>
     <div class="exports">
       <button class="btn primary" id="bToNest">Nesting руу нэмэх</button>
-      <button class="btn" id="bPdf">Операторын хуудас PDF</button>
+      <span class="outb"><button class="btn" id="bPdf">Операторын хуудас PDF</button><button class="btn ghost" id="bPrint" title="Хэвлэх">🖨</button></span>
       <button class="btn" id="bDxf">Дэлгэмэл DXF</button>
       <button class="btn ghost" id="bDel">Профиль устгах</button>
     </div>
@@ -1431,7 +1449,7 @@ self.onmessage = e => {
 </script>
 <script>
 const I18N_EN = {
-"Ажил": "Job",
+"Ажил": "Jobs",
 "захиалга": "orders",
 "өрөлт": "layout",
 "нугалалт": "press brake",
@@ -3761,7 +3779,7 @@ const I18N_EN = {
 "Хамгийн их зузаан, мм": "Max thickness, mm",
 "Халаалт, min": "Preheat, min",
 "Халаалтын зардлыг үнийн саналд нэмэх": "Add preheat cost to the quotation",
-"Ажилд парт эсвэл үнийн саналд зузаантай материал (жишээ: «Hardox 450 20мм») ормогц халаалт автоматаар тооцогдоно.": "Preheat is calculated automatically once the job has parts or the quotation has materials with a thickness (e.g. «Hardox 450 20мм»).",
+"Ажилд парт эсвэл үнийн саналд зузаантай материал (жишээ: «Hardox 450 20мм») ормогц халаалт автоматаар тооцогдоно.": "Preheat is calculated automatically once the job has parts or the quotation has materials with a thickness (e.g. «Hardox 450 20 mm»).",
 "AWS D1.1-ийн урьдчилан баталгаажсан (prequalified) хамгийн бага утга. Hardox, Strenx-д SSAB-ийн зөвлөмж. Батлагдсан WPS байвал түүнийг мөрдөнө.": "AWS D1.1 prequalified minimum values. SSAB recommendations for Hardox and Strenx. An approved WPS takes precedence.",
 "°C (хий, шарагч / индукц)": "°C (gas torch / induction)",
 "AWS D1.1 / SSAB — үнийг оруулна": "AWS D1.1 / SSAB — enter the price",
@@ -3814,7 +3832,43 @@ const I18N_EN = {
 "Круг хар": "Round bar",
 "Полоса хар": "Black flat bar",
 "Полоса цагаан": "Galvanized flat bar",
-"Арматур": "Rebar"
+"Арматур": "Rebar",
+"_тайлан": "_report",
+"Задаргаа PDF (дотоод)": "Breakdown PDF (internal)",
+"Нугалах_хуудас": "Bending_sheet",
+"Хэвлэхийн өмнө харах": "Print preview",
+"хэвтээ": "landscape",
+"босоо": "portrait",
+"Өнөөдрийн үзлэг": "Today's inspection",
+"Хэвлэх хуудас": "Printable sheets",
+"Заавар, ханын самбар": "Instruction, wall poster",
+"Үзлэг бүртгэгдээгүй. «Өнөөдрийн үзлэг» табд өдөр бүр бөглөнө.": "No inspections yet. Fill in «Today's inspection» every day.",
+"Хэвлэх": "Print",
+"Ажлын тайлбар, үе шат, хуваарь, эрсдэл, халаалт": "Work description, stages, schedule, risks, preheat",
+"Материал, хүч, тоног, ашиг → захиалагчид PDF": "Materials, labour, equipment, margin → customer PDF",
+"Үйлдвэрлэл": "Production",
+"Парт, өрөлт, зүсэлтийн бүртгэл, шошго, ажлын карт": "Parts, nesting, cutting log, labels, job card",
+"Явц, зардал": "Progress, costs",
+"Гүйцэтгэл %, зарлага, төсөв ба бодит": "Progress %, expenses, budget vs actual",
+"Хүлээлгэх": "Handover",
+"Хүлээн авалтын акт, өөрчлөлт": "Acceptance certificate, changes",
+"Ажлын алхмууд": "Job steps",
+"Урьдчилан харах — дарж томруулна": "Preview — click to enlarge",
+"Захиалга, үнийн санал, хуваарь, явц, зардал, хүлээлгэх": "Orders, quotations, schedule, progress, costs, handover",
+"Лист дээр парт өрөх, лазер зүсэлт, G-code, DXF": "Nest parts on sheets, laser cutting, G-code, DXF",
+"Тоног төхөөрөмжийн өдөр тутмын үзлэг, ажлын заавар, ханын самбар": "Daily equipment inspections, work instructions, wall posters",
+"Үзлэг · ХАБ": "Inspection · HSE",
+"Үнийн сан, стандарт, загвар, уул уурхайн техник, файлууд": "Price library, standards, templates, mining machines, files",
+"Бүх тоногоор хэвлэх": "Print for all equipment",
+"Үзлэгийн багц PDF": "Inspection pack PDF",
+"Заавар PDF": "Instructions PDF",
+"Тоногоо сонгоод «Өнөөдрийн үзлэг» табд бөглөнө. Хэвлэх хуудас, заавар, ханын самбар тоног бүрийн табд байна.": "Select the equipment and fill in «Today's inspection». Printable sheets, instructions and wall posters are in each equipment's tabs.",
+"Файлууд": "Files",
+"Гэрчилгээ": "Certificates",
+"Нугалах профиль": "Bend profiles",
+"Галзуу (булт)": "Rolling (3-roll)",
+"Нугалалт": "Bending",
+"Сан": "Library"
 };
 /* ================= KH Fab — language (МН / EN) and theme (Day / Night) =================
    The UI is written in Mongolian. In English mode every Mongolian fragment that reaches the
@@ -6646,6 +6700,7 @@ $('#xPdf').addEventListener('click', async () => {
   toast('PDF бэлтгэж байна…');
   try { await document.fonts.ready; } catch (e) { } await logoImg();
   const pages = reportPages();
+  if (window.__pv) { window.__pv = 0; printImgs(pages.map((c, i) => ({ url: c.toDataURL('image/jpeg', 0.92), alias: 'p' + i })), true, 'a4', S.jobName + "_тайлан"); return; }
   const pdf = i18nPdf(new window.jspdf.jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4', compress: true }));
   pages.forEach((c, i) => { if (i) pdf.addPage(); pdf.addImage(c.toDataURL('image/jpeg', 0.9), 'JPEG', 0, 0, 297, 210); });
   saveFile(safeName(S.jobName) + '_тайлан.pdf', pdf.output('blob'), 'application/pdf');
@@ -6678,10 +6733,12 @@ function renderQuote(el) {
     ${d.setup ? `<tr><td></td><td colspan="6">Бэлтгэл ажил</td><td class="r num">${nf(d.setup)}</td></tr>` : ''}
     </tbody></table></div>
     <div class="qtot"><div><span>Дүн</span><span>${nf(d.sub)} ₮</span></div>${S.quote.vat ? `<div><span>НӨАТ 10%</span><span>${nf(d.vat)} ₮</span></div>` : ''}<div class="big"><span>Нийт</span><span>${nf(d.total)} ₮</span></div><div class="muted" style="font-size:12px"><span>Өртөг</span><span>${nf(d.cost)} ₮</span></div></div>
-    <div class="addrow"><button class="btn primary" id="qPdf">Үнийн санал PDF</button><span class="note">Материалын өртгийг партын талбайгаар, зүсэлтийн өртгийг зүсэх уртаар хуваарилж, ашгийн хувийг нэмсэн.</span></div>`;
+    <div id="qfNest"></div>
+    <div class="addrow"><button class="btn" id="qPdf">Задаргаа PDF (дотоод)</button><span class="note">Материалын өртгийг партын талбайгаар, зүсэлтийн өртгийг зүсэх уртаар хуваарилж, ашгийн хувийг нэмсэн.</span></div>`;
   [...QF.map(f => f[0]), 'note'].forEach(k => $('#q_' + k).addEventListener('change', e => { S.quote[k] = e.target.type === 'number' ? Math.max(0, +e.target.value || 0) : e.target.value; save(); renderQuote(el); }));
   $('#q_vat').addEventListener('change', e => { S.quote.vat = e.target.checked; save(); renderQuote(el); });
   $('#qPdf').addEventListener('click', quotePdf);
+  { const box = $('#qfNest'), J0 = nestQuoteJob(); box.innerHTML = qfCardHTML(J0); bindQfCard(box, J0); }
 }
 function wrapText(x, text, maxW) { const words = String(text).split(/\s+/), lines = []; let cur = ''; for (const w of words) { const t = cur ? cur + ' ' + w : w; if (x.measureText(t).width > maxW && cur) { lines.push(cur); cur = w; } else cur = t; } if (cur) lines.push(cur); return lines; }
 async function quotePdf() {
@@ -6833,6 +6890,8 @@ if (window.kh) {
   });
 }
 
+$('#xPrint').addEventListener('click', () => { window.__pv = 1; $('#xPdf').click(); });
+
 const KH_LOGO_DEFAULT = "data:image/png;base64,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";
 /* ================= Kh International — logo + printable document engine =================
    KH_LOGO_DEFAULT is injected by build.py from src/logo.png. Every document is drawn on
@@ -6978,19 +7037,32 @@ function pdfImgs(imgs, land, name, fmt = 'a4') {
   imgs.forEach((im, i) => { if (i) pdf.addPage(); pdf.addImage(im.url, 'JPEG', 0, 0, PW, PH, im.alias, 'FAST'); });
   saveFile(safeName(tr(String(name).replace(/_/g, ' '))) + '.pdf', pdf.output('blob'), 'application/pdf');
 }
-function printImgs(imgs, land, fmt = 'a4') {
-  const fr = document.createElement('iframe'); fr.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden';
-  document.body.appendChild(fr);
+/* print: open an in-app preview, then print (Electron: main process; browser: off-screen iframe) */
+function printHtml(imgs, land, fmt) {
   const [sa, sb] = PAPERS[fmt] || PAPERS.a4, w = (land ? sb : sa) + 'mm', h = (land ? sa : sb) + 'mm';
-  const doc = fr.contentDocument; doc.open();
-  doc.write(`<!doctype html><html><head><meta charset="utf-8"><style>@page{size:${fmt.toUpperCase()} ${land ? 'landscape' : 'portrait'};margin:0}html,body{margin:0;padding:0}img{display:block;width:${w};height:${h};page-break-after:always;break-after:page}img:last-child{page-break-after:auto;break-after:auto}</style></head><body>${imgs.map(i => `<img src="${i.url}">`).join('')}</body></html>`);
-  doc.close();
+  return `<!doctype html><html><head><meta charset="utf-8"><title>Kh International</title><style>@page{size:${fmt === 'letter' ? 'letter' : fmt.toUpperCase()} ${land ? 'landscape' : 'portrait'};margin:0}html,body{margin:0;padding:0;background:#fff}img{display:block;width:${w};height:${h};page-break-after:always;break-after:page}img:last-child{page-break-after:auto;break-after:auto}</style></head><body>${imgs.map(i => `<img src="${i.url}">`).join('')}</body></html>`;
+}
+async function doPrint(imgs, land, fmt) {
+  const html = printHtml(imgs, land, fmt);
+  if (window.kh && window.kh.printHtml) { try { const r = await window.kh.printHtml(html, { landscape: !!land, pageSize: fmt === 'letter' ? 'Letter' : fmt.toUpperCase() }); if (r && r.error) toast('Хэвлэж чадсангүй: ' + r.error); } catch (e) { toast('Хэвлэж чадсангүй'); } return; }
+  const fr = document.createElement('iframe'); fr.style.cssText = 'position:fixed;left:-10000px;top:0;width:900px;height:1200px;border:0';
+  document.body.appendChild(fr); const doc = fr.contentDocument; doc.open(); doc.write(html); doc.close();
   const go = () => { try { fr.contentWindow.focus(); fr.contentWindow.print(); } catch (e) { toast('Хэвлэж чадсангүй'); } setTimeout(() => fr.remove(), 60000); };
-  const ims = [...doc.images]; let n = ims.filter(i => !i.complete).length; if (!n) setTimeout(go, 80); else ims.forEach(i => { if (!i.complete) i.onload = i.onerror = () => { if (--n === 0) setTimeout(go, 80); }; });
+  const ims = [...doc.images]; let n = ims.filter(i => !i.complete).length; if (!n) setTimeout(go, 120); else ims.forEach(i => { if (!i.complete) i.onload = i.onerror = () => { if (--n === 0) setTimeout(go, 120); }; });
+}
+function printImgs(imgs, land, fmt = 'a4', name = 'Kh_International') {
+  const old = document.getElementById('pvModal'); if (old) old.remove();
+  const m = document.createElement('div'); m.id = 'pvModal'; m.className = 'pvmodal';
+  m.innerHTML = `<div class="pvbar"><b>Хэвлэхийн өмнө харах</b><span class="muted">${imgs.length} хуудас · ${fmt === 'letter' ? 'Letter' : fmt.toUpperCase()} ${land ? 'хэвтээ' : 'босоо'}</span><span class="sp" style="flex:1"></span><button class="btn primary" data-pv="print">🖨 Хэвлэх</button><button class="btn" data-pv="pdf">PDF хадгалах</button><button class="btn ghost" data-pv="close">Хаах ✕</button></div>
+    <div class="pvpages">${imgs.map((i, k) => `<figure class="${land ? 'land' : ''}"><img src="${i.url}" alt="хуудас ${k + 1}"><figcaption>${k + 1} / ${imgs.length}</figcaption></figure>`).join('')}</div>`;
+  document.body.appendChild(m);
+  const close = () => { m.remove(); document.removeEventListener('keydown', esc); }, esc = e => { if (e.key === 'Escape') close(); };
+  document.addEventListener('keydown', esc);
+  m.addEventListener('click', e => { const b = e.target.closest('[data-pv]'); if (e.target === m) close(); if (!b) return; const a = b.dataset.pv; if (a === 'close') close(); else if (a === 'pdf') pdfImgs(imgs, land, name, fmt); else doPrint(imgs, land, fmt); });
 }
 const docImgs = D => D.pages.map((c, i) => ({ url: c.toDataURL('image/jpeg', 0.9), alias: 'p' + i }));
 function docPdf(D, name) { pdfImgs(docImgs(D), D.land, name); }
-function docPrint(D) { printImgs(docImgs(D), D.land); }
+function docPrint(D, name) { printImgs(docImgs(D), D.land, 'a4', name); }
 /* draw one page on a fresh canvas and return it as an image */
 async function pageImg(land, draw, K = 5) {
   const PW = land ? 297 : 210, PH = land ? 210 : 297, c = document.createElement('canvas'); c.width = PW * K; c.height = PH * K;
@@ -6999,7 +7071,7 @@ async function pageImg(land, draw, K = 5) {
 }
 /* run a builder and send it to pdf / print */
 async function docOut(mode, build, name) {
-  try { const D = await build(); if (!D) return; if (mode === 'print') docPrint(D); else docPdf(D, name || 'Kh_International'); }
+  try { const D = await build(); if (!D) return; if (mode === 'print') docPrint(D, name || 'Kh_International'); else docPdf(D, name || 'Kh_International'); }
   catch (e) { console.error(e); toast('Алдаа: ' + e.message); }
 }
 const outBtns = (id, label) => `<span class="outb"><button class="btn" data-out="pdf" data-doc="${id}">${label} PDF</button><button class="btn ghost" data-out="print" data-doc="${id}" title="Шууд хэвлэх">🖨 Хэвлэх</button></span>`;
@@ -7092,7 +7164,7 @@ function jobMoney(job) {
 const daysLeft = d => d ? Math.round((new Date(d + 'T00:00:00') - new Date(today() + 'T00:00:00')) / 864e5) : null;
 
 /* ---------- side panel ---------- */
-$$('[data-jtab]').forEach(b => b.addEventListener('click', () => { J.tab = b.dataset.jtab; $$('[data-jtab]').forEach(x => x.classList.toggle('on', x === b)); ['jobs', 'kits', 'certs', 'cat'].forEach(t => $('#jtab-' + t).hidden = t !== J.tab); renderJobs(); }));
+$$('[data-jtab]').forEach(b => b.addEventListener('click', () => { J.tab = b.dataset.jtab; $$('[data-jtab]').forEach(x => x.classList.toggle('on', x === b)); ['jobs', 'kits', 'certs'].forEach(t => $('#jtab-' + t).hidden = t !== J.tab); renderJobs(); }));
 function renderJobs() { renderJList(); renderKList(); renderCertSide(); renderJobMain(); }
 function renderJList() {
   $('#cntJobs').textContent = S.jobs.filter(j => !['done', 'given'].includes(j.status)).length || '';
@@ -7150,12 +7222,11 @@ function renderJobMain() {
   const el = $('#jobsMain');
   if (J.tab === 'kits') { if (J.bucket) renderBucketMain(el); else renderKitMain(el); return; }
   if (J.tab === 'certs') { renderCertMain(el); return; }
-  if (J.tab === 'cat') { renderCatMain(el); renderCatSide(); return; }
   if (J.dash && S.jobs.length) { renderDash(el); return; }
   const job = findJob(J.sel) || findJob(S.activeJob) || S.jobs[0];
   if (!job) { el.innerHTML = '<div class="jempty"><b>Ажил алга</b><br>Зүүн талын <b>+ Шинэ ажил</b> товчоор ажлын дугаар үүсгэнэ. Дугаар нь <span class="mono">KH-' + new Date().getFullYear() + '-001</span> хэлбэртэй, жил бүр шинээр эхэлнэ.</div>'; return; }
   J.sel = job.id;
-  if (J.sub && J.sub !== 'main') { renderJobSub(el, job); return; }
+  if (J.sub && !['main', 'prod'].includes(J.sub)) { renderJobSub(el, job); return; }
   const parts = jobParts(job), pcs = parts.reduce((a, p) => a + p.qty, 0), kg = jobWeight(parts);
   const kitOpts = sel => '<option value="">— сонгох —</option>' + S.kits.map(k => `<option value="${k.id}"${k.id === sel ? ' selected' : ''}>${esc(k.name)}</option>`).join('');
   const e = job.est, a = job.act || {};
@@ -7166,7 +7237,7 @@ function renderJobMain() {
   const ops = (S.iso.operators || '').split(',').map(x => x.trim()).filter(Boolean);
   const rows = job.trace.map((t, i) => `<tr data-i="${i}"><td class="num">${esc(t.date)}</td><td>${esc(t.lay)}</td><td class="num">${esc(t.size)}</td><td>${esc(t.mat)} ${t.thk}мм</td><td class="r num">${t.count}</td><td class="num">${esc(t.heat)}</td><td class="num">${esc(t.cert || '')}</td><td>${esc(t.op || '')}</td><td><button class="x" data-tdel aria-label="Устгах">×</button></td></tr>`).join('');
   el.innerHTML = `${jobSubBar(job)}
-    <div class="bhead">
+    <div class="bhead" data-v="main">
       <label class="fld sm" style="width:150px">Ажлын дугаар<input id="jf_no" class="mono" value="${esc(job.no)}"></label>
       <label class="fld grow">Ажлын нэр<input id="jf_title" value="${esc(job.title)}" placeholder="жишээ: PC200 шанага ×2"></label>
       <label class="fld grow">Захиалагч<input id="jf_customer" value="${esc(job.customer)}"></label>
@@ -7175,22 +7246,22 @@ function renderJobMain() {
       <label class="fld grow">Тайлбар<input id="jf_note" value="${esc(job.note)}"></label>
       <label class="fld">Гэрээний үнэ, ₮<input id="jf_price" type="number" min="0" step="10000" value="${esc(job.price || '')}" class="mono"></label>
     </div>
-    <div class="exports">
+    <div class="exports" data-v="prod">
       <button class="btn primary" id="jLoad">Өрөлтөд ачаалах</button>
       <button class="btn" id="jLabels">Шошго PDF (QR)</button>
       <label class="check" style="margin:0 6px 0 0"><input type="checkbox" id="jEach"><span>Ширхэг бүрт шошго</span></label>
-      <button class="btn" id="jCard">Ажлын карт PDF (ISO)</button>
+      <span class="outb"><button class="btn" id="jCard">Ажлын карт PDF (ISO)</button><button class="btn ghost" id="jCardPrint" title="Хэвлэх">🖨</button></span>
       <span class="sp" style="flex:1"></span>
       <button class="btn ghost" id="jDel">Ажил устгах</button>
     </div>
-    <div class="jcard"><div class="bcard-h">Бүрэлдэхүүн <span class="sp"></span><span class="muted mono" style="font-weight:400">${parts.length} төрөл · ${pcs} ш · ${nf(kg, 1)} кг</span></div><div class="jbody">
+    <div class="jcard" data-v="prod"><div class="bcard-h">Бүрэлдэхүүн <span class="sp"></span><span class="muted mono" style="font-weight:400">${parts.length} төрөл · ${pcs} ш · ${nf(kg, 1)} кг</span></div><div class="jbody">
       <div class="tblwrap"><table class="dt"><thead><tr><th>Иж бүрдэл</th><th class="r" style="width:110px">Тоо</th><th class="r">Парт, ш</th><th class="r">Жин, кг</th><th style="width:30px"></th></tr></thead><tbody>
       ${job.items.map((it, i) => { const k = findKit(it.kitId); const n = k ? k.parts.reduce((a, p) => a + p.qty, 0) * (+it.n || 0) : 0; return `<tr data-i="${i}"><td><select data-k="kitId">${kitOpts(it.kitId)}</select></td><td><input data-k="n" type="number" min="0" value="${it.n}" class="mono" style="text-align:right"></td><td class="r num">${n}</td><td class="r num">${k ? nf(jobWeight(k.parts) * (+it.n || 0), 1) : '—'}</td><td><button class="x" data-idel aria-label="Хасах">×</button></td></tr>`; }).join('')}
       ${job.extra.length ? `<tr><td>Нэмэлт партууд <span class="muted">(${job.extra.length} төрөл)</span></td><td class="r num">—</td><td class="r num">${job.extra.reduce((a, p) => a + p.qty, 0)}</td><td class="r num">${nf(jobWeight(job.extra), 1)}</td><td><button class="x" data-xdel title="Нэмэлт партуудыг хасах">×</button></td></tr>` : ''}
       </tbody></table></div>
       <div class="addrow"><button class="btn sm" id="jAddKit"${S.kits.length ? '' : ' disabled title="Эхлээд иж бүрдэл үүсгэнэ"'}>+ Иж бүрдэл</button><button class="btn sm" id="jAddExtra">+ Nesting-ийн одоогийн партуудыг нэмэх</button>${S.kits.length ? '' : '<span class="note">Иж бүрдэл алга — «Иж бүрдэл» таб эсвэл Nesting дээрх «Иж бүрдэл болгох» товчоор үүсгэнэ.</span>'}</div>
     </div></div>
-    <div class="jcard"><div class="bcard-h">Тооцоо — төлөвлөсөн ба бодит <span class="sp"></span><span class="muted" style="font-weight:400;font-size:12px">${e ? 'өрөлт: ' + esc(e.date) : 'өрөлт хийгдээгүй'}</span></div><div class="jbody">
+    <div class="jcard" data-v="prod"><div class="bcard-h">Тооцоо — төлөвлөсөн ба бодит <span class="sp"></span><span class="muted" style="font-weight:400;font-size:12px">${e ? 'өрөлт: ' + esc(e.date) : 'өрөлт хийгдээгүй'}</span></div><div class="jbody">
       ${e ? `<div class="cmpv">
         <div><div class="k">Лист</div><div class="v">${e.sheets}</div><div class="d muted">${esc(e.groups.map(g => g.label + ': ' + g.sizes).join('; '))}</div></div>
         <div><div class="k">Материал, кг</div><div class="v">${nf(e.kg, 1)}${actKg ? ` → ${nf(actKg, 1)}` : ''}</div>${dlt(e.kg, actKg)}</div>
@@ -7206,13 +7277,14 @@ function renderJobMain() {
       </div>
       ${money.price ? `<p class="note" style="margin-top:8px">Гэрээ ${nf(money.price)} ₮ · төсөв ${nf(money.plan)} ₮${money.has ? ` · бодит ${nf(money.act)} ₮` : ''} · <b class="${money.margin < 0 ? 'late' : ''}">ашиг ${nf(money.margin)} ₮ (${nf(money.margin / money.price * 100, 1)}%)</b></p>` : ''}
     </div></div>
-    <div class="jcard"><div class="bcard-h">Зүсэлтийн бүртгэл — ISO 9001 ул мөр <span class="sp"></span><button class="btn sm" id="jTraceNest">Өрөлтөөс бүртгэх</button><button class="btn sm ghost" id="jTraceAdd">+ Гараар</button></div><div class="jbody">
+    <div class="jcard" data-v="prod"><div class="bcard-h">Зүсэлтийн бүртгэл — ISO 9001 ул мөр <span class="sp"></span><button class="btn sm" id="jTraceNest">Өрөлтөөс бүртгэх</button><button class="btn sm ghost" id="jTraceAdd">+ Гараар</button></div><div class="jbody">
       <div id="jTraceForm"></div>
       ${job.trace.length ? `<div class="tblwrap"><table class="dt"><thead><tr><th>Огноо</th><th>Лист</th><th>Хэмжээ</th><th>Материал</th><th class="r">Тоо</th><th>Хайлалт №</th><th>Гэрчилгээ №</th><th>Оператор</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>` : '<p class="note">Зүссэн лист бүрийн хавтангийн хайлалтын дугаар, операторыг энд бүртгэнэ. ISO аудитад бүтээгдэхүүнээс материалын гэрчилгээ хүртэл мөрдөх боломжтой болно.</p>'}
     </div></div>
-    <div class="jcard"><div class="bcard-h">Түүх</div><div class="jbody"><div class="jlog">${job.log.map(l => `<div><span class="mono">${esc(l.t)}</span>${esc(l.m)}</div>`).join('') || '<span class="note">—</span>'}</div></div></div>
+    ${jobNextHTML(job)}<div class="jcard" data-v="main"><div class="bcard-h">Түүх</div><div class="jbody"><div class="jlog">${job.log.map(l => `<div><span class="mono">${esc(l.t)}</span>${esc(l.m)}</div>`).join('') || '<span class="note">—</span>'}</div></div></div>
     <datalist id="opList">${ops.map(o => `<option value="${esc(o)}">`).join('')}</datalist>`;
   bindSubBar(el);
+  { const v = J.sub === 'prod' ? 'prod' : 'main'; el.querySelectorAll('[data-v]').forEach(n => { n.hidden = n.dataset.v !== v; }); el.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => { J.sub = b.dataset.go; renderJobMain(); })); }
   // field bindings
   ['no', 'title', 'customer', 'due', 'note'].forEach(k => $('#jf_' + k).addEventListener('change', ev => { const v = ev.target.value.trim(); if (k === 'no' && !v) return; if (k === 'no') { job.no = v; job.short = (v.match(/(\d+)\s*$/) || [, v])[1]; } else job[k] = v; save(); renderJList(); }));
   $('#jf_status').addEventListener('change', ev => { const o = jstName(job.status); job.status = ev.target.value; jobLog(`Төлөв: ${o} → ${jstName(job.status)}`, job); renderJList(); renderJobMain(); });
@@ -7226,6 +7298,7 @@ function renderJobMain() {
   $('#jLoad').addEventListener('click', () => loadJobToNest(job));
   $('#jLabels').addEventListener('click', () => jobLabelsPdf(job, $('#jEach').checked));
   $('#jCard').addEventListener('click', () => jobCardPdf(job));
+  $('#jCardPrint').addEventListener('click', () => { window.__pv = 1; jobCardPdf(job); });
   $('#jDel').addEventListener('click', ev => { const b = ev.currentTarget; if (!b.dataset.arm) { b.dataset.arm = 1; b.textContent = 'Дахин дарж баталгаажуулна'; setTimeout(() => { delete b.dataset.arm; b.textContent = 'Ажил устгах'; }, 3000); return; } S.jobs = S.jobs.filter(j => j !== job); if (S.activeJob === job.id) S.activeJob = null; J.sel = null; save(); renderJobs(); });
   const tb = el.querySelectorAll('tbody')[1]; if (tb) tb.addEventListener('click', ev => { if (!ev.target.matches('[data-tdel]')) return; const t = job.trace.splice(+ev.target.closest('tr').dataset.i, 1)[0]; const c = S.certs.find(x => x.heat === t.heat && x.mat === t.mat && +x.thk === +t.thk); if (c) c.used = Math.max(0, c.used - t.count); jobLog(`Бүртгэл устгасан: ${t.lay} (${t.heat})`, job); renderJobMain(); });
   $('#jTraceAdd').addEventListener('click', () => traceForm(job, null));
@@ -7412,6 +7485,7 @@ async function jobCardPdf(job) {
   need(40); y += 6;
   x.font = `400 3.2px ${F}`; x.fillStyle = '#10161c';
   [['Бэлтгэсэн', 15], ['Хянасан (ЧХ)', 80], ['Хүлээн авсан', 145]].forEach(([t, X]) => { x.fillText(t, X, y); x.strokeStyle = '#8a95a1'; x.lineWidth = 0.25; x.beginPath(); x.moveTo(X, y + 12); x.lineTo(X + 50, y + 12); x.stroke(); x.font = `400 2.6px ${F}`; x.fillStyle = '#6a7684'; x.fillText('гарын үсэг / огноо', X, y + 15.5); x.font = `400 3.2px ${F}`; x.fillStyle = '#10161c'; });
+  if (window.__pv) { window.__pv = 0; printImgs(pages.map((c, i) => ({ url: c.toDataURL('image/jpeg', 0.92), alias: 'p' + i })), false, 'a4', job.no + "_ажлын_карт"); return; }
   const pdf = i18nPdf(new window.jspdf.jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true }));
   pages.forEach((c, i) => { if (i) pdf.addPage(); pdf.addImage(c.toDataURL('image/jpeg', 0.92), 'JPEG', 0, 0, PW, PH); });
   saveFile(safeName(`${job.no}_ажлын_карт`) + '.pdf', pdf.output('blob'), 'application/pdf');
@@ -7463,7 +7537,19 @@ const DEF_EQUIP = [['Fiber Laser 15kW', 'Үндсэн', 1, 'ш', 'Цех', 'Аж
 const DEF_CHECKS = [['Хэмжээс зурагтай тохирч байгаа эсэх', 'Зураг дээрхтэй тохирно'], ['Гагнуурын чанар (визуал)', 'Crack, porosity байхгүй'], ['NDT / Ultrasonic шалгалт', 'Тайлан бэлэн байна'], ['Гадаргуугийн чанар (будаг)', 'Spec-д нийцсэн'], ['Материалын үлдэгдэл буцаасан', 'Бүрэн буцаасан'], ['Ажлын талбай цэвэрлэсэн', 'Цэвэрхэн болсон'], ['Баримт бичгүүд бүрдсэн', 'Зураг, тайлан бэлэн']];
 const XCATS = [['mat', 'Материал'], ['cons', 'Consumable'], ['labor', 'Ажиллах хүч'], ['equip', 'Тоног, үйлчилгээ'], ['trans', 'Тээвэр'], ['other', 'Бусад']];
 const xcat = k => (XCATS.find(c => c[0] === k) || XCATS[5])[1];
-const JSUB = [['main', 'Ерөнхий'], ['scope', 'Scope · хуваарь'], ['quote', 'Үнийн санал'], ['prog', 'Явц · зардал'], ['acc', 'Акт · өөрчлөлт']];
+const JSUB = [['main', 'Мэдээлэл', 'Захиалагч, хугацаа, төлөв'], ['scope', 'Хамрах хүрээ', 'Ажлын тайлбар, үе шат, хуваарь, эрсдэл, халаалт'], ['quote', 'Үнийн санал', 'Материал, хүч, тоног, ашиг → захиалагчид PDF'], ['prod', 'Үйлдвэрлэл', 'Парт, өрөлт, зүсэлтийн бүртгэл, шошго, ажлын карт'], ['prog', 'Явц, зардал', 'Гүйцэтгэл %, зарлага, төсөв ба бодит'], ['acc', 'Хүлээлгэх', 'Хүлээн авалтын акт, өөрчлөлт']];
+function jobStepDone(job, k) {
+  const q = job.quote, a = job.acc, sc = job.scope;
+  if (k === 'main') return !!(job.title && job.customer);
+  if (k === 'scope') return !!(sc && (sc.desc || sc.contract));
+  if (k === 'quote') return !!(+job.price || (q && (q.mats.length || +q.fixedNet)));
+  if (k === 'prod') return !!(job.est || (job.trace && job.trace.length));
+  if (k === 'prog') return !!(sc && sc.stages.length && sc.stages.every(s => +s.pct >= 100));
+  if (k === 'acc') return !!(a && a.done);
+}
+function jobNextHTML(job) {
+  return `<div class="jcard" data-v="main"><div class="bcard-h">Ажлын алхмууд</div><div class="jbody"><div class="jsteps">${JSUB.slice(1).map(([k, n, d], i) => `<button class="jstep${jobStepDone(job, k) ? ' done' : ''}" data-go="${k}"><span class="sn">${jobStepDone(job, k) ? '✓' : i + 2}</span><span><b>${n}</b><small>${d}</small></span></button>`).join('')}</div></div></div>`;
+}
 
 function costDef() { S.costDef = Object.assign({}, COST_DEF, S.costDef || {}); return S.costDef; }
 function jx(job) {
@@ -7542,7 +7628,7 @@ function bindFields(root, obj, keys, after) {
 
 /* ---------- sub-tab bar ---------- */
 function jobSubBar(job) {
-  return `<nav class="rtabs jsub">${JSUB.map(([k, n]) => `<button data-jsub="${k}" class="${(J.sub || 'main') === k ? 'on' : ''}">${n}</button>`).join('')}<span class="sp" style="flex:1"></span><span class="muted mono" style="align-self:center;font-size:12px;padding-right:6px">${esc(job.no)}${job.title ? ' · ' + esc(job.title) : ''}</span></nav>`;
+  return `<nav class="rtabs jsub stepper">${JSUB.map(([k, n, d], i) => `${i ? '<span class="arr">›</span>' : ''}<button data-jsub="${k}" title="${d}" class="${(J.sub || 'main') === k ? 'on' : ''}${jobStepDone(job, k) ? ' done' : ''}"><span class="sn">${jobStepDone(job, k) ? '✓' : i + 1}</span>${n}</button>`).join('')}<span class="sp" style="flex:1"></span><span class="muted mono" style="align-self:center;font-size:12px;padding-right:6px">${esc(job.no)}${job.title ? ' · ' + esc(job.title) : ''}</span></nav>`;
 }
 function bindSubBar(el) { el.querySelectorAll('[data-jsub]').forEach(b => b.addEventListener('click', () => { J.sub = b.dataset.jsub; renderJobMain(); })); }
 function renderJobSub(el, job) {
@@ -8132,7 +8218,7 @@ function renderCatSide() {
   const el = $('#catSups'); if (!el) return; const C = CAT(), by = {};
   C.forEach(c => { const k = c.sup || '— нийлүүлэгчгүй'; by[k] = by[k] || { n: 0, d: '' }; by[k].n++; if ((c.date || '') > by[k].d) by[k].d = c.date || ''; });
   el.innerHTML = Object.entries(by).sort((a, b) => b[1].n - a[1].n).map(([k, v]) => `<div class="jitem${CV.sup === k ? ' on' : ''}" data-sup="${esc(k)}"><span class="no" style="font-family:inherit">${esc(k)}</span><span class="pill">${v.n}</span><span class="t">${v.d ? 'үнэ: ' + esc(v.d) : ''}</span></div>`).join('');
-  el.querySelectorAll('[data-sup]').forEach(x => x.addEventListener('click', () => { CV.sup = CV.sup === x.dataset.sup || x.dataset.sup.startsWith('—') ? '' : x.dataset.sup; renderCatSide(); renderCatMain($('#jobsMain')); }));
+  el.querySelectorAll('[data-sup]').forEach(x => x.addEventListener('click', () => { CV.sup = CV.sup === x.dataset.sup || x.dataset.sup.startsWith('—') ? '' : x.dataset.sup; renderCatSide(); renderCatMain($('#infoMain')); }));
 }
 
 /* ================= Kh International — customer quotation in the company's own form =================
@@ -8146,7 +8232,7 @@ const QFS = { fill: '#d9e1f2', line: '#000', purple: '#7030a0', blue: '#4472c4',
 const fmtD = d => { if (!d) return ''; const t = new Date(d + 'T00:00:00'); return isNaN(t) ? d : `${t.getDate()}-${['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][t.getMonth()]}-${String(t.getFullYear()).slice(2)}`; };
 const n0 = v => Math.round(+v || 0).toLocaleString('en-US');
 function qfDefaults(job) {
-  jx(job); const q = job.quote, sc = job.scope;
+  if (!job._nest) jx(job); const q = job.quote, sc = job.scope || { incl: '', excl: '' };
   if (q.qf) return q.qf;
   q.qf = { custId: '', rfqName: job.title || '', rfqNo: 'N/A', person: '', email: '', phone: '', address: '', lead: '', delivery: "Kh will delivery customer's WHS", pay: '100% after work completion', discount: 0, mode: 'single', note: QF_NOTE,
     incl: (sc.incl ? sc.incl.split(/\n|;/) : []).map(s => s.trim()).filter(Boolean).join('\n') || 'All consumables required for the work are included in the quoted price.', excl: (sc.excl || '').split(/\n|;/).map(s => s.trim()).filter(Boolean).join('\n'), title: job.title || '' };
@@ -8154,6 +8240,7 @@ function qfDefaults(job) {
 }
 /* line items for the form, net of VAT, margin spread so the sum = offer */
 function qfLines(job) {
+  if (job._linesFn) return job._linesFn();
   const q = job.quote, c = quoteCalc(job), f = qfDefaults(job), k = c.k;
   if (f.mode === 'single') return [{ d: f.title || job.title || 'Fabrication work', u: 'set', q: 1, p: c.net, b: 1 }];
   if (f.mode === 'sections') return [['Materials and purchasing (incl. scrap allowance, transport)', c.matTotal - c.cons], ['Consumables', c.cons], ['Labour', c.laborTotal], ['Equipment and services', c.equip], ['Other', c.other]].filter(r => r[1] > 0).map(([d, v]) => ({ d, u: 'lot', q: 1, p: v * k }));
@@ -8197,7 +8284,7 @@ async function quoteFormImgs(job) {
   box(L0, 82.7, 55.7 - L0, 6.2, QFS.fill); box(55.7, 82.7, R0 - 55.7, 6.2); T("Customer's address:", (L0 + 55.7) / 2, 85.8, { b: 1, s: 2.55, a: 'center' }); T(f.address, 59.1, 85.8, { s: 2.5, w: R0 - 61 });
   // items
   y = itemHead(93.4);
-  const rowFont = `700 2.55px ${QFS.F}`;
+  const rowFont = `700 ${2.55 * 1.08}px ${QFS.F}`;
   lines.forEach((l, i) => {
     const ds = wrap(l.d, 128.9 - 29.8 - 3, rowFont), rh = Math.max(4.1, ds.length * 3.1 + 1);
     if (y + rh > H - 20) { newPage(); header(); y = itemHead(52.5); }
@@ -8209,12 +8296,12 @@ async function quoteFormImgs(job) {
     y += rh;
   });
   // notes block (left 23.9–157.1), right columns continue down
-  const noteF = `400 2.3px ${QFS.F}`, nl = wrap('Special Note : ' + (f.note || ''), 157.1 - L0 - 8, noteF), inc = f.incl.split('\n').filter(Boolean), exc = f.excl.split('\n').filter(Boolean);
+  const noteF = `400 ${2.3 * 1.08}px ${QFS.F}`, nl = wrap('Special Note : ' + (f.note || ''), 157.1 - L0 - 8, noteF), inc = f.incl.split('\n').filter(Boolean), exc = f.excl.split('\n').filter(Boolean);
   const nh = nl.length * 2.75 + 2.6, blockH = 4.1 + nh + 6 + inc.length * 4.1 + 4.6 + exc.length * 4.1 + 1.5;
   if (y + blockH + 28 > H - 12) { newPage(); header(); y = 52.5; }
   const y0 = y; box(L0, y, 157.1 - L0, 4.1); y += 4.1;
   box(L0, y, 157.1 - L0, nh, QFS.fill);
-  nl.forEach((l, i) => { const Y = y + 1.3 + 2.75 * (i + 0.5); if (i === 0) { x.font = `700 2.3px ${QFS.F}`; const lw = x.measureText('Special Note :').width, rest = l.slice('Special Note :'.length); x.font = noteF; const tw = lw + x.measureText(rest).width, X0 = (L0 + 157.1) / 2 - tw / 2; T('Special Note :', X0, Y, { b: 1, s: 2.3 }); T(rest, X0 + lw, Y, { s: 2.3 }); } else T(l, (L0 + 157.1) / 2, Y, { s: 2.3, a: 'center' }); });
+  nl.forEach((l, i) => { const Y = y + 1.3 + 2.75 * (i + 0.5); if (i === 0) { x.font = `700 ${2.3 * 1.08}px ${QFS.F}`; const lw = x.measureText('Special Note :').width, rest = l.slice('Special Note :'.length); x.font = noteF; const tw = lw + x.measureText(rest).width, X0 = (L0 + 157.1) / 2 - tw / 2; T('Special Note :', X0, Y, { b: 1, s: 2.3 }); T(rest, X0 + lw, Y, { s: 2.3 }); } else T(l, (L0 + 157.1) / 2, Y, { s: 2.3, a: 'center' }); });
   y += nh;
   T('Quote included:', 27.0, y + 3.2, { b: 1, s: 2.45 }); y += 6.2;
   inc.forEach((t, i) => { T(`${i + 1}. ${t}`, 34.8, y, { s: 2.3, w: 157.1 - 37 }); y += 4.1; });
@@ -8234,12 +8321,12 @@ async function quoteFormImgs(job) {
 }
 async function quoteFormOut(job, mode) {
   try { const imgs = await quoteFormImgs(job), f = qfDefaults(job), name = `${job.quote.no || job.no} - ${job.customer || 'Customer'} - Quotation for ${f.title || job.title || ''}`.trim();
-    if (mode === 'print') printImgs(imgs, false, 'letter'); else { pdfImgs(imgs, false, name, 'letter'); jobLog('Үнийн санал (Kh загвар) PDF гаргасан', job); } }
+    if (mode === 'print') printImgs(imgs, false, 'letter', name); else { pdfImgs(imgs, false, name, 'letter'); if (!job._nest) jobLog('Үнийн санал (Kh загвар) PDF гаргасан', job); } }
   catch (e) { console.error(e); toast('Алдаа: ' + e.message); }
 }
 function qfCardHTML(job) {
   const f = qfDefaults(job), C = company();
-  return `<div class="jcard"><div class="bcard-h">Захиалагчид өгөх үнийн санал — Kh International загвар <span class="sp"></span><span class="outb"><button class="btn primary" data-qf="pdf">Үнийн санал PDF</button><button class="btn ghost" data-qf="print">🖨 Хэвлэх</button></span></div><div class="jbody">
+  return `<div class="jcard"><div class="bcard-h">Захиалагчид өгөх үнийн санал — Kh International загвар <span class="sp"></span><span class="outb"><button class="btn primary" data-qf="pdf">Үнийн санал PDF</button><button class="btn ghost" data-qf="print">🖨 Хэвлэх</button></span></div><div class="jbody qfwrap"><div class="qfprevbox" title="Урьдчилан харах — дарж томруулна"><img class="qfprev" alt="Үнийн санал"></div><div class="qffields">
     <div class="jgrid">
       ${fldIn('qf_title', 'Ажлын нэр (Description)', f.title)}${fldIn('qf_rfqName', 'RFQ name', f.rfqName)}${fldIn('qf_rfqNo', 'RFQ number', f.rfqNo)}${fldIn('qf_custId', 'Customer ID', f.custId)}
       ${fldIn('qf_person', 'Name / Position', f.person)}${fldIn('qf_email', 'Email', f.email)}${fldIn('qf_phone', 'Phone number', f.phone)}${fldIn('qf_lead', 'Lead time', f.lead, { ph: '5 business days' })}
@@ -8249,7 +8336,7 @@ function qfCardHTML(job) {
     ${fldIn('qf_note', 'Special note', f.note, { area: 1, rows: 2 })}
     <div class="jgrid">${fldIn('qf_incl', 'Quote included (мөр бүр нэг заалт)', f.incl, { area: 1, rows: 4 })}${fldIn('qf_excl', 'Quote excluded', f.excl, { area: 1, rows: 4 })}</div>
     <details><summary class="note" style="cursor:pointer">Компанийн мэдээлэл (загварын толгой, банк, регистр)</summary><div class="jgrid" style="margin-top:8px">${[['name', 'Компанийн нэр'], ['tag', 'Уриа'], ['a1', 'Хаяг 1'], ['a2', 'Хаяг 2'], ['a3', 'Хаяг 3'], ['bank', 'Bank account'], ['reg', 'Registration'], ['currency', 'Currency']].map(([k, n]) => fldIn('co_' + k, n, C[k])).join('')}</div></details>
-  </div></div>`;
+  </div></div></div>`;
 }
 function bindQfCard(el, job) {
   const f = qfDefaults(job), C = company();
@@ -8258,6 +8345,18 @@ function bindQfCard(el, job) {
   const m = el.querySelector('#qf_mode'); if (m) m.addEventListener('change', () => { f.mode = m.value; save(); });
   Object.keys(CO_DEF).forEach(k => { const i = el.querySelector('#co_' + k); if (i) i.addEventListener('change', () => { C[k] = i.value; S.company = C; save(); }); });
   el.querySelectorAll('[data-qf]').forEach(b => b.addEventListener('click', () => quoteFormOut(job, b.dataset.qf)));
+  const img = el.querySelector('.qfprev'); let tm = 0;
+  const refresh = () => { clearTimeout(tm); tm = setTimeout(() => quoteFormImgs(job).then(im => { if (img.isConnected) { img.src = im[0].url; img._imgs = im; } }).catch(() => { }), 150); };
+  el.querySelector('.qffields').addEventListener('change', refresh); refresh();
+  el.querySelector('.qfprevbox').addEventListener('click', () => { if (img._imgs) printImgs(img._imgs, false, 'letter', `${job.quote.no || job.no} - Quotation`, true); });
+}
+/* Nesting → «Үнийн санал» tab: same company form from the nesting result */
+function nestQuoteJob() {
+  const q = S.quote; if (!q.qf) q.qf = { custId: '', rfqName: S.jobName || '', rfqNo: 'N/A', person: '', email: '', phone: '', address: '', lead: '', delivery: "Kh will delivery customer's WHS", pay: '100% after work completion', discount: 0, mode: 'detail', note: QF_NOTE, incl: 'Material and laser cutting are included in the quoted price.', excl: 'Bending, welding and painting are not included.', title: S.jobName || '' };
+  const fn = () => { const d = quoteData(); if (q.qf.mode === 'single') return [{ d: q.qf.title || S.jobName || 'Laser cutting', u: 'set', q: 1, p: d.sub }];
+    const lines = d.lines.map(l => ({ d: `${l.p.name} — ${l.g.label}, ${nf(l.p.info.w, 0)}×${nf(l.p.info.h, 0)} mm`, u: 'pcs', q: l.n, p: l.unit }));
+    if (d.setup) lines.push({ d: 'Setup / preparation', u: 'lot', q: 1, p: d.setup }); return lines; };
+  return { _nest: 1, no: q.no || 'SQ', title: S.jobName, customer: q.customer || '', quote: { no: q.no, date: today(), valid: +q.valid || 14, vat: q.vat ? 10 : 0, qf: q.qf }, _linesFn: fn };
 }
 
 /* ================= KH Bending: flat pattern, tooling, force, sequence ================= */
@@ -8682,11 +8781,13 @@ async function bendPdf() {
   });
   if (c.warn.length) { yy = Math.min(PH - 25, yy + sh + 12); x.fillStyle = '#c43131'; x.font = `400 3px ${F}`; c.warn.forEach(w => { x.fillText('• ' + w, 15, yy); yy += 4.5; }); }
   pages.forEach(cv => { const g = cv.getContext('2d'); g.font = `400 2.6px ${F}`; g.fillStyle = '#6a7684'; g.textAlign = 'left'; g.fillText('Kh International · ISO 9001 чанарын удирдлагын тогтолцоо · Бэлтгэсэн: ________  Хянасан: ________  Оператор: ________', 15, PH - 8); });
+  if (window.__pv) { window.__pv = 0; printImgs(pages.map((c, i) => ({ url: c.toDataURL('image/jpeg', 0.92), alias: 'p' + i })), false, 'a4', "Нугалах_хуудас"); return; }
   const pdf = i18nPdf(new window.jspdf.jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true }));
   pages.forEach((cv, i) => { if (i) pdf.addPage(); pdf.addImage(cv.toDataURL('image/jpeg', 0.92), 'JPEG', 0, 0, PW, PH); });
   saveFile(safeName(`Нугалах_${p.name}`) + '.pdf', pdf.output('blob'), 'application/pdf');
 }
 $('#bPdf').addEventListener('click', bendPdf);
+$('#bPrint').addEventListener('click', () => { window.__pv = 1; bendPdf(); });
 new ResizeObserver(() => { if (!$('#bendMain').hidden) renderBEditor(); }).observe($('#bendMain'));
 
 /* ================= KH Fab — parametric excavator bucket (шанага) → kit of flat plates ================= */
@@ -10349,7 +10450,7 @@ async function posterImg(m, fmt) {
   return c.toDataURL('image/jpeg', 0.92);
 }
 async function posterOut(mode, ms, fmt) {
-  try { const imgs = []; for (const m of ms) imgs.push({ url: await posterImg(m, fmt), alias: 'pst' + m.id }); const name = ms.length === 1 ? `${ms[0].no}_${ms[0].name}_ханын_самбар_${fmt.toUpperCase()}` : `Kh_International_ханын_самбар_бүгд_${fmt.toUpperCase()}`; if (mode === 'print') printImgs(imgs, false, fmt); else pdfImgs(imgs, false, name, fmt); }
+  try { const imgs = []; for (const m of ms) imgs.push({ url: await posterImg(m, fmt), alias: 'pst' + m.id }); const name = ms.length === 1 ? `${ms[0].no}_${ms[0].name}_ханын_самбар_${fmt.toUpperCase()}` : `Kh_International_ханын_самбар_бүгд_${fmt.toUpperCase()}`; if (mode === 'print') printImgs(imgs, false, fmt, name); else pdfImgs(imgs, false, name, fmt); }
   catch (e) { console.error(e); toast('Алдаа: ' + e.message); }
 }
 /* store a machine photo, downscaled */
@@ -10360,7 +10461,7 @@ function pickMachinePhoto(m, done) {
 }
 
 /* ================= Kh International — «Үзлэг» module: daily inspection sheets, work instructions, logs ================= */
-const IN2 = { sel: null, tab: 'sheet', recId: null, month: today().slice(0, 7) };
+const IN2 = { sel: null, tab: 'today', recId: null, month: today().slice(0, 7) };
 const IC = { dark: '#2b2f33', acc: '#e0650f', soft: '#fdf1e8', zebra: '#eef2f8', line: '#a4adb7', key: '#f3f4f6', ink: '#141a20', mute: '#5c6773' };
 function IS() {
   if (!S.insp) S.insp = {};
@@ -10476,9 +10577,9 @@ async function inspOut(mode, kind, m, extra) {
     else if (kind === 'sheet') { await logoImg(); imgs = [{ url: await pageImg(true, twoUp(x => drawSheet(x, m, null))), alias: 's' }]; name = `${m.no}_${m.name}_үзлэг`; }
     else if (kind === 'log') { const rows = I.logs.filter(r => r.mid === m.id); const per = m.kind === 'vehicle' ? 16 : 18, pages = Math.max(1, Math.ceil(rows.length / per)); imgs = []; for (let p = 0; p < pages; p++) { const sl = rows.slice(p * per, (p + 1) * per); imgs.push({ url: await pageImg(false, x => { x.save(); x.scale(Math.SQRT2, Math.SQRT2); drawLog(x, m, sl, p * per); x.restore(); }), alias: 'l' + p }); } land = false; name = `${m.no}_${m.name}_${m.kind === 'vehicle' ? 'жолооны' : 'засварын'}_бүртгэл`; }
     else if (kind === 'rec') { await logoImg(); imgs = [{ url: await pageImg(false, x => { x.save(); x.scale(Math.SQRT2, Math.SQRT2); drawSheet(x, m, extra); x.restore(); }), alias: 'r' }]; land = false; name = `${m.no}_${m.name}_үзлэг_${extra.date}`; }
-    else if (kind === 'instr') { const D = await instrDoc(m); if (mode === 'print') docPrint(D); else docPdf(D, `${m.no}_${m.name}_ажлын_заавар`); return; }
+    else if (kind === 'instr') { const D = await instrDoc(m); if (mode === 'print') docPrint(D, `${m.no}_${m.name}_ажлын_заавар`); else docPdf(D, `${m.no}_${m.name}_ажлын_заавар`); return; }
     else if (kind === 'instrAll') { const all = []; for (const q of I.machines) all.push(...docImgs(await instrDoc(q)).map((p, i) => ({ url: p.url, alias: q.id + i }))); imgs = all; land = false; name = 'Kh_International_ажлын_заавар_бүгд'; }
-    if (mode === 'print') printImgs(imgs, land); else pdfImgs(imgs, land, name);
+    if (mode === 'print') printImgs(imgs, land, 'a4', name); else pdfImgs(imgs, land, name);
   } catch (e) { console.error(e); toast('Алдаа: ' + e.message); }
 }
 async function instrDoc(m) {
@@ -10502,7 +10603,7 @@ function renderInspSide() {
   const t = today(), grp = [['machine', 'Тоног төхөөрөмж'], ['vehicle', 'Автомашин']];
   el.innerHTML = grp.map(([k, n]) => { const ms = I.machines.filter(m => (m.kind === 'vehicle') === (k === 'vehicle')); return ms.length ? `<div class="igrp">${n}</div>` + ms.map(m => { const r = recsOf(m.id)[0], done = r && r.date === t; return `<div class="jitem${m.id === IN2.sel ? ' on' : ''}" data-id="${m.id}"><span class="no">${esc(m.no)} · ${esc(m.name)}</span><span class="pill ${done ? (r.concl === 'ok' && !r.res.includes('bad') ? 'st-done' : 'st-weld') : ''}">${done ? 'өнөөдөр ✓' : r ? esc(r.date.slice(5)) : 'үзлэггүй'}</span><span class="t">${esc(m.model)}${m.added ? ' · нэмсэн загвар' : ''}</span></div>`; }).join('') : ''; }).join('');
 }
-const ITABS = [['sheet', 'Үзлэгийн хуудас'], ['today', 'Цахим үзлэг'], ['instr', 'Ажлын заавар'], ['log', 'Засвар / жолооны бүртгэл'], ['hist', 'Түүх']];
+const ITABS = [['today', 'Өнөөдрийн үзлэг'], ['hist', 'Түүх, сарын хяналт'], ['sheet', 'Хэвлэх хуудас'], ['instr', 'Заавар, ханын самбар'], ['log', 'Засвар / жолооны бүртгэл']];
 function renderInspMain() {
   const I = IS(), el = $('#inspMain'); if (!el) return;
   const m = imach(IN2.sel) || I.machines[0]; if (!m) { el.innerHTML = '<div class="jempty">Тоног төхөөрөмж алга</div>'; return; }
@@ -10565,7 +10666,7 @@ function renderInspMain() {
       <div class="ical">${['Да', 'Мя', 'Лх', 'Пү', 'Ба', 'Бя', 'Ня'].map(d => `<b>${d}</b>`).join('')}${'<span></span>'.repeat(first)}${Array.from({ length: nd }, (_, i) => { const r = (byDay[i + 1] || [])[0], c = r ? (r.concl === 'stop' ? 'c-stop' : r.concl === 'fix' || r.res.includes('bad') ? 'c-fix' : 'c-ok') : ''; return `<span class="${c}${r ? ' has' : ''}" ${r ? `data-rid="${r.id}"` : ''}>${i + 1}</span>`; }).join('')}</div>
       <div class="note">Ногоон — хэвийн · шар — асуудалтай / засвар · улаан — ашиглахыг хориглосон. Өдөр дээр дарж нээнэ.</div></div></div>
       <div class="jcard"><div class="bcard-h">Үзлэгийн түүх</div><div class="jbody">${rs.length ? `<div class="tblwrap"><table class="dt"><thead><tr><th>Огноо</th><th>Ээлж</th><th>Үзсэн</th><th class="r">Хэвийн</th><th class="r">Асуудалтай</th><th>Дүгнэлт</th><th>Асуудал</th><th></th></tr></thead><tbody>
-      ${rs.map(r => `<tr data-rid="${r.id}" style="cursor:pointer"><td class="num">${esc(r.date)}</td><td>${r.shift === 'pm' ? 'Үдэш' : 'Өглөө'}</td><td>${esc(r.by)}</td><td class="r num">${r.res.filter(v => v === 'ok').length}</td><td class="r num ${r.res.includes('bad') ? 'late' : ''}">${r.res.filter(v => v === 'bad').length}</td><td><span class="pill ${r.concl === 'ok' ? 'st-done' : r.concl ? 'st-weld' : ''}">${conclName(r.concl)}</span></td><td style="white-space:normal">${esc(r.res.map((v, i) => v === 'bad' ? (m.items[i] ? m.items[i][1] : '') + (r.notes[i] ? ': ' + r.notes[i] : '') : '').filter(Boolean).join('; '))}</td><td><button class="x" data-rdel="${r.id}" aria-label="Устгах">×</button></td></tr>`).join('')}</tbody></table></div>` : '<p class="note">Үзлэг бүртгэгдээгүй. «Цахим үзлэг» табд өдөр бүр бөглөнө.</p>'}</div></div>`;
+      ${rs.map(r => `<tr data-rid="${r.id}" style="cursor:pointer"><td class="num">${esc(r.date)}</td><td>${r.shift === 'pm' ? 'Үдэш' : 'Өглөө'}</td><td>${esc(r.by)}</td><td class="r num">${r.res.filter(v => v === 'ok').length}</td><td class="r num ${r.res.includes('bad') ? 'late' : ''}">${r.res.filter(v => v === 'bad').length}</td><td><span class="pill ${r.concl === 'ok' ? 'st-done' : r.concl ? 'st-weld' : ''}">${conclName(r.concl)}</span></td><td style="white-space:normal">${esc(r.res.map((v, i) => v === 'bad' ? (m.items[i] ? m.items[i][1] : '') + (r.notes[i] ? ': ' + r.notes[i] : '') : '').filter(Boolean).join('; '))}</td><td><button class="x" data-rdel="${r.id}" aria-label="Устгах">×</button></td></tr>`).join('')}</tbody></table></div>` : '<p class="note">Үзлэг бүртгэгдээгүй. «Өнөөдрийн үзлэг» табд өдөр бүр бөглөнө.</p>'}</div></div>`;
   }
   el.innerHTML = bar + head + body;
   el.querySelectorAll('[data-itab2]').forEach(b => b.addEventListener('click', () => { IN2.tab = b.dataset.itab2; if (IN2.tab !== 'today') IN2.recId = null; renderInspMain(); }));
@@ -10633,7 +10734,7 @@ const ICOLS = [{ k: 'sec', t: 'Шалгах хэсэг', w: 150 }, { k: 'item', 
 })();
 
 /* ================= KH Fab — «Мэдээлэл · сан»: mining machines, bucket types, product templates, own file library ================= */
-const IN = { tab: 'mach', cat: 'all', q: '', sel: null, bt: null, tpl: 'pegboard', lib: null, p: {} };
+const IN = { tab: 'cat', cat: 'all', q: '', sel: null, bt: null, tpl: 'pegboard', lib: null, p: {} };
 let LIB = (() => { try { return JSON.parse(localStorage.getItem('kh-lib') || '[]'); } catch (e) { return []; } })();
 function saveLib() { try { localStorage.setItem('kh-lib', JSON.stringify(LIB)); return true; } catch (e) { toast('Санд хадгалах зай дүүрсэн — хуучин зүйлсээ устгана уу', 6000); return false; } }
 const catName = c => (MCAT.find(x => x[0] === c) || [, c])[1];
@@ -10670,8 +10771,8 @@ function bucketPreset(m, V, type) {
 $$('[data-itab]').forEach(b => b.addEventListener('click', () => { IN.tab = b.dataset.itab; renderInfo(); }));
 function renderInfo() {
   $$('[data-itab]').forEach(x => x.classList.toggle('on', x.dataset.itab === IN.tab));
-  ['mach', 'bt', 'tpl', 'lib', 'std'].forEach(t => $('#itab-' + t).hidden = t !== IN.tab);
-  if (IN.tab === 'mach') renderMachList(); else if (IN.tab === 'bt') renderBtList(); else if (IN.tab === 'tpl') renderTplList(); else if (IN.tab === 'std') { renderStdSide(); renderInfoMain(); } else renderLibSide();
+  ['mach', 'bt', 'tpl', 'lib', 'std', 'cat'].forEach(t => $('#itab-' + t).hidden = t !== IN.tab);
+  if (IN.tab === 'mach') renderMachList(); else if (IN.tab === 'bt') renderBtList(); else if (IN.tab === 'tpl') renderTplList(); else if (IN.tab === 'std') { renderStdSide(); renderInfoMain(); } else if (IN.tab === 'cat') { renderCatSide(); renderInfoMain(); } else renderLibSide();
   renderInfoMain();
 }
 function renderMachList() {
@@ -10703,6 +10804,7 @@ function renderInfoMain() {
   if (IN.tab === 'bt') return renderBucketTypes(el);
   if (IN.tab === 'tpl') return renderTemplate(el);
   if (IN.tab === 'std') return renderStdMain(el);
+  if (IN.tab === 'cat') return renderCatMain(el);
   return renderLib(el);
 }
 function renderMachOverview(el) {

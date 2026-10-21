@@ -9,7 +9,7 @@ const QFS = { fill: '#d9e1f2', line: '#000', purple: '#7030a0', blue: '#4472c4',
 const fmtD = d => { if (!d) return ''; const t = new Date(d + 'T00:00:00'); return isNaN(t) ? d : `${t.getDate()}-${['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][t.getMonth()]}-${String(t.getFullYear()).slice(2)}`; };
 const n0 = v => Math.round(+v || 0).toLocaleString('en-US');
 function qfDefaults(job) {
-  jx(job); const q = job.quote, sc = job.scope;
+  if (!job._nest) jx(job); const q = job.quote, sc = job.scope || { incl: '', excl: '' };
   if (q.qf) return q.qf;
   q.qf = { custId: '', rfqName: job.title || '', rfqNo: 'N/A', person: '', email: '', phone: '', address: '', lead: '', delivery: "Kh will delivery customer's WHS", pay: '100% after work completion', discount: 0, mode: 'single', note: QF_NOTE,
     incl: (sc.incl ? sc.incl.split(/\n|;/) : []).map(s => s.trim()).filter(Boolean).join('\n') || 'All consumables required for the work are included in the quoted price.', excl: (sc.excl || '').split(/\n|;/).map(s => s.trim()).filter(Boolean).join('\n'), title: job.title || '' };
@@ -17,6 +17,7 @@ function qfDefaults(job) {
 }
 /* line items for the form, net of VAT, margin spread so the sum = offer */
 function qfLines(job) {
+  if (job._linesFn) return job._linesFn();
   const q = job.quote, c = quoteCalc(job), f = qfDefaults(job), k = c.k;
   if (f.mode === 'single') return [{ d: f.title || job.title || 'Fabrication work', u: 'set', q: 1, p: c.net, b: 1 }];
   if (f.mode === 'sections') return [['Materials and purchasing (incl. scrap allowance, transport)', c.matTotal - c.cons], ['Consumables', c.cons], ['Labour', c.laborTotal], ['Equipment and services', c.equip], ['Other', c.other]].filter(r => r[1] > 0).map(([d, v]) => ({ d, u: 'lot', q: 1, p: v * k }));
@@ -60,7 +61,7 @@ async function quoteFormImgs(job) {
   box(L0, 82.7, 55.7 - L0, 6.2, QFS.fill); box(55.7, 82.7, R0 - 55.7, 6.2); T("Customer's address:", (L0 + 55.7) / 2, 85.8, { b: 1, s: 2.55, a: 'center' }); T(f.address, 59.1, 85.8, { s: 2.5, w: R0 - 61 });
   // items
   y = itemHead(93.4);
-  const rowFont = `700 2.55px ${QFS.F}`;
+  const rowFont = `700 ${2.55 * 1.08}px ${QFS.F}`;
   lines.forEach((l, i) => {
     const ds = wrap(l.d, 128.9 - 29.8 - 3, rowFont), rh = Math.max(4.1, ds.length * 3.1 + 1);
     if (y + rh > H - 20) { newPage(); header(); y = itemHead(52.5); }
@@ -72,12 +73,12 @@ async function quoteFormImgs(job) {
     y += rh;
   });
   // notes block (left 23.9–157.1), right columns continue down
-  const noteF = `400 2.3px ${QFS.F}`, nl = wrap('Special Note : ' + (f.note || ''), 157.1 - L0 - 8, noteF), inc = f.incl.split('\n').filter(Boolean), exc = f.excl.split('\n').filter(Boolean);
+  const noteF = `400 ${2.3 * 1.08}px ${QFS.F}`, nl = wrap('Special Note : ' + (f.note || ''), 157.1 - L0 - 8, noteF), inc = f.incl.split('\n').filter(Boolean), exc = f.excl.split('\n').filter(Boolean);
   const nh = nl.length * 2.75 + 2.6, blockH = 4.1 + nh + 6 + inc.length * 4.1 + 4.6 + exc.length * 4.1 + 1.5;
   if (y + blockH + 28 > H - 12) { newPage(); header(); y = 52.5; }
   const y0 = y; box(L0, y, 157.1 - L0, 4.1); y += 4.1;
   box(L0, y, 157.1 - L0, nh, QFS.fill);
-  nl.forEach((l, i) => { const Y = y + 1.3 + 2.75 * (i + 0.5); if (i === 0) { x.font = `700 2.3px ${QFS.F}`; const lw = x.measureText('Special Note :').width, rest = l.slice('Special Note :'.length); x.font = noteF; const tw = lw + x.measureText(rest).width, X0 = (L0 + 157.1) / 2 - tw / 2; T('Special Note :', X0, Y, { b: 1, s: 2.3 }); T(rest, X0 + lw, Y, { s: 2.3 }); } else T(l, (L0 + 157.1) / 2, Y, { s: 2.3, a: 'center' }); });
+  nl.forEach((l, i) => { const Y = y + 1.3 + 2.75 * (i + 0.5); if (i === 0) { x.font = `700 ${2.3 * 1.08}px ${QFS.F}`; const lw = x.measureText('Special Note :').width, rest = l.slice('Special Note :'.length); x.font = noteF; const tw = lw + x.measureText(rest).width, X0 = (L0 + 157.1) / 2 - tw / 2; T('Special Note :', X0, Y, { b: 1, s: 2.3 }); T(rest, X0 + lw, Y, { s: 2.3 }); } else T(l, (L0 + 157.1) / 2, Y, { s: 2.3, a: 'center' }); });
   y += nh;
   T('Quote included:', 27.0, y + 3.2, { b: 1, s: 2.45 }); y += 6.2;
   inc.forEach((t, i) => { T(`${i + 1}. ${t}`, 34.8, y, { s: 2.3, w: 157.1 - 37 }); y += 4.1; });
@@ -97,12 +98,12 @@ async function quoteFormImgs(job) {
 }
 async function quoteFormOut(job, mode) {
   try { const imgs = await quoteFormImgs(job), f = qfDefaults(job), name = `${job.quote.no || job.no} - ${job.customer || 'Customer'} - Quotation for ${f.title || job.title || ''}`.trim();
-    if (mode === 'print') printImgs(imgs, false, 'letter'); else { pdfImgs(imgs, false, name, 'letter'); jobLog('Үнийн санал (Kh загвар) PDF гаргасан', job); } }
+    if (mode === 'print') printImgs(imgs, false, 'letter', name); else { pdfImgs(imgs, false, name, 'letter'); if (!job._nest) jobLog('Үнийн санал (Kh загвар) PDF гаргасан', job); } }
   catch (e) { console.error(e); toast('Алдаа: ' + e.message); }
 }
 function qfCardHTML(job) {
   const f = qfDefaults(job), C = company();
-  return `<div class="jcard"><div class="bcard-h">Захиалагчид өгөх үнийн санал — Kh International загвар <span class="sp"></span><span class="outb"><button class="btn primary" data-qf="pdf">Үнийн санал PDF</button><button class="btn ghost" data-qf="print">🖨 Хэвлэх</button></span></div><div class="jbody">
+  return `<div class="jcard"><div class="bcard-h">Захиалагчид өгөх үнийн санал — Kh International загвар <span class="sp"></span><span class="outb"><button class="btn primary" data-qf="pdf">Үнийн санал PDF</button><button class="btn ghost" data-qf="print">🖨 Хэвлэх</button></span></div><div class="jbody qfwrap"><div class="qfprevbox" title="Урьдчилан харах — дарж томруулна"><img class="qfprev" alt="Үнийн санал"></div><div class="qffields">
     <div class="jgrid">
       ${fldIn('qf_title', 'Ажлын нэр (Description)', f.title)}${fldIn('qf_rfqName', 'RFQ name', f.rfqName)}${fldIn('qf_rfqNo', 'RFQ number', f.rfqNo)}${fldIn('qf_custId', 'Customer ID', f.custId)}
       ${fldIn('qf_person', 'Name / Position', f.person)}${fldIn('qf_email', 'Email', f.email)}${fldIn('qf_phone', 'Phone number', f.phone)}${fldIn('qf_lead', 'Lead time', f.lead, { ph: '5 business days' })}
@@ -112,7 +113,7 @@ function qfCardHTML(job) {
     ${fldIn('qf_note', 'Special note', f.note, { area: 1, rows: 2 })}
     <div class="jgrid">${fldIn('qf_incl', 'Quote included (мөр бүр нэг заалт)', f.incl, { area: 1, rows: 4 })}${fldIn('qf_excl', 'Quote excluded', f.excl, { area: 1, rows: 4 })}</div>
     <details><summary class="note" style="cursor:pointer">Компанийн мэдээлэл (загварын толгой, банк, регистр)</summary><div class="jgrid" style="margin-top:8px">${[['name', 'Компанийн нэр'], ['tag', 'Уриа'], ['a1', 'Хаяг 1'], ['a2', 'Хаяг 2'], ['a3', 'Хаяг 3'], ['bank', 'Bank account'], ['reg', 'Registration'], ['currency', 'Currency']].map(([k, n]) => fldIn('co_' + k, n, C[k])).join('')}</div></details>
-  </div></div>`;
+  </div></div></div>`;
 }
 function bindQfCard(el, job) {
   const f = qfDefaults(job), C = company();
@@ -121,4 +122,16 @@ function bindQfCard(el, job) {
   const m = el.querySelector('#qf_mode'); if (m) m.addEventListener('change', () => { f.mode = m.value; save(); });
   Object.keys(CO_DEF).forEach(k => { const i = el.querySelector('#co_' + k); if (i) i.addEventListener('change', () => { C[k] = i.value; S.company = C; save(); }); });
   el.querySelectorAll('[data-qf]').forEach(b => b.addEventListener('click', () => quoteFormOut(job, b.dataset.qf)));
+  const img = el.querySelector('.qfprev'); let tm = 0;
+  const refresh = () => { clearTimeout(tm); tm = setTimeout(() => quoteFormImgs(job).then(im => { if (img.isConnected) { img.src = im[0].url; img._imgs = im; } }).catch(() => { }), 150); };
+  el.querySelector('.qffields').addEventListener('change', refresh); refresh();
+  el.querySelector('.qfprevbox').addEventListener('click', () => { if (img._imgs) printImgs(img._imgs, false, 'letter', `${job.quote.no || job.no} - Quotation`, true); });
+}
+/* Nesting → «Үнийн санал» tab: same company form from the nesting result */
+function nestQuoteJob() {
+  const q = S.quote; if (!q.qf) q.qf = { custId: '', rfqName: S.jobName || '', rfqNo: 'N/A', person: '', email: '', phone: '', address: '', lead: '', delivery: "Kh will delivery customer's WHS", pay: '100% after work completion', discount: 0, mode: 'detail', note: QF_NOTE, incl: 'Material and laser cutting are included in the quoted price.', excl: 'Bending, welding and painting are not included.', title: S.jobName || '' };
+  const fn = () => { const d = quoteData(); if (q.qf.mode === 'single') return [{ d: q.qf.title || S.jobName || 'Laser cutting', u: 'set', q: 1, p: d.sub }];
+    const lines = d.lines.map(l => ({ d: `${l.p.name} — ${l.g.label}, ${nf(l.p.info.w, 0)}×${nf(l.p.info.h, 0)} mm`, u: 'pcs', q: l.n, p: l.unit }));
+    if (d.setup) lines.push({ d: 'Setup / preparation', u: 'lot', q: 1, p: d.setup }); return lines; };
+  return { _nest: 1, no: q.no || 'SQ', title: S.jobName, customer: q.customer || '', quote: { no: q.no, date: today(), valid: +q.valid || 14, vat: q.vat ? 10 : 0, qf: q.qf }, _linesFn: fn };
 }
