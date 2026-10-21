@@ -8719,7 +8719,7 @@ function CAT() {
     CONS_PRESET.forEach(([name, unit, price]) => { if (!S.catalog.some(c => c.name === name)) S.catalog.push({ id: uid(), name, grp: 'Consumable', cat: 'cons', unit, price, kgu: unit === 'кг' ? 1 : 0, sup: '', spec: '', vat: true, date: '' }); });
     S.catalogTT = 1; save();
   }
-  if (!S.catalogKH) { // Kh International consumable library (Sandvik estimation form, 2025-08): groups M01…M07
+  if (!S.catalogKH) { // Kh International consumable library: groups M01…M07
     const have = new Map(S.catalog.map(c => [c.name.toLowerCase(), c]));
     KH_CONS.forEach(it => { const grp = `${it.code} · ${it.grp}`; if (have.has(it.name.toLowerCase())) return; S.catalog.push({ id: 'kh-' + it.name, name: it.name, grp, code: it.code, cat: 'cons', unit: it.unit, price: it.price, kgu: /^kg$/i.test(it.unit) ? 1 : 0, sup: KH_SUP, spec: '', vat: false, date: '2025-08', src: 'kh' }); });
     S.catalogKH = 1; save();
@@ -8814,7 +8814,7 @@ function renderCatSide() {
    terms + totals block, thank-you band. Coordinates measured from the original (mm). */
 const CO_DEF = { name: 'Kh International LLC', tag: 'Know us, know the quality', a1: 'Ulaanbaatar Mongolia,', a2: 'Songino Khairkhan District, 20th Khoroo', a3: 'Sonsgolon Street, 18131, 67th Unit', bank: 'KHAS 5004206842', reg: '6215572', currency: 'MNT', phone: '(976) 8801 2130, (976) 8992 8989', mail: 'info@khinternational.mn' };
 const QF_NOTE = 'This quotation may be subject to revision in the event of any variation or modification to the scope of work, including but not limited to additional engineering drawings or fabrication services.';
-/* standard «Quote included / excluded» clauses (from the company's Sandvik estimation form). A line starting with "- " is a sub-item. */
+/* standard «Quote included / excluded» clauses. A line starting with "- " is a sub-item. */
 const QF_CLAUSES = {
   incl: ['Engineering drawing', 'Finite Element Analysis (FEA)', 'Material (Fiber laser cutting for preparation)', 'Destructive Test (Material chemical composition and Mechanical property test)', "Steel fabrication is in accordance with customer's specs", 'Fabrication welding and cleaning', 'Internal Non-Destructive Testing (NDT)', '- Visual Inspection - 100%', '- Magnetic particle test - 25%', '- Ultrasonic test - 10%', 'Proof load test', 'Sandblasting is in accordance with specs (125 micron)', 'Painting', 'Manufacturers Data Record (MDR)', '- Material certificates', '- Weld traceability maps', '- Welding procedures', '- Welder qualifications', '- Welding supervisor qualifications', '- Dimensional inspection reports', '- Inspection Test Plans (ITPs)', '- Painting reports', '- Packing list reports', 'All consumables required for the work are included in the quoted price.', 'Packing (wooden pallet, film)', "Delivery to customer's warehouse (Ulaanbaatar)"],
   excl: ['Engineering drawing and FEA', '3rd party NDT / inspection', 'Machining and line boring', 'Sandblasting and painting', 'Site installation', 'Freight outside Ulaanbaatar', 'Customer-supplied materials and parts', 'Overtime and weekend work', 'Any work outside the agreed scope', 'Bending and rolling', 'Heat treatment (PWHT)']

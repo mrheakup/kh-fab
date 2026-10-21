@@ -37,7 +37,7 @@ function CAT() {
     CONS_PRESET.forEach(([name, unit, price]) => { if (!S.catalog.some(c => c.name === name)) S.catalog.push({ id: uid(), name, grp: 'Consumable', cat: 'cons', unit, price, kgu: unit === 'кг' ? 1 : 0, sup: '', spec: '', vat: true, date: '' }); });
     S.catalogTT = 1; save();
   }
-  if (!S.catalogKH) { // Kh International consumable library (Sandvik estimation form, 2025-08): groups M01…M07
+  if (!S.catalogKH) { // Kh International consumable library: groups M01…M07
     const have = new Map(S.catalog.map(c => [c.name.toLowerCase(), c]));
     KH_CONS.forEach(it => { const grp = `${it.code} · ${it.grp}`; if (have.has(it.name.toLowerCase())) return; S.catalog.push({ id: 'kh-' + it.name, name: it.name, grp, code: it.code, cat: 'cons', unit: it.unit, price: it.price, kgu: /^kg$/i.test(it.unit) ? 1 : 0, sup: KH_SUP, spec: '', vat: false, date: '2025-08', src: 'kh' }); });
     S.catalogKH = 1; save();
