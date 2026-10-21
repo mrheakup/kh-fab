@@ -176,7 +176,18 @@ function renderInspMain() {
     </div></div>`;
   } else if (IN2.tab === 'instr') {
     const T = instrOf(m);
-    body = `<div class="exports"><span class="outb"><button class="btn primary" data-iout="pdf" data-k="instr">Ажлын заавар PDF</button><button class="btn ghost" data-iout="print" data-k="instr">🖨 Хэвлэх</button></span><button class="btn ghost" id="isReset">Анхны текст</button><span class="note">Мөр бүр нэг заалт. Засвар автоматаар хадгалагдана.</span></div>
+    const P = posterOf(m);
+    body = `<div class="jcard"><div class="bcard-h">Ханын самбар <span class="sp"></span><span class="muted" style="font-weight:400;font-size:12px">тэмдгүүд ISO 7010 өнгө, хэлбэрийн дагуу</span></div><div class="jbody pst">
+        <div class="pstprev"><img id="pstImg" alt="самбар"></div>
+        <div class="pstside">
+          <div class="exports"><span class="outb"><button class="btn primary" data-pst="pdf" data-f="a3">A3 PDF</button><button class="btn ghost" data-pst="print" data-f="a3">🖨 A3</button></span><span class="outb"><button class="btn" data-pst="pdf" data-f="a4">A4 PDF</button><button class="btn ghost" data-pst="print" data-f="a4">🖨 A4</button></span></div>
+          <div class="exports"><button class="btn" id="pstPhoto">${m.photo ? 'Зураг солих' : 'Тоногийн зураг оруулах'}</button>${m.photo ? '<button class="btn ghost" id="pstPhotoDel">Зураг хасах</button>' : ''}</div>
+          <div class="fld">Анхааруулах тэмдэг<div class="chips">${Object.entries(WARN_LIB).map(([k, [, t]]) => `<button class="chip${P.warn.includes(k) ? ' on' : ''}" data-pw="${k}">${t}</button>`).join('')}</div></div>
+          <div class="fld">Хориглох тэмдэг (4 хүртэл)<div class="chips">${Object.entries(FORBID_LIB).map(([k, [, t]]) => `<button class="chip${P.forbid.includes(k) ? ' on' : ''}" data-pf="${k}">${t}</button>`).join('')}</div></div>
+          <div class="jgrid">${fldIn('pst_boss', 'Хариуцсан ахлах', P.boss)}${fldIn('pst_phone', 'Утас', P.phone)}</div>
+          <p class="note">Хамгаалах хэрэгслийн тэмдэг доорх «Хувийн хамгаалах хэрэгсэл» текстээс автоматаар сонгогдоно (дуулга, бээлий, гутал, нүдний шил, чихэвч, хантааз…).</p>
+        </div></div></div>
+      <div class="exports"><span class="outb"><button class="btn primary" data-iout="pdf" data-k="instr">Ажлын заавар PDF</button><button class="btn ghost" data-iout="print" data-k="instr">🖨 Хэвлэх</button></span><button class="btn ghost" id="isReset">Анхны текст</button><span class="note">Мөр бүр нэг заалт. Засвар автоматаар хадгалагдана.</span></div>
       <div class="jgrid igrid">${[['ppe', 'Хувийн хамгаалах хэрэгсэл'], ['before', 'Ажил эхлэхийн өмнө'], ['during', 'Ажиллах үед'], ['after', 'Ажил дууссаны дараа'], ['forbid', 'Хориглох зүйл'], ['emerg', 'Осол, яаралтай үед']].map(([k, n]) => `<div class="jcard"><div class="bcard-h">${n}</div><div class="jbody"><textarea data-ins="${k}" rows="${Math.max(4, (T[k] || []).length + 1)}" class="inp">${esc((T[k] || []).join('\n'))}</textarea></div></div>`).join('')}</div>`;
   } else if (IN2.tab === 'log') {
     const veh = m.kind === 'vehicle', rows = I.logs.filter(r => r.mid === m.id);
@@ -225,6 +236,15 @@ function renderInspMain() {
   if (IN2.tab === 'instr') {
     el.querySelectorAll('[data-ins]').forEach(t => t.addEventListener('change', () => { const T = instrOf(m); T[t.dataset.ins] = t.value.split('\n').map(s => s.trim()).filter(Boolean); m.instr = T; save(); }));
     el.querySelector('#isReset').addEventListener('click', () => { delete m.instr; save(); renderInspMain(); });
+    const P = posterOf(m), setP = () => { m.poster = P; save(); renderInspMain(); };
+    el.querySelectorAll('[data-pw]').forEach(b => b.addEventListener('click', () => { const k = b.dataset.pw, i = P.warn.indexOf(k); if (i >= 0) P.warn.splice(i, 1); else P.warn.push(k); setP(); }));
+    el.querySelectorAll('[data-pf]').forEach(b => b.addEventListener('click', () => { const k = b.dataset.pf, i = P.forbid.indexOf(k); if (i >= 0) P.forbid.splice(i, 1); else { if (P.forbid.length >= 4) P.forbid.shift(); P.forbid.push(k); } setP(); }));
+    [['pst_boss', 'boss'], ['pst_phone', 'phone']].forEach(([id, k]) => el.querySelector('#' + id).addEventListener('change', e => { P[k] = e.target.value; setP(); }));
+    el.querySelector('#pstPhoto').addEventListener('click', () => pickMachinePhoto(m, () => renderInspMain()));
+    const pd = el.querySelector('#pstPhotoDel'); if (pd) pd.addEventListener('click', () => { delete m.photo; save(); renderInspMain(); });
+    el.querySelectorAll('[data-pst]').forEach(b => b.addEventListener('click', () => posterOut(b.dataset.pst, [m], b.dataset.f)));
+    el.querySelectorAll('[data-ins]').forEach(t => t.addEventListener('change', () => posterImg(m, 'a4').then(u => { const i = el.querySelector('#pstImg'); if (i) i.src = u; })));
+    posterImg(m, 'a4').then(u => { const i = el.querySelector('#pstImg'); if (i) i.src = u; });
   }
   if (IN2.tab === 'log') {
     bindEd(el, { lg: { arr: () => { const rows = I.logs.filter(r => r.mid === m.id); return { length: rows.length, splice: (i) => { I.logs.splice(I.logs.indexOf(rows[i]), 1); }, push: v => I.logs.push(v), ...rows }; }, cols: IN2.logCols, blank: () => m.kind === 'vehicle' ? { mid: m.id, out: '', in: '', driver: '', route: '', km: '' } : { mid: m.id, date: today(), next: '', desc: '', by: '' } } }, () => renderInspMain());
@@ -248,4 +268,5 @@ const ICOLS = [{ k: 'sec', t: 'Шалгах хэсэг', w: 150 }, { k: 'item', 
   $('#iAllPdf').addEventListener('click', () => inspOut('pdf', 'all'));
   $('#iAllPrint').addEventListener('click', () => inspOut('print', 'all'));
   $('#iInstrAll').addEventListener('click', () => inspOut('pdf', 'instrAll'));
+  $('#iPosterAll').addEventListener('click', () => posterOut('pdf', IS().machines, 'a3'));
 })();

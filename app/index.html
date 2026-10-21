@@ -179,6 +179,10 @@ label.fld{display:grid;gap:3px;font-size:12px;color:var(--ink-2)}
 .iprev{width:100%;height:auto;border:1px solid var(--line);border-radius:4px;background:#fff}
 .irt td{white-space:normal}.irt tr.bad td{background:color-mix(in srgb,var(--bad) 12%,transparent)}.irt input[type=radio]{width:18px;height:18px;accent-color:var(--accent)}
 .igrid{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}.igrid textarea{width:100%;font:inherit;line-height:1.5}
+.pst{grid-template-columns:minmax(220px,340px) minmax(0,1fr);align-items:start}.pstprev img{width:100%;border:1px solid var(--line);border-radius:4px;background:#fff;display:block}.pstside{display:grid;gap:10px;min-width:0}.chip.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+@media (max-width:900px){.pst{grid-template-columns:1fr}}
+.phint{border:1px solid var(--line);border-left:4px solid var(--ok);border-radius:var(--r);padding:8px 10px;font-size:13px;background:var(--surface)}.phint.need{border-left-color:var(--accent);background:var(--accent-soft)}
+.stdview{width:100%;height:75vh;border:0;background:#fff}.stdl{margin:6px 0 0;padding-left:18px;line-height:1.7;font-size:13px}
 .ical{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;max-width:460px}.ical b{font-size:11px;color:var(--ink-3);text-align:center;font-weight:500}
 .ical span{border:1px solid var(--line-2);border-radius:4px;text-align:center;padding:6px 0;font-family:var(--f-mono);font-size:12px}
 .ical span.has{cursor:pointer}.ical .c-ok{background:color-mix(in srgb,var(--ok) 25%,transparent)}.ical .c-fix{background:color-mix(in srgb,var(--warn) 30%,transparent)}.ical .c-stop{background:color-mix(in srgb,var(--bad) 35%,transparent)}
@@ -343,7 +347,7 @@ table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
 
   <aside class="side" id="inspSide" hidden>
     <div class="panel-body">
-      <div class="ptools"><button class="btn primary" id="iAdd">+ Тоног нэмэх</button><button class="btn" id="iInstrAll">Бүх заавар PDF</button></div>
+      <div class="ptools"><button class="btn primary" id="iAdd">+ Тоног нэмэх</button><button class="btn" id="iInstrAll">Бүх заавар PDF</button><button class="btn" id="iPosterAll">Бүх ханын самбар A3</button></div>
       <div class="ibulk"><label class="fld">Сарын багцад өдрийн хуудас<input id="iDaily" type="number" min="1" max="40" class="mono"></label><button class="btn" id="iAllPdf">Бүх тоногийн багц PDF</button><button class="btn ghost" id="iAllPrint" title="Шууд хэвлэх">🖨</button></div>
       <p class="note">Өдөр тутмын үзлэгийн хуудас, засвар / жолооны бүртгэл, ажлын байрны заавар. Хуудсыг хэвлэж бөглөх эсвэл «Цахим үзлэг»-ээр бөглөж хадгална.</p>
       <div id="iList" class="plist"></div>
@@ -356,6 +360,7 @@ table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
       <button data-itab="bt">Шанага</button>
       <button data-itab="tpl">Загвар</button>
       <button data-itab="lib">Миний сан</button>
+      <button data-itab="std">Стандарт</button>
     </nav>
     <div class="panel-body">
       <section id="itab-mach">
@@ -371,6 +376,11 @@ table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
         <p class="hint">Зүсэж, нугалж хийх бүтээгдэхүүний параметрт загвар. Хэмжээг өөрчлөхөд эд анги, 3D, iLogic бүгд шинэчлэгдэнэ.</p>
         <div id="tplList" class="plist"></div>
       </section>
+      <section id="itab-std" hidden>
+        <p class="note">Гагнуурын урьдчилан халаалтын тооцоолуур (AWS D1.1, SSAB) болон компанийн стандарт, каталогийн архив. Файл зөвхөн энэ компьютерт хадгалагдана.</p>
+        <div class="ptools"><button class="btn primary" id="stdAdd">+ Стандарт / каталог хавсаргах</button><input type="file" id="stdFile" accept=".pdf,.png,.jpg,.jpeg,.xlsx,.docx" multiple hidden></div>
+        <div id="stdDocs" class="plist" style="margin-top:10px"></div>
+      </section>
       <section id="itab-lib" hidden>
         <p class="hint">Гадаад сангаас <b>өөрийн бүртгэлээр</b> татаж, лицензийн нөхцөлийг нь шалгаад ашиглана. Татсан файлаа баруун талын «Файл нэмэх»-ээр санд хадгална. <span id="libCount" class="mono"></span></p>
         <div id="extLinks" class="plist"></div>
@@ -383,6 +393,7 @@ table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
       <button data-jtab="jobs" class="on">Ажлууд <span class="badge" id="cntJobs"></span></button>
       <button data-jtab="kits">Иж бүрдэл <span class="badge" id="cntKits"></span></button>
       <button data-jtab="certs">Материал</button>
+      <button data-jtab="cat">Үнийн сан</button>
     </nav>
     <div class="panel-body">
       <section id="jtab-jobs">
@@ -407,6 +418,10 @@ table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
         <div class="logoset"><span class="logo-wrap"><img class="brand-logo" alt="лого" src=""></span>
           <button class="btn sm" id="logoPick">Лого солих</button><button class="btn sm ghost" id="logoReset">Анхны лого</button><input type="file" id="logoFile" accept="image/png,image/jpeg,image/svg+xml,image/webp" hidden></div>
         <p class="note">Лого програмын толгой болон бүх PDF, хэвлэх баримтад гарна. PNG (тунгалаг фонтой) хамгийн тохиромжтой.</p>
+      </section>
+      <section id="jtab-cat" hidden>
+        <p class="note">Материал, consumable, үйлчилгээний үнийн сан. Үнийн саналын мөрөнд нэр шивэхэд эндээс санал болгож, үнэ, нэгж, кг-ыг автоматаар бөглөнө. Санд байхгүй материалыг үнэ, нийлүүлэгчтэй нь шивбэл энд автоматаар нэмэгдэнэ.</p>
+        <div id="catSups" class="plist"></div>
       </section>
       <section id="jtab-kits" hidden>
         <p class="hint">Иж бүрдэл гэдэг нь нэг бүтээгдэхүүний (жишээ нь PC200 шанага) бүх хавтгай эд анги, ширхэгийг хадгалсан загвар. Ажилд «иж бүрдэл × тоо» гэж оруулахад партууд автоматаар үржинэ.</p>
@@ -3609,7 +3624,197 @@ const I18N_EN = {
 "жолооны бүртгэл": "driving log",
 "засварын бүртгэл": "maintenance log",
 "(A4 хэвтээ, A5 ×2 — хагаслаж хайчилна)": "(A4 landscape, A5 ×2 — cut in half)",
-"нэмсэн загвар": "added template"
+"нэмсэн загвар": "added template",
+"Түмэн Төмөрт Групп": "Tumen Tumurt Group",
+"кг: ГОСТ 8240 (Маяк-М каталог), ойролцоо": "kg: GOST 8240 (Maiak-M catalogue), approx.",
+"кг: ГОСТ 8239, ойролцоо": "kg: GOST 8239, approx.",
+"кг: JIS H-beam, ойролцоо": "kg: JIS H-beam, approx.",
+"кг: EN 10219 томьёо": "kg: EN 10219 formula",
+"Үнийн хуудсанд «1м.кв үнэ» гэсэн ч хэмжээгээр харьцуулахад нэг хуудасны үнэ бололтой — нийлүүлэгчээс тодруулна": "The price list says «per m²», but comparing sizes it looks like a per-sheet price — confirm with the supplier",
+"НӨАТ-гүй үнэ": "price excl. VAT",
+"сангаас автоматаар": "auto-picked from library",
+"Сангаас сонгогдлоо:": "Picked from library:",
+"Миний оруулсан": "My entries",
+"Шинэ материал санд нэмэгдлээ:": "New material added to library:",
+"Үнэ, ₮": "Price, ₮",
+"НӨАТ орсон": "VAT incl.",
+"жишээ: труба 159, лист 10, Q345…": "e.g. pipe 159, sheet 10, Q345…",
+"Excel / CSV үнийн хуудас импортлох": "Import Excel / CSV price list",
+"Түмэн Төмөрт 2026-05 дахин ачаалах": "Reload Tumen Tumurt 2026-05",
+"бараа": "items",
+"· эхний": "· first",
+"-г харуулж байна": "shown",
+". Үнийн саналд шинээр шивсэн материал энд автоматаар нэмэгдэнэ.": ". Materials typed into a quotation are added here automatically.",
+"Цааш харуулах": "Show more",
+"Excel/CSV багана: нэр, нэгж, үнэ, кг/нэгж, нийлүүлэгч, шаардлага (эхний мөр гарчиг). Ижил нэртэй бараа байвал үнэ нь шинэчлэгдэнэ. Түмэн Төмөрт Группийн үнэд НӨАТ орсон; үнийн саналд НӨАТ-гүй үнээр орно.": "Excel/CSV columns: name, unit, price, kg/unit, supplier, requirement (first row = header). Items with the same name get their price updated. Tumen Tumurt Group prices include VAT; quotations use the price excl. VAT.",
+"Шинэ бараа": "New item",
+"Түмэн Төмөрт Группийн үнэ шинэчлэгдлээ": "Tumen Tumurt Group prices updated",
+"Нийлүүлэгчийн нэр (бүх мөрд бичигдэнэ):": "Supplier name (written on every row):",
+"Импорт": "Import",
+"шинэчлэгдсэн": "updated",
+"— нийлүүлэгчгүй": "— no supplier",
+"үнэ:": "price:",
+"Ханын самбар": "Wall poster",
+"тэмдгүүд ISO 7010 өнгө, хэлбэрийн дагуу": "signs follow ISO 7010 colours and shapes",
+"Зураг солих": "Change photo",
+"Тоногийн зураг оруулах": "Add equipment photo",
+"Зураг хасах": "Remove photo",
+"Анхааруулах тэмдэг": "Warning signs",
+"Хориглох тэмдэг (4 хүртэл)": "Prohibition signs (up to 4)",
+"Хариуцсан ахлах": "Responsible supervisor",
+"Утас": "Phone",
+"Хамгаалах хэрэгслийн тэмдэг доорх «Хувийн хамгаалах хэрэгсэл» текстээс автоматаар сонгогдоно (дуулга, бээлий, гутал, нүдний шил, чихэвч, хантааз…).": "PPE signs are picked automatically from the «Personal protective equipment» text below (helmet, gloves, boots, glasses, ear protection, vest…).",
+"Нэр (сангаас сонгох эсвэл шинээр шивэх)": "Name (pick from library or type a new one)",
+"Энэ мөрийг кг-аар бодох": "Calculate this row by kg",
+"Дэлгэрэнгүй задаргаа": "Detailed breakdown",
+"Нийлүүлэгчийн НӨАТ-тай үнийг НӨАТ-гүй болгож оруулах": "Enter supplier prices that include VAT as prices excl. VAT",
+"Бүх мөрийг кг-аар бодох": "Calculate all rows by kg",
+"Нэрийг шивэхэд сангаас санал болгоно. Санд байхгүй бол үнэ, нийлүүлэгчийг нь бичихэд автоматаар хадгална.": "Typing a name suggests items from the library. If it is not there, enter the price and supplier and it is saved automatically.",
+"⚖ Жингийн шалгалт:": "⚖ Weight check:",
+"(дундаж": "(average",
+"· өрөлтийн листийн жин": "· nested sheet weight",
+"· партуудын цэвэр жин": "· net part weight",
+"— саналын материал дутуу байж магадгүй": "— the quotation may be short of material",
+"Гагнуур · урьдчилан халаалт": "Welding · preheat",
+"Халаалт min": "Preheat min",
+"Эх үүсвэр": "Source",
+"Урьдчилан халаалт": "Preheat",
+"°C-аас багагүй; гагнуурын тэнхлэгээс хоёр тийш зузаанаас багагүй, 75 мм-ээс багагүй зайд. Батлагдсан WPS-ийг мөрдөнө.": "°C minimum; on both sides of the weld axis for at least the thickness, but not less than 75 mm. Follow the approved WPS.",
+"Урьдчилан халаалт шаардлагагүй (металл 0 °C-аас хүйтэн бол 20 °C хүртэл халаана).": "No preheat required (if the metal is below 0 °C, heat to 20 °C).",
+"Өргөлттэй ачаа": "Suspended load",
+"Гар хавчуулах аюул": "Hand crushing hazard",
+"Цахилгааны аюул": "Electrical hazard",
+"Халуун гадаргуу": "Hot surface",
+"Эргэлдэх хэсэг": "Rotating parts",
+"Лазерын цацраг": "Laser radiation",
+"Галын аюул": "Fire hazard",
+"Нумын хурц гэрэл": "Intense arc light",
+"Хөдөлгөөнт техник": "Moving machinery",
+"Чанга дуу чимээ": "Loud noise",
+"Ачааны доор зогсохгүй": "Do not stand under the load",
+"Хүн өргөхгүй": "No lifting of people",
+"Эрхгүй хүн ажиллуулахгүй": "No unauthorised operation",
+"Тамхи, ил гал хориглоно": "No smoking or open flames",
+"Шатамхай зүйл ойртуулахгүй": "Keep flammables away",
+"Нойтон гараар хүрэхгүй": "Do not touch with wet hands",
+"Бээлийтэй ажиллахгүй": "No gloves near rotating parts",
+"Гар оруулахгүй": "Keep hands out",
+"Утсаар ярихгүй": "No phone calls",
+"Согтуу жолоодохгүй": "No drunk driving",
+"Цацраг руу харахгүй": "Do not look into the beam",
+"Түлхүүр орхихгүй": "Do not leave the key",
+"Тоногийн зураг": "Equipment photo",
+"ЗААВАЛ ХЭРЭГЛЭХ ХАМГААЛАХ ХЭРЭГСЭЛ": "MANDATORY PROTECTIVE EQUIPMENT",
+"АНХААР": "CAUTION",
+"ХОРИГЛОНО": "PROHIBITED",
+"Яаралтай зогсоох": "Emergency stop",
+"Анхны тусламж": "First aid",
+"Гал түймэр": "Fire",
+"Цагдаа": "Police",
+"Түргэн тусламж": "Ambulance",
+"Ахлах:": "Supervisor:",
+"Утас:": "Phone:",
+"_ханын_самбар_": "_wall_poster_",
+"Kh_International_ханын_самбар_бүгд_": "Kh_International_wall_posters_all_",
+"Зураг нэмэгдлээ": "Photo added",
+"Захиалагчид өгөх үнийн санал — Kh International загвар": "Customer quotation — Kh International form",
+"Мөрийн хэлбэр": "Line layout",
+"Нэг мөр (set × 1)": "Single line (set × 1)",
+"Хэсгээр (материал, хүч, тоног…)": "By section (materials, labour, equipment…)",
+"Дэлгэрэнгүй (мөр бүр)": "Detailed (every line)",
+"Quote included (мөр бүр нэг заалт)": "Quote included (one point per line)",
+"Компанийн мэдээлэл (загварын толгой, банк, регистр)": "Company details (form header, bank, registration)",
+"Компанийн нэр": "Company name",
+"Уриа": "Tagline",
+"Хаяг 1": "Address 1",
+"Хаяг 2": "Address 2",
+"Хаяг 3": "Address 3",
+"SMAW — бага устөрөгчийн бус электрод (E6010, E6013…). ASTM A36, A53, A500 г.м. (S235/S275-тай дүйцэхүйц)": "SMAW — non-low-hydrogen electrodes (E6010, E6013…). ASTM A36, A53, A500 etc. (equivalent to S235/S275)",
+"SMAW бага устөрөгчийн электрод (E7018…), SAW, GMAW, FCAW. ASTM A36, A572 Gr50, A992… (S235–S355, 09Г2С-тэй дүйцэхүйц)": "Low-hydrogen SMAW (E7018…), SAW, GMAW, FCAW. ASTM A36, A572 Gr50, A992… (equivalent to S235–S355, 09G2S)",
+"B-тэй ижил процесс, өндөр бат бэхийн ган: ASTM A572 Gr60/65, A913 Gr60/65… (S420–S460-тай дүйцэхүйц)": "Same processes as B, higher-strength steel: ASTM A572 Gr60/65, A913 Gr60/65… (equivalent to S420–S460)",
+"ASTM A913 Gr50–70, бага устөрөгчийн процессоор": "ASTM A913 Gr50–70 with low-hydrogen processes",
+"GMAW / FCAW / SAW / SMAW E7018 (бага устөрөгч)": "GMAW / FCAW / SAW / SMAW E7018 (low hydrogen)",
+"SMAW — бага устөрөгчийн бус электрод (E6013…)": "SMAW — non-low-hydrogen electrode (E6013…)",
+"Зэвэрдэггүй (аустенит)": "Stainless (austenitic)",
+"S235 / Ст3": "S235 / St3",
+"Нүүрстөрөгчийн ган": "Carbon steel",
+"SSAB зөвлөмж": "SSAB recommendation",
+"Зузаан хүснэгтээс их — SSAB WeldCalc-аар тооцно": "Thickness beyond the table — calculate with SSAB WeldCalc",
+"Hardox-той ижил гэж тооцсон — үйлдвэрлэгчийн зөвлөмжийг шалгана": "Treated as equivalent Hardox — check the maker's recommendation",
+"Hardox зэрэг тодорхойгүй — 450 гэж тооцсон": "Hardox grade unknown — assumed 450",
+"SSAB зөвхөн бага устөрөгчийн нэмэлт материал зөвлөдөг": "SSAB recommends low-hydrogen consumables only",
+"Аустенит зэвэрдэггүй": "Austenitic stainless",
+"Халаалт шаардлагагүй, interpass ≤150 °C": "No preheat, interpass ≤150 °C",
+"Ихэвчлэн халаалтгүй; чийгийг 50–80 °C хүртэл халааж арилгаж болно": "Usually no preheat; may be warmed to 50–80 °C to remove moisture",
+"Ган гэж таамагласан — материалыг тодруулна уу": "Assumed carbon steel — please specify the material",
+"Металл 0 °C-аас хүйтэн бол 20 °C хүртэл халаана": "If the metal is below 0 °C, heat to 20 °C",
+"шаардлагагүй": "not required",
+"🔥 Халаалт:": "🔥 Preheat:",
+"хамгийн багадаа": "at least",
+"Гагнуур · урьдчилан халаалт (автомат)": "Welding · preheat (automatic)",
+"Гагнуурын процесс": "Welding process",
+"Хүйтэн улиралд (металл 0 °C-аас доош)": "Cold season (metal below 0 °C)",
+"🔥 Энэ ажилд:": "🔥 This job:",
+"урьдчилан халаалт": "preheat",
+"-аас багагүй. Гагнуурын тэнхлэгээс хоёр тийш зузаанаас багагүй, 75 мм-ээс багагүй зайд халаана.": "minimum. Heat both sides of the weld axis for at least the thickness, but not less than 75 mm.",
+"урьдчилан халаалт шаардлагагүй.": "no preheat required.",
+"Хамгийн их зузаан, мм": "Max thickness, mm",
+"Халаалт, min": "Preheat, min",
+"Халаалтын зардлыг үнийн саналд нэмэх": "Add preheat cost to the quotation",
+"Ажилд парт эсвэл үнийн саналд зузаантай материал (жишээ: «Hardox 450 20мм») ормогц халаалт автоматаар тооцогдоно.": "Preheat is calculated automatically once the job has parts or the quotation has materials with a thickness (e.g. «Hardox 450 20мм»).",
+"AWS D1.1-ийн урьдчилан баталгаажсан (prequalified) хамгийн бага утга. Hardox, Strenx-д SSAB-ийн зөвлөмж. Батлагдсан WPS байвал түүнийг мөрдөнө.": "AWS D1.1 prequalified minimum values. SSAB recommendations for Hardox and Strenx. An approved WPS takes precedence.",
+"°C (хий, шарагч / индукц)": "°C (gas torch / induction)",
+"AWS D1.1 / SSAB — үнийг оруулна": "AWS D1.1 / SSAB — enter the price",
+"Үнийн санал → D хэсэгт нэмэгдлээ, үнийг оруулна уу": "Quotation → added to section D, enter the price",
+"Хавсаргасан стандарт алга.": "No standards attached.",
+"Компьютерт хадгалах": "Save to computer",
+"Бүх зузаан:": "All thicknesses:",
+"Урьдчилан халаалтын тооцоолуур": "Preheat calculator",
+"Хамгийн зузаан хэсэг, мм": "Thickest part, mm",
+"Процесс": "Process",
+"Металл 0 °C-аас доош": "Metal below 0 °C",
+"хамгийн их": "maximum",
+"Халаах бүс": "Heating zone",
+"тэнхлэгээс хоёр тийш": "each side of the weld axis",
+"AWS D1.1 — урьдчилан баталгаажсан халаалт (хураангуй)": "AWS D1.1 — prequalified preheat (summary)",
+"Ган, процесс": "Steel, process",
+"Хамгийн их зузаан → хамгийн бага халаалт": "Max thickness → minimum preheat",
+"Зузааныг гагнах цэг дээрх хамгийн зузаан эд ангиар авна.": "Thickness is that of the thickest part at the point of welding.",
+"Хүснэгтэд «—» байсан ч металл 0 °C-аас хүйтэн бол 20 °C хүртэл халааж, гагнуурын турш барина.": "Even where the table shows «—», metal below 0 °C is heated to 20 °C and kept there while welding.",
+"Гагнуурын тэнхлэгээс бүх чиглэлд зузаантай тэнцүү, гэхдээ 75 мм-ээс багагүй зайд халаана.": "Heat in all directions from the weld axis for at least the thickness, but not less than 75 mm.",
+"Interpass температур мөн адил хамгийн бага утгаас доош унах ёсгүй.": "The interpass temperature must not drop below the same minimum.",
+"Урьдчилан баталгаажаагүй (non-prequalified) материал, нөхцөлд PQR-аар баталгаажсан WPS шаардлагатай.": "Non-prequalified materials or conditions need a WPS qualified by a PQR.",
+"Энэ бол хураангуй. Стандартын албан ёсны текстийг AWS худалдаалдаг тул програмд хавсаргаагүй. Танай компанид байгаа D1.1-ийн хувийг зүүн талын «Стандарт хавсаргах» товчоор оруулбал энд нээгдэнэ.": "This is a summary. The official text is sold by AWS, so it is not included in the app. Attach your company's copy of D1.1 with «Attach standard» on the left and it opens here.",
+"Hardox / Strenx — SSAB зөвлөмж": "Hardox / Strenx — SSAB recommendation",
+"Зэрэг": "Grade",
+"Хавтангийн зузаан → хамгийн бага халаалт": "Plate thickness → minimum preheat",
+"Нэг хавтангийн зузаанаар. Өөр өөр зузаан, зэрэгтэй хавтанг холбоход өндөр шаардлагатайг нь мөрдөнө. Нэмэлт материал заавал бага устөрөгчийн (≤5 мл/100 г) байна.": "Per single plate thickness. When joining different thicknesses or grades, follow the higher requirement. Consumables must be low-hydrogen (≤5 ml/100 g).",
+"Хадгалж чадсангүй:": "Could not save:",
+"файл стандартын санд нэмэгдлээ": "files added to the standards library",
+"Бүх ханын самбар A3": "All wall posters A3",
+"Гагнуурын урьдчилан халаалтын тооцоолуур (AWS D1.1, SSAB) болон компанийн стандарт, каталогийн архив. Файл зөвхөн энэ компьютерт хадгалагдана.": "Welding preheat calculator (AWS D1.1, SSAB) and the company archive of standards and catalogues. Files are stored only on this computer.",
+"+ Стандарт / каталог хавсаргах": "+ Attach standard / catalogue",
+"Үнийн сан": "Price library",
+"Материал, consumable, үйлчилгээний үнийн сан. Үнийн саналын мөрөнд нэр шивэхэд эндээс санал болгож, үнэ, нэгж, кг-ыг автоматаар бөглөнө. Санд байхгүй материалыг үнэ, нийлүүлэгчтэй нь шивбэл энд автоматаар нэмэгдэнэ.": "Price library for materials, consumables and services. Typing a name in a quotation row suggests items from here and fills in price, unit and kg. Materials not in the library are added here automatically once you enter the price and supplier.",
+"Труба хар": "Black pipe",
+"Труба цагаан": "Galvanized pipe",
+"Труба хар орос": "Black pipe (Russian)",
+"Труба хар хуйлаатай": "Spiral welded pipe",
+"Квадрат хар": "Black hollow section",
+"Квадрат цагаан": "Galvanized hollow section",
+"Лист хар": "Black sheet",
+"Лист цагаан": "Galvanized sheet",
+"Лист хүйтэн": "Cold-rolled sheet",
+"Лист хээтэй": "Checker plate",
+"Лист нерж": "Stainless sheet",
+"Лист хөнгөн цагаан": "Aluminium sheet",
+"Швеллер хар": "Black channel",
+"Швеллер цагаан": "Galvanized channel",
+"Двутавр": "I-beam",
+"Круг хар": "Round bar",
+"Полоса хар": "Black flat bar",
+"Полоса цагаан": "Galvanized flat bar",
+"Арматур": "Rebar"
 };
 /* ================= KH Fab — language (МН / EN) and theme (Day / Night) =================
    The UI is written in Mongolian. In English mode every Mongolian fragment that reaches the
@@ -6765,19 +6970,20 @@ async function kdoc(opt) {
   return D;
 }
 /* output: PDF file or direct print. imgs: [{url, alias}] (same alias = stored once in the PDF) */
-function pdfImgs(imgs, land, name) {
+const PAPERS = { a4: [210, 297], a3: [297, 420], letter: [215.9, 279.4] };
+function pdfImgs(imgs, land, name, fmt = 'a4') {
   if (!window.jspdf) { toast('PDF сан ачаалагдсангүй — «Хэвлэх» товчийг ашиглана уу'); return; }
-  const PW = land ? 297 : 210, PH = land ? 210 : 297;
-  const pdf = i18nPdf(new window.jspdf.jsPDF({ orientation: land ? 'landscape' : 'portrait', unit: 'mm', format: 'a4', compress: true }));
+  const [a, b] = PAPERS[fmt] || PAPERS.a4, PW = land ? b : a, PH = land ? a : b;
+  const pdf = i18nPdf(new window.jspdf.jsPDF({ orientation: land ? 'landscape' : 'portrait', unit: 'mm', format: fmt, compress: true }));
   imgs.forEach((im, i) => { if (i) pdf.addPage(); pdf.addImage(im.url, 'JPEG', 0, 0, PW, PH, im.alias, 'FAST'); });
   saveFile(safeName(tr(String(name).replace(/_/g, ' '))) + '.pdf', pdf.output('blob'), 'application/pdf');
 }
-function printImgs(imgs, land) {
+function printImgs(imgs, land, fmt = 'a4') {
   const fr = document.createElement('iframe'); fr.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden';
   document.body.appendChild(fr);
-  const w = land ? '297mm' : '210mm', h = land ? '210mm' : '297mm';
+  const [sa, sb] = PAPERS[fmt] || PAPERS.a4, w = (land ? sb : sa) + 'mm', h = (land ? sa : sb) + 'mm';
   const doc = fr.contentDocument; doc.open();
-  doc.write(`<!doctype html><html><head><meta charset="utf-8"><style>@page{size:A4 ${land ? 'landscape' : 'portrait'};margin:0}html,body{margin:0;padding:0}img{display:block;width:${w};height:${h};page-break-after:always;break-after:page}img:last-child{page-break-after:auto;break-after:auto}</style></head><body>${imgs.map(i => `<img src="${i.url}">`).join('')}</body></html>`);
+  doc.write(`<!doctype html><html><head><meta charset="utf-8"><style>@page{size:${fmt.toUpperCase()} ${land ? 'landscape' : 'portrait'};margin:0}html,body{margin:0;padding:0}img{display:block;width:${w};height:${h};page-break-after:always;break-after:page}img:last-child{page-break-after:auto;break-after:auto}</style></head><body>${imgs.map(i => `<img src="${i.url}">`).join('')}</body></html>`);
   doc.close();
   const go = () => { try { fr.contentWindow.focus(); fr.contentWindow.print(); } catch (e) { toast('Хэвлэж чадсангүй'); } setTimeout(() => fr.remove(), 60000); };
   const ims = [...doc.images]; let n = ims.filter(i => !i.complete).length; if (!n) setTimeout(go, 80); else ims.forEach(i => { if (!i.complete) i.onload = i.onerror = () => { if (--n === 0) setTimeout(go, 80); }; });
@@ -6886,7 +7092,7 @@ function jobMoney(job) {
 const daysLeft = d => d ? Math.round((new Date(d + 'T00:00:00') - new Date(today() + 'T00:00:00')) / 864e5) : null;
 
 /* ---------- side panel ---------- */
-$$('[data-jtab]').forEach(b => b.addEventListener('click', () => { J.tab = b.dataset.jtab; $$('[data-jtab]').forEach(x => x.classList.toggle('on', x === b)); ['jobs', 'kits', 'certs'].forEach(t => $('#jtab-' + t).hidden = t !== J.tab); renderJobs(); }));
+$$('[data-jtab]').forEach(b => b.addEventListener('click', () => { J.tab = b.dataset.jtab; $$('[data-jtab]').forEach(x => x.classList.toggle('on', x === b)); ['jobs', 'kits', 'certs', 'cat'].forEach(t => $('#jtab-' + t).hidden = t !== J.tab); renderJobs(); }));
 function renderJobs() { renderJList(); renderKList(); renderCertSide(); renderJobMain(); }
 function renderJList() {
   $('#cntJobs').textContent = S.jobs.filter(j => !['done', 'given'].includes(j.status)).length || '';
@@ -6944,6 +7150,7 @@ function renderJobMain() {
   const el = $('#jobsMain');
   if (J.tab === 'kits') { if (J.bucket) renderBucketMain(el); else renderKitMain(el); return; }
   if (J.tab === 'certs') { renderCertMain(el); return; }
+  if (J.tab === 'cat') { renderCatMain(el); renderCatSide(); return; }
   if (J.dash && S.jobs.length) { renderDash(el); return; }
   const job = findJob(J.sel) || findJob(S.activeJob) || S.jobs[0];
   if (!job) { el.innerHTML = '<div class="jempty"><b>Ажил алга</b><br>Зүүн талын <b>+ Шинэ ажил</b> товчоор ажлын дугаар үүсгэнэ. Дугаар нь <span class="mono">KH-' + new Date().getFullYear() + '-001</span> хэлбэртэй, жил бүр шинээр эхэлнэ.</div>'; return; }
@@ -7274,7 +7481,7 @@ function jx(job) {
 const qline = arr => (arr || []).reduce((a, r) => a + (+r.qty || 0) * (+r.price || 0), 0);
 function quoteCalc(job) {
   jx(job); const q = job.quote, sc = job.scope, rate = (+q.rate || 0) * (+q.rateK || 1);
-  const mat = qline(q.mats), scrap = mat * (+q.scrapPct || 0) / 100, trans = +q.trans || 0, cons = qline(q.cons);
+  const matKg = (q.mats || []).reduce((a, r) => a + (+r.qty || 0) * (+r.kgu || 0), 0), mat = qline(q.mats), scrap = mat * (+q.scrapPct || 0) / 100, trans = +q.trans || 0, cons = qline(q.cons);
   const matTotal = mat + scrap + trans + cons;
   const labor = sc.stages.map(s => ({ name: s.name, people: +s.people || 0, hours: +s.hours || 0, h: (+s.people || 0) * (+s.hours || 0), cost: (+s.people || 0) * (+s.hours || 0) * rate }));
   const laborTotal = labor.reduce((a, l) => a + l.cost, 0), laborH = labor.reduce((a, l) => a + l.h, 0);
@@ -7284,7 +7491,7 @@ function quoteCalc(job) {
   const vat = net * (+q.vat || 0) / 100, total = net + vat, k = cost > 0 ? net / cost : 1;
   const chg = (job.acc ? job.acc.changes : []).filter(c => c.ok).reduce((a, c) => a + (+c.cost || 0), 0);
   const budget = { mat: mat + scrap, cons, labor: laborTotal, equip, trans, other };
-  return { rate, mat, scrap, trans, cons, matTotal, labor, laborTotal, laborH, equipRows, equipPctV, equip, other, cost, net, profit, vat, total, k, chg, budget };
+  return { rate, matKg, mat, scrap, trans, cons, matTotal, labor, laborTotal, laborH, equipRows, equipPctV, equip, other, cost, net, profit, vat, total, k, chg, budget };
 }
 function progCalc(job) {
   jx(job); const sc = job.scope, c = quoteCalc(job), exp = job.prog.exp;
@@ -7309,18 +7516,18 @@ function edTable(id, cols, rows, o = {}) {
     if (c.calc) return `<td class="r num">${c.calc(r, i)}</td>`;
     if (c.sel) return `<td><select ${a}>${c.sel.map(([k, n]) => `<option value="${esc(k)}"${String(k) === String(v) ? ' selected' : ''}>${esc(n)}</option>`).join('')}</select></td>`;
     if (c.chk) return `<td style="text-align:center"><input type="checkbox" ${a}${v ? ' checked' : ''} style="width:auto"></td>`;
-    return `<td${c.w ? ` style="width:${c.w}px"` : ''}><input ${a} ${c.num ? 'type="number" step="any" class="mono" style="text-align:right"' : c.date ? 'type="date"' : ''} value="${esc(v)}"${c.ph ? ` placeholder="${esc(c.ph)}"` : ''}></td>`;
+    return `<td${c.w ? ` style="min-width:${c.w}px;width:${c.w}px"` : ''}><input ${a} ${c.num ? 'type="number" step="any" class="mono" style="text-align:right"' : c.date ? 'type="date"' : ''} value="${esc(v)}"${c.ph ? ` placeholder="${esc(c.ph)}"` : ''}${c.list ? ` list="${c.list}"` : ''}></td>`;
   };
   return `<div class="tblwrap"><table class="dt ed"><thead><tr><th style="width:28px">№</th>${cols.map(c => `<th${c.num || c.calc ? ' class="r"' : ''}>${c.t}</th>`).join('')}<th style="width:28px"></th></tr></thead><tbody>
     ${rows.map((r, i) => `<tr><td class="num muted">${i + 1}</td>${cols.map(c => cell(c, r, i)).join('')}<td><button class="x" data-edel="${id}" data-r="${i}" aria-label="Устгах">×</button></td></tr>`).join('')}
     ${o.foot || ''}</tbody></table></div><div class="addrow"><button class="btn sm" data-eadd="${id}">+ Мөр нэмэх</button>${o.extra || ''}</div>`;
 }
-function bindEd(root, map, after) {
-  root._edMap = map; root._edAfter = after; if (root._edBound) return; root._edBound = true;
+function bindEd(root, map, after, hook) {
+  root._edMap = map; root._edAfter = after; root._edHook = hook || null; if (root._edBound) return; root._edBound = true;
   root.addEventListener('change', ev => {
     const t = ev.target, id = t.dataset.ed, M = root._edMap; if (!id || !M[id]) return;
     const arr = M[id].arr(), r = arr[+t.dataset.r], col = M[id].cols.find(c => c.k === t.dataset.k); if (!r || !col) return;
-    r[t.dataset.k] = col.chk ? t.checked : col.num ? (t.value === '' ? '' : +t.value) : t.value; save(); root._edAfter(id);
+    r[t.dataset.k] = col.chk ? t.checked : col.num ? (t.value === '' ? '' : +t.value) : t.value; if (root._edHook) root._edHook(id, r, t.dataset.k); save(); root._edAfter(id);
   });
   root.addEventListener('click', ev => {
     const M = root._edMap, d = ev.target.closest('[data-edel]'), a = ev.target.closest('[data-eadd]');
@@ -7377,29 +7584,36 @@ function renderScope(el, job) {
       ${edTable('st', STAGE_COLS, sc.stages)}
       ${ganttHTML(job, P)}
     </div></div>
+    ${weldCardHTML(job)}
     <div class="jcard"><div class="bcard-h">Эрсдэлийн бүртгэл <span class="sp"></span><span class="muted" style="font-weight:400;font-size:12px">1 = бага · 2 = дунд · 3 = өндөр</span></div><div class="jbody">${edTable('rk', RISK_COLS, sc.risks)}</div></div>
     <div class="jcard"><div class="bcard-h">Тоног төхөөрөмж, багаж хэрэгсэл</div><div class="jbody">${edTable('eq', EQUIP_COLS, sc.equip)}</div></div>`;
   const re = () => renderJobMain();
+  bindWeldCard(el, job, re);
   bindFields(el, sc, [['sc_contract', 'contract'], ['sc_start', 'start'], ['sc_location', 'location'], ['sc_desc', 'desc'], ['sc_incl', 'incl'], ['sc_excl', 'excl']], k => { if (k === 'start') re(); });
   [['sc_title', 'title'], ['sc_customer', 'customer']].forEach(([id, k]) => el.querySelector('#' + id).addEventListener('change', e => { job[k] = e.target.value; save(); renderJList(); }));
   bindEd(el, { st: { arr: () => sc.stages, cols: STAGE_COLS, blank: () => ({ name: '', start: 1, dur: 1, people: 1, hours: 8, pct: 0 }) }, rk: { arr: () => sc.risks, cols: RISK_COLS, blank: () => ({ d: '', cause: '', p: 1, i: 1, prev: '', owner: '' }) }, eq: { arr: () => sc.equip, cols: EQUIP_COLS, blank: () => ({ name: '', cat: '', qty: 1, unit: 'ш', loc: 'Цех', st: 'Ажиллагаатай', stage: '' }) } }, re);
 }
 
 /* ---------- detailed quotation ---------- */
-const LINE_COLS = [{ k: 'name', t: 'Нэр' }, { k: 'qty', t: 'Тоо', num: 1, w: 80 }, { k: 'unit', t: 'Нэгж', w: 70 }, { k: 'price', t: 'Нэгж үнэ, ₮', num: 1, w: 110 }, { k: 'sum', t: 'Нийт, ₮', calc: r => money((+r.qty || 0) * (+r.price || 0)) }, { k: 'note', t: 'Нийлүүлэгч / тайлбар' }];
+const MAT_COLS = [{ k: 'name', t: 'Нэр (сангаас сонгох эсвэл шинээр шивэх)', list: 'dl-mat' }, { k: 'qty', t: 'Тоо', num: 1, w: 80 }, { k: 'unit', t: 'Нэгж', w: 64 }, { k: 'kgu', t: 'кг / нэгж', num: 1, w: 80 }, { k: 'kg', t: 'Жин, кг', calc: r => r.kgu ? nf((+r.qty || 0) * r.kgu, 1) : '—' }, { k: 'price', t: 'Нэгж үнэ, ₮', num: 1, w: 110 }, { k: 'pk', t: '₮ / кг', calc: (r, i) => r.kgu ? money(r.price / r.kgu) + (r.unit !== 'кг' ? ` <button class="linkbtn" data-kgc="${i}" title="Энэ мөрийг кг-аар бодох">→ кг</button>` : '') : '—' }, { k: 'sum', t: 'Нийт, ₮', calc: r => money((+r.qty || 0) * (+r.price || 0)) }, { k: 'note', t: 'Нийлүүлэгч / тайлбар' }];
+const toKg = r => { if (!r.kgu || r.unit === 'кг') return; r.qty = Math.round((+r.qty || 0) * r.kgu * 10) / 10; r.price = Math.round(r.price / r.kgu); r.note = [r.note, `${r.unit} → кг (${r.kgu} кг/${r.unit})`].filter(Boolean).join(' · '); r.unit = 'кг'; r.kgu = 1; };
+const LINE_COLS = [{ k: 'name', t: 'Нэр', list: 'dl-any' }, { k: 'qty', t: 'Тоо', num: 1, w: 80 }, { k: 'unit', t: 'Нэгж', w: 70 }, { k: 'price', t: 'Нэгж үнэ, ₮', num: 1, w: 110 }, { k: 'sum', t: 'Нийт, ₮', calc: r => money((+r.qty || 0) * (+r.price || 0)) }, { k: 'note', t: 'Нийлүүлэгч / тайлбар' }];
 const CONS_PRESET = [['Гагнуурын утас ER70S-6 Ø1.2', 'кг', 9500], ['CO₂ / хольц хий', 'баллон', 85000], ['Зүсэх диск 125мм', 'ш', 3500], ['Өнгөлөх диск 125мм', 'ш', 4500], ['Будаг (грунт + өнгөлгөө)', 'л', 28000], ['Уусгагч', 'л', 9000], ['Лазерын хий (N₂ / O₂)', 'баллон', 95000], ['Электрод E7018 Ø3.2', 'кг', 12000]];
 function renderJQuote(el, job) {
   const q = job.quote, c = quoteCalc(job), sc = job.scope;
   const sumRow = (label, v) => `<tr class="tot"><td></td><td colspan="4">${label}</td><td class="r num">${money(v)}</td><td colspan="2"></td></tr>`;
   el.innerHTML = `${jobSubBar(job)}
-    <div class="exports">${outBtns('quote', 'Үнийн санал')}${outBtns('cost', 'Дотоод тооцоо')}<span class="sp" style="flex:1"></span><button class="btn" id="qFromNest"${job.est ? '' : ' disabled title="Ажлыг өрөлтөд ачаалж өрнө үү"'}>Өрөлтөөс материал, зүсэлт</button></div>
+    <div class="exports">${outBtns('quote', 'Дэлгэрэнгүй задаргаа')}${outBtns('cost', 'Дотоод тооцоо')}<span class="sp" style="flex:1"></span><button class="btn" id="qFromNest"${job.est ? '' : ' disabled title="Ажлыг өрөлтөд ачаалж өрнө үү"'}>Өрөлтөөс материал, зүсэлт</button></div>
     <div class="summary">${[['Материал + consumable', money(c.matTotal)], ['Ажиллах хүч', money(c.laborTotal), `${nf(c.laborH, 0)} цаг × ${money(c.rate)}`], ['Тоног, үйлчилгээ', money(c.equip)], ['Өртөг', money(c.cost)], ['Ашиг', money(c.profit), c.net ? nf(c.profit / c.net * 100, 1) + '%' : ''], ['Санал (НӨАТ-гүй)', money(c.net)], ['Нийт (НӨАТ-тай)', money(c.total)]].map(s => `<div class="stat"><div class="k">${s[0]}</div><div class="v">${s[1]}<small>₮</small></div><div class="s">${s[2] || ''}</div></div>`).join('')}</div>
+    ${qfCardHTML(job)}
     <div class="jcard"><div class="bcard-h">Саналын мэдээлэл</div><div class="jbody"><div class="jgrid">
       ${fldIn('q_no', 'Саналын дугаар', q.no, { ph: job.no + '-Q1' })}${fldIn('q_date', 'Огноо', q.date, { type: 'date' })}${fldIn('q_valid', 'Хүчинтэй хугацаа, хоног', q.valid, { num: 1 })}${fldIn('q_delivery', 'Хийж дуусгах хугацаа', q.delivery, { ph: `${progCalc(job).end} хоног` })}
       ${fldIn('q_pay', 'Төлбөрийн нөхцөл', q.pay)}${fldIn('q_contact', 'Холбоо барих (утас, и-мэйл)', q.contact)}
-    </div></div></div>
+      <label class="check" style="align-self:end"><input type="checkbox" id="q_netIn"${q.netIn !== false ? ' checked' : ''}><span>Нийлүүлэгчийн НӨАТ-тай үнийг НӨАТ-гүй болгож оруулах</span></label>
+    </div></div></div>${catDatalists()}
     <div class="jcard"><div class="bcard-h">A. Материал & худалдан авалт</div><div class="jbody">
-      ${edTable('qm', LINE_COLS, q.mats, { foot: sumRow('Материалын дүн', c.mat) })}
+      ${edTable('qm', MAT_COLS, q.mats, { foot: `<tr class="tot"><td></td><td colspan="3">Материалын дүн</td><td class="r num">${nf(c.matKg, 1)}</td><td></td><td class="r num">${c.matKg ? money(c.mat / c.matKg) : ''}</td><td class="r num">${money(c.mat)}</td><td colspan="2"></td></tr>`, extra: `<button class="btn sm ghost" id="qAllKg">Бүх мөрийг кг-аар бодох</button><span class="note">Нэрийг шивэхэд сангаас санал болгоно. Санд байхгүй бол үнэ, нийлүүлэгчийг нь бичихэд автоматаар хадгална.</span>` })}
+      ${(() => { const nk = job.est ? job.est.kg : 0, pk = (() => { try { return jobWeight(jobParts(job)); } catch (e) { return 0; } })(); if (!c.matKg && !nk && !pk) return ''; const ref = nk || pk, d = ref && c.matKg ? (c.matKg - ref) / ref * 100 : null; return `<div class="phint ${d != null && d < -2 ? 'need' : ''}"><b>⚖ Жингийн шалгалт:</b> санал ${nf(c.matKg, 1)} кг${c.matKg ? ` (дундаж ${money(c.mat / c.matKg)} ₮/кг)` : ''}${nk ? ` · өрөлтийн листийн жин ${nf(nk, 1)} кг` : ''}${pk ? ` · партуудын цэвэр жин ${nf(pk, 1)} кг` : ''}${d != null ? ` · зөрүү <b>${d > 0 ? '+' : ''}${nf(d, 1)}%</b>${d < -2 ? ' — саналын материал дутуу байж магадгүй' : ''}` : ''}</div>`; })()}
       <div class="jgrid">${fldIn('q_trans', 'Тээвэр / хүргэлт, ₮', q.trans, { num: 1 })}${fldIn('q_scrap', 'Хаягдал нөөц, %', q.scrapPct, { num: 1 })}<div class="fld">Хаягдал нөөц, ₮<div class="mono" style="padding:7px 0">${money(c.scrap)}</div></div></div>
     </div></div>
     <div class="jcard"><div class="bcard-h">B. Consumable (гагнуурын утас, хий, диск, будаг…)</div><div class="jbody">
@@ -7436,8 +7650,12 @@ function renderJQuote(el, job) {
     if (!['no', 'date', 'delivery', 'pay', 'contact', 'note'].includes(k)) re();
   });
   el.querySelector('#q_spread').addEventListener('change', e => { q.spread = e.target.checked; save(); });
+  bindQfCard(el, job);
+  el.querySelector('#q_netIn').addEventListener('change', e => { q.netIn = e.target.checked; save(); });
+  el.querySelectorAll('[data-kgc]').forEach(b => b.addEventListener('click', () => { toKg(q.mats[+b.dataset.kgc]); save(); re(); }));
+  el.querySelector('#qAllKg').addEventListener('click', () => { q.mats.forEach(toKg); save(); re(); });
   const L = () => ({ name: '', qty: 1, unit: 'ш', price: 0, note: '' });
-  bindEd(el, { qm: { arr: () => q.mats, cols: LINE_COLS, blank: L }, qc: { arr: () => q.cons, cols: LINE_COLS, blank: L }, qe: { arr: () => q.equipRows, cols: LINE_COLS, blank: L }, qo: { arr: () => q.other, cols: LINE_COLS, blank: L } }, re);
+  bindEd(el, { qm: { arr: () => q.mats, cols: MAT_COLS, blank: L }, qc: { arr: () => q.cons, cols: LINE_COLS, blank: L }, qe: { arr: () => q.equipRows, cols: LINE_COLS, blank: L }, qo: { arr: () => q.other, cols: LINE_COLS, blank: L } }, re, (id, row, key) => quoteLineHook(job, id, row, key));
   el.querySelector('#qConsPre').addEventListener('change', e => { const p = CONS_PRESET[+e.target.value]; if (!p) return; q.cons.push({ name: p[0], qty: 1, unit: p[1], price: p[2], note: '' }); save(); re(); });
   el.querySelector('#qToPrice').addEventListener('click', () => { job.price = Math.round(c.net); jobLog(`Гэрээний үнэ саналаас: ${money(job.price)} ₮`, job); re(); toast('Гэрээний үнэ шинэчлэгдлээ'); });
   el.querySelector('#qFromNest').addEventListener('click', () => {
@@ -7539,6 +7757,7 @@ async function scopeDoc(job) {
   D.table([{ t: '№', w: 8, m: 1 }, { t: 'Үе шатны нэр' }, { t: 'Эхлэх', w: 24, m: 1 }, { t: 'Дуусах', w: 24, m: 1 }, { t: 'Хоног', w: 14, a: 'r', m: 1 }, { t: 'Хүн', w: 12, a: 'r', m: 1 }, { t: 'Нийт цаг', w: 18, a: 'r', m: 1 }],
     sc.stages.map((s, i) => [i + 1, s.name, sc.start ? addDays(sc.start, (+s.start || 1) - 1) : `${s.start}-р хоног`, sc.start ? addDays(sc.start, (+s.start || 1) + (+s.dur || 1) - 2) : '', s.dur, s.people, nf(c.labor[i].h, 0)]));
   ganttDoc(D, job, null);
+  { const Wr = jobWeldRows(job); if (Wr.rows.length) { D.h2('Гагнуур · урьдчилан халаалт', WELD_PROC.find(p => p[0] === Wr.W.proc)[1]); D.table([{ t: 'Материал' }, { t: 'Ангилал', w: 34 }, { t: 'Зузаан, мм', w: 18, a: 'r', m: 1 }, { t: 'Халаалт min', w: 22, a: 'r', m: 1 }, { t: 'Interpass max', w: 22, a: 'r', m: 1 }, { t: 'Эх үүсвэр', w: 34 }], Wr.rows.map(r => ({ cells: [r.mat, r.grade, r.t, phTxt(r), r.max ? r.max + ' °C' : '—', r.std], fill: r.min ? '#fff1e6' : null }))); D.para(Wr.max ? `Урьдчилан халаалт ${Wr.max} °C-аас багагүй; гагнуурын тэнхлэгээс хоёр тийш зузаанаас багагүй, 75 мм-ээс багагүй зайд. Батлагдсан WPS-ийг мөрдөнө.` : 'Урьдчилан халаалт шаардлагагүй (металл 0 °C-аас хүйтэн бол 20 °C хүртэл халаана).', { size: 2.7, color: DC.ink2 }); } }
   D.h2('Эрсдэлийн бүртгэл', '1 = бага · 2 = дунд · 3 = өндөр');
   D.table([{ t: '№', w: 8, m: 1 }, { t: 'Эрсдэл' }, { t: 'Шалтгаан' }, { t: 'Магадлал', w: 16, a: 'c', m: 1 }, { t: 'Нөлөө', w: 14, a: 'c', m: 1 }, { t: 'Оноо', w: 12, a: 'c', m: 1 }, { t: 'Урьдчилан сэргийлэх' }, { t: 'Хариуцах', w: 26 }],
     sc.risks.filter(r => r.d).map((r, i) => { const s = (+r.p || 0) * (+r.i || 0); return { cells: [i + 1, r.d, r.cause, r.p, r.i, s, r.prev, r.owner], fill: s >= 6 ? '#fde7e7' : null }; }));
@@ -7560,7 +7779,14 @@ async function quoteDoc(job) {
   const tot = (label, v) => ({ bold: 1, fill: DC.soft, cells: ['', label, '', '', '', money(v * k)] });
   let n = 0; const sec = t => `${String.fromCharCode(65 + n++)}. ${t}`;
   const mrows = lineRows(q.mats); if (c.scrap) mrows.push(['', `Хаягдал нөөц (${q.scrapPct}%)`, '', '', '', money(c.scrap * k)]); if (c.trans) mrows.push(['', 'Тээвэр / хүргэлт', '', '', '', money(c.trans * k)]);
-  if (mrows.length) { D.h2(sec('Материал & худалдан авалт')); D.table(lineCols, mrows.concat([tot('Материалын дүн', c.mat + c.scrap + c.trans)])); }
+  if (mrows.length) {
+    D.h2(sec('Материал & худалдан авалт'), c.matKg ? `нийт ${nf(c.matKg, 1)} кг` : '');
+    if (c.matKg) { const mc = [{ t: '№', w: 8, m: 1 }, { t: 'Нэр' }, { t: 'Тоо', w: 16, a: 'r', m: 1 }, { t: 'Нэгж', w: 12 }, { t: 'Жин, кг', w: 18, a: 'r', m: 1 }, { t: 'Нэгж үнэ, ₮', w: 24, a: 'r', m: 1 }, { t: 'Нийт, ₮', w: 26, a: 'r', m: 1 }];
+      const rr2 = q.mats.filter(r => r.name || +r.price).map((r, i) => [i + 1, r.name, nf(+r.qty || 0, 2).replace(/[.,]00$/, ''), r.unit, r.kgu ? nf((+r.qty || 0) * r.kgu, 1) : '', money((+r.price || 0) * k), money((+r.qty || 0) * (+r.price || 0) * k)]);
+      if (c.scrap) rr2.push(['', `Хаягдал нөөц (${q.scrapPct}%)`, '', '', '', '', money(c.scrap * k)]); if (c.trans) rr2.push(['', 'Тээвэр / хүргэлт', '', '', '', '', money(c.trans * k)]);
+      D.table(mc, rr2.concat([{ bold: 1, fill: DC.soft, cells: ['', 'Материалын дүн', '', '', nf(c.matKg, 1), '', money((c.mat + c.scrap + c.trans) * k)] }])); }
+    else D.table(lineCols, mrows.concat([tot('Материалын дүн', c.mat + c.scrap + c.trans)]));
+  }
   if (q.cons.length) { D.h2(sec('Consumable')); D.table(lineCols, lineRows(q.cons).concat([tot('Consumable дүн', c.cons)])); }
   if (c.laborTotal) {
     D.h2(sec('Ажиллах хүч'));
@@ -7635,6 +7861,403 @@ async function accDoc(job) {
   D.table([{ t: '№', w: 8, m: 1 }, { t: 'Огноо', w: 20, m: 1 }, { t: 'Өөрчлөлтийн тайлбар' }, { t: 'Шалтгаан', w: 30 }, { t: 'Нөлөөлөл', w: 26 }, { t: 'Зардал, ₮', w: 24, a: 'r', m: 1 }, { t: 'Зөвш.', w: 12, a: 'c' }, { t: 'Тайлбар', w: 24 }],
     rows.concat([{ bold: 1, fill: DC.soft, cells: ['', '', 'НИЙТ НЭМЭЛТ ЗАРДАЛ', '', '', money(A.changes.reduce((a, c) => a + (+c.cost || 0), 0)), '', ''] }]), { minRh: 6.5 });
   return D;
+}
+
+const TT_2026_05 = [{"name": "Труба хар Ø133×4.5 (6м)", "grp": "Труба хар", "unit": "м", "price": 42500, "a": "133", "b": "4.5", "c": "6", "sheetQ": false}, {"name": "Труба хар Ø133×5 (6м)", "grp": "Труба хар", "unit": "м", "price": 49400, "a": "133", "b": "5", "c": "6", "sheetQ": false}, {"name": "Труба хар Ø133×5.5 (6м)", "grp": "Труба хар", "unit": "м", "price": 53200, "a": "133", "b": "5.5", "c": "6", "sheetQ": false}, {"name": "Труба хар Ø159×3 (6м)", "grp": "Труба хар", "unit": "м", "price": 31700, "a": "159", "b": "3", "c": "6", "sheetQ": false}, {"name": "Труба хар Ø159×4 (6м)", "grp": "Труба хар", "unit": "м", "price": 41500, "a": "159", "b": "4", "c": "6", "sheetQ": false}, {"name": "Труба хар Ø159×4.5 (6м)", "grp": "Труба хар", "unit": "м", "price": 47500, "a": "159", "b": "4.5", "c": "6", "sheetQ": false}, {"name": "Труба хар Ø159×5 (6м)", "grp": "Труба хар", "unit": "м", "price": 56100, "a": "159", "b": "5", "c": "6", "sheetQ": false}, {"name": "Труба хар Ø219×3 (6м)", "grp": "Труба хар", "unit": "м", "price": 47500, "a": "219", "b": "3", "c": "6", "sheetQ": false}, {"name": "Труба хар Ø219×4 (6м)", "grp": "Труба хар", "unit": "м", "price": 64600, "a": "219", "b": "4", "c": "6", "sheetQ": false}, {"name": "Труба хар Ø219×4.5 (6м)", "grp": "Труба хар", "unit": "м", "price": 66500, "a": "219", "b": "4.5", "c": "6", "sheetQ": false}, {"name": "Труба хар Ø219×5 (6м)", "grp": "Труба хар", "unit": "м", "price": 71300, "a": "219", "b": "5", "c": "6", "sheetQ": false}, {"name": "Труба хар Ø219×6 (6м)", "grp": "Труба хар", "unit": "м", "price": 90300, "a": "219", "b": "6", "c": "6", "sheetQ": false}, {"name": "Труба хар Ø219×8 (12м)", "grp": "Труба хар", "unit": "м", "price": 118800, "a": "219", "b": "8", "c": "12", "sheetQ": false}, {"name": "Труба хар Ø273×8 (12м)", "grp": "Труба хар", "unit": "м", "price": 180500, "a": "273", "b": "8", "c": "12", "sheetQ": false}, {"name": "Труба хар Ø325×8 (12м)", "grp": "Труба хар", "unit": "м", "price": 225200, "a": "325", "b": "8", "c": "12", "sheetQ": false}, {"name": "Труба хар Ø325×10 (12м)", "grp": "Труба хар", "unit": "м", "price": 266000, "a": "325", "b": "10", "c": "12", "sheetQ": false}, {"name": "Труба хар Ø426×8 (12м)", "grp": "Труба хар", "unit": "м", "price": 285000, "a": "426", "b": "8", "c": "12", "sheetQ": false}, {"name": "Труба хар Ø530×8 (12м)", "grp": "Труба хар", "unit": "м", "price": 437000, "a": "530", "b": "8", "c": "12", "sheetQ": false}, {"name": "Труба хар Ø530×10 (12м)", "grp": "Труба хар", "unit": "м", "price": 522500, "a": "530", "b": "10", "c": "12", "sheetQ": false}, {"name": "Труба хар Ø630×10 (12м)", "grp": "Труба хар", "unit": "м", "price": 617500, "a": "630", "b": "10", "c": "12", "sheetQ": false}, {"name": "Труба хар Ø720×10 (12м)", "grp": "Труба хар", "unit": "м", "price": 684000, "a": "720", "b": "10", "c": "12", "sheetQ": false}, {"name": "Труба хар Ø820×12 (12м)", "grp": "Труба хар", "unit": "м", "price": 950000, "a": "820", "b": "12", "c": "12", "sheetQ": false}, {"name": "Труба хар Ø820×10 (12м)", "grp": "Труба хар", "unit": "м", "price": 760000, "a": "820", "b": "10", "c": "12", "sheetQ": false}, {"name": "Труба хар Ø1020×12 (12м)", "grp": "Труба хар", "unit": "м", "price": 1235000, "a": "1020", "b": "12", "c": "12", "sheetQ": false}, {"name": "Труба хар Ø1220×12 (12м)", "grp": "Труба хар", "unit": "м", "price": 1520000, "a": "1220", "b": "12", "c": "12", "sheetQ": false}, {"name": "Труба хар Ø10×1 (6м)", "grp": "Труба хар", "unit": "м", "price": 900, "a": "10", "b": "1", "c": "6", "sheetQ": false}, {"name": "Труба хар Ø15×2.2 (6м)", "grp": "Труба хар", "unit": "м", "price": 2800, "a": "15", "b": "2.2", "c": "6", "sheetQ": false}, {"name": "Труба хар Ø15×2.5 (6м)", "grp": "Труба хар", "unit": "м", "price": 3300, "a": "15", "b": "2.5", "c": "6", "sheetQ": false}, {"name": "Труба хар Ø15×3 (6м)", "grp": "Труба хар", "unit": "м", "price": 3400, "a": "15", "b": "3", "c": "6", "sheetQ": false}, {"name": "Труба хар Ø20×2 (6м)", "grp": "Труба хар", "unit": "м", "price": 3200, "a": "20", "b": "2", "c": "6", "sheetQ": false}, {"name": "Труба хар Ø20×2.5 (6м)", "grp": "Труба хар", "unit": "м", "price": 4650, "a": "20", "b": "2.5", "c": "6", "sheetQ": false}, {"name": "Труба хар Ø20×3 (6м)", "grp": "Труба хар", "unit": "м", "price": 4400, "a": "20", "b": "3", "c": "6", "sheetQ": false}, {"name": "Труба хар Ø25×2 (6м)", "grp": "Труба хар", "unit": "м", "price": 4400, "a": "25", "b": "2", "c": "6", "sheetQ": false}, {"name": "Труба хар Ø25×2.5 (6м)", "grp": "Труба хар", "unit": "м", "price": 5200, "a": "25", "b": "2.5", "c": "6", "sheetQ": false}, {"name": "Труба хар Ø25×3 (6м)", "grp": "Труба хар", "unit": "м", "price": 6100, "a": "25", "b": "3", "c": "6", "sheetQ": false}, {"name": "Труба хар Ø25×3.5 (6м)", "grp": "Труба хар", "unit": "м", "price": 6600, "a": "25", "b": "3.5", "c": "6", "sheetQ": false}, {"name": "Труба хар Ø32×2.5 (6м)", "grp": "Труба хар", "unit": "м", "price": 7000, "a": "32", "b": "2.5", "c": "6", "sheetQ": false}, {"name": "Труба хар Ø32×3 (6м)", "grp": "Труба хар", "unit": "м", "price": 7600, "a": "32", "b": "3", "c": "6", "sheetQ": false}, {"name": "Труба хар Ø32×3.5 (6м)", "grp": "Труба хар", "unit": "м", "price": 8500, "a": "32", "b": "3.5", "c": "6", "sheetQ": false}, {"name": "Труба хар Ø40×2.2 (6м)", "grp": "Труба хар", "unit": "м", "price": 7100, "a": "40", "b": "2.2", "c": "6", "sheetQ": false}, {"name": "Труба хар Ø40×2.5 (6м)", "grp": "Труба хар", "unit": "м", "price": 8100, "a": "40", "b": "2.5", "c": "6", "sheetQ": false}, {"name": "Труба хар Ø40×3 (6м)", "grp": "Труба хар", "unit": "м", "price": 8800, "a": "40", "b": "3", "c": "6", "sheetQ": false}, {"name": "Труба хар Ø40×3.5 (6м)", "grp": "Труба хар", "unit": "м", "price": 10500, "a": "40", "b": "3.5", "c": "6", "sheetQ": false}, {"name": "Труба хар Ø40×4 (6м)", "grp": "Труба хар", "unit": "м", "price": 11900, "a": "40", "b": "4", "c": "6", "sheetQ": false}, {"name": "Труба хар Ø50×2.5 (6м)", "grp": "Труба хар", "unit": "м", "price": 10000, "a": "50", "b": "2.5", "c": "6", "sheetQ": false}, {"name": "Труба хар Ø50×3 (6м)", "grp": "Труба хар", "unit": "м", "price": 11900, "a": "50", "b": "3", "c": "6", "sheetQ": false}, {"name": "Труба хар Ø50×3.5 (6м)", "grp": "Труба хар", "unit": "м", "price": 13500, "a": "50", "b": "3.5", "c": "6", "sheetQ": false}, {"name": "Труба хар Ø50×4 (6м)", "grp": "Труба хар", "unit": "м", "price": 15200, "a": "50", "b": "4", "c": "6", "sheetQ": false}, {"name": "Труба хар Ø76×3 (6м)", "grp": "Труба хар", "unit": "м", "price": 14300, "a": "76", "b": "3", "c": "6", "sheetQ": false}, {"name": "Труба хар Ø76×3.5 (6м)", "grp": "Труба хар", "unit": "м", "price": 16600, "a": "76", "b": "3.5", "c": "6", "sheetQ": false}, {"name": "Труба хар Ø76×4 (6м)", "grp": "Труба хар", "unit": "м", "price": 19000, "a": "76", "b": "4", "c": "6", "sheetQ": false}, {"name": "Труба хар Ø76×5 (6м)", "grp": "Труба хар", "unit": "м", "price": 23300, "a": "76", "b": "5", "c": "6", "sheetQ": false}, {"name": "Труба хар Ø89×3 (6м)", "grp": "Труба хар", "unit": "м", "price": 17100, "a": "89", "b": "3", "c": "6", "sheetQ": false}, {"name": "Труба хар Ø89×3.5 (6м)", "grp": "Труба хар", "unit": "м", "price": 20000, "a": "89", "b": "3.5", "c": "6", "sheetQ": false}, {"name": "Труба хар Ø89×4 (6м)", "grp": "Труба хар", "unit": "м", "price": 22300, "a": "89", "b": "4", "c": "6", "sheetQ": false}, {"name": "Труба хар Ø89×4.5 (6м)", "grp": "Труба хар", "unit": "м", "price": 28500, "a": "89", "b": "4.5", "c": "6", "sheetQ": false}, {"name": "Труба хар Ø89×5 (6м)", "grp": "Труба хар", "unit": "м", "price": 31800, "a": "89", "b": "5", "c": "6", "sheetQ": false}, {"name": "Труба хар Ø100×2.5 (6м)", "grp": "Труба хар", "unit": "м", "price": 19000, "a": "100", "b": "2.5", "c": "6", "sheetQ": false}, {"name": "Труба хар Ø100×3 (6м)", "grp": "Труба хар", "unit": "м", "price": 21900, "a": "100", "b": "3", "c": "6", "sheetQ": false}, {"name": "Труба хар Ø100×3.5 (6м)", "grp": "Труба хар", "unit": "м", "price": 25700, "a": "100", "b": "3.5", "c": "6", "sheetQ": false}, {"name": "Труба хар Ø100×4 (6м)", "grp": "Труба хар", "unit": "м", "price": 29000, "a": "100", "b": "4", "c": "6", "sheetQ": false}, {"name": "Труба хар Ø100×4.5 (6м)", "grp": "Труба хар", "unit": "м", "price": 36000, "a": "100", "b": "4.5", "c": "6", "sheetQ": false}, {"name": "Труба хар Ø100×5 (6м)", "grp": "Труба хар", "unit": "м", "price": 37100, "a": "100", "b": "5", "c": "6", "sheetQ": false}, {"name": "Труба хар Ø133×3 (6м)", "grp": "Труба хар", "unit": "м", "price": 28500, "a": "133", "b": "3", "c": "6", "sheetQ": false}, {"name": "Труба хар Ø133×3.5 (6м)", "grp": "Труба хар", "unit": "м", "price": 31800, "a": "133", "b": "3.5", "c": "6", "sheetQ": false}, {"name": "Труба хар Ø133×4 (6м)", "grp": "Труба хар", "unit": "м", "price": 38700, "a": "133", "b": "4", "c": "6", "sheetQ": false}, {"name": "Труба хар орос Ø15×2.8 (8.14м)", "grp": "Труба хар орос", "unit": "м", "price": 6000, "a": "15", "b": "2.8", "c": "8.14", "sheetQ": false}, {"name": "Труба хар орос Ø20×2.8 (8.18м)", "grp": "Труба хар орос", "unit": "м", "price": 7800, "a": "20", "b": "2.8", "c": "8.18", "sheetQ": false}, {"name": "Труба хар орос Ø25×3.2 (7.73м)", "grp": "Труба хар орос", "unit": "м", "price": 11000, "a": "25", "b": "3.2", "c": "7.73", "sheetQ": false}, {"name": "Труба хар орос Ø32×3.2 (6.05м)", "grp": "Труба хар орос", "unit": "м", "price": 14500, "a": "32", "b": "3.2", "c": "6.05", "sheetQ": false}, {"name": "Труба хар орос Ø40×3.5 (9.43м)", "grp": "Труба хар орос", "unit": "м", "price": 17500, "a": "40", "b": "3.5", "c": "9.43", "sheetQ": false}, {"name": "Труба хар орос Ø57×3.5 (9.43м)", "grp": "Труба хар орос", "unit": "м", "price": 21000, "a": "57", "b": "3.5", "c": "9.43", "sheetQ": false}, {"name": "Труба хар орос Ø76×3.5 (11.64м)", "grp": "Труба хар орос", "unit": "м", "price": 28000, "a": "76", "b": "3.5", "c": "11.64", "sheetQ": false}, {"name": "Труба хар орос Ø89×3.5 (11.64м)", "grp": "Труба хар орос", "unit": "м", "price": 33000, "a": "89", "b": "3.5", "c": "11.64", "sheetQ": false}, {"name": "Труба хар орос Ø108×4 (11.64м)", "grp": "Труба хар орос", "unit": "м", "price": 47000, "a": "108", "b": "4", "c": "11.64", "sheetQ": false}, {"name": "Труба хар хуйлаатай Ø325×8 (12м)", "grp": "Труба хар хуйлаатай", "unit": "м", "price": 198000, "a": "325", "b": "8", "c": "12", "sheetQ": false}, {"name": "Труба хар хуйлаатай Ø273×8 (12м)", "grp": "Труба хар хуйлаатай", "unit": "м", "price": 165000, "a": "273", "b": "8", "c": "12", "sheetQ": false}, {"name": "Труба хар хуйлаатай Ø219×8 (12м)", "grp": "Труба хар хуйлаатай", "unit": "м", "price": 116000, "a": "219", "b": "8", "c": "12", "sheetQ": false}, {"name": "Труба цагаан Ø15×1.8 (6м)", "grp": "Труба цагаан", "unit": "м", "price": 2900, "a": "15", "b": "1.8", "c": "6", "sheetQ": false}, {"name": "Труба цагаан Ø15×2.3 (6м)", "grp": "Труба цагаан", "unit": "м", "price": 3000, "a": "15", "b": "2.3", "c": "6", "sheetQ": false}, {"name": "Труба цагаан Ø15×2.5 (6м)", "grp": "Труба цагаан", "unit": "м", "price": 3600, "a": "15", "b": "2.5", "c": "6", "sheetQ": false}, {"name": "Труба цагаан Ø15×3 (6м)", "grp": "Труба цагаан", "unit": "м", "price": 3900, "a": "15", "b": "3", "c": "6", "sheetQ": false}, {"name": "Труба цагаан Ø20×1.8 (6м)", "grp": "Труба цагаан", "unit": "м", "price": 3600, "a": "20", "b": "1.8", "c": "6", "sheetQ": false}, {"name": "Труба цагаан Ø20×2 (6м)", "grp": "Труба цагаан", "unit": "м", "price": 3800, "a": "20", "b": "2", "c": "6", "sheetQ": false}, {"name": "Труба цагаан Ø20×2.5 (6м)", "grp": "Труба цагаан", "unit": "м", "price": 4500, "a": "20", "b": "2.5", "c": "6", "sheetQ": false}, {"name": "Труба цагаан Ø20×3 (6м)", "grp": "Труба цагаан", "unit": "м", "price": 5200, "a": "20", "b": "3", "c": "6", "sheetQ": false}, {"name": "Труба цагаан Ø25×2.5 (6м)", "grp": "Труба цагаан", "unit": "м", "price": 5700, "a": "25", "b": "2.5", "c": "6", "sheetQ": false}, {"name": "Труба цагаан Ø25×3 (6м)", "grp": "Труба цагаан", "unit": "м", "price": 6500, "a": "25", "b": "3", "c": "6", "sheetQ": false}, {"name": "Труба цагаан Ø25×3.5 (6м)", "grp": "Труба цагаан", "unit": "м", "price": 7700, "a": "25", "b": "3.5", "c": "6", "sheetQ": false}, {"name": "Труба цагаан Ø32×2.5 (6м)", "grp": "Труба цагаан", "unit": "м", "price": 7400, "a": "32", "b": "2.5", "c": "6", "sheetQ": false}, {"name": "Труба цагаан Ø32×3 (6м)", "grp": "Труба цагаан", "unit": "м", "price": 8400, "a": "32", "b": "3", "c": "6", "sheetQ": false}, {"name": "Труба цагаан Ø32×3.5 (6м)", "grp": "Труба цагаан", "unit": "м", "price": 9700, "a": "32", "b": "3.5", "c": "6", "sheetQ": false}, {"name": "Труба цагаан Ø40×3 (6м)", "grp": "Труба цагаан", "unit": "м", "price": 9200, "a": "40", "b": "3", "c": "6", "sheetQ": false}, {"name": "Труба цагаан Ø40×3.5 (6м)", "grp": "Труба цагаан", "unit": "м", "price": 12000, "a": "40", "b": "3.5", "c": "6", "sheetQ": false}, {"name": "Труба цагаан Ø50×3 (6м)", "grp": "Труба цагаан", "unit": "м", "price": 12100, "a": "50", "b": "3", "c": "6", "sheetQ": false}, {"name": "Труба цагаан Ø50×3.5 (6м)", "grp": "Труба цагаан", "unit": "м", "price": 15000, "a": "50", "b": "3.5", "c": "6", "sheetQ": false}, {"name": "Труба цагаан Ø50×4 (6м)", "grp": "Труба цагаан", "unit": "м", "price": 17600, "a": "50", "b": "4", "c": "6", "sheetQ": false}, {"name": "Труба цагаан Ø76×3 (6м)", "grp": "Труба цагаан", "unit": "м", "price": 17100, "a": "76", "b": "3", "c": "6", "sheetQ": false}, {"name": "Труба цагаан Ø76×3.5 (6м)", "grp": "Труба цагаан", "unit": "м", "price": 21000, "a": "76", "b": "3.5", "c": "6", "sheetQ": false}, {"name": "Труба цагаан Ø76×4 (6м)", "grp": "Труба цагаан", "unit": "м", "price": 23500, "a": "76", "b": "4", "c": "6", "sheetQ": false}, {"name": "Труба цагаан Ø89×3 (6м)", "grp": "Труба цагаан", "unit": "м", "price": 20400, "a": "89", "b": "3", "c": "6", "sheetQ": false}, {"name": "Труба цагаан Ø89×3.5 (6м)", "grp": "Труба цагаан", "unit": "м", "price": 22800, "a": "89", "b": "3.5", "c": "6", "sheetQ": false}, {"name": "Труба цагаан Ø89×4 (6м)", "grp": "Труба цагаан", "unit": "м", "price": 25000, "a": "89", "b": "4", "c": "6", "sheetQ": false}, {"name": "Труба цагаан Ø100×3 (6м)", "grp": "Труба цагаан", "unit": "м", "price": 23500, "a": "100", "b": "3", "c": "6", "sheetQ": false}, {"name": "Труба цагаан Ø100×3.5 (6м)", "grp": "Труба цагаан", "unit": "м", "price": 26300, "a": "100", "b": "3.5", "c": "6", "sheetQ": false}, {"name": "Труба цагаан Ø100×4 (6м)", "grp": "Труба цагаан", "unit": "м", "price": 32500, "a": "100", "b": "4", "c": "6", "sheetQ": false}, {"name": "Труба цагаан Ø133×3 (6м)", "grp": "Труба цагаан", "unit": "м", "price": 29500, "a": "133", "b": "3", "c": "6", "sheetQ": false}, {"name": "Труба цагаан Ø133×3.5 (6м)", "grp": "Труба цагаан", "unit": "м", "price": 33300, "a": "133", "b": "3.5", "c": "6", "sheetQ": false}, {"name": "Труба цагаан Ø133×4 (6м)", "grp": "Труба цагаан", "unit": "м", "price": 40000, "a": "133", "b": "4", "c": "6", "sheetQ": false}, {"name": "Труба цагаан Ø159×3 (6м)", "grp": "Труба цагаан", "unit": "м", "price": 36900, "a": "159", "b": "3", "c": "6", "sheetQ": false}, {"name": "Труба цагаан Ø159×3.5 (6м)", "grp": "Труба цагаан", "unit": "м", "price": 42800, "a": "159", "b": "3.5", "c": "6", "sheetQ": false}, {"name": "Труба цагаан Ø159×4 (6м)", "grp": "Труба цагаан", "unit": "м", "price": 48000, "a": "159", "b": "4", "c": "6", "sheetQ": false}, {"name": "Труба цагаан Ø219×3 (6м)", "grp": "Труба цагаан", "unit": "м", "price": 57000, "a": "219", "b": "3", "c": "6", "sheetQ": false}, {"name": "Труба цагаан Ø219×4 (6м)", "grp": "Труба цагаан", "unit": "м", "price": 68400, "a": "219", "b": "4", "c": "6", "sheetQ": false}, {"name": "Труба цагаан Ø219×5 (6м)", "grp": "Труба цагаан", "unit": "м", "price": 85500, "a": "219", "b": "5", "c": "6", "sheetQ": false}, {"name": "Труба цагаан Ø219×6 (6м)", "grp": "Труба цагаан", "unit": "м", "price": 104500, "a": "219", "b": "6", "c": "6", "sheetQ": false}, {"name": "Труба цагаан Ø273×8 (12м)", "grp": "Труба цагаан", "unit": "м", "price": 218500, "a": "273", "b": "8", "c": "12", "sheetQ": false}, {"name": "Труба цагаан Ø325×8 (12м)", "grp": "Труба цагаан", "unit": "м", "price": 232800, "a": "325", "b": "8", "c": "12", "sheetQ": false}, {"name": "Труба цагаан Ø426×8 (12м)", "grp": "Труба цагаан", "unit": "м", "price": 346800, "a": "426", "b": "8", "c": "12", "sheetQ": false}, {"name": "Труба цагаан Ø530×8 (12м)", "grp": "Труба цагаан", "unit": "м", "price": 475000, "a": "530", "b": "8", "c": "12", "sheetQ": false}, {"name": "Труба цагаан Ø630×10 (12м)", "grp": "Труба цагаан", "unit": "м", "price": 665000, "a": "630", "b": "10", "c": "12", "sheetQ": false}, {"name": "Квадрат цагаан 20×20×1.2 (6м)", "grp": "Квадрат цагаан", "unit": "м", "price": 2400, "a": "20*20", "b": "1.2", "c": "", "sheetQ": false}, {"name": "Квадрат цагаан 20×20×2 (6м)", "grp": "Квадрат цагаан", "unit": "м", "price": 4200, "a": "20*20", "b": "2", "c": "", "sheetQ": false}, {"name": "Квадрат цагаан 30×30×2 (6м)", "grp": "Квадрат цагаан", "unit": "м", "price": 5600, "a": "30*30", "b": "2", "c": "", "sheetQ": false}, {"name": "Квадрат цагаан 20×40×1.2 (6м)", "grp": "Квадрат цагаан", "unit": "м", "price": 3700, "a": "20*40", "b": "1.2", "c": "", "sheetQ": false}, {"name": "Квадрат цагаан 20×40 цул×1.5 (6м)", "grp": "Квадрат цагаан", "unit": "м", "price": 4400, "a": "20*40-цул", "b": "1.5", "c": "", "sheetQ": false}, {"name": "Квадрат цагаан 20×40 цайр×1.5 (6м)", "grp": "Квадрат цагаан", "unit": "м", "price": 4200, "a": "20*40-цайр", "b": "1.5", "c": "", "sheetQ": false}, {"name": "Квадрат цагаан 20×40 цул×2 (6м)", "grp": "Квадрат цагаан", "unit": "м", "price": 6100, "a": "20*40-цул", "b": "2", "c": "", "sheetQ": false}, {"name": "Квадрат цагаан 20×40 цайр×2 (6м)", "grp": "Квадрат цагаан", "unit": "м", "price": 5800, "a": "20*40-цайр", "b": "2", "c": "", "sheetQ": false}, {"name": "Квадрат цагаан 25×25×1.5 (6м)", "grp": "Квадрат цагаан", "unit": "м", "price": 4400, "a": "25*25", "b": "1.5", "c": "", "sheetQ": false}, {"name": "Квадрат цагаан 40×40×1.5 (6м)", "grp": "Квадрат цагаан", "unit": "м", "price": 6000, "a": "40*40", "b": "1.5", "c": "", "sheetQ": false}, {"name": "Квадрат цагаан 40×40×2 (6м)", "grp": "Квадрат цагаан", "unit": "м", "price": 7500, "a": "40*40", "b": "2", "c": "", "sheetQ": false}, {"name": "Квадрат цагаан 40×40×4 (6м)", "grp": "Квадрат цагаан", "unit": "м", "price": 15200, "a": "40*40", "b": "4", "c": "", "sheetQ": false}, {"name": "Квадрат цагаан 45×45×2 (6м)", "grp": "Квадрат цагаан", "unit": "м", "price": 8700, "a": "45*45", "b": "2", "c": "", "sheetQ": false}, {"name": "Квадрат цагаан 50×30×1.5 (6м)", "grp": "Квадрат цагаан", "unit": "м", "price": 6600, "a": "50*30", "b": "1.5", "c": "", "sheetQ": false}, {"name": "Квадрат цагаан 50×30 цул×2 (6м)", "grp": "Квадрат цагаан", "unit": "м", "price": 8300, "a": "50*30-цул", "b": "2", "c": "", "sheetQ": false}, {"name": "Квадрат цагаан 50×30 цул×2.5 (6м)", "grp": "Квадрат цагаан", "unit": "м", "price": 9700, "a": "50*30-цул", "b": "2.5", "c": "", "sheetQ": false}, {"name": "Квадрат цагаан 50×30 цайр×2.5 (6м)", "grp": "Квадрат цагаан", "unit": "м", "price": 9500, "a": "50*30-цайр", "b": "2.5", "c": "", "sheetQ": false}, {"name": "Квадрат цагаан 50×50 цул×2 (6м)", "grp": "Квадрат цагаан", "unit": "м", "price": 9300, "a": "50*50-цул", "b": "2", "c": "", "sheetQ": false}, {"name": "Квадрат цагаан 50×50 цайр×2 (6м)", "grp": "Квадрат цагаан", "unit": "м", "price": 8800, "a": "50*50-цайр", "b": "2", "c": "", "sheetQ": false}, {"name": "Квадрат цагаан 50×50 цул×2.5 (6м)", "grp": "Квадрат цагаан", "unit": "м", "price": 11000, "a": "50*50-цул", "b": "2.5", "c": "", "sheetQ": false}, {"name": "Квадрат цагаан 50×50 цайр×2.5 (6м)", "grp": "Квадрат цагаан", "unit": "м", "price": 10600, "a": "50*50-цайр", "b": "2.5", "c": "", "sheetQ": false}, {"name": "Квадрат цагаан 50×50×4 (6м)", "grp": "Квадрат цагаан", "unit": "м", "price": 19100, "a": "50*50", "b": "4", "c": "", "sheetQ": false}, {"name": "Квадрат цагаан 60×40×1.5 (6м)", "grp": "Квадрат цагаан", "unit": "м", "price": 8000, "a": "60*40", "b": "1.5", "c": "", "sheetQ": false}, {"name": "Квадрат цагаан 60×40×2 (6м)", "grp": "Квадрат цагаан", "unit": "м", "price": 9600, "a": "60*40", "b": "2", "c": "", "sheetQ": false}, {"name": "Квадрат цагаан 60×40×2.5 (6м)", "grp": "Квадрат цагаан", "unit": "м", "price": 10600, "a": "60*40", "b": "2.5", "c": "", "sheetQ": false}, {"name": "Квадрат цагаан 60×60×2 (6м)", "grp": "Квадрат цагаан", "unit": "м", "price": 13900, "a": "60*60", "b": "2", "c": "", "sheetQ": false}, {"name": "Квадрат цагаан 80×40×2 (6м)", "grp": "Квадрат цагаан", "unit": "м", "price": 13700, "a": "80*40", "b": "2", "c": "", "sheetQ": false}, {"name": "Квадрат цагаан 80×60×2.5 (6м)", "grp": "Квадрат цагаан", "unit": "м", "price": 16500, "a": "80*60", "b": "2.5", "c": "", "sheetQ": false}, {"name": "Квадрат цагаан 80×80×2 (6м)", "grp": "Квадрат цагаан", "unit": "м", "price": 18200, "a": "80*80", "b": "2", "c": "", "sheetQ": false}, {"name": "Квадрат цагаан 80×80×3 (6м)", "grp": "Квадрат цагаан", "unit": "м", "price": 25100, "a": "80*80", "b": "3", "c": "", "sheetQ": false}, {"name": "Квадрат цагаан 100×50×2 (6м)", "grp": "Квадрат цагаан", "unit": "м", "price": 16000, "a": "100*50", "b": "2", "c": "", "sheetQ": false}, {"name": "Квадрат цагаан 100×50×3 (6м)", "grp": "Квадрат цагаан", "unit": "м", "price": 20800, "a": "100*50", "b": "3", "c": "", "sheetQ": false}, {"name": "Квадрат цагаан 100×100×2 (6м)", "grp": "Квадрат цагаан", "unit": "м", "price": 22500, "a": "100*100", "b": "2", "c": "", "sheetQ": false}, {"name": "Квадрат цагаан 100×100×3 (6м)", "grp": "Квадрат цагаан", "unit": "м", "price": 27500, "a": "100*100", "b": "3", "c": "", "sheetQ": false}, {"name": "Квадрат цагаан 100×100×4 (6м)", "grp": "Квадрат цагаан", "unit": "м", "price": 32900, "a": "100*100", "b": "4", "c": "", "sheetQ": false}, {"name": "Квадрат цагаан 200×200×8 (6м)", "grp": "Квадрат цагаан", "unit": "м", "price": 170000, "a": "200*200", "b": "8", "c": "", "sheetQ": false}, {"name": "Квадрат хар 80×40×1.3 (6м)", "grp": "Квадрат хар", "unit": "м", "price": 6800, "a": "80*40", "b": "1.3", "c": "", "sheetQ": false}, {"name": "Квадрат хар 80×40×1.5 (6м)", "grp": "Квадрат хар", "unit": "м", "price": 7000, "a": "80*40", "b": "1.5", "c": "", "sheetQ": false}, {"name": "Квадрат хар 80×40×1.7 (6м)", "grp": "Квадрат хар", "unit": "м", "price": 8700, "a": "80*40", "b": "1.7", "c": "", "sheetQ": false}, {"name": "Квадрат хар 80×40×2 (6м)", "grp": "Квадрат хар", "unit": "м", "price": 9800, "a": "80*40", "b": "2", "c": "", "sheetQ": false}, {"name": "Квадрат хар 80×40×2.2 (6м)", "grp": "Квадрат хар", "unit": "м", "price": 11900, "a": "80*40", "b": "2.2", "c": "", "sheetQ": false}, {"name": "Квадрат хар 80×40×2.5 (6м)", "grp": "Квадрат хар", "unit": "м", "price": 12900, "a": "80*40", "b": "2.5", "c": "", "sheetQ": false}, {"name": "Квадрат хар 80×40×3 (6м)", "grp": "Квадрат хар", "unit": "м", "price": 14100, "a": "80*40", "b": "3", "c": "", "sheetQ": false}, {"name": "Квадрат хар 80×40×3.5 (6м)", "grp": "Квадрат хар", "unit": "м", "price": 16700, "a": "80*40", "b": "3.5", "c": "", "sheetQ": false}, {"name": "Квадрат хар 80×40×4 (6м)", "grp": "Квадрат хар", "unit": "м", "price": 20400, "a": "80*40", "b": "4", "c": "", "sheetQ": false}, {"name": "Квадрат хар 80×60×2 (6м)", "grp": "Квадрат хар", "unit": "м", "price": 12500, "a": "80*60", "b": "2", "c": "", "sheetQ": false}, {"name": "Квадрат хар 80×60×2.2 (6м)", "grp": "Квадрат хар", "unit": "м", "price": 15000, "a": "80*60", "b": "2.2", "c": "", "sheetQ": false}, {"name": "Квадрат хар 80×60×4 (6м)", "grp": "Квадрат хар", "unit": "м", "price": 20700, "a": "80*60", "b": "4", "c": "", "sheetQ": false}, {"name": "Квадрат хар 80×80×1.5 (6м)", "grp": "Квадрат хар", "unit": "м", "price": 10500, "a": "80*80", "b": "1.5", "c": "", "sheetQ": false}, {"name": "Квадрат хар 80×80×1.7 (6м)", "grp": "Квадрат хар", "unit": "м", "price": 13000, "a": "80*80", "b": "1.7", "c": "", "sheetQ": false}, {"name": "Квадрат хар 80×80×2 (6м)", "grp": "Квадрат хар", "unit": "м", "price": 14200, "a": "80*80", "b": "2", "c": "", "sheetQ": false}, {"name": "Квадрат хар 80×80×2.2 (6м)", "grp": "Квадрат хар", "unit": "м", "price": 15000, "a": "80*80", "b": "2.2", "c": "", "sheetQ": false}, {"name": "Квадрат хар 80×80×2.5 (6м)", "grp": "Квадрат хар", "unit": "м", "price": 16900, "a": "80*80", "b": "2.5", "c": "", "sheetQ": false}, {"name": "Квадрат хар 80×80×3 (6м)", "grp": "Квадрат хар", "unit": "м", "price": 19700, "a": "80*80", "b": "3", "c": "", "sheetQ": false}, {"name": "Квадрат хар 80×80×4 (6м)", "grp": "Квадрат хар", "unit": "м", "price": 25900, "a": "80*80", "b": "4", "c": "", "sheetQ": false}, {"name": "Квадрат хар 80×80×6 (6м)", "grp": "Квадрат хар", "unit": "м", "price": 35300, "a": "80*80", "b": "6", "c": "", "sheetQ": false}, {"name": "Квадрат хар 100×50×1.3 (6м)", "grp": "Квадрат хар", "unit": "м", "price": 8500, "a": "100*50", "b": "1.3", "c": "", "sheetQ": false}, {"name": "Квадрат хар 100×50×1.5 (6м)", "grp": "Квадрат хар", "unit": "м", "price": 9200, "a": "100*50", "b": "1.5", "c": "", "sheetQ": false}, {"name": "Квадрат хар 100×50×1.8 (6м)", "grp": "Квадрат хар", "unit": "м", "price": 10600, "a": "100*50", "b": "1.8", "c": "", "sheetQ": false}, {"name": "Квадрат хар 100×50×2 (6м)", "grp": "Квадрат хар", "unit": "м", "price": 12000, "a": "100*50", "b": "2", "c": "", "sheetQ": false}, {"name": "Квадрат хар 100×50×2.5 (6м)", "grp": "Квадрат хар", "unit": "м", "price": 15200, "a": "100*50", "b": "2.5", "c": "", "sheetQ": false}, {"name": "Квадрат хар 100×50×3 (6м)", "grp": "Квадрат хар", "unit": "м", "price": 16500, "a": "100*50", "b": "3", "c": "", "sheetQ": false}, {"name": "Квадрат хар 100×50×3.5 (6м)", "grp": "Квадрат хар", "unit": "м", "price": 19500, "a": "100*50", "b": "3.5", "c": "", "sheetQ": false}, {"name": "Квадрат хар 100×50×4 (6м)", "grp": "Квадрат хар", "unit": "м", "price": 21900, "a": "100*50", "b": "4", "c": "", "sheetQ": false}, {"name": "Квадрат хар 100×50×5 (6м)", "grp": "Квадрат хар", "unit": "м", "price": 27800, "a": "100*50", "b": "5", "c": "", "sheetQ": false}, {"name": "Квадрат хар 100×100×1.5 (6м)", "grp": "Квадрат хар", "unit": "м", "price": 13500, "a": "100*100", "b": "1.5", "c": "", "sheetQ": false}, {"name": "Квадрат хар 100×100×1.8 (6м)", "grp": "Квадрат хар", "unit": "м", "price": 14700, "a": "100*100", "b": "1.8", "c": "", "sheetQ": false}, {"name": "Квадрат хар 100×100×2 (6м)", "grp": "Квадрат хар", "unit": "м", "price": 16000, "a": "100*100", "b": "2", "c": "", "sheetQ": false}, {"name": "Квадрат хар 100×100×2.2 (6м)", "grp": "Квадрат хар", "unit": "м", "price": 18100, "a": "100*100", "b": "2.2", "c": "", "sheetQ": false}, {"name": "Квадрат хар 100×100×2.5 (6м)", "grp": "Квадрат хар", "unit": "м", "price": 20000, "a": "100*100", "b": "2.5", "c": "", "sheetQ": false}, {"name": "Квадрат хар 100×100×3 (6м)", "grp": "Квадрат хар", "unit": "м", "price": 25000, "a": "100*100", "b": "3", "c": "", "sheetQ": false}, {"name": "Квадрат хар 100×100×3.5 (6м)", "grp": "Квадрат хар", "unit": "м", "price": 30100, "a": "100*100", "b": "3.5", "c": "", "sheetQ": false}, {"name": "Квадрат хар 100×100×4 (6м)", "grp": "Квадрат хар", "unit": "м", "price": 31900, "a": "100*100", "b": "4", "c": "", "sheetQ": false}, {"name": "Квадрат хар 100×100×6 (6м)", "grp": "Квадрат хар", "unit": "м", "price": 51200, "a": "100*100", "b": "6", "c": "", "sheetQ": false}, {"name": "Квадрат хар 100×150×2.5 (6м)", "grp": "Квадрат хар", "unit": "м", "price": 26600, "a": "100*150", "b": "2.5", "c": "", "sheetQ": false}, {"name": "Квадрат хар 100×150×3 (6м)", "grp": "Квадрат хар", "unit": "м", "price": 32100, "a": "100*150", "b": "3", "c": "", "sheetQ": false}, {"name": "Квадрат хар 100×150×4 (6м)", "grp": "Квадрат хар", "unit": "м", "price": 41000, "a": "100*150", "b": "4", "c": "", "sheetQ": false}, {"name": "Квадрат хар 100×150×5 (6м)", "grp": "Квадрат хар", "unit": "м", "price": 61900, "a": "100*150", "b": "5", "c": "", "sheetQ": false}, {"name": "Квадрат хар 120×80×4 (6м)", "grp": "Квадрат хар", "unit": "м", "price": 35400, "a": "120*80", "b": "4", "c": "", "sheetQ": false}, {"name": "Квадрат хар 120×120×2 (6м)", "grp": "Квадрат хар", "unit": "м", "price": 27400, "a": "120*120", "b": "2", "c": "", "sheetQ": false}, {"name": "Квадрат хар 120×120×2.5 (6м)", "grp": "Квадрат хар", "unit": "м", "price": 30100, "a": "120*120", "b": "2.5", "c": "", "sheetQ": false}, {"name": "Квадрат хар 120×120×3 (6м)", "grp": "Квадрат хар", "unit": "м", "price": 31900, "a": "120*120", "b": "3", "c": "", "sheetQ": false}, {"name": "Квадрат хар 120×120×4 (6м)", "grp": "Квадрат хар", "unit": "м", "price": 34000, "a": "120*120", "b": "4", "c": "", "sheetQ": false}, {"name": "Квадрат хар 150×150×2 (6м)", "grp": "Квадрат хар", "unit": "м", "price": 30100, "a": "150*150", "b": "2", "c": "", "sheetQ": false}, {"name": "Квадрат хар 150×150×2.5 (6м)", "grp": "Квадрат хар", "unit": "м", "price": 38100, "a": "150*150", "b": "2.5", "c": "", "sheetQ": false}, {"name": "Квадрат хар 150×150×3 (6м)", "grp": "Квадрат хар", "unit": "м", "price": 39900, "a": "150*150", "b": "3", "c": "", "sheetQ": false}, {"name": "Квадрат хар 150×150×4 (6м)", "grp": "Квадрат хар", "unit": "м", "price": 49800, "a": "150*150", "b": "4", "c": "", "sheetQ": false}, {"name": "Квадрат хар 150×150×5 (6м)", "grp": "Квадрат хар", "unit": "м", "price": 70800, "a": "150*150", "b": "5", "c": "", "sheetQ": false}, {"name": "Квадрат хар 200×100×8 (6м)", "grp": "Квадрат хар", "unit": "м", "price": 100600, "a": "200*100", "b": "8", "c": "", "sheetQ": false}, {"name": "Квадрат хар 200×200×6 (6м)", "grp": "Квадрат хар", "unit": "м", "price": 85400, "a": "200*200", "b": "6", "c": "", "sheetQ": false}, {"name": "Квадрат хар 200×200×8 (6м)", "grp": "Квадрат хар", "unit": "м", "price": 159100, "a": "200*200", "b": "8", "c": "", "sheetQ": false}, {"name": "Квадрат хар 200×150×6 (6м)", "grp": "Квадрат хар", "unit": "м", "price": 115000, "a": "200*150", "b": "6", "c": "", "sheetQ": false}, {"name": "Квадрат хар 250×150×10 (6м)", "grp": "Квадрат хар", "unit": "м", "price": 160000, "a": "250*150", "b": "10", "c": "", "sheetQ": false}, {"name": "Квадрат хар 250×250×10 (6м)", "grp": "Квадрат хар", "unit": "м", "price": 212200, "a": "250*250", "b": "10", "c": "", "sheetQ": false}, {"name": "Арматур HRB400E Ø10 (тн)", "grp": "Арматур HRB400E", "unit": "тн", "price": 2300000, "a": "10", "b": "тн", "c": "", "sheetQ": false}, {"name": "Арматур HRB400E Ø10 (боодол)", "grp": "Арматур HRB400E", "unit": "тн", "price": 2250000, "a": "10", "b": "боодол", "c": "", "sheetQ": false}, {"name": "Арматур HRB400E Ø12 (тн)", "grp": "Арматур HRB400E", "unit": "тн", "price": 2150000, "a": "12", "b": "тн", "c": "", "sheetQ": false}, {"name": "Арматур HRB400E Ø14 (тн)", "grp": "Арматур HRB400E", "unit": "тн", "price": 2150000, "a": "14", "b": "тн", "c": "", "sheetQ": false}, {"name": "Арматур HRB400E Ø16 (тн)", "grp": "Арматур HRB400E", "unit": "тн", "price": 2080000, "a": "16", "b": "тн", "c": "", "sheetQ": false}, {"name": "Арматур HRB400E Ø18 (тн)", "grp": "Арматур HRB400E", "unit": "тн", "price": 2080000, "a": "18", "b": "тн", "c": "", "sheetQ": false}, {"name": "Арматур HRB400E Ø20 (тн)", "grp": "Арматур HRB400E", "unit": "тн", "price": 2080000, "a": "20", "b": "тн", "c": "", "sheetQ": false}, {"name": "Арматур HRB400E Ø22 (тн)", "grp": "Арматур HRB400E", "unit": "тн", "price": 2080000, "a": "22", "b": "тн", "c": "", "sheetQ": false}, {"name": "Арматур HRB400E Ø25 (тн)", "grp": "Арматур HRB400E", "unit": "тн", "price": 2080000, "a": "25", "b": "тн", "c": "", "sheetQ": false}, {"name": "Арматур HRB400E Ø28 (тн)", "grp": "Арматур HRB400E", "unit": "тн", "price": 2080000, "a": "28", "b": "тн", "c": "", "sheetQ": false}, {"name": "Арматур HRB400E Ø32 (тн)", "grp": "Арматур HRB400E", "unit": "тн", "price": 2080000, "a": "32", "b": "тн", "c": "", "sheetQ": false}, {"name": "Катанги HRB400E Ø6 (боодол)", "grp": "Катанги HRB400E", "unit": "тн", "price": 2250000, "a": "6", "b": "", "c": "", "sheetQ": false}, {"name": "Катанги HRB400E Ø8 (боодол)", "grp": "Катанги HRB400E", "unit": "тн", "price": 2250000, "a": "8", "b": "", "c": "", "sheetQ": false}, {"name": "Катанги HRB400E Ø10 (боодол)", "grp": "Катанги HRB400E", "unit": "тн", "price": 2250000, "a": "10", "b": "", "c": "", "sheetQ": false}, {"name": "Лист хар 0.8мм 1×2", "grp": "Лист хар", "unit": "м²", "price": 16500, "a": "0.8", "b": "1*2", "c": "", "sheetQ": false}, {"name": "Лист хар 1мм 1×2", "grp": "Лист хар", "unit": "м²", "price": 20500, "a": "1", "b": "1*2", "c": "", "sheetQ": false}, {"name": "Лист хар 1.5мм 1×2", "grp": "Лист хар", "unit": "м²", "price": 31300, "a": "1.5", "b": "1*2", "c": "", "sheetQ": false}, {"name": "Лист хар 1.5мм 1.25×5", "grp": "Лист хар", "unit": "м²", "price": 31300, "a": "1.5", "b": "1.25*5", "c": "", "sheetQ": false}, {"name": "Лист хар 2мм 1×2", "grp": "Лист хар", "unit": "м²", "price": 42000, "a": "2", "b": "1*2", "c": "", "sheetQ": false}, {"name": "Лист хар 2мм 1.25×5", "grp": "Лист хар", "unit": "м²", "price": 42000, "a": "2", "b": "1.25*5", "c": "", "sheetQ": false}, {"name": "Лист хар 2.5мм 1.25×5", "grp": "Лист хар", "unit": "м²", "price": 51700, "a": "2.5", "b": "1.25*5", "c": "", "sheetQ": false}, {"name": "Лист хар 3мм 1.5×6", "grp": "Лист хар", "unit": "м²", "price": 59000, "a": "3", "b": "1.5*6", "c": "", "sheetQ": false}, {"name": "Лист хар 3.5мм 1.5×6", "grp": "Лист хар", "unit": "м²", "price": 72000, "a": "3.5", "b": "1.5*6", "c": "", "sheetQ": false}, {"name": "Лист хар 4мм 1.5×6", "grp": "Лист хар", "unit": "м²", "price": 77000, "a": "4", "b": "1.5*6", "c": "", "sheetQ": false}, {"name": "Лист хар 5мм 1.5×6", "grp": "Лист хар", "unit": "м²", "price": 91000, "a": "5", "b": "1.5*6", "c": "", "sheetQ": false}, {"name": "Лист хар 6мм 1.5×6", "grp": "Лист хар", "unit": "м²", "price": 123000, "a": "6", "b": "1.5*6", "c": "", "sheetQ": false}, {"name": "Лист хар 8мм 1.5×6", "grp": "Лист хар", "unit": "м²", "price": 165000, "a": "8", "b": "1.5*6", "c": "", "sheetQ": false}, {"name": "Лист хар 10мм 1.5×6", "grp": "Лист хар", "unit": "м²", "price": 200000, "a": "10", "b": "1.5*6", "c": "", "sheetQ": false}, {"name": "Лист хар 12мм 2.2×…", "grp": "Лист хар", "unit": "м²", "price": 255000, "a": "12", "b": "2.2*…", "c": "", "sheetQ": false}, {"name": "Лист хар 12мм 1.5×6", "grp": "Лист хар", "unit": "м²", "price": 255000, "a": "12", "b": "1.5*6", "c": "", "sheetQ": false}, {"name": "Лист хар 14мм 2.2×8 10", "grp": "Лист хар", "unit": "м²", "price": 303000, "a": "14", "b": "2.2*8-10", "c": "", "sheetQ": false}, {"name": "Лист хар 14мм 1.5×6", "grp": "Лист хар", "unit": "м²", "price": 303000, "a": "14", "b": "1.5*6", "c": "", "sheetQ": false}, {"name": "Лист хар 16мм 2.2×8 10", "grp": "Лист хар", "unit": "м²", "price": 347800, "a": "16", "b": "2.2*8-10", "c": "", "sheetQ": false}, {"name": "Лист хар 16мм 1.5×6", "grp": "Лист хар", "unit": "м²", "price": 347800, "a": "16", "b": "1.5*6", "c": "", "sheetQ": false}, {"name": "Лист хар 18мм 1.5×6", "grp": "Лист хар", "unit": "м²", "price": 380700, "a": "18", "b": "1.5*6", "c": "", "sheetQ": false}, {"name": "Лист хар 20мм 2.2×10", "grp": "Лист хар", "unit": "м²", "price": 423000, "a": "20", "b": "2.2*10", "c": "", "sheetQ": false}, {"name": "Лист хар 20мм 1.5×6", "grp": "Лист хар", "unit": "м²", "price": 423000, "a": "20", "b": "1.5*6", "c": "", "sheetQ": false}, {"name": "Лист хар 25мм 1.5×6", "grp": "Лист хар", "unit": "м²", "price": 531100, "a": "25", "b": "1.5*6", "c": "", "sheetQ": false}, {"name": "Лист хар 25мм 2.2×8", "grp": "Лист хар", "unit": "м²", "price": 531100, "a": "25", "b": "2.2*8", "c": "", "sheetQ": false}, {"name": "Лист хар 27мм 2.25×10", "grp": "Лист хар", "unit": "м²", "price": 570600, "a": "27", "b": "2.25*10", "c": "", "sheetQ": false}, {"name": "Лист хар 30мм 2.2×12", "grp": "Лист хар", "unit": "м²", "price": 665000, "a": "30", "b": "2.2*12", "c": "", "sheetQ": false}, {"name": "Лист хар 40мм 2.2×9", "grp": "Лист хар", "unit": "м²", "price": 846000, "a": "40", "b": "2.2*9", "c": "", "sheetQ": false}, {"name": "Лист хар 45мм 2.2×5.1", "grp": "Лист хар", "unit": "м²", "price": 998000, "a": "45", "b": "2.2*5.1", "c": "", "sheetQ": false}, {"name": "Лист хар 50мм 2.2×5", "grp": "Лист хар", "unit": "м²", "price": 1123000, "a": "50", "b": "2.2*5", "c": "", "sheetQ": false}, {"name": "Лист Q345 6мм 1.5×6", "grp": "Лист Q345", "unit": "м²", "price": 125000, "a": "6", "b": "1.5*6", "c": "", "sheetQ": false}, {"name": "Лист Q345 10мм 1.5×6", "grp": "Лист Q345", "unit": "м²", "price": 258500, "a": "10", "b": "1.5*6", "c": "", "sheetQ": false}, {"name": "Лист Q345 12мм 1.5×6", "grp": "Лист Q345", "unit": "м²", "price": 260000, "a": "12", "b": "1.5*6", "c": "", "sheetQ": false}, {"name": "Лист Q345 14мм 1.5×6", "grp": "Лист Q345", "unit": "м²", "price": 361900, "a": "14", "b": "1.5*6", "c": "", "sheetQ": false}, {"name": "Лист Q345 16мм 1.5×6", "grp": "Лист Q345", "unit": "м²", "price": 360000, "a": "16", "b": "1.5*6", "c": "", "sheetQ": false}, {"name": "Лист Q345 20мм 1.5×6", "grp": "Лист Q345", "unit": "м²", "price": 517000, "a": "20", "b": "1.5*6", "c": "", "sheetQ": false}, {"name": "Лист Q345 28мм 1.5×6", "grp": "Лист Q345", "unit": "м²", "price": 723800, "a": "28", "b": "1.5*6", "c": "", "sheetQ": false}, {"name": "Лист хүйтэн 0.8мм 1×2", "grp": "Лист хүйтэн", "unit": "м²", "price": 19700, "a": "0.8", "b": "1*2", "c": "", "sheetQ": false}, {"name": "Лист хүйтэн 1мм 1×2", "grp": "Лист хүйтэн", "unit": "м²", "price": 24400, "a": "1", "b": "1*2", "c": "", "sheetQ": false}, {"name": "Лист хүйтэн 1.1мм 1×2", "grp": "Лист хүйтэн", "unit": "м²", "price": 27300, "a": "1.1", "b": "1*2", "c": "", "sheetQ": false}, {"name": "Лист хүйтэн 1.4мм 1×2", "grp": "Лист хүйтэн", "unit": "м²", "price": 36500, "a": "1.4", "b": "1*2", "c": "", "sheetQ": false}, {"name": "Лист хүйтэн 1.5мм 1×2", "grp": "Лист хүйтэн", "unit": "м²", "price": 37600, "a": "1.5", "b": "1*2", "c": "", "sheetQ": false}, {"name": "Лист хүйтэн 2мм 1×2", "grp": "Лист хүйтэн", "unit": "м²", "price": 49800, "a": "2", "b": "1*2", "c": "", "sheetQ": false}, {"name": "Лист хүйтэн 1.5мм 1.25×2.5", "grp": "Лист хүйтэн", "unit": "м²", "price": 37600, "a": "1.5", "b": "1.25*2.5", "c": "", "sheetQ": false}, {"name": "Лист цагаан 0.5мм 1×2", "grp": "Лист цагаан", "unit": "м²", "price": 11200, "a": "0.5", "b": "1*2", "c": "", "sheetQ": false}, {"name": "Лист цагаан 0.6мм 1×2", "grp": "Лист цагаан", "unit": "м²", "price": 14000, "a": "0.6", "b": "1*2", "c": "", "sheetQ": false}, {"name": "Лист цагаан 0.8мм 1×2", "grp": "Лист цагаан", "unit": "м²", "price": 18000, "a": "0.8", "b": "1*2", "c": "", "sheetQ": false}, {"name": "Лист цагаан 1мм 1×2", "grp": "Лист цагаан", "unit": "м²", "price": 22300, "a": "1", "b": "1*2", "c": "", "sheetQ": false}, {"name": "Лист цагаан 1.5мм 1×2", "grp": "Лист цагаан", "unit": "м²", "price": 32100, "a": "1.5", "b": "1*2", "c": "", "sheetQ": false}, {"name": "Лист цагаан 1.5мм 1.25×2.5", "grp": "Лист цагаан", "unit": "м²", "price": 32100, "a": "1.5", "b": "1.25*2.5", "c": "", "sheetQ": false}, {"name": "Лист цагаан 2мм 1×2", "grp": "Лист цагаан", "unit": "м²", "price": 47040, "a": "2", "b": "1*2", "c": "", "sheetQ": false}, {"name": "Лист цагаан 3мм 1.5×6", "grp": "Лист цагаан", "unit": "м²", "price": 69560, "a": "3", "b": "1.5*6", "c": "", "sheetQ": false}, {"name": "Лист цагаан 8мм 1.5×6", "grp": "Лист цагаан", "unit": "м²", "price": 195000, "a": "8", "b": "1.5*6", "c": "", "sheetQ": false}, {"name": "Лист цагаан 16мм 1.5×6", "grp": "Лист цагаан", "unit": "м²", "price": 410000, "a": "16", "b": "1.5*6", "c": "", "sheetQ": false}, {"name": "Лист хээтэй 2мм 1.25×4", "grp": "Лист хээтэй", "unit": "м²", "price": 45000, "a": "2", "b": "1.25*4", "c": "", "sheetQ": false}, {"name": "Лист хээтэй 2.5мм 1.25×5", "grp": "Лист хээтэй", "unit": "м²", "price": 53580, "a": "2.5", "b": "1.25*5", "c": "", "sheetQ": false}, {"name": "Лист хээтэй 3мм 1.5×6", "grp": "Лист хээтэй", "unit": "м²", "price": 63500, "a": "3", "b": "1.5*6", "c": "", "sheetQ": false}, {"name": "Лист хээтэй 4мм 1.5×6", "grp": "Лист хээтэй", "unit": "м²", "price": 85540, "a": "4", "b": "1.5*6", "c": "", "sheetQ": false}, {"name": "Лист хээтэй 5мм 1.5×6", "grp": "Лист хээтэй", "unit": "м²", "price": 106220, "a": "5", "b": "1.5*6", "c": "", "sheetQ": false}, {"name": "Лист хээтэй 6мм 1.5×6", "grp": "Лист хээтэй", "unit": "м²", "price": 127840, "a": "6", "b": "1.5*6", "c": "", "sheetQ": false}, {"name": "Лист хээтэй 10мм 1.5×6", "grp": "Лист хээтэй", "unit": "м²", "price": 213850, "a": "10", "b": "1.5*6", "c": "", "sheetQ": false}, {"name": "Лист торон 3мм 1×2", "grp": "Лист торон", "unit": "м²", "price": 65800, "a": "3", "b": "1*2", "c": "", "sheetQ": false}, {"name": "Лист торон 4мм 1×2", "grp": "Лист торон", "unit": "м²", "price": 75200, "a": "4", "b": "1*2", "c": "", "sheetQ": false}, {"name": "Лист цагаан нүхтэй 1мм 1×2", "grp": "Лист цагаан нүхтэй", "unit": "м²", "price": 34000, "a": "1", "b": "1*2", "c": "", "sheetQ": false}, {"name": "Лист цагаан нүхтэй 2мм 1×2", "grp": "Лист цагаан нүхтэй", "unit": "м²", "price": 68100, "a": "2", "b": "1*2", "c": "", "sheetQ": false}, {"name": "Лист цагаан нүхтэй 2.5мм 1×2", "grp": "Лист цагаан нүхтэй", "unit": "м²", "price": 79900, "a": "2.5", "b": "1*2", "c": "", "sheetQ": false}, {"name": "Лист хээтэй цагаан 3мм 1.5×6", "grp": "Лист хээтэй цагаан", "unit": "хуудас", "price": 720000, "a": "3", "b": "1.5*6", "c": "", "sheetQ": true}, {"name": "Лист хээтэй цагаан 8мм 1.5×6", "grp": "Лист хээтэй цагаан", "unit": "хуудас", "price": 1700600, "a": "8", "b": "1.5*6", "c": "", "sheetQ": true}, {"name": "Лист нерж SS304 0.5мм 1.2×2.4", "grp": "Лист нерж SS304", "unit": "хуудас", "price": 148100, "a": "0.5", "b": "1.2*2.4", "c": "", "sheetQ": true}, {"name": "Лист нерж SS304 0.8мм 1.2×2.4", "grp": "Лист нерж SS304", "unit": "хуудас", "price": 236900, "a": "0.8", "b": "1.2*2.4", "c": "", "sheetQ": true}, {"name": "Лист нерж SS304 1.2мм 1.2×2.4", "grp": "Лист нерж SS304", "unit": "хуудас", "price": 355300, "a": "1.2", "b": "1.2*2.4", "c": "", "sheetQ": true}, {"name": "Лист нерж SS304 1мм 1×2", "grp": "Лист нерж SS304", "unit": "хуудас", "price": 216200, "a": "1", "b": "1*2", "c": "", "sheetQ": true}, {"name": "Лист нерж SS304 1мм 1.2×2.4", "grp": "Лист нерж SS304", "unit": "хуудас", "price": 296100, "a": "1", "b": "1.2*2.4", "c": "", "sheetQ": true}, {"name": "Лист нерж SS304 1.5мм 1×2", "grp": "Лист нерж SS304", "unit": "хуудас", "price": 301700, "a": "1.5", "b": "1*2", "c": "", "sheetQ": true}, {"name": "Лист нерж SS304 1.5мм 1.2×2.4", "grp": "Лист нерж SS304", "unit": "хуудас", "price": 439000, "a": "1.5", "b": "1.2*2.4", "c": "", "sheetQ": true}, {"name": "Лист нерж SS304 2мм 1×2", "grp": "Лист нерж SS304", "unit": "хуудас", "price": 390100, "a": "2", "b": "1*2", "c": "", "sheetQ": true}, {"name": "Лист нерж SS304 2мм 1.2×2.4", "grp": "Лист нерж SS304", "unit": "хуудас", "price": 574300, "a": "2", "b": "1.2*2.4", "c": "", "sheetQ": true}, {"name": "Лист нерж SS304 3мм 1×2", "grp": "Лист нерж SS304", "unit": "хуудас", "price": 622800, "a": "3", "b": "1*2", "c": "", "sheetQ": true}, {"name": "Лист нерж SS304 3мм 1.2×2.4", "grp": "Лист нерж SS304", "unit": "хуудас", "price": 896800, "a": "3", "b": "1.2*2.4", "c": "", "sheetQ": true}, {"name": "Лист нерж SS304 3мм 1.5×6", "grp": "Лист нерж SS304", "unit": "хуудас", "price": 1918000, "a": "3", "b": "1.5*6", "c": "", "sheetQ": true}, {"name": "Лист нерж SS304 4мм 1.5×6", "grp": "Лист нерж SS304", "unit": "хуудас", "price": 2618000, "a": "4", "b": "1.5*6", "c": "", "sheetQ": true}, {"name": "Лист нерж SS304 4мм 1.5×3", "grp": "Лист нерж SS304", "unit": "хуудас", "price": 1440000, "a": "4", "b": "1.5*3", "c": "", "sheetQ": true}, {"name": "Лист нерж SS304 7мм 1.5×6", "grp": "Лист нерж SS304", "unit": "хуудас", "price": 6900000, "a": "7", "b": "1.5*6", "c": "", "sheetQ": true}, {"name": "Лист нерж SS316 2мм 1×2", "grp": "Лист нерж SS316", "unit": "хуудас", "price": 449500, "a": "2", "b": "1*2", "c": "", "sheetQ": true}, {"name": "Лист нерж өнгөт 1мм 1×2", "grp": "Лист нерж өнгөт", "unit": "хуудас", "price": 145700, "a": "1", "b": "1*2", "c": "", "sheetQ": true}, {"name": "Лист хээтэй хөнгөн цагаан 1.2мм 1.2×2.4", "grp": "Лист хээтэй хөнгөн цагаан", "unit": "хуудас", "price": 169200, "a": "1.2", "b": "1.2*2.4", "c": "", "sheetQ": true}, {"name": "Лист хээтэй хөнгөн цагаан 2мм 1.2×2.4", "grp": "Лист хээтэй хөнгөн цагаан", "unit": "хуудас", "price": 263200, "a": "2", "b": "1.2*2.4", "c": "", "sheetQ": true}, {"name": "Лист хээтэй хөнгөн цагаан 3мм 1.2×2.4", "grp": "Лист хээтэй хөнгөн цагаан", "unit": "хуудас", "price": 385400, "a": "3", "b": "1.2*2.4", "c": "", "sheetQ": true}, {"name": "Лист хээтэй хөнгөн цагаан 3мм 1.5×3", "grp": "Лист хээтэй хөнгөн цагаан", "unit": "хуудас", "price": 678000, "a": "3", "b": "1.5*3", "c": "", "sheetQ": true}, {"name": "Лист хээтэй хөнгөн цагаан 3мм 1.5×6", "grp": "Лист хээтэй хөнгөн цагаан", "unit": "хуудас", "price": 1165600, "a": "3", "b": "1.5*6", "c": "", "sheetQ": true}, {"name": "Лист хээтэй хөнгөн цагаан 4мм 1.2×2.4", "grp": "Лист хээтэй хөнгөн цагаан", "unit": "хуудас", "price": 488800, "a": "4", "b": "1.2*2.4", "c": "", "sheetQ": true}, {"name": "Лист хээтэй хөнгөн цагаан 4мм 1.5×3", "grp": "Лист хээтэй хөнгөн цагаан", "unit": "хуудас", "price": 761400, "a": "4", "b": "1.5*3", "c": "", "sheetQ": true}, {"name": "Лист хээтэй хөнгөн цагаан 4.5мм 1.2×2.4", "grp": "Лист хээтэй хөнгөн цагаан", "unit": "хуудас", "price": 549900, "a": "4.5", "b": "1.2*2.4", "c": "", "sheetQ": true}, {"name": "Лист хөнгөн цагаан 0.8мм 1×2", "grp": "Лист хөнгөн цагаан", "unit": "хуудас", "price": 56900, "a": "0.8", "b": "1*2", "c": "", "sheetQ": true}, {"name": "Лист хөнгөн цагаан 1мм 1×2", "grp": "Лист хөнгөн цагаан", "unit": "хуудас", "price": 81000, "a": "1", "b": "1*2", "c": "", "sheetQ": true}, {"name": "Лист хөнгөн цагаан 1.5мм 1.2×2.4", "grp": "Лист хөнгөн цагаан", "unit": "хуудас", "price": 160000, "a": "1.5", "b": "1.2*2.4", "c": "", "sheetQ": true}, {"name": "Лист хөнгөн цагаан 2мм 1.2×2.4", "grp": "Лист хөнгөн цагаан", "unit": "хуудас", "price": 251600, "a": "2", "b": "1.2*2.4", "c": "", "sheetQ": true}, {"name": "Лист хөнгөн цагаан 3мм 2×6", "grp": "Лист хөнгөн цагаан", "unit": "хуудас", "price": 1500000, "a": "3", "b": "2*6", "c": "", "sheetQ": true}, {"name": "Лист хөнгөн цагаан 3мм 1.5×3", "grp": "Лист хөнгөн цагаан", "unit": "хуудас", "price": 558400, "a": "3", "b": "1.5*3", "c": "", "sheetQ": true}, {"name": "Лист хөнгөн цагаан 3мм 1.2×2.4", "grp": "Лист хөнгөн цагаан", "unit": "хуудас", "price": 338400, "a": "3", "b": "1.2*2.4", "c": "", "sheetQ": true}, {"name": "Лист хөнгөн цагаан 4мм 1.5×3", "grp": "Лист хөнгөн цагаан", "unit": "хуудас", "price": 705000, "a": "4", "b": "1.5*3", "c": "", "sheetQ": true}, {"name": "Лист хөнгөн цагаан 4мм 1.5×6", "grp": "Лист хөнгөн цагаан", "unit": "хуудас", "price": 1410000, "a": "4", "b": "1.5*6", "c": "", "sheetQ": true}, {"name": "Лист хөнгөн цагаан 5мм 1.2×2.4", "grp": "Лист хөнгөн цагаан", "unit": "хуудас", "price": 568700, "a": "5", "b": "1.2*2.4", "c": "", "sheetQ": true}, {"name": "Лист хөнгөн цагаан 5мм 1.5×3", "grp": "Лист хөнгөн цагаан", "unit": "хуудас", "price": 902400, "a": "5", "b": "1.5*3", "c": "", "sheetQ": true}, {"name": "Лист хөнгөн цагаан 6мм 1.2×2.4", "grp": "Лист хөнгөн цагаан", "unit": "хуудас", "price": 690900, "a": "6", "b": "1.2*2.4", "c": "", "sheetQ": true}, {"name": "Шигшүүр тор утас 10 1.8×4.8м нүх 20*20", "grp": "Шигшүүр тор", "unit": "ш", "price": 1675600, "a": "10", "b": "1.8*4.8", "c": "20*20", "sheetQ": false}, {"name": "Шигшүүр тор утас 10 1.5×4.8м нүх 20*20", "grp": "Шигшүүр тор", "unit": "ш", "price": 1393300, "a": "10", "b": "1.5*4.8", "c": "20*20", "sheetQ": false}, {"name": "Шигшүүр тор утас 8 1.8×4.8м нүх 20*20", "grp": "Шигшүүр тор", "unit": "ш", "price": 1221800, "a": "8", "b": "1.8*4.8", "c": "20*20", "sheetQ": false}, {"name": "Шигшүүр тор утас 8 1.8×4.8м нүх 20*20-(2)", "grp": "Шигшүүр тор", "unit": "ш", "price": 1015200, "a": "8", "b": "1.8*4.8", "c": "20*20-(2)", "sheetQ": false}, {"name": "Швеллер цагаан №5 (6м)", "grp": "Швеллер цагаан", "unit": "м", "price": 13000, "a": "5", "b": "6", "c": "", "sheetQ": false}, {"name": "Швеллер цагаан №6 (6м)", "grp": "Швеллер цагаан", "unit": "м", "price": 17900, "a": "6", "b": "6", "c": "", "sheetQ": false}, {"name": "Швеллер цагаан №8 (6м)", "grp": "Швеллер цагаан", "unit": "м", "price": 23500, "a": "8", "b": "6", "c": "", "sheetQ": false}, {"name": "Швеллер цагаан №10 (6м)", "grp": "Швеллер цагаан", "unit": "м", "price": 27300, "a": "10", "b": "6", "c": "", "sheetQ": false}, {"name": "Швеллер цагаан №12 (6м)", "grp": "Швеллер цагаан", "unit": "м", "price": 35000, "a": "12", "b": "6", "c": "", "sheetQ": false}, {"name": "Швеллер цагаан №14 (6м)", "grp": "Швеллер цагаан", "unit": "м", "price": 45000, "a": "14", "b": "6", "c": "", "sheetQ": false}, {"name": "Швеллер цагаан №16 (6м)", "grp": "Швеллер цагаан", "unit": "м", "price": 51700, "a": "16", "b": "6", "c": "", "sheetQ": false}, {"name": "Швеллер цагаан №20 (6м)", "grp": "Швеллер цагаан", "unit": "м", "price": 69800, "a": "20", "b": "6", "c": "", "sheetQ": false}, {"name": "Швеллер цагаан №41×21 (3м)", "grp": "Швеллер цагаан", "unit": "м", "price": 11400, "a": "41*21", "b": "3", "c": "", "sheetQ": false}, {"name": "Швеллер цагаан №41×41 (3м)", "grp": "Швеллер цагаан", "unit": "м", "price": 13100, "a": "41*41", "b": "3", "c": "", "sheetQ": false}, {"name": "Швеллер хар №5 нимгэн (6м)", "grp": "Швеллер хар", "unit": "м", "price": 11000, "a": "5-нимгэн", "b": "6", "c": "", "sheetQ": false}, {"name": "Швеллер хар №5 зузаан (6м)", "grp": "Швеллер хар", "unit": "м", "price": 14500, "a": "5-зузаан", "b": "6", "c": "", "sheetQ": false}, {"name": "Швеллер хар №6 нимгэн (6м)", "grp": "Швеллер хар", "unit": "м", "price": 15300, "a": "6-нимгэн", "b": "6", "c": "", "sheetQ": false}, {"name": "Швеллер хар №6 зузаан (6м)", "grp": "Швеллер хар", "unit": "м", "price": 17100, "a": "6-зузаан", "b": "6", "c": "", "sheetQ": false}, {"name": "Швеллер хар №8 зузаан (6м)", "grp": "Швеллер хар", "unit": "м", "price": 22700, "a": "8-зузаан", "b": "6", "c": "", "sheetQ": false}, {"name": "Швеллер хар №10 нимгэн (6м)", "grp": "Швеллер хар", "unit": "м", "price": 22100, "a": "10-нимгэн", "b": "6", "c": "", "sheetQ": false}, {"name": "Швеллер хар №10 зузаан (6м)", "grp": "Швеллер хар", "unit": "м", "price": 24800, "a": "10-зузаан", "b": "6", "c": "", "sheetQ": false}, {"name": "Швеллер хар №12 нимгэн (6м)", "grp": "Швеллер хар", "unit": "м", "price": 23800, "a": "12-нимгэн", "b": "6", "c": "", "sheetQ": false}, {"name": "Швеллер хар №12 зузаан (6м)", "grp": "Швеллер хар", "unit": "м", "price": 30100, "a": "12-зузаан", "b": "6", "c": "", "sheetQ": false}, {"name": "Швеллер хар №14 (6м)", "grp": "Швеллер хар", "unit": "м", "price": 35100, "a": "14", "b": "6", "c": "", "sheetQ": false}, {"name": "Швеллер хар №16 (6м)", "grp": "Швеллер хар", "unit": "м", "price": 43000, "a": "16", "b": "6", "c": "", "sheetQ": false}, {"name": "Швеллер хар №18 (6м)", "grp": "Швеллер хар", "unit": "м", "price": 52000, "a": "18", "b": "6", "c": "", "sheetQ": false}, {"name": "Швеллер хар №20 (6м)", "grp": "Швеллер хар", "unit": "м", "price": 56100, "a": "20", "b": "6", "c": "", "sheetQ": false}, {"name": "Швеллер хар №22 (12м)", "grp": "Швеллер хар", "unit": "м", "price": 77700, "a": "22", "b": "12", "c": "", "sheetQ": false}, {"name": "Швеллер хар №25 (12м)", "grp": "Швеллер хар", "unit": "м", "price": 87300, "a": "25", "b": "12", "c": "", "sheetQ": false}, {"name": "Швеллер хар №30 (12м)", "grp": "Швеллер хар", "unit": "м", "price": 118000, "a": "30", "b": "12", "c": "", "sheetQ": false}, {"name": "Швеллер хар №32 (12м)", "grp": "Швеллер хар", "unit": "м", "price": 125600, "a": "32", "b": "12", "c": "", "sheetQ": false}, {"name": "Өргөстэй тор 1 утастай 260м", "grp": "Өргөстэй тор", "unit": "ш", "price": 103400, "a": "", "b": "", "c": "", "sheetQ": false}, {"name": "Өргөстэй тор 2 утастай 260м", "grp": "Өргөстэй тор", "unit": "ш", "price": 108100, "a": "", "b": "", "c": "", "sheetQ": false}, {"name": "Бэлчээрийн тор 2мм 15×15 1.2×100м", "grp": "Өргөстэй тор", "unit": "ш", "price": 160000, "a": "", "b": "", "c": "", "sheetQ": false}, {"name": "Хар шон зузаан 1.7м", "grp": "Өргөстэй тор", "unit": "ш", "price": 15000, "a": "", "b": "", "c": "", "sheetQ": false}, {"name": "Хашааны тор утас 10 нүх 1.5×4", "grp": "Хашааны тор", "unit": "ш", "price": 50800, "a": "10", "b": "1.5*4", "c": "", "sheetQ": false}, {"name": "Хашааны тор утас 10 нүх 2×4", "grp": "Хашааны тор", "unit": "ш", "price": 59200, "a": "10", "b": "2*4", "c": "", "sheetQ": false}, {"name": "Хашааны тор утас 8 нүх 2×4", "grp": "Хашааны тор", "unit": "ш", "price": 84600, "a": "8", "b": "2*4", "c": "", "sheetQ": false}, {"name": "Хашааны тор утас 8 нүх 1.5×4", "grp": "Хашааны тор", "unit": "ш", "price": 75200, "a": "8", "b": "1.5*4", "c": "", "sheetQ": false}, {"name": "Хашааны тор утас 6 нүх 2×4", "grp": "Хашааны тор", "unit": "ш", "price": 103400, "a": "6", "b": "2*4", "c": "", "sheetQ": false}, {"name": "Хашааны тор утас 6 нүх 1.5×4", "grp": "Хашааны тор", "unit": "ш", "price": 84600, "a": "6", "b": "1.5*4", "c": "", "sheetQ": false}, {"name": "Двутавр цагаан №10 (6м)", "grp": "Двутавр цагаан", "unit": "м", "price": 30000, "a": "10", "b": "6", "c": "", "sheetQ": false}, {"name": "Двутавр цагаан №12 (6м)", "grp": "Двутавр цагаан", "unit": "м", "price": 34800, "a": "12", "b": "6", "c": "", "sheetQ": false}, {"name": "Двутавр цагаан №14 (6м)", "grp": "Двутавр цагаан", "unit": "м", "price": 42300, "a": "14", "b": "6", "c": "", "sheetQ": false}, {"name": "Двутавр цагаан №16 (6м)", "grp": "Двутавр цагаан", "unit": "м", "price": 70500, "a": "16", "b": "6", "c": "", "sheetQ": false}, {"name": "Двутавр цагаан №20 (6м)", "grp": "Двутавр цагаан", "unit": "м", "price": 80000, "a": "20", "b": "6", "c": "", "sheetQ": false}, {"name": "Двутавр (H beam) №10 (6м)", "grp": "Двутавр H beam", "unit": "м", "price": 26500, "a": "10", "b": "6", "c": "", "sheetQ": false}, {"name": "Двутавр (H beam) №12 зузаан (6м)", "grp": "Двутавр H beam", "unit": "м", "price": 31000, "a": "12-зузаан", "b": "6", "c": "", "sheetQ": false}, {"name": "Двутавр (H beam) №12 нимгэн (6м)", "grp": "Двутавр H beam", "unit": "м", "price": 28500, "a": "12-нимгэн", "b": "6", "c": "", "sheetQ": false}, {"name": "Двутавр (H beam) №14 (6м)", "grp": "Двутавр H beam", "unit": "м", "price": 37500, "a": "14", "b": "6", "c": "", "sheetQ": false}, {"name": "Двутавр (H beam) №14 (9м)", "grp": "Двутавр H beam", "unit": "м", "price": 39500, "a": "14", "b": "9", "c": "", "sheetQ": false}, {"name": "Двутавр (H beam) №16 нимгэн (6м)", "grp": "Двутавр H beam", "unit": "м", "price": 46200, "a": "16-нимгэн", "b": "6", "c": "", "sheetQ": false}, {"name": "Двутавр (H beam) №16 зузаан (6м)", "grp": "Двутавр H beam", "unit": "м", "price": 58500, "a": "16-зузаан", "b": "6", "c": "", "sheetQ": false}, {"name": "Двутавр (H beam) №18 (12м)", "grp": "Двутавр H beam", "unit": "м", "price": 61000, "a": "18", "b": "12", "c": "", "sheetQ": false}, {"name": "Двутавр (H beam) №20 (12м)", "grp": "Двутавр H beam", "unit": "м", "price": 71500, "a": "20", "b": "12", "c": "", "sheetQ": false}, {"name": "Двутавр (H beam) №22 (12м)", "grp": "Двутавр H beam", "unit": "м", "price": 81000, "a": "22", "b": "12", "c": "", "sheetQ": false}, {"name": "Двутавр (H beam) №25 (12м)", "grp": "Двутавр H beam", "unit": "м", "price": 93600, "a": "25", "b": "12", "c": "", "sheetQ": false}, {"name": "Двутавр (H beam) №30 (12м)", "grp": "Двутавр H beam", "unit": "м", "price": 142000, "a": "30", "b": "12", "c": "", "sheetQ": false}, {"name": "Двутавр (H beam) №36 (12м)", "grp": "Двутавр H beam", "unit": "м", "price": 180500, "a": "36", "b": "12", "c": "", "sheetQ": false}, {"name": "Двутавр (H beam) №40 (12м)", "grp": "Двутавр H beam", "unit": "м", "price": 207700, "a": "40", "b": "12", "c": "", "sheetQ": false}, {"name": "Двутавр (H beam) №45 (12м)", "grp": "Двутавр H beam", "unit": "м", "price": 244400, "a": "45", "b": "12", "c": "", "sheetQ": false}, {"name": "А двутавр 100×100 (12м)", "grp": "А двутавр", "unit": "м", "price": 47300, "a": "100*100", "b": "12", "c": "", "sheetQ": false}, {"name": "А двутавр 150×150 (12м)", "grp": "А двутавр", "unit": "м", "price": 91500, "a": "150*150", "b": "12", "c": "", "sheetQ": false}, {"name": "А двутавр 200×200 (12м)", "grp": "А двутавр", "unit": "м", "price": 149600, "a": "200*200", "b": "12", "c": "", "sheetQ": false}, {"name": "А двутавр 244×175 (12м)", "grp": "А двутавр", "unit": "м", "price": 131600, "a": "244*175", "b": "12", "c": "", "sheetQ": false}, {"name": "А двутавр 250×250 (12м)", "grp": "А двутавр", "unit": "м", "price": 227500, "a": "250*250", "b": "12", "c": "", "sheetQ": false}, {"name": "А двутавр 300×300 (12м)", "grp": "А двутавр", "unit": "м", "price": 284300, "a": "300*300", "b": "12", "c": "", "sheetQ": false}, {"name": "А двутавр 350×175 (12м)", "grp": "А двутавр", "unit": "м", "price": 157500, "a": "350*175", "b": "12", "c": "", "sheetQ": false}, {"name": "А двутавр 400×200 (12м)", "grp": "А двутавр", "unit": "м", "price": 188000, "a": "400*200", "b": "12", "c": "", "sheetQ": false}, {"name": "А двутавр 450×200 (12м)", "grp": "А двутавр", "unit": "м", "price": 205000, "a": "450*200", "b": "12", "c": "", "sheetQ": false}, {"name": "Полоса цагаан 2.5×2.5 (6м)", "grp": "Полоса цагаан", "unit": "м", "price": 2200, "a": "2.5", "b": "2.5", "c": "6", "sheetQ": false}, {"name": "Полоса цагаан 2.5×4 (6м)", "grp": "Полоса цагаан", "unit": "м", "price": 3000, "a": "2.5", "b": "4", "c": "6", "sheetQ": false}, {"name": "Полоса цагаан 3×3 (6м)", "grp": "Полоса цагаан", "unit": "м", "price": 2700, "a": "3", "b": "3", "c": "6", "sheetQ": false}, {"name": "Полоса цагаан 4×3.5 (6м)", "grp": "Полоса цагаан", "unit": "м", "price": 3500, "a": "4", "b": "3.5", "c": "6", "sheetQ": false}, {"name": "Полоса цагаан 4×3 (6м)", "grp": "Полоса цагаан", "unit": "м", "price": 3000, "a": "4", "b": "3", "c": "6", "sheetQ": false}, {"name": "Полоса цагаан 4×4 (6м)", "grp": "Полоса цагаан", "unit": "м", "price": 4000, "a": "4", "b": "4", "c": "6", "sheetQ": false}, {"name": "Полоса цагаан 4×5 (6м)", "grp": "Полоса цагаан", "unit": "м", "price": 4800, "a": "4", "b": "5", "c": "6", "sheetQ": false}, {"name": "Полоса цагаан 5×4 (6м)", "grp": "Полоса цагаан", "unit": "м", "price": 5400, "a": "5", "b": "4", "c": "6", "sheetQ": false}, {"name": "Полоса цагаан 10×6 (6м)", "grp": "Полоса цагаан", "unit": "м", "price": 17500, "a": "10", "b": "6", "c": "6", "sheetQ": false}, {"name": "Полоса хар 2.5×2.5 (6м)", "grp": "Полоса хар", "unit": "м", "price": 1700, "a": "2.5", "b": "2.5", "c": "6", "sheetQ": false}, {"name": "Полоса хар 3×3 (6м)", "grp": "Полоса хар", "unit": "м", "price": 1800, "a": "3", "b": "3", "c": "6", "sheetQ": false}, {"name": "Полоса хар 4×3 (6м)", "grp": "Полоса хар", "unit": "м", "price": 2700, "a": "4", "b": "3", "c": "6", "sheetQ": false}, {"name": "Полоса хар 4×4 (6м)", "grp": "Полоса хар", "unit": "м", "price": 3100, "a": "4", "b": "4", "c": "6", "sheetQ": false}, {"name": "Полоса хар 4×5 (6м)", "grp": "Полоса хар", "unit": "м", "price": 4000, "a": "4", "b": "5", "c": "6", "sheetQ": false}, {"name": "Полоса хар 5×4 (6м)", "grp": "Полоса хар", "unit": "м", "price": 4400, "a": "5", "b": "4", "c": "6", "sheetQ": false}, {"name": "Полоса хар 5×5 (6м)", "grp": "Полоса хар", "unit": "м", "price": 4900, "a": "5", "b": "5", "c": "6", "sheetQ": false}, {"name": "Полоса хар 5×8 (6м)", "grp": "Полоса хар", "unit": "м", "price": 10200, "a": "5", "b": "8", "c": "6", "sheetQ": false}, {"name": "Полоса хар 6×4 (6м)", "grp": "Полоса хар", "unit": "м", "price": 6400, "a": "6", "b": "4", "c": "6", "sheetQ": false}, {"name": "Полоса хар 6×5.5 (6м)", "grp": "Полоса хар", "unit": "м", "price": 7500, "a": "6", "b": "5.5", "c": "6", "sheetQ": false}, {"name": "Полоса хар 7.5×10 (6м)", "grp": "Полоса хар", "unit": "м", "price": 18000, "a": "7.5", "b": "10", "c": "6", "sheetQ": false}, {"name": "Полоса хар 8×6 (6м)", "grp": "Полоса хар", "unit": "м", "price": 10100, "a": "8", "b": "6", "c": "6", "sheetQ": false}, {"name": "Полоса хар 8×10 (6м)", "grp": "Полоса хар", "unit": "м", "price": 18400, "a": "8", "b": "10", "c": "6", "sheetQ": false}, {"name": "Полоса хар 10×6 (6м)", "grp": "Полоса хар", "unit": "м", "price": 14000, "a": "10", "b": "6", "c": "6", "sheetQ": false}, {"name": "Полоса хар 10×7.5 (6м)", "grp": "Полоса хар", "unit": "м", "price": 16900, "a": "10", "b": "7.5", "c": "6", "sheetQ": false}, {"name": "Полоса хар 10×10 (6м)", "grp": "Полоса хар", "unit": "м", "price": 20600, "a": "10", "b": "10", "c": "6", "sheetQ": false}, {"name": "Полоса хар 15×10 (6м)", "grp": "Полоса хар", "unit": "м", "price": 36000, "a": "15", "b": "10", "c": "6", "sheetQ": false}, {"name": "Полоса хар 20×10 (6м)", "grp": "Полоса хар", "unit": "м", "price": 45300, "a": "20", "b": "10", "c": "6", "sheetQ": false}, {"name": "Си төмөр цагаан (C channel) 10×2 (6м)", "grp": "Си төмөр цагаан", "unit": "м", "price": 12600, "a": "10", "b": "2", "c": "6", "sheetQ": false}, {"name": "Си төмөр цагаан (C channel) 12×2 (6м)", "grp": "Си төмөр цагаан", "unit": "м", "price": 14400, "a": "12", "b": "2", "c": "6", "sheetQ": false}, {"name": "Си төмөр цагаан (C channel) 16×2.5 (6м)", "grp": "Си төмөр цагаан", "unit": "м", "price": 25500, "a": "16", "b": "2.5", "c": "6", "sheetQ": false}, {"name": "Си төмөр цагаан (C channel) 20×2.5 (6м)", "grp": "Си төмөр цагаан", "unit": "м", "price": 28000, "a": "20", "b": "2.5", "c": "6", "sheetQ": false}, {"name": "Ховилтой төмөр (B deck) 0.8мм 0.72×6м", "grp": "Ховилтой төмөр", "unit": "ш", "price": 153500, "a": "0.8", "b": "0.72*6", "c": "", "sheetQ": false}, {"name": "Ховилтой төмөр (B deck) 1.2мм 0.72×6м", "grp": "Ховилтой төмөр", "unit": "ш", "price": 223000, "a": "1.2", "b": "0.72*6", "c": "", "sheetQ": false}, {"name": "Ховилтой төмөр (B deck) 1.5мм 0.72×6м", "grp": "Ховилтой төмөр", "unit": "ш", "price": 280900, "a": "1.5", "b": "0.72*6", "c": "", "sheetQ": false}, {"name": "Круг хар Ø10 (6м)", "grp": "Круг хар", "unit": "м", "price": 1900, "a": "10", "b": "6м", "c": "", "sheetQ": false}, {"name": "Круг хар Ø12 (9м)", "grp": "Круг хар", "unit": "м", "price": 2700, "a": "12", "b": "9м", "c": "", "sheetQ": false}, {"name": "Круг хар Ø14 (9м)", "grp": "Круг хар", "unit": "м", "price": 3800, "a": "14", "b": "9м", "c": "", "sheetQ": false}, {"name": "Круг хар Ø16 (9м)", "grp": "Круг хар", "unit": "м", "price": 5000, "a": "16", "b": "9м", "c": "", "sheetQ": false}, {"name": "Круг хар Ø18 (9м)", "grp": "Круг хар", "unit": "м", "price": 6500, "a": "18", "b": "9м", "c": "", "sheetQ": false}, {"name": "Круг хар Ø20 (9м)", "grp": "Круг хар", "unit": "м", "price": 7800, "a": "20", "b": "9м", "c": "", "sheetQ": false}, {"name": "Круг хар Ø22 (9м)", "grp": "Круг хар", "unit": "м", "price": 10000, "a": "22", "b": "9м", "c": "", "sheetQ": false}, {"name": "Круг хар Ø25 (9м)", "grp": "Круг хар", "unit": "м", "price": 12400, "a": "25", "b": "9м", "c": "", "sheetQ": false}, {"name": "Круг хар Ø28 (9м)", "grp": "Круг хар", "unit": "м", "price": 16000, "a": "28", "b": "9м", "c": "", "sheetQ": false}, {"name": "Круг хар Ø30 (9м)", "grp": "Круг хар", "unit": "м", "price": 18200, "a": "30", "b": "9м", "c": "", "sheetQ": false}, {"name": "Круг хар Ø32 (9м)", "grp": "Круг хар", "unit": "м", "price": 24600, "a": "32", "b": "9м", "c": "", "sheetQ": false}, {"name": "Круг хар Ø36 (9м)", "grp": "Круг хар", "unit": "м", "price": 25800, "a": "36", "b": "9м", "c": "", "sheetQ": false}, {"name": "Круг хар Ø40 (9м)", "grp": "Круг хар", "unit": "м", "price": 33000, "a": "40", "b": "9м", "c": "", "sheetQ": false}, {"name": "Круг хар Ø42 (9м)", "grp": "Круг хар", "unit": "м", "price": 35100, "a": "42", "b": "9м", "c": "", "sheetQ": false}, {"name": "Круг хар Ø48 (6м)", "grp": "Круг хар", "unit": "м", "price": 43700, "a": "48", "b": "6м", "c": "", "sheetQ": false}, {"name": "Круг хар Ø50 (6м)", "grp": "Круг хар", "unit": "м", "price": 51900, "a": "50", "b": "6м", "c": "", "sheetQ": false}, {"name": "Круг хар Ø60 (6м)", "grp": "Круг хар", "unit": "м", "price": 72200, "a": "60", "b": "6м", "c": "", "sheetQ": false}, {"name": "Круг хар Ø70 (6м)", "grp": "Круг хар", "unit": "м", "price": 109400, "a": "70", "b": "6м", "c": "", "sheetQ": false}, {"name": "Круг хар Ø80 (6м)", "grp": "Круг хар", "unit": "м", "price": 145800, "a": "80", "b": "6м", "c": "", "sheetQ": false}, {"name": "Круг хар Ø90 (6м)", "grp": "Круг хар", "unit": "м", "price": 164100, "a": "90", "b": "6м", "c": "", "sheetQ": false}, {"name": "Круг хар Ø100 (6м)", "grp": "Круг хар", "unit": "м", "price": 213300, "a": "100", "b": "6м", "c": "", "sheetQ": false}, {"name": "Круг хар Ø120 (урт тодруулах)", "grp": "Круг хар", "unit": "м", "price": 310800, "a": "120", "b": "урт-тодруулах", "c": "", "sheetQ": false}, {"name": "Круг хар Ø130 (урт тодруулах)", "grp": "Круг хар", "unit": "м", "price": 373700, "a": "130", "b": "урт-тодруулах", "c": "", "sheetQ": false}, {"name": "Круг хар Ø140 (Q345)", "grp": "Круг хар", "unit": "м", "price": 442000, "a": "140", "b": "Q345", "c": "", "sheetQ": false}, {"name": "Круг хар Ø150 (Q345)", "grp": "Круг хар", "unit": "м", "price": 483000, "a": "150", "b": "Q345", "c": "", "sheetQ": false}, {"name": "Круг хар Ø160 (Q345)", "grp": "Круг хар", "unit": "м", "price": 511300, "a": "160", "b": "Q345", "c": "", "sheetQ": false}, {"name": "Круг хар Ø180 (Q345)", "grp": "Круг хар", "unit": "м", "price": 715400, "a": "180", "b": "Q345", "c": "", "sheetQ": false}, {"name": "Круг хар Ø200 (Q345)", "grp": "Круг хар", "unit": "м", "price": 861300, "a": "200", "b": "Q345", "c": "", "sheetQ": false}, {"name": "Круг хар Ø210 (Q345)", "grp": "Круг хар", "unit": "м", "price": 878500, "a": "210", "b": "Q345", "c": "", "sheetQ": false}, {"name": "Круг хар Ø250 (Q345)", "grp": "Круг хар", "unit": "м", "price": 1300000, "a": "250", "b": "Q345", "c": "", "sheetQ": false}, {"name": "Круг хар Ø300 (Q345)", "grp": "Круг хар", "unit": "м", "price": 1792700, "a": "300", "b": "Q345", "c": "", "sheetQ": false}, {"name": "Круг цагаан Ø10", "grp": "Круг цагаан", "unit": "м", "price": 2400, "a": "10", "b": "", "c": "", "sheetQ": false}, {"name": "Круг цагаан Ø12", "grp": "Круг цагаан", "unit": "м", "price": 3500, "a": "12", "b": "", "c": "", "sheetQ": false}, {"name": "Круг 6 талт S12", "grp": "Круг 6 талт", "unit": "м", "price": 4600, "a": "12", "b": "", "c": "", "sheetQ": false}, {"name": "Круг 6 талт S14", "grp": "Круг 6 талт", "unit": "м", "price": 6100, "a": "14", "b": "", "c": "", "sheetQ": false}, {"name": "Круг 6 талт S17", "grp": "Круг 6 талт", "unit": "м", "price": 9500, "a": "17", "b": "", "c": "", "sheetQ": false}, {"name": "Круг 6 талт S19", "grp": "Круг 6 талт", "unit": "м", "price": 11700, "a": "19", "b": "", "c": "", "sheetQ": false}, {"name": "Круг 6 талт S22", "grp": "Круг 6 талт", "unit": "м", "price": 13800, "a": "22", "b": "", "c": "", "sheetQ": false}, {"name": "Круг 6 талт S24", "grp": "Круг 6 талт", "unit": "м", "price": 18400, "a": "24", "b": "", "c": "", "sheetQ": false}, {"name": "Круг 6 талт S27", "grp": "Круг 6 талт", "unit": "м", "price": 23200, "a": "27", "b": "", "c": "", "sheetQ": false}, {"name": "Круг 6 талт S30", "grp": "Круг 6 талт", "unit": "м", "price": 28900, "a": "30", "b": "", "c": "", "sheetQ": false}, {"name": "Круг 6 талт S32", "grp": "Круг 6 талт", "unit": "м", "price": 32500, "a": "32", "b": "", "c": "", "sheetQ": false}, {"name": "Круг 6 талт S36", "grp": "Круг 6 талт", "unit": "м", "price": 42000, "a": "36", "b": "", "c": "", "sheetQ": false}, {"name": "Круг 6 талт S41", "grp": "Круг 6 талт", "unit": "м", "price": 53800, "a": "41", "b": "", "c": "", "sheetQ": false}, {"name": "Круг 6 талт S46", "grp": "Круг 6 талт", "unit": "м", "price": 68400, "a": "46", "b": "", "c": "", "sheetQ": false}, {"name": "Круг 6 талт S55", "grp": "Круг 6 талт", "unit": "м", "price": 102600, "a": "55", "b": "", "c": "", "sheetQ": false}, {"name": "Круг 6 талт S60", "grp": "Круг 6 талт", "unit": "м", "price": 113100, "a": "60", "b": "", "c": "", "sheetQ": false}, {"name": "Круг 6 талт S65", "grp": "Круг 6 талт", "unit": "м", "price": 118800, "a": "65", "b": "", "c": "", "sheetQ": false}, {"name": "Круг 6 талт S75", "grp": "Круг 6 талт", "unit": "м", "price": 137800, "a": "75", "b": "", "c": "", "sheetQ": false}, {"name": "Круг 6 талт S85", "grp": "Круг 6 талт", "unit": "м", "price": 243500, "a": "85", "b": "", "c": "", "sheetQ": false}];
+const MAIAK_PROFILES = {"GOST 8240 №6,5": {"h": 65.0, "b": 36.0, "s": 4.4, "t": 7.2, "kg": 5.9}, "GOST 8240 №8": {"h": 80.0, "b": 40.0, "s": 4.2, "t": 7.4, "kg": 7.03}, "GOST 8240 №10": {"h": 100.0, "b": 46.0, "s": 4.3, "t": 7.6, "kg": 8.58}, "GOST 8240 №12": {"h": 120.0, "b": 52.0, "s": 4.3, "t": 7.9, "kg": 10.22}, "GOST 8240 №14": {"h": 140.0, "b": 58.0, "s": 4.4, "t": 8.2, "kg": 12.07}, "GOST 8240 №16": {"h": 160.0, "b": 64.0, "s": 4.4, "t": 8.5, "kg": 13.83}, "GOST 8240 №18": {"h": 180.0, "b": 70.0, "s": 4.5, "t": 9.2, "kg": 16.16}, "GOST 8240 №20": {"h": 200.0, "b": 76.0, "s": 4.6, "t": 9.6, "kg": 18.41}, "GOST 8240 №22": {"h": 220.0, "b": 80.0, "s": 4.6, "t": 10.0, "kg": 20.53}, "GOST 8240 №24": {"h": 240.0, "b": 90.0, "s": 4.8, "t": 10.6, "kg": 23.7}, "GOST 8240 №27": {"h": 270.0, "b": 95.0, "s": 6.0, "t": 10.5, "kg": 35.2}, "GOST 8240 №30": {"h": 300.0, "b": 100.0, "s": 6.3, "t": 11.4, "kg": 32.09}, "UPN 50 x 25": {"h": 50.0, "b": 25.0, "s": 5.0, "t": 6.0, "kg": 3.86}, "UPN 50": {"h": 50.0, "b": 38.0, "s": 5.0, "t": 7.0, "kg": 5.59}, "UPN 60": {"h": 60.0, "b": 30.0, "s": 6.0, "t": 6.0, "kg": 5.07}, "UPN 65": {"h": 65.0, "b": 42.0, "s": 5.5, "t": 7.5, "kg": 7.09}, "UPN 80": {"h": 80.0, "b": 45.0, "s": 6.0, "t": 8.0, "kg": 8.64}, "UPN 100": {"h": 100.0, "b": 50.0, "s": 6.0, "t": 8.5, "kg": 10.6}, "UPN 120": {"h": 120.0, "b": 55.0, "s": 7.0, "t": 9.0, "kg": 13.4}, "UPN 140": {"h": 140.0, "b": 60.0, "s": 7.0, "t": 10.0, "kg": 16.0}, "UPN 160": {"h": 160.0, "b": 65.0, "s": 7.5, "t": 10.5, "kg": 18.8}, "UPN 180": {"h": 180.0, "b": 70.0, "s": 8.0, "t": 11.0, "kg": 22.0}, "UPN 200": {"h": 200.0, "b": 75.0, "s": 8.5, "t": 11.5, "kg": 25.3}, "UPN 220": {"h": 220.0, "b": 80.0, "s": 9.0, "t": 12.5, "kg": 29.4}, "UPN 240": {"h": 240.0, "b": 85.0, "s": 9.5, "t": 13.0, "kg": 33.2}, "UPN 260": {"h": 260.0, "b": 90.0, "s": 10.0, "t": 14.0, "kg": 37.9}, "UPN 280": {"h": 280.0, "b": 95.0, "s": 10.0, "t": 15.0, "kg": 41.8}, "UPN 300": {"h": 300.0, "b": 100.0, "s": 10.0, "t": 16.0, "kg": 46.2}, "UPN 320": {"h": 320.0, "b": 100.0, "s": 14.0, "t": 17.5, "kg": 59.5}, "UPN 350": {"h": 350.0, "b": 100.0, "s": 14.0, "t": 16.0, "kg": 60.6}, "UPN 380": {"h": 380.0, "b": 102.0, "s": 13.5, "t": 16.0, "kg": 63.1}, "UPN 400": {"h": 400.0, "b": 110.0, "s": 14.0, "t": 18.0, "kg": 71.8}, "IPE 80": {"h": 80.0, "b": 46.0, "s": 3.8, "t": 5.2, "kg": 6.0}, "IPE 100": {"h": 100.0, "b": 55.0, "s": 4.1, "t": 5.7, "kg": 8.1}, "IPE 120": {"h": 120.0, "b": 64.0, "s": 4.4, "t": 6.3, "kg": 10.4}, "IPE 140": {"h": 140.0, "b": 73.0, "s": 4.7, "t": 6.9, "kg": 12.9}, "IPE 160": {"h": 160.0, "b": 82.0, "s": 5.0, "t": 7.4, "kg": 15.8}, "IPE 180": {"h": 180.0, "b": 91.0, "s": 5.3, "t": 8.0, "kg": 18.8}, "IPE 200": {"h": 200.0, "b": 100.0, "s": 5.6, "t": 8.5, "kg": 22.4}, "IPE 220": {"h": 220.0, "b": 110.0, "s": 5.9, "t": 9.2, "kg": 26.2}, "IPE 240": {"h": 240.0, "b": 120.0, "s": 6.2, "t": 9.8, "kg": 30.7}, "IPE 270": {"h": 270.0, "b": 135.0, "s": 6.6, "t": 10.2, "kg": 36.1}, "IPE 300": {"h": 300.0, "b": 150.0, "s": 7.1, "t": 10.7, "kg": 42.2}, "IPE 330": {"h": 330.0, "b": 160.0, "s": 7.5, "t": 11.5, "kg": 49.1}, "IPE 360": {"h": 360.0, "b": 170.0, "s": 8.0, "t": 12.7, "kg": 57.1}, "IPE 400": {"h": 400.0, "b": 180.0, "s": 8.6, "t": 13.5, "kg": 66.3}, "IPE 450": {"h": 450.0, "b": 190.0, "s": 9.4, "t": 14.6, "kg": 77.6}, "IPE 500": {"h": 500.0, "b": 200.0, "s": 10.2, "t": 16.0, "kg": 90.7}, "IPE 550": {"h": 550.0, "b": 210.0, "s": 11.1, "t": 17.2, "kg": 106.0}, "IPE 600": {"h": 600.0, "b": 220.0, "s": 12.0, "t": 19.0, "kg": 122.0}, "IPN 80": {"h": 80.0, "b": 42.0, "s": 3.9, "t": 5.9, "kg": 5.94}, "IPN 100": {"h": 100.0, "b": 50.0, "s": 4.5, "t": 6.8, "kg": 8.34}, "IPN 120": {"h": 120.0, "b": 58.0, "s": 5.1, "t": 7.7, "kg": 11.1}, "IPN 140": {"h": 140.0, "b": 66.0, "s": 5.7, "t": 8.6, "kg": 14.3}, "IPN 160": {"h": 160.0, "b": 74.0, "s": 6.3, "t": 9.5, "kg": 17.9}, "IPN 180": {"h": 180.0, "b": 82.0, "s": 6.9, "t": 10.4, "kg": 21.9}, "IPN 200": {"h": 200.0, "b": 90.0, "s": 7.5, "t": 11.3, "kg": 26.2}, "IPN 220": {"h": 220.0, "b": 98.0, "s": 8.1, "t": 12.2, "kg": 31.1}, "IPN 240": {"h": 240.0, "b": 106.0, "s": 8.7, "t": 13.1, "kg": 36.2}, "IPN 260": {"h": 260.0, "b": 113.0, "s": 9.4, "t": 14.1, "kg": 41.9}, "IPN 280": {"h": 280.0, "b": 119.0, "s": 10.1, "t": 15.2, "kg": 47.9}, "IPN 300": {"h": 300.0, "b": 125.0, "s": 10.8, "t": 16.2, "kg": 54.2}, "IPN 320": {"h": 320.0, "b": 131.0, "s": 11.5, "t": 17.3, "kg": 61.0}, "IPN 340": {"h": 340.0, "b": 137.0, "s": 12.2, "t": 18.3, "kg": 68.0}, "IPN 360": {"h": 360.0, "b": 143.0, "s": 13.0, "t": 19.5, "kg": 76.1}, "IPN 380": {"h": 380.0, "b": 149.0, "s": 13.7, "t": 20.5, "kg": 84.0}, "IPN 400": {"h": 400.0, "b": 155.0, "s": 14.4, "t": 21.6, "kg": 92.4}, "IPN 450": {"h": 450.0, "b": 170.0, "s": 16.2, "t": 24.3, "kg": 115.0}, "IPN 500": {"h": 500.0, "b": 185.0, "s": 18.0, "t": 27.0, "kg": 141.0}, "IPN 550": {"h": 550.0, "b": 200.0, "s": 19.0, "t": 30.0, "kg": 166.0}, "HEA 100": {"h": 96.0, "b": 100.0, "s": 5.0, "t": 8.0, "kg": 16.7}, "HEA 120": {"h": 114.0, "b": 120.0, "s": 5.0, "t": 8.0, "kg": 19.9}, "HEA 140": {"h": 133.0, "b": 140.0, "s": 5.5, "t": 8.5, "kg": 24.7}, "HEA 160": {"h": 152.0, "b": 160.0, "s": 6.0, "t": 9.0, "kg": 30.4}, "HEA 180": {"h": 171.0, "b": 180.0, "s": 6.0, "t": 9.5, "kg": 35.5}, "HEA 200": {"h": 190.0, "b": 200.0, "s": 6.5, "t": 10.0, "kg": 42.3}, "HEA 220": {"h": 210.0, "b": 220.0, "s": 7.0, "t": 11.0, "kg": 50.5}, "HEA 240": {"h": 230.0, "b": 240.0, "s": 7.5, "t": 12.0, "kg": 60.3}, "HEA 260": {"h": 250.0, "b": 260.0, "s": 7.5, "t": 12.5, "kg": 68.2}, "HEA 280": {"h": 270.0, "b": 280.0, "s": 8.0, "t": 13.0, "kg": 76.4}, "HEA 300": {"h": 290.0, "b": 300.0, "s": 8.5, "t": 14.0, "kg": 88.3}, "HEA 320": {"h": 310.0, "b": 300.0, "s": 9.0, "t": 15.5, "kg": 97.6}, "HEA 340": {"h": 330.0, "b": 300.0, "s": 9.5, "t": 16.5, "kg": 105.0}, "HEA 360": {"h": 350.0, "b": 300.0, "s": 10.0, "t": 17.5, "kg": 112.0}, "HEA 400": {"h": 390.0, "b": 300.0, "s": 11.0, "t": 19.0, "kg": 125.0}, "HEA 450": {"h": 440.0, "b": 300.0, "s": 11.5, "t": 21.0, "kg": 140.0}, "HEA 500": {"h": 490.0, "b": 300.0, "s": 12.0, "t": 23.0, "kg": 155.0}, "HEA 550": {"h": 540.0, "b": 300.0, "s": 12.5, "t": 24.0, "kg": 166.0}, "HEA 600": {"h": 590.0, "b": 300.0, "s": 13.0, "t": 25.0, "kg": 178.0}, "HEA 650": {"h": 640.0, "b": 300.0, "s": 13.5, "t": 26.0, "kg": 190.0}, "HEA 700": {"h": 690.0, "b": 300.0, "s": 14.5, "t": 27.0, "kg": 204.0}, "HEA 800": {"h": 790.0, "b": 300.0, "s": 15.0, "t": 28.0, "kg": 224.0}, "HEA 900": {"h": 890.0, "b": 300.0, "s": 16.0, "t": 30.0, "kg": 252.0}, "HEA 1000": {"h": 990.0, "b": 300.0, "s": 16.5, "t": 31.0, "kg": 272.0}, "HEB 100": {"h": 100.0, "b": 100.0, "s": 6.0, "t": 10.0, "kg": 20.4}, "HEB 120": {"h": 120.0, "b": 120.0, "s": 6.5, "t": 11.0, "kg": 26.7}, "HEB 140": {"h": 140.0, "b": 140.0, "s": 7.0, "t": 12.0, "kg": 33.7}, "HEB 160": {"h": 160.0, "b": 160.0, "s": 8.0, "t": 13.0, "kg": 42.6}, "HEB 180": {"h": 180.0, "b": 180.0, "s": 8.5, "t": 14.0, "kg": 51.2}, "HEB 200": {"h": 200.0, "b": 200.0, "s": 9.0, "t": 15.0, "kg": 61.3}, "HEB 220": {"h": 220.0, "b": 220.0, "s": 9.5, "t": 16.0, "kg": 71.5}, "HEB 240": {"h": 240.0, "b": 240.0, "s": 10.0, "t": 17.0, "kg": 83.2}, "HEB 260": {"h": 260.0, "b": 260.0, "s": 10.0, "t": 17.5, "kg": 93.0}, "HEB 280": {"h": 280.0, "b": 280.0, "s": 10.5, "t": 18.0, "kg": 103.0}, "HEB 300": {"h": 300.0, "b": 300.0, "s": 11.0, "t": 19.0, "kg": 117.0}, "HEB 320": {"h": 320.0, "b": 300.0, "s": 11.5, "t": 20.5, "kg": 127.0}, "HEB 340": {"h": 340.0, "b": 300.0, "s": 12.0, "t": 21.5, "kg": 134.0}, "HEB 360": {"h": 360.0, "b": 300.0, "s": 12.5, "t": 22.5, "kg": 142.0}, "HEB 400": {"h": 400.0, "b": 300.0, "s": 13.5, "t": 24.0, "kg": 155.0}, "HEB 460": {"h": 450.0, "b": 300.0, "s": 14.0, "t": 26.0, "kg": 171.0}, "HEB 500": {"h": 500.0, "b": 300.0, "s": 14.5, "t": 28.0, "kg": 187.0}, "HEB 550": {"h": 550.0, "b": 300.0, "s": 15.0, "t": 29.0, "kg": 199.0}, "HEB 600": {"h": 600.0, "b": 300.0, "s": 15.5, "t": 30.0, "kg": 212.0}, "HEB 650": {"h": 650.0, "b": 300.0, "s": 16.0, "t": 31.0, "kg": 225.0}, "HEB 700": {"h": 700.0, "b": 300.0, "s": 17.0, "t": 32.0, "kg": 241.0}, "HEB 800": {"h": 800.0, "b": 300.0, "s": 17.5, "t": 33.0, "kg": 262.0}, "HEB 900": {"h": 900.0, "b": 300.0, "s": 18.5, "t": 35.0, "kg": 291.0}, "HEB 1000": {"h": 1000.0, "b": 300.0, "s": 19.0, "t": 36.0, "kg": 314.0}};
+/* ================= Kh International — automatic preheat (AWS D1.1 prequalified table / SSAB) + standards library =================
+   Carbon & C-Mn structural steel: AWS D1.1 prequalified minimum preheat & interpass temperature (Table 5.8 in D1.1:2020,
+   Table 3.3 in older editions), by steel category and thickness of the thickest part at the point of welding.
+   Hardox / Strenx: SSAB recommended minimum preheat (single plate thickness) and maximum interpass temperature.
+   Values are the code / maker minimums — the governing WPS always takes precedence. */
+const D11 = { A: [[20, 0], [38, 66], [65, 107], [1e9, 150]], B: [[20, 0], [38, 10], [65, 66], [1e9, 107]], C: [[20, 10], [38, 66], [65, 107], [1e9, 150]], D: [[1e9, 0]] };
+const D11_DESC = {
+  A: 'SMAW — бага устөрөгчийн бус электрод (E6010, E6013…). ASTM A36, A53, A500 г.м. (S235/S275-тай дүйцэхүйц)',
+  B: 'SMAW бага устөрөгчийн электрод (E7018…), SAW, GMAW, FCAW. ASTM A36, A572 Gr50, A992… (S235–S355, 09Г2С-тэй дүйцэхүйц)',
+  C: 'B-тэй ижил процесс, өндөр бат бэхийн ган: ASTM A572 Gr60/65, A913 Gr60/65… (S420–S460-тай дүйцэхүйц)',
+  D: 'ASTM A913 Gr50–70, бага устөрөгчийн процессоор'
+};
+/* SSAB: [upper thickness mm, min preheat °C], max interpass °C */
+const SSAB_PH = {
+  'Hardox HiTuf': [[[40, 0], [70, 100], [160, 125]], 300], 'Hardox 400': [[[20, 0], [45, 75], [50, 100], [80, 175], [100, 200]], 225],
+  'Hardox 450': [[[25, 0], [40, 125], [160, 150]], 225], 'Hardox 500': [[[13, 0], [30, 175], [103, 200]], 225],
+  'Hardox 500 Tuf': [[[16, 0], [25.4, 75], [35, 125], [38.1, 150]], 225], 'Hardox 550': [[[11, 125], [30, 175], [65, 200]], 225],
+  'Hardox 600': [[[10, 150], [30, 175]], 225],
+  'Strenx 700 E': [[[30, 0], [45, 75], [160, 100]], 300], 'Strenx 700 F': [[[15, 0], [20, 50], [45, 75], [130, 100]], 300],
+  'Strenx 900 E': [[[10, 0], [30, 75], [120, 100]], 300], 'Strenx 960 E': [[[10, 0], [12, 75], [120, 100]], 300],
+  'Strenx 960 F': [[[10, 0], [12, 75], [100, 100]], 300], 'Strenx 1100': [[[10, 0], [15, 75], [40, 125]], 200], 'Strenx 1300': [[[8, 0], [10, 100], [15, 125]], 200]
+};
+const WELD_PROC = [['lowH', 'GMAW / FCAW / SAW / SMAW E7018 (бага устөрөгч)'], ['smaw', 'SMAW — бага устөрөгчийн бус электрод (E6013…)']];
+/* classify a material name */
+function gradeOf(name) {
+  const n = String(name || '').toLowerCase().replace(/\s+/g, ' ');
+  let m;
+  if (/hardox ?hi ?tuf/.test(n)) return { g: 'Hardox HiTuf', t: 'ssab' };
+  if ((m = n.match(/(?:hardox|nm|ar|xar) ?(400|450|500|550|600)( ?tuf)?/))) { const g = 'Hardox ' + m[1] + (m[2] && m[1] === '500' ? ' Tuf' : ''); return { g, t: 'ssab', eq: !/hardox/.test(n) }; }
+  if (/hardox/.test(n)) return { g: 'Hardox 450', t: 'ssab', guess: 1 };
+  if ((m = n.match(/strenx ?(700|900|960|1100|1300) ?(e|f|mc|plus)?/))) { let g = 'Strenx ' + m[1]; if (m[1] === '700' || m[1] === '960') g += m[2] === 'f' ? ' F' : ' E'; else if (m[1] === '900') g += ' E'; return { g, t: 'ssab' }; }
+  if (/зэвэрд|stainless|aisi|\b30[14]l?\b|\b316l?\b|\b321\b/.test(n)) return { g: 'Зэвэрдэггүй (аустенит)', t: 'ss' };
+  if (/хөнгөн|цагаан|alum|\b5083\b|\b6061\b|\b5754\b/.test(n)) return { g: 'Хөнгөн цагаан', t: 'al' };
+  if (/s4[2-6]0|a572 ?gr ?6[05]|a913 ?gr ?6[05]|q460/.test(n)) return { g: 'S420–S460', t: 'cs', cat: 'C' };
+  if (/a913/.test(n)) return { g: 'ASTM A913', t: 'cs', cat: 'D' };
+  if (/s355|09г2с|09g2s|a572|a992|q345|q355|ss490|s275|st52/.test(n)) return { g: 'S355 / 09Г2С', t: 'cs', cat: 'B' };
+  if (/s235|ст ?3|st ?3|a36|ss400|q235|st37/.test(n)) return { g: 'S235 / Ст3', t: 'cs', cat: 'B' };
+  if (/ган|steel|лист|хавтан|труба|профиль|швеллер|уголок|арматур/.test(n)) return { g: 'Нүүрстөрөгчийн ган', t: 'cs', cat: 'B', guess: 1 };
+  return null;
+}
+const thkOf = name => { const m = String(name || '').match(/(\d+(?:[.,]\d+)?)\s*(?:мм|mm)\b/i) || String(name || '').match(/\b(\d+(?:[.,]\d+)?)\s*(?:мм|mm)/i); return m ? +m[1].replace(',', '.') : 0; };
+const stepVal = (tab, t) => { for (const [u, v] of tab) if (t <= u + 1e-9) return v; return tab[tab.length - 1][1]; };
+/* minimum preheat for one material / thickness */
+function preheatFor(matName, t, proc = 'lowH', cold = false) {
+  const G = gradeOf(matName) || { g: matName || '—', t: 'cs', cat: 'B', guess: 1 }; let min = 0, max = null, std = '', note = '';
+  if (G.t === 'ssab') {
+    const [tab, mx] = SSAB_PH[G.g] || SSAB_PH['Hardox 450']; const lo = tab[0];
+    min = t < (lo[0] === 40 ? 0 : 0) ? 0 : stepVal(tab, t); max = mx; std = 'SSAB зөвлөмж';
+    if (t > tab[tab.length - 1][0]) note = 'Зузаан хүснэгтээс их — SSAB WeldCalc-аар тооцно';
+    if (G.eq) note = 'Hardox-той ижил гэж тооцсон — үйлдвэрлэгчийн зөвлөмжийг шалгана';
+    if (G.guess) note = 'Hardox зэрэг тодорхойгүй — 450 гэж тооцсон';
+    if (proc === 'smaw') note = (note ? note + '; ' : '') + 'SSAB зөвхөн бага устөрөгчийн нэмэлт материал зөвлөдөг';
+  } else if (G.t === 'ss') { min = 0; max = 150; std = 'Аустенит зэвэрдэггүй'; note = 'Халаалт шаардлагагүй, interpass ≤150 °C'; }
+  else if (G.t === 'al') { min = 0; max = 120; std = 'Хөнгөн цагаан'; note = 'Ихэвчлэн халаалтгүй; чийгийг 50–80 °C хүртэл халааж арилгаж болно'; }
+  else { const cat = proc === 'smaw' && G.cat === 'B' ? 'A' : (G.cat || 'B'); min = stepVal(D11[cat], t); std = `AWS D1.1 · Category ${cat}`; if (G.guess) note = 'Ган гэж таамагласан — материалыг тодруулна уу'; }
+  if (cold && min < 20) { min = 20; note = (note ? note + '; ' : '') + 'Металл 0 °C-аас хүйтэн бол 20 °C хүртэл халаана'; }
+  return { grade: G.g, t, min, max, std, note, type: G.t };
+}
+const phTxt = r => r.min > 0 ? `${r.min} °C` : 'шаардлагагүй';
+/* plates of a job: parts + quote material lines */
+function jobWeldRows(job) {
+  const W = job.weld || (job.weld = { proc: 'lowH', cold: false }), by = new Map();
+  const add = (mat, t, src) => { if (!(t > 0)) return; const G = gradeOf(mat); const k = G ? G.g : mat; const o = by.get(k) || { mat, t: 0, src: new Set() }; if (t > o.t) { o.t = t; o.mat = mat; } o.src.add(src); by.set(k, o); };
+  try { jobParts(job).forEach(p => add(p.mat, +p.thk, 'партууд')); } catch (e) { }
+  ((job.quote && job.quote.mats) || []).forEach(r => add(r.name + ' ' + (r.note || ''), thkOf(r.name), 'үнийн санал'));
+  const rows = [...by.values()].map(o => ({ ...preheatFor(o.mat, o.t, W.proc, W.cold), mat: o.mat, src: [...o.src].join(', ') })).sort((a, b) => b.min - a.min || b.t - a.t);
+  return { rows, max: rows.reduce((a, r) => Math.max(a, r.min), 0), W };
+}
+function preheatHint(list, proc = 'lowH') {
+  const rows = list.filter(p => p.thk > 0).map(p => ({ ...preheatFor(p.mat, +p.thk, proc), lbl: p.lbl })), need = rows.filter(r => r.min > 0);
+  const top = rows.reduce((a, r) => r.min > a.min ? r : a, { min: 0 });
+  return `<div class="phint ${need.length ? 'need' : ''}"><b>🔥 Халаалт:</b> ${need.length ? `хамгийн багадаа <b>${top.min} °C</b> (${esc(top.grade)}, ${top.t} мм — ${esc(top.std)})` : 'шаардлагагүй'}${need.length > 1 ? ' · ' + need.slice(1).map(r => `${esc(r.grade)} ${r.t} мм → ${r.min} °C`).join(' · ') : ''}${top.max ? ` · interpass ≤ ${top.max} °C` : ''}</div>`;
+}
+/* scope-tab card */
+function weldCardHTML(job) {
+  const { rows, max, W } = jobWeldRows(job);
+  return `<div class="jcard"><div class="bcard-h">Гагнуур · урьдчилан халаалт (автомат) <span class="sp"></span><span class="muted" style="font-weight:400;font-size:12px">AWS D1.1 · SSAB</span></div><div class="jbody">
+    <div class="jgrid"><label class="fld">Гагнуурын процесс<select id="w_proc">${WELD_PROC.map(([k, n]) => `<option value="${k}"${W.proc === k ? ' selected' : ''}>${n}</option>`).join('')}</select></label>
+      <label class="check" style="align-self:end"><input type="checkbox" id="w_cold"${W.cold ? ' checked' : ''}><span>Хүйтэн улиралд (металл 0 °C-аас доош)</span></label></div>
+    ${rows.length ? `<div class="phint ${max ? 'need' : ''}"><b>🔥 Энэ ажилд:</b> ${max ? `урьдчилан халаалт <b>${max} °C</b>-аас багагүй. Гагнуурын тэнхлэгээс хоёр тийш зузаанаас багагүй, 75 мм-ээс багагүй зайд халаана.` : 'урьдчилан халаалт шаардлагагүй.'}</div>
+    <div class="tblwrap"><table class="dt"><thead><tr><th>Материал</th><th>Ангилал</th><th class="r">Хамгийн их зузаан, мм</th><th class="r">Халаалт, min</th><th class="r">Interpass, max</th><th>Эх үүсвэр</th><th>Тайлбар</th></tr></thead><tbody>
+    ${rows.map(r => `<tr><td>${esc(r.mat)}</td><td>${esc(r.grade)}</td><td class="r num">${r.t}</td><td class="r num ${r.min ? 'late' : ''}">${phTxt(r)}</td><td class="r num">${r.max ? r.max + ' °C' : '—'}</td><td>${esc(r.std)}</td><td style="white-space:normal">${esc(r.note || r.src)}</td></tr>`).join('')}
+    </tbody></table></div>${max ? '<div class="exports"><button class="btn sm" id="w_toQuote">Халаалтын зардлыг үнийн саналд нэмэх</button></div>' : ''}` : '<p class="note">Ажилд парт эсвэл үнийн саналд зузаантай материал (жишээ: «Hardox 450 20мм») ормогц халаалт автоматаар тооцогдоно.</p>'}
+    <p class="note">AWS D1.1-ийн урьдчилан баталгаажсан (prequalified) хамгийн бага утга. Hardox, Strenx-д SSAB-ийн зөвлөмж. Батлагдсан WPS байвал түүнийг мөрдөнө.</p>
+  </div></div>`;
+}
+function bindWeldCard(root, job, re) {
+  const p = root.querySelector('#w_proc'); if (!p) return;
+  p.addEventListener('change', () => { job.weld.proc = p.value; save(); re(); });
+  root.querySelector('#w_cold').addEventListener('change', e => { job.weld.cold = e.target.checked; save(); re(); });
+  const q = root.querySelector('#w_toQuote'); if (q) q.addEventListener('click', () => { const mx = jobWeldRows(job).max; jx(job); job.quote.equipRows = job.quote.equipRows.filter(r => !r.ph); job.quote.equipRows.push({ name: `Урьдчилан халаалт ${mx} °C (хий, шарагч / индукц)`, qty: 1, unit: 'иж', price: 0, note: 'AWS D1.1 / SSAB — үнийг оруулна', ph: 1 }); save(); toast('Үнийн санал → D хэсэгт нэмэгдлээ, үнийг оруулна уу'); });
+}
+
+/* ---------- standards library: info tab «Стандарт» ---------- */
+const DOCS_DB = 'kh-docs';
+function idb() { return new Promise((res, rej) => { const r = indexedDB.open(DOCS_DB, 1); r.onupgradeneeded = () => r.result.createObjectStore('docs', { keyPath: 'id' }); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); }); }
+async function docsAll() { try { const db = await idb(); return await new Promise(res => { const out = []; const c = db.transaction('docs').objectStore('docs').openCursor(); c.onsuccess = () => { const k = c.result; if (k) { const v = k.value; out.push({ id: v.id, name: v.name, size: v.size, added: v.added, tag: v.tag }); k.continue(); } else res(out); }; c.onerror = () => res(out); }); } catch (e) { return []; } }
+async function docGet(id) { const db = await idb(); return new Promise(res => { const r = db.transaction('docs').objectStore('docs').get(id); r.onsuccess = () => res(r.result); r.onerror = () => res(null); }); }
+async function docPut(o) { const db = await idb(); return new Promise((res, rej) => { const t = db.transaction('docs', 'readwrite'); t.objectStore('docs').put(o); t.oncomplete = () => res(); t.onerror = () => rej(t.error); }); }
+async function docDel(id) { const db = await idb(); return new Promise(res => { const t = db.transaction('docs', 'readwrite'); t.objectStore('docs').delete(id); t.oncomplete = () => res(); }); }
+const STDV = { calc: { mat: 'S355 / 09Г2С', t: 25, proc: 'lowH', cold: false }, open: null };
+async function renderStdSide() {
+  const el = $('#stdDocs'); if (!el) return; const list = await docsAll();
+  el.innerHTML = list.length ? list.map(d => `<div class="jitem${STDV.open === d.id ? ' on' : ''}" data-doc="${d.id}"><span class="no" style="font-family:inherit">${esc(d.name)}</span><button class="x" data-ddel="${d.id}" aria-label="Устгах">×</button><span class="t">${esc(d.tag || '')} · ${nf(d.size / 1048576, 1)} MB · ${esc(d.added)}</span></div>`).join('') : '<p class="note">Хавсаргасан стандарт алга.</p>';
+}
+async function renderStdMain(el) {
+  const C = STDV.calc, r = preheatFor(C.mat, +C.t || 0, C.proc, C.cold);
+  const mats = [...new Set(S.materials.map(m => m.name).concat(Object.keys(SSAB_PH)))];
+  let viewer = '';
+  if (STDV.open) { const d = await docGet(STDV.open); if (d) { if (STDV.url) URL.revokeObjectURL(STDV.url); STDV.url = URL.createObjectURL(d.blob); viewer = `<div class="jcard"><div class="bcard-h">${esc(d.name)} <span class="sp"></span><button class="btn sm" id="stdSave">Компьютерт хадгалах</button><button class="btn sm ghost" id="stdClose">Хаах</button></div><iframe class="stdview" src="${STDV.url}#view=FitH" title="${esc(d.name)}"></iframe></div>`; } }
+  const tbl = (rows, head) => `<div class="tblwrap"><table class="dt"><thead><tr>${head.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table></div>`;
+  const rng = tab => tab.length === 1 && tab[0][0] >= 1e8 ? `Бүх зузаан: <b>${tab[0][1] ? tab[0][1] + ' °C' : '—'}</b>` : tab.map(([u, v], i) => `${i ? '>' + tab[i - 1][0] : '≤'}${u >= 1e8 ? '' : (i ? '–' : '') + u} мм: <b>${v ? v + ' °C' : '—'}</b>`.replace('≤', '≤ ').replace(/^>(\d+(?:\.\d+)?)$/, '> $1')).join(' · ');
+  el.innerHTML = `${viewer}
+    <div class="jcard"><div class="bcard-h">Урьдчилан халаалтын тооцоолуур</div><div class="jbody">
+      <div class="jgrid"><label class="fld">Материал<input id="sc_mat" list="stdMats" value="${esc(C.mat)}"><datalist id="stdMats">${mats.map(m => `<option value="${esc(m)}">`).join('')}</datalist></label>
+        <label class="fld">Хамгийн зузаан хэсэг, мм<input id="sc_t" type="number" min="1" step="1" value="${C.t}" class="mono"></label>
+        <label class="fld">Процесс<select id="sc_proc">${WELD_PROC.map(([k, n]) => `<option value="${k}"${C.proc === k ? ' selected' : ''}>${n}</option>`).join('')}</select></label>
+        <label class="check" style="align-self:end"><input type="checkbox" id="sc_cold"${C.cold ? ' checked' : ''}><span>Металл 0 °C-аас доош</span></label></div>
+      <div class="summary">${[['Урьдчилан халаалт', r.min ? r.min + '<small>°C</small>' : '—', r.min ? 'хамгийн бага' : 'шаардлагагүй'], ['Interpass', r.max ? '≤' + r.max + '<small>°C</small>' : '—', 'хамгийн их'], ['Ангилал', esc(r.grade), esc(r.std)], ['Халаах бүс', `${Math.max(75, +C.t || 0)}<small>мм</small>`, 'тэнхлэгээс хоёр тийш']].map(s => `<div class="stat"><div class="k">${s[0]}</div><div class="v" style="white-space:normal;font-size:16px">${s[1]}</div><div class="s">${s[2]}</div></div>`).join('')}</div>
+      ${r.note ? `<p class="note">${esc(r.note)}</p>` : ''}
+    </div></div>
+    <div class="jcard"><div class="bcard-h">AWS D1.1 — урьдчилан баталгаажсан халаалт (хураангуй)</div><div class="jbody">
+      ${tbl(['A', 'B', 'C', 'D'].map(k => `<tr><td><b>${k}</b></td><td style="white-space:normal">${esc(D11_DESC[k])}</td><td style="white-space:normal">${rng(D11[k])}</td></tr>`), ['Ангилал', 'Ган, процесс', 'Хамгийн их зузаан → хамгийн бага халаалт'])}
+      <ul class="stdl"><li>Зузааныг гагнах цэг дээрх хамгийн зузаан эд ангиар авна.</li><li>Хүснэгтэд «—» байсан ч металл 0 °C-аас хүйтэн бол 20 °C хүртэл халааж, гагнуурын турш барина.</li><li>Гагнуурын тэнхлэгээс бүх чиглэлд зузаантай тэнцүү, гэхдээ 75 мм-ээс багагүй зайд халаана.</li><li>Interpass температур мөн адил хамгийн бага утгаас доош унах ёсгүй.</li><li>Урьдчилан баталгаажаагүй (non-prequalified) материал, нөхцөлд PQR-аар баталгаажсан WPS шаардлагатай.</li></ul>
+      <p class="note">Энэ бол хураангуй. Стандартын албан ёсны текстийг AWS худалдаалдаг тул програмд хавсаргаагүй. Танай компанид байгаа D1.1-ийн хувийг зүүн талын «Стандарт хавсаргах» товчоор оруулбал энд нээгдэнэ.</p>
+    </div></div>
+    <div class="jcard"><div class="bcard-h">Hardox / Strenx — SSAB зөвлөмж <span class="sp"></span><a class="linkbtn" href="https://www.ssab.com/en/support/how-to-process/how-to-weld" target="_blank" rel="noopener">ssab.com ↗</a></div><div class="jbody">
+      ${tbl(Object.entries(SSAB_PH).map(([g, [tab, mx]]) => `<tr><td><b>${esc(g)}</b></td><td style="white-space:normal">${rng(tab)}</td><td class="r num">${mx} °C</td></tr>`), ['Зэрэг', 'Хавтангийн зузаан → хамгийн бага халаалт', 'Interpass max'])}
+      <p class="note">Нэг хавтангийн зузаанаар. Өөр өөр зузаан, зэрэгтэй хавтанг холбоход өндөр шаардлагатайг нь мөрдөнө. Нэмэлт материал заавал бага устөрөгчийн (≤5 мл/100 г) байна.</p>
+    </div></div>`;
+  const up = () => { C.mat = el.querySelector('#sc_mat').value; C.t = +el.querySelector('#sc_t').value || 0; C.proc = el.querySelector('#sc_proc').value; C.cold = el.querySelector('#sc_cold').checked; renderStdMain(el); };
+  ['#sc_mat', '#sc_t', '#sc_proc', '#sc_cold'].forEach(s => el.querySelector(s).addEventListener('change', up));
+  const sv = el.querySelector('#stdSave'); if (sv) sv.addEventListener('click', async () => { const d = await docGet(STDV.open); if (d) saveFile(d.name, d.blob); });
+  const cl = el.querySelector('#stdClose'); if (cl) cl.addEventListener('click', () => { STDV.open = null; renderStdSide(); renderStdMain(el); });
+}
+(() => {
+  const L = $('#stdDocs'); if (!L) return;
+  $('#stdAdd').addEventListener('click', () => $('#stdFile').click());
+  $('#stdFile').addEventListener('change', async e => {
+    const fs = [...e.target.files]; e.target.value = ''; let n = 0;
+    for (const f of fs) { try { await docPut({ id: uid(), name: f.name, size: f.size, added: today(), tag: /d1\.1|aws/i.test(f.name) ? 'AWS D1.1' : (f.name.split('.').pop() || '').toUpperCase(), blob: f }); n++; } catch (err) { toast('Хадгалж чадсангүй: ' + f.name); } }
+    if (n) toast(`${n} файл стандартын санд нэмэгдлээ`); renderStdSide();
+  });
+  L.addEventListener('click', async e => {
+    const d = e.target.closest('[data-ddel]'); if (d) { e.stopPropagation(); if (!d.dataset.arm) { d.dataset.arm = 1; d.textContent = '?'; setTimeout(() => { delete d.dataset.arm; d.textContent = '×'; }, 2500); return; } await docDel(d.dataset.ddel); if (STDV.open === d.dataset.ddel) STDV.open = null; renderStdSide(); renderInfoMain(); return; }
+    const it = e.target.closest('[data-doc]'); if (!it) return; STDV.open = it.dataset.doc; renderStdSide(); renderInfoMain();
+  });
+})();
+
+/* ================= Kh International — material / price catalogue =================
+   Items: {id, name, grp, cat, unit, price, kgu (kg per unit), sup (supplier), spec (requirement / grade), vat (price incl. VAT), date}
+   TT_2026_05 = Түмэн Төмөрт Групп price list (May 2026, VAT included), injected by build.py.
+   Weights: geometry (pipes, hollow sections, sheets, bars) and the Maiak-M catalogue tables (MAIAK_PROFILES). */
+const TT_SUP = 'Түмэн Төмөрт Групп';
+const RHO = { st: 7.85, ss: 7.93, al: 2.70 };
+const GOST8239 = { 10: 9.46, 12: 11.5, 14: 13.7, 16: 15.9, 18: 18.4, 20: 21.0, 22: 24.0, 24: 27.3, 27: 31.5, 30: 36.5, 33: 42.2, 36: 48.6, 40: 57.0, 45: 66.5 };
+const JIS_H = { '100×100': 17.2, '150×150': 31.5, '200×200': 49.9, '244×175': 44.1, '250×250': 72.4, '300×300': 94.0, '350×175': 49.6, '400×200': 66.0, '450×200': 76.0 };
+const num = s => +String(s || '').replace(',', '.').replace(/[^\d.]/g, '') || 0;
+const dims = s => String(s || '').split(/[*×x]/).map(num);
+/* kg per unit from group + sizes */
+function kgPerUnit(it) {
+  const g = it.grp || '', a = it.a, b = it.b, c = it.c;
+  const rho = /нерж|ss3/i.test(g) ? RHO.ss : /хөнгөн/i.test(g) ? RHO.al : RHO.st;
+  if (/^Труба/.test(g)) { const D = num(a), t = num(b); return D && t ? Math.round((D - t) * t * Math.PI * 7.85e-3 * 1000) / 1000 : 0; }
+  if (/^Квадрат/.test(g)) { const [w, h] = dims(String(a).split('-')[0]), t = num(b); if (!(w && h && t)) return 0; const ro = 2 * t, ri = t, A = 2 * t * (w + h - 2 * t) - (4 - Math.PI) * (ro * ro - ri * ri); return Math.round(A * 7.85e-3 * 1000) / 1000; }
+  if (/^Лист/.test(g) && !/торон|нүхтэй/.test(g)) { const t = num(a); if (!t) return 0; const perM2 = t * rho; if (it.unit === 'хуудас') { const [x, y] = dims(b); return x && y ? Math.round(x * y * perM2 * 10) / 10 : 0; } return Math.round(perM2 * 100) / 100; }
+  if (/^Круг 6/.test(g)) { const s = num(a); return Math.round(0.866025 * s * s * 7.85e-3 * 1000) / 1000; }
+  if (/^Круг/.test(g)) { const d = num(a); return Math.round(Math.PI * d * d / 4 * 7.85e-3 * 1000) / 1000; }
+  if (/^Полоса/.test(g)) { const w = num(a) * 10, t = num(b); return Math.round(w * t * 7.85e-3 * 1000) / 1000; }
+  if (/^Арматур|^Катанги/.test(g)) return 1000;
+  if (/^Швеллер/.test(g)) { const n = String(a).split('-')[0]; if (n.includes('*')) return 0; const k = 'GOST 8240 №' + (n === '6' ? '6,5' : n); const P = MAIAK_PROFILES[k]; return n === '5' ? 4.84 : P ? (n === '27' ? 27.7 : P.kg) : 0; }
+  if (/^Двутавр/.test(g)) return GOST8239[num(String(a).split('-')[0])] || 0;
+  if (/^А двутавр/.test(g)) return JIS_H[String(a).replace('*', '×')] || 0;
+  return 0;
+}
+const kgNote = it => /^Швеллер/.test(it.grp) ? 'кг: ГОСТ 8240 (Маяк-М каталог), ойролцоо' : /^Двутавр/.test(it.grp) ? 'кг: ГОСТ 8239, ойролцоо' : /^А двутавр/.test(it.grp) ? 'кг: JIS H-beam, ойролцоо' : /^Квадрат/.test(it.grp) ? 'кг: EN 10219 томьёо' : '';
+function ttItems() {
+  return TT_2026_05.map(it => ({ id: 'tt-' + it.name, name: it.name, grp: it.grp, cat: 'mat', unit: it.unit, price: it.price, kgu: kgPerUnit(it), sup: TT_SUP, vat: true, date: '2026-05',
+    spec: [it.sheetQ ? 'Үнийн хуудсанд «1м.кв үнэ» гэсэн ч хэмжээгээр харьцуулахад нэг хуудасны үнэ бололтой — нийлүүлэгчээс тодруулна' : '', kgNote(it), /Q345/.test(it.name) ? 'Q345 ≈ S355' : ''].filter(Boolean).join('; '), src: 'tt' }));
+}
+function CAT() {
+  if (!Array.isArray(S.catalog)) S.catalog = [];
+  if (!S.catalogTT) { // seed once; later price lists update by name
+    const have = new Map(S.catalog.map(c => [c.name.toLowerCase(), c]));
+    ttItems().forEach(it => { const o = have.get(it.name.toLowerCase()); if (o) Object.assign(o, { price: it.price, kgu: o.kgu || it.kgu, sup: it.sup, vat: true, date: it.date }); else S.catalog.push(it); });
+    CONS_PRESET.forEach(([name, unit, price]) => { if (!S.catalog.some(c => c.name === name)) S.catalog.push({ id: uid(), name, grp: 'Consumable', cat: 'cons', unit, price, kgu: unit === 'кг' ? 1 : 0, sup: '', spec: '', vat: true, date: '' }); });
+    S.catalogTT = 1; save();
+  }
+  return S.catalog;
+}
+const catFindExact = name => { const n = String(name || '').trim().toLowerCase(); return n ? CAT().find(c => c.name.toLowerCase() === n) : null; };
+/* best match for a typed name: every typed token present → cheapest ₮/kg (or ₮/unit) */
+function catFindFuzzy(name, cat) {
+  const toks = String(name || '').toLowerCase().replace(/[×x*]/g, ' ').replace(/(\d)\s*(мм|mm)/g, '$1').split(/[\s,/()]+/).filter(t => t.length > 0 && !/^(мм|mm|м)$/.test(t));
+  if (!toks.length) return null;
+  const hits = CAT().filter(c => (!cat || c.cat === cat) && (() => { const h = (c.name + ' ' + (c.grp || '') + ' ' + (c.spec || '')).toLowerCase().replace(/[×x*]/g, ' ').replace(/(\d)\s*(мм|mm)/g, '$1'); const words = h.split(/[\s,/()øØ№]+/); const pool = words.slice(); return toks.every(t => { if (!/^\d/.test(t)) return h.includes(t); const i = pool.findIndex(w => w === t || w === t.replace('.', ',')); if (i < 0) return false; pool.splice(i, 1); return true; }); })());
+  if (!hits.length) return null;
+  return hits.sort((a, b) => (a.kgu ? a.price / a.kgu : a.price) - (b.kgu ? b.price / b.kgu : b.price))[0];
+}
+const netPrice = (c, q) => Math.round(c.vat && (!q || q.netIn !== false) ? c.price / (1 + ((q && +q.vat) || 10) / 100) : c.price);
+/* quote line hook: fill from catalogue / learn new items */
+function quoteLineHook(job, id, row, key) {
+  const cat = { qm: 'mat', qc: 'cons', qe: 'equip', qo: 'other' }[id]; if (!cat) return;
+  const q = job.quote;
+  if (key === 'name') {
+    let c = catFindExact(row.name), fz = false;
+    if (!c && row.name && !(+row.price > 0)) { c = catFindFuzzy(row.name, cat === 'mat' ? 'mat' : null); fz = !!c; }
+    if (c) {
+      if (fz) row.name = c.name;
+      row.unit = c.unit; row.price = netPrice(c, q); row.kgu = c.kgu || ''; row.sup = c.sup || ''; row.catId = c.id;
+      row.note = [c.sup, c.vat && q.netIn !== false ? 'НӨАТ-гүй үнэ' : '', fz ? 'сангаас автоматаар' : ''].filter(Boolean).join(' · ');
+      if (fz) toast('Сангаас сонгогдлоо: ' + c.name);
+      return;
+    }
+  }
+  if (row.name && !+row.kgu && /м²|м2/.test(row.unit || '') && thkOf(row.name)) { const G = gradeOf(row.name); row.kgu = Math.round(thkOf(row.name) * (G && G.t === 'al' ? 2.7 : G && G.t === 'ss' ? 7.93 : 7.85) * 100) / 100; }
+  if (row.name && !+row.kgu && row.unit === 'кг') row.kgu = 1;
+  if (!row.name || !(+row.price > 0)) return;
+  const ex = catFindExact(row.name);
+  if (ex) { if (['price', 'unit', 'kgu'].includes(key) && ex.src !== 'tt') { ex.price = row.note && /НӨАТ-гүй/.test(row.note) && ex.vat ? Math.round(row.price * (1 + (+q.vat || 10) / 100)) : +row.price; ex.unit = row.unit; if (row.kgu) ex.kgu = +row.kgu; ex.date = today(); } return; }
+  CAT().push({ id: uid(), name: row.name.trim(), grp: 'Миний оруулсан', cat, unit: row.unit || 'ш', price: +row.price, kgu: +row.kgu || (row.unit === 'кг' ? 1 : 0), sup: (row.note || '').split('·')[0].trim(), spec: '', vat: false, date: today(), src: 'user' });
+  toast('Шинэ материал санд нэмэгдлээ: ' + row.name);
+}
+function catDatalists() {
+  const C = CAT(), opt = c => `<option value="${esc(c.name)}">${esc(`${money(c.price)} ₮/${c.unit}${c.kgu && c.unit !== 'кг' ? ' · ' + money(c.price / c.kgu) + ' ₮/кг' : ''} · ${c.sup || ''}`)}</option>`;
+  return `<datalist id="dl-mat">${C.filter(c => c.cat === 'mat').map(opt).join('')}</datalist><datalist id="dl-any">${C.filter(c => c.cat !== 'mat').map(opt).join('')}</datalist>`;
+}
+
+/* ---------- catalogue management (Jobs → «Үнийн сан») ---------- */
+const CV = { q: '', grp: '', sup: '', lim: 120 };
+const CAT_COLS = [{ k: 'name', t: 'Нэр', w: 300 }, { k: 'grp', t: 'Бүлэг', w: 150 }, { k: 'cat', t: 'Ангилал', sel: [['mat', 'Материал'], ['cons', 'Consumable'], ['equip', 'Тоног, үйлчилгээ'], ['other', 'Бусад']], w: 120 }, { k: 'unit', t: 'Нэгж', w: 64 }, { k: 'price', t: 'Үнэ, ₮', num: 1, w: 105 }, { k: 'kgu', t: 'кг/нэгж', num: 1, w: 80 }, { k: 'pk', t: '₮/кг', calc: r => r.kgu ? money(r.price / r.kgu) : '—' }, { k: 'vat', t: 'НӨАТ орсон', chk: 1, w: 70 }, { k: 'sup', t: 'Нийлүүлэгч', w: 150 }, { k: 'spec', t: 'Шаардлага / стандарт / тэмдэглэл' }, { k: 'date', t: 'Огноо', w: 90 }];
+function renderCatMain(el) {
+  const C = CAT(), q = CV.q.toLowerCase();
+  const list = C.filter(c => (!CV.grp || c.grp === CV.grp) && (!CV.sup || c.sup === CV.sup) && (!q || (c.name + ' ' + c.spec + ' ' + c.sup).toLowerCase().includes(q)));
+  const grps = [...new Set(C.map(c => c.grp).filter(Boolean))].sort(), sups = [...new Set(C.map(c => c.sup).filter(Boolean))].sort();
+  const shown = list.slice(0, CV.lim);
+  el.innerHTML = `<div class="bhead">
+      <label class="fld grow">Хайх<input id="cv_q" value="${esc(CV.q)}" placeholder="жишээ: труба 159, лист 10, Q345…"></label>
+      <label class="fld">Бүлэг<select id="cv_grp"><option value="">Бүгд</option>${grps.map(g => `<option${g === CV.grp ? ' selected' : ''}>${esc(g)}</option>`).join('')}</select></label>
+      <label class="fld">Нийлүүлэгч<select id="cv_sup"><option value="">Бүгд</option>${sups.map(g => `<option${g === CV.sup ? ' selected' : ''}>${esc(g)}</option>`).join('')}</select></label>
+    </div>
+    <div class="exports"><button class="btn" id="cvImport">Excel / CSV үнийн хуудас импортлох</button><button class="btn ghost" id="cvTT">Түмэн Төмөрт 2026-05 дахин ачаалах</button><input type="file" id="cvFile" accept=".xlsx,.xls,.csv,.txt" hidden><span class="note">${list.length} / ${C.length} бараа${list.length > shown.length ? ` · эхний ${shown.length}-г харуулж байна` : ''}. Үнийн саналд шинээр шивсэн материал энд автоматаар нэмэгдэнэ.</span></div>
+    <div class="jcard"><div class="jbody">${edTable('cv', CAT_COLS, shown)}${list.length > shown.length ? '<button class="btn sm" id="cvMore">Цааш харуулах</button>' : ''}</div></div>
+    <p class="note">Excel/CSV багана: нэр, нэгж, үнэ, кг/нэгж, нийлүүлэгч, шаардлага (эхний мөр гарчиг). Ижил нэртэй бараа байвал үнэ нь шинэчлэгдэнэ. Түмэн Төмөрт Группийн үнэд НӨАТ орсон; үнийн саналд НӨАТ-гүй үнээр орно.</p>`;
+  const re = () => renderCatMain(el);
+  [['cv_q', 'q'], ['cv_grp', 'grp'], ['cv_sup', 'sup']].forEach(([id, k]) => el.querySelector('#' + id).addEventListener('change', e => { CV[k] = e.target.value; CV.lim = 120; re(); }));
+  bindEd(el, { cv: { arr: () => { const o = { length: shown.length, splice: i => { const k = C.indexOf(shown[i]); if (k >= 0) C.splice(k, 1); }, push: v => C.unshift(v) }; shown.forEach((r, i) => o[i] = r); return o; }, cols: CAT_COLS, blank: () => ({ id: uid(), name: 'Шинэ бараа', grp: CV.grp || 'Миний оруулсан', cat: 'mat', unit: 'ш', price: 0, kgu: 0, sup: CV.sup || '', spec: '', vat: false, date: today(), src: 'user' }) } }, re);
+  const mo = el.querySelector('#cvMore'); if (mo) mo.addEventListener('click', () => { CV.lim += 300; re(); });
+  el.querySelector('#cvTT').addEventListener('click', () => { S.catalogTT = 0; CAT(); re(); toast('Түмэн Төмөрт Группийн үнэ шинэчлэгдлээ'); });
+  el.querySelector('#cvImport').addEventListener('click', () => el.querySelector('#cvFile').click());
+  el.querySelector('#cvFile').addEventListener('change', async e => {
+    const f = e.target.files[0]; e.target.value = ''; if (!f) return;
+    try {
+      let rows;
+      if (/\.csv$|\.txt$/i.test(f.name)) { const t = await f.text(), sep = (t.split('\n')[0].match(/;/g) || []).length > (t.split('\n')[0].match(/,/g) || []).length ? ';' : ','; rows = t.split(/\r?\n/).filter(Boolean).map(l => l.split(sep)); }
+      else { if (!window.XLSX) await loadScript(XLSX_URL); const wb = XLSX.read(await f.arrayBuffer()); rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1 }); }
+      const sup = prompt('Нийлүүлэгчийн нэр (бүх мөрд бичигдэнэ):', '') || '';
+      let n = 0, u = 0; rows.slice(1).forEach(r => { const name = String(r[0] || '').trim(), price = num(r[2]); if (!name || !price) return; const ex = catFindExact(name); if (ex) { ex.price = price; ex.date = today(); if (r[1]) ex.unit = String(r[1]); if (num(r[3])) ex.kgu = num(r[3]); if (sup || r[4]) ex.sup = sup || String(r[4]); u++; } else { C.push({ id: uid(), name, grp: sup || 'Импорт', cat: 'mat', unit: String(r[1] || 'ш'), price, kgu: num(r[3]), sup: sup || String(r[4] || ''), spec: String(r[5] || ''), vat: true, date: today(), src: 'import' }); n++; } });
+      save(); re(); toast(`${n} шинэ, ${u} шинэчлэгдсэн`);
+    } catch (err) { toast('Файл уншигдсангүй'); }
+  });
+}
+
+function renderCatSide() {
+  const el = $('#catSups'); if (!el) return; const C = CAT(), by = {};
+  C.forEach(c => { const k = c.sup || '— нийлүүлэгчгүй'; by[k] = by[k] || { n: 0, d: '' }; by[k].n++; if ((c.date || '') > by[k].d) by[k].d = c.date || ''; });
+  el.innerHTML = Object.entries(by).sort((a, b) => b[1].n - a[1].n).map(([k, v]) => `<div class="jitem${CV.sup === k ? ' on' : ''}" data-sup="${esc(k)}"><span class="no" style="font-family:inherit">${esc(k)}</span><span class="pill">${v.n}</span><span class="t">${v.d ? 'үнэ: ' + esc(v.d) : ''}</span></div>`).join('');
+  el.querySelectorAll('[data-sup]').forEach(x => x.addEventListener('click', () => { CV.sup = CV.sup === x.dataset.sup || x.dataset.sup.startsWith('—') ? '' : x.dataset.sup; renderCatSide(); renderCatMain($('#jobsMain')); }));
+}
+
+/* ================= Kh International — customer quotation in the company's own form =================
+   Reproduces «SQ… - Quotation» (Excel → PDF, US Letter): logo + tagline, company address, purple rule,
+   customer box, QUOTATION box, address row, items table, special note, included / excluded,
+   terms + totals block, thank-you band. Coordinates measured from the original (mm). */
+const CO_DEF = { name: 'Kh International LLC', tag: 'Know us, know the quality', a1: 'Ulaanbaatar Mongolia,', a2: 'Songino Khairkhan District, 20th Khoroo', a3: 'Sonsgolon Street, 18131, 67th Unit', bank: 'KHAS 5004206842', reg: '6215572', currency: 'MNT' };
+const QF_NOTE = 'This quotation may be subject to revision in the event of any variation or modification to the scope of work, including but not limited to additional engineering drawings or fabrication services.';
+const company = () => (S.company = Object.assign({}, CO_DEF, S.company || {}));
+const QFS = { fill: '#d9e1f2', line: '#000', purple: '#7030a0', blue: '#4472c4', link: '#0563c1', F: '"Times New Roman", Times, "Liberation Serif", serif' };
+const fmtD = d => { if (!d) return ''; const t = new Date(d + 'T00:00:00'); return isNaN(t) ? d : `${t.getDate()}-${['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][t.getMonth()]}-${String(t.getFullYear()).slice(2)}`; };
+const n0 = v => Math.round(+v || 0).toLocaleString('en-US');
+function qfDefaults(job) {
+  jx(job); const q = job.quote, sc = job.scope;
+  if (q.qf) return q.qf;
+  q.qf = { custId: '', rfqName: job.title || '', rfqNo: 'N/A', person: '', email: '', phone: '', address: '', lead: '', delivery: "Kh will delivery customer's WHS", pay: '100% after work completion', discount: 0, mode: 'single', note: QF_NOTE,
+    incl: (sc.incl ? sc.incl.split(/\n|;/) : []).map(s => s.trim()).filter(Boolean).join('\n') || 'All consumables required for the work are included in the quoted price.', excl: (sc.excl || '').split(/\n|;/).map(s => s.trim()).filter(Boolean).join('\n'), title: job.title || '' };
+  return q.qf;
+}
+/* line items for the form, net of VAT, margin spread so the sum = offer */
+function qfLines(job) {
+  const q = job.quote, c = quoteCalc(job), f = qfDefaults(job), k = c.k;
+  if (f.mode === 'single') return [{ d: f.title || job.title || 'Fabrication work', u: 'set', q: 1, p: c.net, b: 1 }];
+  if (f.mode === 'sections') return [['Materials and purchasing (incl. scrap allowance, transport)', c.matTotal - c.cons], ['Consumables', c.cons], ['Labour', c.laborTotal], ['Equipment and services', c.equip], ['Other', c.other]].filter(r => r[1] > 0).map(([d, v]) => ({ d, u: 'lot', q: 1, p: v * k }));
+  const L = []; const add = (arr) => arr.filter(r => r.name && +r.qty).forEach(r => L.push({ d: r.name, u: r.unit || 'pcs', q: +r.qty, p: (+r.price || 0) * k }));
+  add(q.mats); if (c.scrap) L.push({ d: `Scrap allowance (${q.scrapPct}%)`, u: 'lot', q: 1, p: c.scrap * k }); if (c.trans) L.push({ d: 'Transport / delivery', u: 'lot', q: 1, p: c.trans * k });
+  add(q.cons); c.labor.filter(l => l.cost).forEach(l => L.push({ d: `Labour — ${l.name}`, u: 'h', q: l.h, p: c.rate * k }));
+  add(q.equipRows); if (c.equipPctV) L.push({ d: 'Equipment wear', u: 'lot', q: 1, p: c.equipPctV * k }); add(q.other);
+  return L;
+}
+async function quoteFormImgs(job) {
+  try { await document.fonts.ready; } catch (e) { } await logoImg();
+  const q = job.quote, f = qfDefaults(job), C = company(), lines = qfLines(job), vatR = +q.vat || 0;
+  const excl = lines.reduce((a, l) => a + Math.round(l.p) * l.q, 0), disc = +f.discount || 0, vat = Math.round((excl - disc) * vatR / 100), total = excl - disc + vat;
+  const W = 215.9, H = 279.4, K = 5, L0 = 23.9, R0 = 198.0, pages = [];
+  let x, y;
+  const newPage = () => { const c = document.createElement('canvas'); c.width = Math.round(W * K); c.height = Math.round(H * K); x = c.getContext('2d'); x.scale(K, K); x.fillStyle = '#fff'; x.fillRect(0, 0, W, H); pages.push(c); };
+  const T = (s, X, Y, o = {}) => { x.font = `${o.b ? 700 : 400} ${(o.s || 2.55) * 1.08}px ${QFS.F}`; x.fillStyle = o.c || '#000'; x.textAlign = o.a || 'left'; x.textBaseline = 'middle'; let v = String(s ?? ''); if (o.w) while (v.length > 1 && x.measureText(v).width > o.w) v = v.slice(0, -2) + '…'; x.fillText(v, X, Y); if (o.u) { const w = x.measureText(v).width, x0 = o.a === 'right' ? X - w : o.a === 'center' ? X - w / 2 : X; x.strokeStyle = o.c; x.lineWidth = 0.12; x.beginPath(); x.moveTo(x0, Y + 1.1); x.lineTo(x0 + w, Y + 1.1); x.stroke(); } };
+  const box = (X, Y, w, h, fill) => { if (fill) { x.fillStyle = fill; x.fillRect(X, Y, w, h); } x.strokeStyle = QFS.line; x.lineWidth = 0.22; x.strokeRect(X, Y, w, h); };
+  const ln = (X1, Y1, X2, Y2, w = 0.22) => { x.strokeStyle = QFS.line; x.lineWidth = w; x.beginPath(); x.moveTo(X1, Y1); x.lineTo(X2, Y2); x.stroke(); };
+  const wrap = (s, w, font) => { x.font = font; const out = []; String(s || '').split('\n').forEach(p => { let l = ''; p.split(' ').forEach(wd => { const t = l ? l + ' ' + wd : wd; if (x.measureText(t).width > w && l) { out.push(l); l = wd; } else l = t; }); out.push(l); }); return out; };
+  const header = () => {
+    drawLogo(x, 25.0, 23.8, 15.4);
+    T(C.tag, 30.7, 42.1, { b: 1, s: 2.75, c: QFS.blue });
+    T(C.name, R0 - 0.3, 29.8, { b: 1, s: 3.25, a: 'right' });
+    [C.a1, C.a2, C.a3].forEach((a, i) => T(a, R0 - 0.3, 33.9 + i * 4.05, { s: 2.55, a: 'right' }));
+    x.strokeStyle = QFS.purple; x.lineWidth = 0.35; x.beginPath(); x.moveTo(L0, 46.1); x.lineTo(R0, 46.1); x.stroke();
+  };
+  const itemHead = Y => { const cols = [[L0, 29.8, '№'], [29.8, 128.9, 'Description'], [128.9, 143.7, 'UOM'], [143.7, 157.1, 'QTY'], [157.1, 176.4, 'Unit price'], [176.4, R0, 'Total excluded\nVAT']]; cols.forEach(([a, b, t]) => { box(a, Y, b - a, 6.8, QFS.fill); const ls = t.split('\n'); ls.forEach((l, i) => T(l, (a + b) / 2, Y + 3.4 + (i - (ls.length - 1) / 2) * 2.6, { b: 1, s: 2.55, a: 'center' })); }); return Y + 6.8; };
+  newPage(); header();
+  // customer box
+  const cb = [52.5, 128.9], rows = [['RFQ name', f.rfqName, 1], ['RFQ number', f.rfqNo], ['Name/Position', f.person], ['Email', f.email, 0, 1], ['Phone number', f.phone, 0, 1]];
+  box(L0, 52.5, cb[1] - L0, 78.6 - 52.5); box(L0, 52.5, cb[1] - L0, 5.5, QFS.fill); ln(55.7, 52.5, 55.7, 78.6);
+  T("Customer's name", (L0 + 55.7) / 2, 55.25, { b: 1, s: 2.55, a: 'center' }); T(job.customer || '', 59.1, 55.25, { b: 1, s: 2.6, w: 68 });
+  rows.forEach(([k, v, b, u], i) => { const Y = 60.2 + i * 4.08; T(k, 50.0, Y, { s: 2.5, a: 'right' }); T(v || '', 59.1, Y, { b, s: b ? 2.6 : 2.5, c: u && v ? QFS.link : '#000', u: u && v, w: 68 }); });
+  // QUOTATION box
+  box(137.3, 52.5, R0 - 137.3, 78.6 - 52.5); box(137.3, 52.5, R0 - 137.3, 5.5, QFS.fill); ln(156.8, 58.0, 156.8, 78.6);
+  T('QUOTATION', (137.3 + R0) / 2, 55.25, { b: 1, s: 2.6, a: 'center' });
+  const until = q.date ? addDays(q.date, +q.valid || 0) : '';
+  [['Date', fmtD(q.date || today())], ['Valid Until', fmtD(until)], ['Quote #', q.no || job.no], ['Customer ID', f.custId], ['Lead time', f.lead || q.delivery || '']].forEach(([k, v], i) => { const Y = 60.2 + i * 4.08; T(k, 153.9, Y, { s: 2.5, a: 'right' }); T(v, 160.2, Y, { s: 2.5, w: 37 }); });
+  // address
+  box(L0, 82.7, 55.7 - L0, 6.2, QFS.fill); box(55.7, 82.7, R0 - 55.7, 6.2); T("Customer's address:", (L0 + 55.7) / 2, 85.8, { b: 1, s: 2.55, a: 'center' }); T(f.address, 59.1, 85.8, { s: 2.5, w: R0 - 61 });
+  // items
+  y = itemHead(93.4);
+  const rowFont = `700 2.55px ${QFS.F}`;
+  lines.forEach((l, i) => {
+    const ds = wrap(l.d, 128.9 - 29.8 - 3, rowFont), rh = Math.max(4.1, ds.length * 3.1 + 1);
+    if (y + rh > H - 20) { newPage(); header(); y = itemHead(52.5); }
+    [[L0, 29.8], [29.8, 128.9], [128.9, 143.7], [143.7, 157.1], [157.1, 176.4], [176.4, R0]].forEach(([a, b]) => box(a, y, b - a, rh));
+    const cy = y + rh / 2; T(i + 1, (L0 + 29.8) / 2, cy, { b: 1, s: 2.55, a: 'center' });
+    ds.forEach((d, j) => T(d, 31.2, y + 0.5 + 3.1 * (j + 0.5) + (rh - 1 - ds.length * 3.1) / 2, { b: 1, s: 2.55 }));
+    T(l.u, (128.9 + 143.7) / 2, cy, { b: 1, s: 2.55, a: 'center' }); T(n0(Math.round(l.q * 100) / 100), (143.7 + 157.1) / 2, cy, { b: 1, s: 2.55, a: 'center' });
+    T(n0(l.p), 175.9, cy, { b: 1, s: 2.55, a: 'right' }); T(n0(Math.round(l.p) * l.q), R0 - 0.4, cy, { b: 1, s: 2.55, a: 'right' });
+    y += rh;
+  });
+  // notes block (left 23.9–157.1), right columns continue down
+  const noteF = `400 2.3px ${QFS.F}`, nl = wrap('Special Note : ' + (f.note || ''), 157.1 - L0 - 8, noteF), inc = f.incl.split('\n').filter(Boolean), exc = f.excl.split('\n').filter(Boolean);
+  const nh = nl.length * 2.75 + 2.6, blockH = 4.1 + nh + 6 + inc.length * 4.1 + 4.6 + exc.length * 4.1 + 1.5;
+  if (y + blockH + 28 > H - 12) { newPage(); header(); y = 52.5; }
+  const y0 = y; box(L0, y, 157.1 - L0, 4.1); y += 4.1;
+  box(L0, y, 157.1 - L0, nh, QFS.fill);
+  nl.forEach((l, i) => { const Y = y + 1.3 + 2.75 * (i + 0.5); if (i === 0) { x.font = `700 2.3px ${QFS.F}`; const lw = x.measureText('Special Note :').width, rest = l.slice('Special Note :'.length); x.font = noteF; const tw = lw + x.measureText(rest).width, X0 = (L0 + 157.1) / 2 - tw / 2; T('Special Note :', X0, Y, { b: 1, s: 2.3 }); T(rest, X0 + lw, Y, { s: 2.3 }); } else T(l, (L0 + 157.1) / 2, Y, { s: 2.3, a: 'center' }); });
+  y += nh;
+  T('Quote included:', 27.0, y + 3.2, { b: 1, s: 2.45 }); y += 6.2;
+  inc.forEach((t, i) => { T(`${i + 1}. ${t}`, 34.8, y, { s: 2.3, w: 157.1 - 37 }); y += 4.1; });
+  T('Quote excluded:', 27.0, y + 1.2, { b: 1, s: 2.45 }); y += 3.4;
+  exc.forEach((t, i) => { T(`${i + 1}. ${t}`, 34.8, y + 1.2, { s: 2.3, w: 157.1 - 37 }); y += 4.1; });
+  y += 1.5;
+  ln(L0, y0 + 4.1, L0, y); ln(157.1, y0, 157.1, y); ln(176.4, y0, 176.4, y); ln(R0, y0, R0, y);
+  // terms + totals
+  const tY = y, rh = 4.1, terms = [['Payment Term', f.pay], ['Delivery Term', f.delivery], ['Bank account', C.bank], ['Currency', C.currency], ['Registration of Company', C.reg]];
+  const tots = [['Total excluded VAT', n0(excl)], ['Discount', disc ? n0(disc) : '-'], ['VAT rate', vatR + '%'], ['VAT', n0(vat)], ['Total included VAT', n0(total)]];
+  box(L0, tY, R0 - L0, rh * 5); ln(55.7, tY, 55.7, tY + rh * 5); ln(128.9, tY, 128.9, tY + rh * 5); ln(157.1, tY, 157.1, tY + rh * 5);
+  terms.forEach(([k, v], i) => { const Y = tY + rh * (i + 0.5); T(k, L0 + 0.5, Y, { b: 1, s: 2.4, w: 31 }); T(v, 61.8, Y, { s: 2.5, w: 66 }); });
+  tots.forEach(([k, v], i) => { const Y = tY + rh * (i + 0.5); T(k, 129.3, Y, { b: 1, s: 2.45, w: 27.5 }); T(v, R0 - 0.4, Y, { b: 1, s: 2.5, a: 'right' }); });
+  y = tY + rh * 5; box(L0, y, R0 - L0, 8.1, QFS.fill); T('THANK YOU FOR YOUR COOPERATION!', (L0 + R0) / 2, y + 4.05, { b: 1, s: 3.35, a: 'center' });
+  if (pages.length > 1) pages.forEach((c, i) => { const g = c.getContext('2d'); g.font = `400 2.3px ${QFS.F}`; g.fillStyle = '#555'; g.textAlign = 'right'; g.textBaseline = 'alphabetic'; g.fillText(`Page ${i + 1} of ${pages.length}`, R0, H - 8); });
+  return pages.map((c, i) => ({ url: c.toDataURL('image/jpeg', 0.93), alias: 'qf' + i }));
+}
+async function quoteFormOut(job, mode) {
+  try { const imgs = await quoteFormImgs(job), f = qfDefaults(job), name = `${job.quote.no || job.no} - ${job.customer || 'Customer'} - Quotation for ${f.title || job.title || ''}`.trim();
+    if (mode === 'print') printImgs(imgs, false, 'letter'); else { pdfImgs(imgs, false, name, 'letter'); jobLog('Үнийн санал (Kh загвар) PDF гаргасан', job); } }
+  catch (e) { console.error(e); toast('Алдаа: ' + e.message); }
+}
+function qfCardHTML(job) {
+  const f = qfDefaults(job), C = company();
+  return `<div class="jcard"><div class="bcard-h">Захиалагчид өгөх үнийн санал — Kh International загвар <span class="sp"></span><span class="outb"><button class="btn primary" data-qf="pdf">Үнийн санал PDF</button><button class="btn ghost" data-qf="print">🖨 Хэвлэх</button></span></div><div class="jbody">
+    <div class="jgrid">
+      ${fldIn('qf_title', 'Ажлын нэр (Description)', f.title)}${fldIn('qf_rfqName', 'RFQ name', f.rfqName)}${fldIn('qf_rfqNo', 'RFQ number', f.rfqNo)}${fldIn('qf_custId', 'Customer ID', f.custId)}
+      ${fldIn('qf_person', 'Name / Position', f.person)}${fldIn('qf_email', 'Email', f.email)}${fldIn('qf_phone', 'Phone number', f.phone)}${fldIn('qf_lead', 'Lead time', f.lead, { ph: '5 business days' })}
+      ${fldIn('qf_address', "Customer's address", f.address)}${fldIn('qf_pay', 'Payment term', f.pay)}${fldIn('qf_delivery', 'Delivery term', f.delivery)}${fldIn('qf_discount', 'Discount, ₮', f.discount || '', { num: 1 })}
+      <label class="fld">Мөрийн хэлбэр<select id="qf_mode"><option value="single"${f.mode === 'single' ? ' selected' : ''}>Нэг мөр (set × 1)</option><option value="sections"${f.mode === 'sections' ? ' selected' : ''}>Хэсгээр (материал, хүч, тоног…)</option><option value="detail"${f.mode === 'detail' ? ' selected' : ''}>Дэлгэрэнгүй (мөр бүр)</option></select></label>
+    </div>
+    ${fldIn('qf_note', 'Special note', f.note, { area: 1, rows: 2 })}
+    <div class="jgrid">${fldIn('qf_incl', 'Quote included (мөр бүр нэг заалт)', f.incl, { area: 1, rows: 4 })}${fldIn('qf_excl', 'Quote excluded', f.excl, { area: 1, rows: 4 })}</div>
+    <details><summary class="note" style="cursor:pointer">Компанийн мэдээлэл (загварын толгой, банк, регистр)</summary><div class="jgrid" style="margin-top:8px">${[['name', 'Компанийн нэр'], ['tag', 'Уриа'], ['a1', 'Хаяг 1'], ['a2', 'Хаяг 2'], ['a3', 'Хаяг 3'], ['bank', 'Bank account'], ['reg', 'Registration'], ['currency', 'Currency']].map(([k, n]) => fldIn('co_' + k, n, C[k])).join('')}</div></details>
+  </div></div>`;
+}
+function bindQfCard(el, job) {
+  const f = qfDefaults(job), C = company();
+  ['title', 'rfqName', 'rfqNo', 'custId', 'person', 'email', 'phone', 'lead', 'address', 'pay', 'delivery', 'note', 'incl', 'excl'].forEach(k => { const i = el.querySelector('#qf_' + k); if (i) i.addEventListener('change', () => { f[k] = i.value; save(); }); });
+  const d = el.querySelector('#qf_discount'); if (d) d.addEventListener('change', () => { f.discount = Math.max(0, +d.value || 0); save(); });
+  const m = el.querySelector('#qf_mode'); if (m) m.addEventListener('change', () => { f.mode = m.value; save(); });
+  Object.keys(CO_DEF).forEach(k => { const i = el.querySelector('#co_' + k); if (i) i.addEventListener('change', () => { C[k] = i.value; S.company = C; save(); }); });
+  el.querySelectorAll('[data-qf]').forEach(b => b.addEventListener('click', () => quoteFormOut(job, b.dataset.qf)));
 }
 
 /* ================= KH Bending: flat pattern, tooling, force, sequence ================= */
@@ -8162,6 +8785,7 @@ function renderBucketMain(el) {
         <div class="tblwrap"><table class="dt" style="table-layout:fixed;min-width:0;width:100%"><thead><tr><th style="width:34%">Эд анги</th><th>Материал</th><th style="width:72px">Зузаан</th></tr></thead><tbody id="bkPlates">
           ${plate('side', 'Хажуу')}${plate('wrap', 'Ороох')}${plate('lip', 'Ир')}${plate('top', 'Дээд')}${plate('ear', 'Чих')}${plate('wear', 'Элэгдлийн тууз')}
         </tbody></table></div>
+        <div style="padding:8px 12px 0">${preheatHint(['side', 'wrap', 'lip', 'top', 'ear', 'wear'].map(k => ({ mat: B[k].mat, thk: +B[k].thk })))}</div>
         <div class="jbody"><div class="grid2">
           ${num('lipL', 'Ирний өргөн, мм', 5)}${num('topD', 'Дээд хавтан, мм', 5)}
           ${num('pin', 'Пин Ø, мм', 1)}${num('pitch', 'Пин хоорондын зай, мм', 5)}
@@ -9593,6 +10217,148 @@ const INSTR = {
     emerg: ['Хөмрөх үед бүхээгээс үсрэхгүй, жолооноос чанга барина.', 'Ахлахад мэдэгдэнэ.'] }
 };
 
+/* ================= Kh International — wall poster of a work instruction (A3 / A4) =================
+   Safety signs follow the ISO 7010 colour/shape system (blue = mandatory, red = prohibited,
+   yellow = warning, green = emergency); the pictograms are drawn here, not copied. */
+const SG = { blue: '#1b5aa6', red: '#d21f26', yel: '#f6c400', green: '#1e8e3e', ink: '#111' };
+/* ---- glyphs: drawn in a unit box (-1..1), colour c ---- */
+const GL = {
+  helmet(x, c) { x.fillStyle = c; x.beginPath(); x.arc(0, 0.2, 0.62, Math.PI, 0); x.closePath(); x.fill(); x.fillRect(-0.85, 0.16, 1.7, 0.18); x.fillRect(-0.06, -0.45, 0.12, 0.62); },
+  goggles(x, c) { x.fillStyle = c; x.fillRect(-0.95, -0.05, 1.9, 0.1); [-0.38, 0.38].forEach(X => { x.beginPath(); x.ellipse(X, 0, 0.34, 0.25, 0, 0, Math.PI * 2); x.fill(); }); },
+  glove(x, c) { x.fillStyle = c; rr(x, -0.38, -0.12, 0.72, 0.72, 0.15); x.fill(); [-0.36, -0.17, 0.02, 0.21].forEach((X, i) => { rr(x, X, -0.72 + (i === 0 || i === 3 ? 0.12 : 0), 0.15, 0.7, 0.07); x.fill(); }); x.save(); x.translate(0.38, 0.12); x.rotate(-0.7); rr(x, -0.07, -0.42, 0.15, 0.5, 0.07); x.fill(); x.restore(); },
+  boot(x, c) { x.fillStyle = c; x.beginPath(); x.moveTo(-0.45, -0.75); x.lineTo(0.08, -0.75); x.lineTo(0.08, 0.12); x.quadraticCurveTo(0.7, 0.2, 0.72, 0.5); x.lineTo(0.72, 0.68); x.lineTo(-0.45, 0.68); x.closePath(); x.fill(); },
+  ear(x, c) { x.strokeStyle = c; x.fillStyle = c; x.lineWidth = 0.13; x.beginPath(); x.arc(0, 0.05, 0.58, Math.PI, 0); x.stroke(); rr(x, -0.78, -0.05, 0.32, 0.6, 0.12); x.fill(); rr(x, 0.46, -0.05, 0.32, 0.6, 0.12); x.fill(); },
+  vest(x, c, bg) { x.fillStyle = c; x.beginPath(); x.moveTo(-0.6, -0.65); x.lineTo(-0.25, -0.65); x.lineTo(0, -0.2); x.lineTo(0.25, -0.65); x.lineTo(0.6, -0.65); x.lineTo(0.66, 0.7); x.lineTo(-0.66, 0.7); x.closePath(); x.fill(); x.fillStyle = bg; x.fillRect(-0.66, 0.1, 1.32, 0.1); x.fillRect(-0.66, 0.35, 1.32, 0.1); },
+  shirt(x, c) { x.fillStyle = c; x.beginPath(); x.moveTo(-0.3, -0.65); x.lineTo(0.3, -0.65); x.lineTo(0.85, -0.25); x.lineTo(0.62, 0.02); x.lineTo(0.42, -0.12); x.lineTo(0.42, 0.7); x.lineTo(-0.42, 0.7); x.lineTo(-0.42, -0.12); x.lineTo(-0.62, 0.02); x.lineTo(-0.85, -0.25); x.closePath(); x.fill(); },
+  mask(x, c, bg) { x.strokeStyle = c; x.lineWidth = 0.1; x.beginPath(); x.ellipse(0, -0.05, 0.48, 0.65, 0, 0, Math.PI * 2); x.stroke(); x.fillStyle = c; x.beginPath(); x.ellipse(0, 0.25, 0.42, 0.32, 0, 0, Math.PI * 2); x.fill(); [-0.5, 0.5].forEach(X => { x.beginPath(); x.arc(X, 0.3, 0.2, 0, Math.PI * 2); x.fill(); }); x.fillStyle = bg; [-0.2, 0.2].forEach(X => { x.beginPath(); x.ellipse(X, -0.25, 0.12, 0.07, 0, 0, Math.PI * 2); x.fill(); }); },
+  weldmask(x, c, bg) { x.fillStyle = c; rr(x, -0.52, -0.7, 1.04, 1.4, 0.35); x.fill(); x.fillStyle = bg; rr(x, -0.34, -0.25, 0.68, 0.24, 0.05); x.fill(); },
+  apron(x, c) { x.fillStyle = c; x.beginPath(); x.moveTo(-0.3, -0.45); x.lineTo(0.3, -0.45); x.lineTo(0.5, 0.75); x.lineTo(-0.5, 0.75); x.closePath(); x.fill(); x.strokeStyle = c; x.lineWidth = 0.08; x.beginPath(); x.arc(0, -0.5, 0.28, Math.PI, 0); x.stroke(); },
+  belt(x, c, bg) { GL.person(x, c); x.strokeStyle = bg; x.lineWidth = 0.12; x.beginPath(); x.moveTo(-0.3, -0.3); x.lineTo(0.3, 0.25); x.stroke(); },
+  person(x, c) { x.fillStyle = c; x.beginPath(); x.arc(0, -0.62, 0.2, 0, Math.PI * 2); x.fill(); rr(x, -0.26, -0.36, 0.52, 0.66, 0.1); x.fill(); x.fillRect(-0.24, 0.25, 0.2, 0.55); x.fillRect(0.04, 0.25, 0.2, 0.55); },
+  load(x, c) { x.strokeStyle = c; x.fillStyle = c; x.lineWidth = 0.08; x.beginPath(); x.moveTo(0, -0.95); x.lineTo(0, -0.55); x.stroke(); x.beginPath(); x.arc(0, -0.4, 0.15, -Math.PI / 2, Math.PI * 1.1); x.stroke(); x.beginPath(); x.moveTo(-0.05, -0.27); x.lineTo(-0.45, 0.1); x.moveTo(0.05, -0.27); x.lineTo(0.45, 0.1); x.stroke(); x.fillRect(-0.55, 0.1, 1.1, 0.6); },
+  under(x, c) { x.save(); x.translate(0, -0.35); x.scale(0.6, 0.6); GL.load(x, c); x.restore(); x.save(); x.translate(0, 0.42); x.scale(0.55, 0.55); GL.person(x, c); x.restore(); },
+  flame(x, c) { x.fillStyle = c; x.beginPath(); x.moveTo(0, -0.85); x.bezierCurveTo(0.55, -0.3, 0.6, 0.1, 0.45, 0.45); x.bezierCurveTo(0.3, 0.8, -0.3, 0.8, -0.45, 0.45); x.bezierCurveTo(-0.6, 0.1, -0.35, -0.2, -0.12, -0.35); x.bezierCurveTo(-0.1, -0.05, 0.05, 0.05, 0.1, -0.15); x.bezierCurveTo(0.15, -0.4, 0.05, -0.6, 0, -0.85); x.fill(); },
+  bolt(x, c) { x.fillStyle = c; x.beginPath(); x.moveTo(0.15, -0.85); x.lineTo(-0.4, 0.1); x.lineTo(-0.02, 0.1); x.lineTo(-0.18, 0.85); x.lineTo(0.42, -0.15); x.lineTo(0.04, -0.15); x.closePath(); x.fill(); },
+  laser(x, c) { x.strokeStyle = c; x.fillStyle = c; x.lineWidth = 0.09; x.beginPath(); x.moveTo(-0.9, 0); x.lineTo(0.1, 0); x.stroke(); x.beginPath(); x.arc(0.35, 0, 0.12, 0, Math.PI * 2); x.fill(); for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4; x.beginPath(); x.moveTo(0.35 + Math.cos(a) * 0.22, Math.sin(a) * 0.22); x.lineTo(0.35 + Math.cos(a) * 0.45, Math.sin(a) * 0.45); x.stroke(); } },
+  gear(x, c, bg) { x.fillStyle = c; for (let i = 0; i < 8; i++) { x.save(); x.rotate(i * Math.PI / 4); x.fillRect(-0.12, -0.78, 0.24, 0.3); x.restore(); } x.beginPath(); x.arc(0, 0, 0.55, 0, Math.PI * 2); x.fill(); x.fillStyle = bg; x.beginPath(); x.arc(0, 0, 0.2, 0, Math.PI * 2); x.fill(); },
+  crush(x, c) { x.fillStyle = c; x.fillRect(-0.8, -0.85, 1.6, 0.35); x.fillRect(-0.8, 0.5, 1.6, 0.35); x.beginPath(); x.moveTo(0, -0.42); x.lineTo(-0.15, -0.2); x.lineTo(0.15, -0.2); x.closePath(); x.fill(); x.save(); x.translate(0.05, 0.15); x.rotate(Math.PI / 2); x.scale(0.42, 0.42); GL.glove(x, c); x.restore(); },
+  hot(x, c) { x.strokeStyle = c; x.lineWidth = 0.1; [-0.35, 0, 0.35].forEach(X => { x.beginPath(); x.moveTo(X, 0.3); x.bezierCurveTo(X - 0.18, 0.1, X + 0.18, -0.15, X, -0.4); x.bezierCurveTo(X - 0.15, -0.55, X + 0.1, -0.65, X, -0.8); x.stroke(); }); x.fillStyle = c; x.fillRect(-0.75, 0.45, 1.5, 0.25); },
+  car(x, c, bg) { x.fillStyle = c; x.beginPath(); x.moveTo(-0.9, 0.25); x.lineTo(-0.85, -0.05); x.lineTo(-0.45, -0.12); x.lineTo(-0.25, -0.45); x.lineTo(0.35, -0.45); x.lineTo(0.55, -0.1); x.lineTo(0.88, 0); x.lineTo(0.9, 0.25); x.closePath(); x.fill(); x.fillStyle = bg; [-0.5, 0.5].forEach(X => { x.beginPath(); x.arc(X, 0.3, 0.2, 0, Math.PI * 2); x.fill(); }); x.fillStyle = c; [-0.5, 0.5].forEach(X => { x.beginPath(); x.arc(X, 0.3, 0.13, 0, Math.PI * 2); x.fill(); }); },
+  phone(x, c, bg) { x.fillStyle = c; rr(x, -0.3, -0.7, 0.6, 1.4, 0.1); x.fill(); x.fillStyle = bg; x.fillRect(-0.22, -0.55, 0.44, 0.9); },
+  bottle(x, c) { x.fillStyle = c; x.fillRect(-0.09, -0.85, 0.18, 0.35); x.beginPath(); x.moveTo(-0.09, -0.5); x.lineTo(-0.3, -0.25); x.lineTo(-0.3, 0.8); x.lineTo(0.3, 0.8); x.lineTo(0.3, -0.25); x.lineTo(0.09, -0.5); x.closePath(); x.fill(); },
+  cig(x, c) { x.fillStyle = c; x.fillRect(-0.75, 0.1, 1.3, 0.22); x.fillRect(0.6, 0.1, 0.15, 0.22); x.strokeStyle = c; x.lineWidth = 0.07; x.beginPath(); x.moveTo(0.68, 0); x.bezierCurveTo(0.5, -0.2, 0.85, -0.35, 0.65, -0.6); x.stroke(); },
+  drop(x, c) { x.fillStyle = c; x.beginPath(); x.moveTo(0, -0.8); x.bezierCurveTo(0.35, -0.3, 0.55, 0.05, 0.5, 0.3); x.arc(0, 0.3, 0.5, 0, Math.PI); x.bezierCurveTo(-0.55, 0.05, -0.35, -0.3, 0, -0.8); x.fill(); },
+  eye(x, c, bg) { x.fillStyle = c; x.beginPath(); x.moveTo(-0.85, 0); x.quadraticCurveTo(0, -0.7, 0.85, 0); x.quadraticCurveTo(0, 0.7, -0.85, 0); x.fill(); x.fillStyle = bg; x.beginPath(); x.arc(0, 0, 0.28, 0, Math.PI * 2); x.fill(); x.fillStyle = c; x.beginPath(); x.arc(0, 0, 0.14, 0, Math.PI * 2); x.fill(); },
+  key(x, c, bg) { x.fillStyle = c; x.fillRect(-0.6, -0.55, 1.2, 0.22); x.fillRect(-0.1, -0.4, 0.2, 1.1); x.fillRect(-0.18, 0.45, 0.36, 0.3); },
+  estop(x) { x.fillStyle = SG.yel; x.beginPath(); x.arc(0, 0, 0.95, 0, Math.PI * 2); x.fill(); x.fillStyle = SG.red; x.beginPath(); x.arc(0, 0, 0.62, 0, Math.PI * 2); x.fill(); x.fillStyle = '#fff'; x.font = `700 0.32px ${DF}`; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('STOP', 0, 0.02); },
+  ext(x, c) { x.fillStyle = c; rr(x, -0.25, -0.35, 0.5, 1.1, 0.15); x.fill(); x.fillRect(-0.1, -0.6, 0.2, 0.25); x.fillRect(-0.3, -0.68, 0.6, 0.1); x.strokeStyle = c; x.lineWidth = 0.08; x.beginPath(); x.moveTo(0.3, -0.63); x.quadraticCurveTo(0.7, -0.6, 0.6, -0.1); x.stroke(); },
+  aid(x, c) { x.fillStyle = c; x.fillRect(-0.18, -0.65, 0.36, 1.3); x.fillRect(-0.65, -0.18, 1.3, 0.36); },
+  noentry(x, c) { GL.person(x, c); }
+};
+function rr(x, X, Y, w, h, r) { x.beginPath(); x.moveTo(X + r, Y); x.arcTo(X + w, Y, X + w, Y + h, r); x.arcTo(X + w, Y + h, X, Y + h, r); x.arcTo(X, Y + h, X, Y, r); x.arcTo(X, Y, X + w, Y, r); x.closePath(); }
+/* sign frames; cx, cy centre, d size (mm) */
+function signDraw(x, kind, g, cx, cy, d) {
+  x.save(); x.translate(cx, cy); const r = d / 2;
+  if (kind === 'm') { x.fillStyle = SG.blue; x.beginPath(); x.arc(0, 0, r, 0, Math.PI * 2); x.fill(); x.scale(r * 0.62, r * 0.62); GL[g](x, '#fff', SG.blue); }
+  else if (kind === 'p') { x.fillStyle = '#fff'; x.beginPath(); x.arc(0, 0, r, 0, Math.PI * 2); x.fill(); x.save(); x.scale(r * 0.56, r * 0.56); GL[g](x, SG.ink, '#fff'); x.restore(); x.strokeStyle = SG.red; x.lineWidth = r * 0.17; x.beginPath(); x.arc(0, 0, r * 0.91, 0, Math.PI * 2); x.stroke(); x.beginPath(); x.moveTo(-r * 0.64, -r * 0.64); x.lineTo(r * 0.64, r * 0.64); x.stroke(); }
+  else if (kind === 'w') { const h = r * 1.75; x.fillStyle = SG.ink; x.beginPath(); x.moveTo(0, -h * 0.62); x.lineTo(r * 1.02, h * 0.42); x.lineTo(-r * 1.02, h * 0.42); x.closePath(); x.lineJoin = 'round'; x.lineWidth = r * 0.12; x.strokeStyle = SG.ink; x.stroke(); x.fill(); x.fillStyle = SG.yel; x.beginPath(); x.moveTo(0, -h * 0.48); x.lineTo(r * 0.84, h * 0.34); x.lineTo(-r * 0.84, h * 0.34); x.closePath(); x.fill(); x.translate(0, h * 0.08); x.scale(r * 0.5, r * 0.5); GL[g](x, SG.ink, SG.yel); }
+  else if (kind === 'e') { if (g === 'estop') { x.scale(r, r); GL.estop(x); } else { x.fillStyle = SG.green; rr(x, -r, -r, d, d, r * 0.12); x.fill(); x.scale(r * 0.62, r * 0.62); GL[g](x, '#fff', SG.green); } }
+  x.restore();
+}
+/* library: PPE from text keywords; warnings & prohibitions selectable */
+const PPE_KEYS = [[/гагнуурын баг|weld/i, 'weldmask'], [/дуулга|helmet/i, 'helmet'], [/нүдний шил|лазерын хамгаалалтын шил|glasses|goggle/i, 'goggles'], [/бээлий|glove/i, 'glove'], [/гутал|boot/i, 'boot'], [/чихэвч|ear/i, 'ear'], [/хантааз|vest/i, 'vest'], [/амьсгал|respir/i, 'mask'], [/хормогч|apron/i, 'apron'], [/бүс|belt/i, 'belt'], [/хувцас|cloth/i, 'shirt']];
+const WARN_LIB = { load: ['load', 'Өргөлттэй ачаа'], crush: ['crush', 'Гар хавчуулах аюул'], elec: ['bolt', 'Цахилгааны аюул'], hot: ['hot', 'Халуун гадаргуу'], gear: ['gear', 'Эргэлдэх хэсэг'], laser: ['laser', 'Лазерын цацраг'], fire: ['flame', 'Галын аюул'], arc: ['laser', 'Нумын хурц гэрэл'], car: ['car', 'Хөдөлгөөнт техник'], noise: ['ear', 'Чанга дуу чимээ'] };
+const FORBID_LIB = { under: ['under', 'Ачааны доор зогсохгүй'], ride: ['person', 'Хүн өргөхгүй'], unauth: ['person', 'Эрхгүй хүн ажиллуулахгүй'], smoke: ['cig', 'Тамхи, ил гал хориглоно'], flame: ['flame', 'Шатамхай зүйл ойртуулахгүй'], wet: ['drop', 'Нойтон гараар хүрэхгүй'], glove: ['glove', 'Бээлийтэй ажиллахгүй'], hand: ['glove', 'Гар оруулахгүй'], phone: ['phone', 'Утсаар ярихгүй'], alcohol: ['bottle', 'Согтуу жолоодохгүй'], eye: ['eye', 'Цацраг руу харахгүй'], key: ['key', 'Түлхүүр орхихгүй'] };
+const POSTER_DEF = { crane: [['load', 'crush'], ['under', 'ride', 'unauth']], gen: [['elec', 'hot', 'noise'], ['smoke', 'wet']], mill: [['gear', 'crush'], ['glove', 'hand']], wire: [['elec'], ['hand', 'wet']], press: [['crush', 'elec'], ['hand', 'unauth']], vehicle: [['car'], ['phone', 'alcohol', 'smoke']], laser: [['laser', 'fire', 'elec'], ['eye', 'flame']], lathe: [['gear'], ['glove', 'key']], weld: [['arc', 'elec', 'fire'], ['flame', 'wet']], forklift: [['car', 'load'], ['ride', 'phone', 'unauth']] };
+const posterOf = m => { const d = POSTER_DEF[m.ins] || [['crush'], ['unauth']]; return m.poster || { warn: d[0].slice(), forbid: d[1].slice(), phone: '', boss: '' }; };
+const ppeGlyph = t => (PPE_KEYS.find(([re]) => re.test(t)) || [, null])[1];
+const loadImgSrc = src => new Promise(res => { if (!src) return res(null); const im = new Image(); im.onload = () => res(im); im.onerror = () => res(null); im.src = src; });
+
+/* ---------- the poster, designed on A3 (297 × 420 mm) ---------- */
+async function posterImg(m, fmt) {
+  try { await document.fonts.ready; } catch (e) { } await logoImg();
+  const photo = await loadImgSrc(m.photo), T = instrOf(m), P = posterOf(m), s = fmt === 'a3' ? 1 : 210 / 297, K = fmt === 'a3' ? 4 : 5;
+  const W = 297, H = 420, M = 12, c = document.createElement('canvas'); c.width = Math.round(W * s * K); c.height = Math.round(H * s * K);
+  const x = c.getContext('2d'); x.scale(s * K, s * K); x.fillStyle = '#fff'; x.fillRect(0, 0, W, H);
+  const txt = (t, X, Y, o = {}) => { x.font = `${o.b ? 700 : o.sb ? 600 : 400} ${o.s || 4}px ${DF}`; x.fillStyle = o.c || SG.ink; x.textAlign = o.a || 'left'; x.textBaseline = o.bl || 'alphabetic'; let v = tr(String(t)); if (o.w) while (v.length > 1 && x.measureText(v).width > o.w) v = v.slice(0, -2) + '…'; x.fillText(v, X, Y); };
+  const wrap = (t, w, font) => { x.font = font; const out = []; tr(String(t)).split('\n').forEach(p => { let ln = ''; p.split(' ').forEach(wd => { const tt = ln ? ln + ' ' + wd : wd; if (x.measureText(tt).width > w && ln) { out.push(ln); ln = wd; } else ln = tt; }); out.push(ln); }); return out; };
+  /* list block that shrinks its font until it fits */
+  const listBlock = (items, X, Y, w, h, color, opt = {}) => {
+    let fs = opt.max || 5.2, lines;
+    for (; fs > 2.6; fs -= 0.15) { const f = `400 ${fs}px ${DF}`; lines = items.map((t, i) => wrap(t, w - fs * 2.3, f)); const tot = lines.reduce((a, l) => a + l.length, 0) * fs * 1.32 + items.length * fs * 0.55; if (tot <= h) break; }
+    let y = Y + fs; lines.forEach((ls, i) => {
+      x.fillStyle = color; x.beginPath(); x.arc(X + fs * 0.75, y - fs * 0.33, fs * 0.72, 0, Math.PI * 2); x.fill();
+      txt(i + 1, X + fs * 0.75, y - fs * 0.33, { b: 1, s: fs * 0.82, c: '#fff', a: 'center', bl: 'middle' });
+      ls.forEach(l => { txt(l, X + fs * 2.1, y, { s: fs }); y += fs * 1.32; }); y += fs * 0.55;
+    });
+  };
+  // header
+  x.fillStyle = '#23272b'; x.fillRect(0, 0, W, 44); x.fillStyle = SG.yel; x.fillRect(0, 44, W, 2.2);
+  x.fillStyle = '#fff'; rr(x, M, 9, 74, 26, 3); x.fill(); drawLogo(x, M + 4, 13, 18);
+  txt('АЖЛЫН БАЙРНЫ ЗААВАР', M + 84, 22, { b: 1, s: 11, c: '#fff' });
+  txt(m.name, M + 84, 34, { b: 1, s: 7.5, c: '#ff9a4a', w: W - M * 2 - 84 });
+  txt(`№ ${m.no}  ·  ${m.model}`, W - M, 41.5, { s: 3.4, c: '#c9cfd6', a: 'right', w: 120 });
+  // photo
+  const pY = 52, pW = 132, pH = 82; x.fillStyle = '#eef1f4'; rr(x, M, pY, pW, pH, 3); x.fill();
+  if (photo) { x.save(); rr(x, M, pY, pW, pH, 3); x.clip(); const sc = Math.max(pW / photo.naturalWidth, pH / photo.naturalHeight), iw = photo.naturalWidth * sc, ih = photo.naturalHeight * sc; x.drawImage(photo, M + (pW - iw) / 2, pY + (pH - ih) / 2, iw, ih); x.restore(); }
+  else { x.save(); x.translate(M + pW / 2, pY + pH / 2 - 6); x.scale(26, 26); GL[m.kind === 'vehicle' ? 'car' : 'gear'](x, '#b9c2cc', '#eef1f4'); x.restore(); txt('Тоногийн зураг', M + pW / 2, pY + pH - 10, { s: 3.6, c: '#8a95a1', a: 'center' }); }
+  x.strokeStyle = '#c6ced7'; x.lineWidth = 0.4; rr(x, M, pY, pW, pH, 3); x.stroke();
+  // PPE
+  const ppe = (T.ppe || []).map(t => [ppeGlyph(t), t]).filter(p => p[0]).slice(0, 6);
+  const RX = M + pW + 8, RW = W - M - RX;
+  x.fillStyle = SG.blue; rr(x, RX, pY, RW, 9, 2); x.fill(); txt('ЗААВАЛ ХЭРЭГЛЭХ ХАМГААЛАХ ХЭРЭГСЭЛ', RX + 3, pY + 6.3, { b: 1, s: 3.9, c: '#fff', w: RW - 6 });
+  const pc = Math.min(3, Math.max(1, ppe.length)), pcw = RW / pc, pd = Math.min(30, pcw - 10), rows = Math.ceil(ppe.length / pc) || 1, prh = (pH - 12) / Math.max(rows, 2);
+  ppe.forEach(([g, t], i) => { const cx = RX + pcw * (i % pc) + pcw / 2, cy = pY + 13 + Math.floor(i / pc) * prh + Math.min(pd, prh - 9) / 2; const dd = Math.min(pd, prh - 10); signDraw(x, 'm', g, cx, cy, dd); wrap(t, pcw - 3, `600 3.2px ${DF}`).slice(0, 2).forEach((l, k) => txt(l, cx, cy + dd / 2 + 4.2 + k * 3.8, { sb: 1, s: 3.2, a: 'center' })); });
+  if (!ppe.length) txt('—', RX + RW / 2, pY + 50, { s: 6, a: 'center', c: '#999' });
+  // warnings strip
+  let y = pY + pH + 8; const wn = P.warn.filter(k => WARN_LIB[k]);
+  if (wn.length) {
+    x.fillStyle = '#fff7d1'; rr(x, M, y, W - 2 * M, 28, 3); x.fill(); x.strokeStyle = SG.yel; x.lineWidth = 0.8; rr(x, M, y, W - 2 * M, 28, 3); x.stroke();
+    txt('АНХААР', M + 5, y + 16, { b: 1, s: 5, c: '#7a5a00' });
+    const ww = (W - 2 * M - 40) / wn.length;
+    wn.forEach((k, i) => { const [g, t] = WARN_LIB[k], cx = M + 40 + ww * i + 16; signDraw(x, 'w', g, cx, y + 14, 20); txt(t, cx + 14, y + 15, { sb: 1, s: 3.6, w: ww - 34, bl: 'middle' }); });
+    y += 34;
+  }
+  // three columns
+  const cols = [['1', 'АЖИЛ ЭХЛЭХИЙН ӨМНӨ', T.before || [], SG.blue], ['2', 'АЖИЛЛАХ ҮЕД', T.during || [], '#e0650f'], ['3', 'АЖИЛ ДУУССАНЫ ДАРАА', T.after || [], SG.green]];
+  const gap = 6, cw = (W - 2 * M - gap * 2) / 3, ch = 102;
+  cols.forEach(([n, t, items, col], i) => {
+    const X = M + i * (cw + gap); x.fillStyle = '#f7f8fa'; rr(x, X, y, cw, ch, 3); x.fill(); x.fillStyle = col; rr(x, X, y, cw, 13, 3); x.fill(); x.fillRect(X, y + 8, cw, 5);
+    txt(n, X + 6, y + 9.8, { b: 1, s: 7, c: '#fff', a: 'center' }); txt(t, X + 12, y + 9, { b: 1, s: 4, c: '#fff', w: cw - 14 });
+    listBlock(items, X + 4, y + 17, cw - 7, ch - 21, col);
+  });
+  y += ch + 6;
+  // prohibited
+  const fb = P.forbid.filter(k => FORBID_LIB[k]), ph = 54;
+  x.strokeStyle = SG.red; x.lineWidth = 0.9; rr(x, M, y, W - 2 * M, ph, 3); x.stroke(); x.fillStyle = SG.red; rr(x, M, y, W - 2 * M, 11, 3); x.fill(); x.fillRect(M, y + 7, W - 2 * M, 4);
+  txt('ХОРИГЛОНО', M + 5, y + 8.2, { b: 1, s: 5, c: '#fff' });
+  const fiW = Math.min(132, fb.length * 33); fb.slice(0, 4).forEach((k, i) => { const [g, t] = FORBID_LIB[k], cx = M + 18 + i * 33; signDraw(x, 'p', g, cx, y + 27, 22); wrap(t, 31, `600 2.9px ${DF}`).slice(0, 3).forEach((l, j) => txt(l, cx, y + 43 + j * 3.4, { sb: 1, s: 2.9, a: 'center' })); });
+  listBlock(T.forbid || [], M + Math.max(fiW, 8) + 8, y + 14, W - 2 * M - Math.max(fiW, 8) - 12, ph - 17, SG.red, { max: 4.6 });
+  y += ph + 6;
+  // emergency
+  const eh = H - y - 17; x.fillStyle = '#e9f6ed'; rr(x, M, y, W - 2 * M, eh, 3); x.fill(); x.fillStyle = SG.green; rr(x, M, y, W - 2 * M, 11, 3); x.fill(); x.fillRect(M, y + 7, W - 2 * M, 4);
+  txt('ОСОЛ, ЯАРАЛТАЙ ҮЕД', M + 5, y + 8.2, { b: 1, s: 5, c: '#fff' });
+  [['estop', 'Яаралтай зогсоох'], ['ext', 'Галын хор'], ['aid', 'Анхны тусламж']].forEach(([g, t], i) => { const cx = M + 16 + i * 27; signDraw(x, 'e', g, cx, y + 26, 19); wrap(t, 26, `600 2.8px ${DF}`).forEach((l, j) => txt(l, cx, y + 40 + j * 3.3, { sb: 1, s: 2.8, a: 'center' })); });
+  const eX = M + 96, eW = 92; listBlock(T.emerg || [], eX, y + 14, eW, eh - 17, SG.green, { max: 4.2 });
+  const nX = eX + eW + 6, nW = W - M - nX - 3; [['101', 'Гал түймэр'], ['102', 'Цагдаа'], ['103', 'Түргэн тусламж']].forEach(([n, t], i) => { const Y = y + 14 + i * 10.5; x.fillStyle = '#fff'; rr(x, nX, Y, nW, 9, 2); x.fill(); txt(n, nX + 3, Y + 6.9, { b: 1, s: 6.2, c: SG.red }); txt(t, nX + 21, Y + 6.2, { sb: 1, s: 3.6, w: nW - 24 }); });
+  txt(`Ахлах: ${P.boss || '________________'}   Утас: ${P.phone || '____________'}`, nX, y + 14 + 3 * 10.5 + 4, { s: 3.2, w: nW });
+  // footer
+  x.fillStyle = '#23272b'; x.fillRect(0, H - 13, W, 13);
+  txt(`Kh International · ISO 9001${S.iso.formInstr ? ' · ' + S.iso.formInstr : ''}${S.iso.rev ? ' · Хувилбар ' + S.iso.rev : ''}`, M, H - 4.8, { s: 3.2, c: '#c9cfd6' });
+  txt(`Баталсан: ____________   Огноо: ${today()}`, W - M, H - 4.8, { s: 3.2, c: '#c9cfd6', a: 'right' });
+  return c.toDataURL('image/jpeg', 0.92);
+}
+async function posterOut(mode, ms, fmt) {
+  try { const imgs = []; for (const m of ms) imgs.push({ url: await posterImg(m, fmt), alias: 'pst' + m.id }); const name = ms.length === 1 ? `${ms[0].no}_${ms[0].name}_ханын_самбар_${fmt.toUpperCase()}` : `Kh_International_ханын_самбар_бүгд_${fmt.toUpperCase()}`; if (mode === 'print') printImgs(imgs, false, fmt); else pdfImgs(imgs, false, name, fmt); }
+  catch (e) { console.error(e); toast('Алдаа: ' + e.message); }
+}
+/* store a machine photo, downscaled */
+function pickMachinePhoto(m, done) {
+  const f = document.createElement('input'); f.type = 'file'; f.accept = 'image/*';
+  f.onchange = () => { const file = f.files[0]; if (!file) return; const rd = new FileReader(); rd.onload = () => { const im = new Image(); im.onload = () => { const sc = Math.min(1, 1000 / Math.max(im.naturalWidth, im.naturalHeight)), c = document.createElement('canvas'); c.width = Math.round(im.naturalWidth * sc); c.height = Math.round(im.naturalHeight * sc); c.getContext('2d').drawImage(im, 0, 0, c.width, c.height); m.photo = c.toDataURL('image/jpeg', 0.82); save(); done(); toast('Зураг нэмэгдлээ'); }; im.onerror = () => toast('Зураг уншигдсангүй'); im.src = rd.result; }; rd.readAsDataURL(file); };
+  f.click();
+}
+
 /* ================= Kh International — «Үзлэг» module: daily inspection sheets, work instructions, logs ================= */
 const IN2 = { sel: null, tab: 'sheet', recId: null, month: today().slice(0, 7) };
 const IC = { dark: '#2b2f33', acc: '#e0650f', soft: '#fdf1e8', zebra: '#eef2f8', line: '#a4adb7', key: '#f3f4f6', ink: '#141a20', mute: '#5c6773' };
@@ -9771,7 +10537,18 @@ function renderInspMain() {
     </div></div>`;
   } else if (IN2.tab === 'instr') {
     const T = instrOf(m);
-    body = `<div class="exports"><span class="outb"><button class="btn primary" data-iout="pdf" data-k="instr">Ажлын заавар PDF</button><button class="btn ghost" data-iout="print" data-k="instr">🖨 Хэвлэх</button></span><button class="btn ghost" id="isReset">Анхны текст</button><span class="note">Мөр бүр нэг заалт. Засвар автоматаар хадгалагдана.</span></div>
+    const P = posterOf(m);
+    body = `<div class="jcard"><div class="bcard-h">Ханын самбар <span class="sp"></span><span class="muted" style="font-weight:400;font-size:12px">тэмдгүүд ISO 7010 өнгө, хэлбэрийн дагуу</span></div><div class="jbody pst">
+        <div class="pstprev"><img id="pstImg" alt="самбар"></div>
+        <div class="pstside">
+          <div class="exports"><span class="outb"><button class="btn primary" data-pst="pdf" data-f="a3">A3 PDF</button><button class="btn ghost" data-pst="print" data-f="a3">🖨 A3</button></span><span class="outb"><button class="btn" data-pst="pdf" data-f="a4">A4 PDF</button><button class="btn ghost" data-pst="print" data-f="a4">🖨 A4</button></span></div>
+          <div class="exports"><button class="btn" id="pstPhoto">${m.photo ? 'Зураг солих' : 'Тоногийн зураг оруулах'}</button>${m.photo ? '<button class="btn ghost" id="pstPhotoDel">Зураг хасах</button>' : ''}</div>
+          <div class="fld">Анхааруулах тэмдэг<div class="chips">${Object.entries(WARN_LIB).map(([k, [, t]]) => `<button class="chip${P.warn.includes(k) ? ' on' : ''}" data-pw="${k}">${t}</button>`).join('')}</div></div>
+          <div class="fld">Хориглох тэмдэг (4 хүртэл)<div class="chips">${Object.entries(FORBID_LIB).map(([k, [, t]]) => `<button class="chip${P.forbid.includes(k) ? ' on' : ''}" data-pf="${k}">${t}</button>`).join('')}</div></div>
+          <div class="jgrid">${fldIn('pst_boss', 'Хариуцсан ахлах', P.boss)}${fldIn('pst_phone', 'Утас', P.phone)}</div>
+          <p class="note">Хамгаалах хэрэгслийн тэмдэг доорх «Хувийн хамгаалах хэрэгсэл» текстээс автоматаар сонгогдоно (дуулга, бээлий, гутал, нүдний шил, чихэвч, хантааз…).</p>
+        </div></div></div>
+      <div class="exports"><span class="outb"><button class="btn primary" data-iout="pdf" data-k="instr">Ажлын заавар PDF</button><button class="btn ghost" data-iout="print" data-k="instr">🖨 Хэвлэх</button></span><button class="btn ghost" id="isReset">Анхны текст</button><span class="note">Мөр бүр нэг заалт. Засвар автоматаар хадгалагдана.</span></div>
       <div class="jgrid igrid">${[['ppe', 'Хувийн хамгаалах хэрэгсэл'], ['before', 'Ажил эхлэхийн өмнө'], ['during', 'Ажиллах үед'], ['after', 'Ажил дууссаны дараа'], ['forbid', 'Хориглох зүйл'], ['emerg', 'Осол, яаралтай үед']].map(([k, n]) => `<div class="jcard"><div class="bcard-h">${n}</div><div class="jbody"><textarea data-ins="${k}" rows="${Math.max(4, (T[k] || []).length + 1)}" class="inp">${esc((T[k] || []).join('\n'))}</textarea></div></div>`).join('')}</div>`;
   } else if (IN2.tab === 'log') {
     const veh = m.kind === 'vehicle', rows = I.logs.filter(r => r.mid === m.id);
@@ -9820,6 +10597,15 @@ function renderInspMain() {
   if (IN2.tab === 'instr') {
     el.querySelectorAll('[data-ins]').forEach(t => t.addEventListener('change', () => { const T = instrOf(m); T[t.dataset.ins] = t.value.split('\n').map(s => s.trim()).filter(Boolean); m.instr = T; save(); }));
     el.querySelector('#isReset').addEventListener('click', () => { delete m.instr; save(); renderInspMain(); });
+    const P = posterOf(m), setP = () => { m.poster = P; save(); renderInspMain(); };
+    el.querySelectorAll('[data-pw]').forEach(b => b.addEventListener('click', () => { const k = b.dataset.pw, i = P.warn.indexOf(k); if (i >= 0) P.warn.splice(i, 1); else P.warn.push(k); setP(); }));
+    el.querySelectorAll('[data-pf]').forEach(b => b.addEventListener('click', () => { const k = b.dataset.pf, i = P.forbid.indexOf(k); if (i >= 0) P.forbid.splice(i, 1); else { if (P.forbid.length >= 4) P.forbid.shift(); P.forbid.push(k); } setP(); }));
+    [['pst_boss', 'boss'], ['pst_phone', 'phone']].forEach(([id, k]) => el.querySelector('#' + id).addEventListener('change', e => { P[k] = e.target.value; setP(); }));
+    el.querySelector('#pstPhoto').addEventListener('click', () => pickMachinePhoto(m, () => renderInspMain()));
+    const pd = el.querySelector('#pstPhotoDel'); if (pd) pd.addEventListener('click', () => { delete m.photo; save(); renderInspMain(); });
+    el.querySelectorAll('[data-pst]').forEach(b => b.addEventListener('click', () => posterOut(b.dataset.pst, [m], b.dataset.f)));
+    el.querySelectorAll('[data-ins]').forEach(t => t.addEventListener('change', () => posterImg(m, 'a4').then(u => { const i = el.querySelector('#pstImg'); if (i) i.src = u; })));
+    posterImg(m, 'a4').then(u => { const i = el.querySelector('#pstImg'); if (i) i.src = u; });
   }
   if (IN2.tab === 'log') {
     bindEd(el, { lg: { arr: () => { const rows = I.logs.filter(r => r.mid === m.id); return { length: rows.length, splice: (i) => { I.logs.splice(I.logs.indexOf(rows[i]), 1); }, push: v => I.logs.push(v), ...rows }; }, cols: IN2.logCols, blank: () => m.kind === 'vehicle' ? { mid: m.id, out: '', in: '', driver: '', route: '', km: '' } : { mid: m.id, date: today(), next: '', desc: '', by: '' } } }, () => renderInspMain());
@@ -9843,6 +10629,7 @@ const ICOLS = [{ k: 'sec', t: 'Шалгах хэсэг', w: 150 }, { k: 'item', 
   $('#iAllPdf').addEventListener('click', () => inspOut('pdf', 'all'));
   $('#iAllPrint').addEventListener('click', () => inspOut('print', 'all'));
   $('#iInstrAll').addEventListener('click', () => inspOut('pdf', 'instrAll'));
+  $('#iPosterAll').addEventListener('click', () => posterOut('pdf', IS().machines, 'a3'));
 })();
 
 /* ================= KH Fab — «Мэдээлэл · сан»: mining machines, bucket types, product templates, own file library ================= */
@@ -9883,8 +10670,8 @@ function bucketPreset(m, V, type) {
 $$('[data-itab]').forEach(b => b.addEventListener('click', () => { IN.tab = b.dataset.itab; renderInfo(); }));
 function renderInfo() {
   $$('[data-itab]').forEach(x => x.classList.toggle('on', x.dataset.itab === IN.tab));
-  ['mach', 'bt', 'tpl', 'lib'].forEach(t => $('#itab-' + t).hidden = t !== IN.tab);
-  if (IN.tab === 'mach') renderMachList(); else if (IN.tab === 'bt') renderBtList(); else if (IN.tab === 'tpl') renderTplList(); else renderLibSide();
+  ['mach', 'bt', 'tpl', 'lib', 'std'].forEach(t => $('#itab-' + t).hidden = t !== IN.tab);
+  if (IN.tab === 'mach') renderMachList(); else if (IN.tab === 'bt') renderBtList(); else if (IN.tab === 'tpl') renderTplList(); else if (IN.tab === 'std') { renderStdSide(); renderInfoMain(); } else renderLibSide();
   renderInfoMain();
 }
 function renderMachList() {
@@ -9915,6 +10702,7 @@ function renderInfoMain() {
   if (IN.tab === 'mach') return IN.sel ? renderMachine(el, MACHINES.find(m => m.id === IN.sel)) : renderMachOverview(el);
   if (IN.tab === 'bt') return renderBucketTypes(el);
   if (IN.tab === 'tpl') return renderTemplate(el);
+  if (IN.tab === 'std') return renderStdMain(el);
   return renderLib(el);
 }
 function renderMachOverview(el) {

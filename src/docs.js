@@ -134,19 +134,20 @@ async function kdoc(opt) {
   return D;
 }
 /* output: PDF file or direct print. imgs: [{url, alias}] (same alias = stored once in the PDF) */
-function pdfImgs(imgs, land, name) {
+const PAPERS = { a4: [210, 297], a3: [297, 420], letter: [215.9, 279.4] };
+function pdfImgs(imgs, land, name, fmt = 'a4') {
   if (!window.jspdf) { toast('PDF сан ачаалагдсангүй — «Хэвлэх» товчийг ашиглана уу'); return; }
-  const PW = land ? 297 : 210, PH = land ? 210 : 297;
-  const pdf = i18nPdf(new window.jspdf.jsPDF({ orientation: land ? 'landscape' : 'portrait', unit: 'mm', format: 'a4', compress: true }));
+  const [a, b] = PAPERS[fmt] || PAPERS.a4, PW = land ? b : a, PH = land ? a : b;
+  const pdf = i18nPdf(new window.jspdf.jsPDF({ orientation: land ? 'landscape' : 'portrait', unit: 'mm', format: fmt, compress: true }));
   imgs.forEach((im, i) => { if (i) pdf.addPage(); pdf.addImage(im.url, 'JPEG', 0, 0, PW, PH, im.alias, 'FAST'); });
   saveFile(safeName(tr(String(name).replace(/_/g, ' '))) + '.pdf', pdf.output('blob'), 'application/pdf');
 }
-function printImgs(imgs, land) {
+function printImgs(imgs, land, fmt = 'a4') {
   const fr = document.createElement('iframe'); fr.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden';
   document.body.appendChild(fr);
-  const w = land ? '297mm' : '210mm', h = land ? '210mm' : '297mm';
+  const [sa, sb] = PAPERS[fmt] || PAPERS.a4, w = (land ? sb : sa) + 'mm', h = (land ? sa : sb) + 'mm';
   const doc = fr.contentDocument; doc.open();
-  doc.write(`<!doctype html><html><head><meta charset="utf-8"><style>@page{size:A4 ${land ? 'landscape' : 'portrait'};margin:0}html,body{margin:0;padding:0}img{display:block;width:${w};height:${h};page-break-after:always;break-after:page}img:last-child{page-break-after:auto;break-after:auto}</style></head><body>${imgs.map(i => `<img src="${i.url}">`).join('')}</body></html>`);
+  doc.write(`<!doctype html><html><head><meta charset="utf-8"><style>@page{size:${fmt.toUpperCase()} ${land ? 'landscape' : 'portrait'};margin:0}html,body{margin:0;padding:0}img{display:block;width:${w};height:${h};page-break-after:always;break-after:page}img:last-child{page-break-after:auto;break-after:auto}</style></head><body>${imgs.map(i => `<img src="${i.url}">`).join('')}</body></html>`);
   doc.close();
   const go = () => { try { fr.contentWindow.focus(); fr.contentWindow.print(); } catch (e) { toast('Хэвлэж чадсангүй'); } setTimeout(() => fr.remove(), 60000); };
   const ims = [...doc.images]; let n = ims.filter(i => !i.complete).length; if (!n) setTimeout(go, 80); else ims.forEach(i => { if (!i.complete) i.onload = i.onerror = () => { if (--n === 0) setTimeout(go, 80); }; });

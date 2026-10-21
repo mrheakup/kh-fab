@@ -27,7 +27,7 @@ function createWindow() {
   win = new BrowserWindow({
     width: cfg.w || 1440, height: cfg.h || 900, minWidth: 1000, minHeight: 640, show: false,
     title: 'Kh International', icon: path.join(__dirname, 'build', 'icon.png'), autoHideMenuBar: false,
-    webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true, nodeIntegration: false, sandbox: false }
+    webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true, nodeIntegration: false, sandbox: false, plugins: true }
   });
   if (cfg.max) win.maximize();
   win.once('ready-to-show', () => win.show());

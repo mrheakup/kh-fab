@@ -36,8 +36,8 @@ function bucketPreset(m, V, type) {
 $$('[data-itab]').forEach(b => b.addEventListener('click', () => { IN.tab = b.dataset.itab; renderInfo(); }));
 function renderInfo() {
   $$('[data-itab]').forEach(x => x.classList.toggle('on', x.dataset.itab === IN.tab));
-  ['mach', 'bt', 'tpl', 'lib'].forEach(t => $('#itab-' + t).hidden = t !== IN.tab);
-  if (IN.tab === 'mach') renderMachList(); else if (IN.tab === 'bt') renderBtList(); else if (IN.tab === 'tpl') renderTplList(); else renderLibSide();
+  ['mach', 'bt', 'tpl', 'lib', 'std'].forEach(t => $('#itab-' + t).hidden = t !== IN.tab);
+  if (IN.tab === 'mach') renderMachList(); else if (IN.tab === 'bt') renderBtList(); else if (IN.tab === 'tpl') renderTplList(); else if (IN.tab === 'std') { renderStdSide(); renderInfoMain(); } else renderLibSide();
   renderInfoMain();
 }
 function renderMachList() {
@@ -68,6 +68,7 @@ function renderInfoMain() {
   if (IN.tab === 'mach') return IN.sel ? renderMachine(el, MACHINES.find(m => m.id === IN.sel)) : renderMachOverview(el);
   if (IN.tab === 'bt') return renderBucketTypes(el);
   if (IN.tab === 'tpl') return renderTemplate(el);
+  if (IN.tab === 'std') return renderStdMain(el);
   return renderLib(el);
 }
 function renderMachOverview(el) {

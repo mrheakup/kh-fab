@@ -94,6 +94,7 @@ function renderBucketMain(el) {
         <div class="tblwrap"><table class="dt" style="table-layout:fixed;min-width:0;width:100%"><thead><tr><th style="width:34%">Эд анги</th><th>Материал</th><th style="width:72px">Зузаан</th></tr></thead><tbody id="bkPlates">
           ${plate('side', 'Хажуу')}${plate('wrap', 'Ороох')}${plate('lip', 'Ир')}${plate('top', 'Дээд')}${plate('ear', 'Чих')}${plate('wear', 'Элэгдлийн тууз')}
         </tbody></table></div>
+        <div style="padding:8px 12px 0">${preheatHint(['side', 'wrap', 'lip', 'top', 'ear', 'wear'].map(k => ({ mat: B[k].mat, thk: +B[k].thk })))}</div>
         <div class="jbody"><div class="grid2">
           ${num('lipL', 'Ирний өргөн, мм', 5)}${num('topD', 'Дээд хавтан, мм', 5)}
           ${num('pin', 'Пин Ø, мм', 1)}${num('pitch', 'Пин хоорондын зай, мм', 5)}

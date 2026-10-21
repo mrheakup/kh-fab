@@ -25,7 +25,7 @@ function jx(job) {
 const qline = arr => (arr || []).reduce((a, r) => a + (+r.qty || 0) * (+r.price || 0), 0);
 function quoteCalc(job) {
   jx(job); const q = job.quote, sc = job.scope, rate = (+q.rate || 0) * (+q.rateK || 1);
-  const mat = qline(q.mats), scrap = mat * (+q.scrapPct || 0) / 100, trans = +q.trans || 0, cons = qline(q.cons);
+  const matKg = (q.mats || []).reduce((a, r) => a + (+r.qty || 0) * (+r.kgu || 0), 0), mat = qline(q.mats), scrap = mat * (+q.scrapPct || 0) / 100, trans = +q.trans || 0, cons = qline(q.cons);
   const matTotal = mat + scrap + trans + cons;
   const labor = sc.stages.map(s => ({ name: s.name, people: +s.people || 0, hours: +s.hours || 0, h: (+s.people || 0) * (+s.hours || 0), cost: (+s.people || 0) * (+s.hours || 0) * rate }));
   const laborTotal = labor.reduce((a, l) => a + l.cost, 0), laborH = labor.reduce((a, l) => a + l.h, 0);
@@ -35,7 +35,7 @@ function quoteCalc(job) {
   const vat = net * (+q.vat || 0) / 100, total = net + vat, k = cost > 0 ? net / cost : 1;
   const chg = (job.acc ? job.acc.changes : []).filter(c => c.ok).reduce((a, c) => a + (+c.cost || 0), 0);
   const budget = { mat: mat + scrap, cons, labor: laborTotal, equip, trans, other };
-  return { rate, mat, scrap, trans, cons, matTotal, labor, laborTotal, laborH, equipRows, equipPctV, equip, other, cost, net, profit, vat, total, k, chg, budget };
+  return { rate, matKg, mat, scrap, trans, cons, matTotal, labor, laborTotal, laborH, equipRows, equipPctV, equip, other, cost, net, profit, vat, total, k, chg, budget };
 }
 function progCalc(job) {
   jx(job); const sc = job.scope, c = quoteCalc(job), exp = job.prog.exp;
@@ -60,18 +60,18 @@ function edTable(id, cols, rows, o = {}) {
     if (c.calc) return `<td class="r num">${c.calc(r, i)}</td>`;
     if (c.sel) return `<td><select ${a}>${c.sel.map(([k, n]) => `<option value="${esc(k)}"${String(k) === String(v) ? ' selected' : ''}>${esc(n)}</option>`).join('')}</select></td>`;
     if (c.chk) return `<td style="text-align:center"><input type="checkbox" ${a}${v ? ' checked' : ''} style="width:auto"></td>`;
-    return `<td${c.w ? ` style="width:${c.w}px"` : ''}><input ${a} ${c.num ? 'type="number" step="any" class="mono" style="text-align:right"' : c.date ? 'type="date"' : ''} value="${esc(v)}"${c.ph ? ` placeholder="${esc(c.ph)}"` : ''}></td>`;
+    return `<td${c.w ? ` style="min-width:${c.w}px;width:${c.w}px"` : ''}><input ${a} ${c.num ? 'type="number" step="any" class="mono" style="text-align:right"' : c.date ? 'type="date"' : ''} value="${esc(v)}"${c.ph ? ` placeholder="${esc(c.ph)}"` : ''}${c.list ? ` list="${c.list}"` : ''}></td>`;
   };
   return `<div class="tblwrap"><table class="dt ed"><thead><tr><th style="width:28px">№</th>${cols.map(c => `<th${c.num || c.calc ? ' class="r"' : ''}>${c.t}</th>`).join('')}<th style="width:28px"></th></tr></thead><tbody>
     ${rows.map((r, i) => `<tr><td class="num muted">${i + 1}</td>${cols.map(c => cell(c, r, i)).join('')}<td><button class="x" data-edel="${id}" data-r="${i}" aria-label="Устгах">×</button></td></tr>`).join('')}
     ${o.foot || ''}</tbody></table></div><div class="addrow"><button class="btn sm" data-eadd="${id}">+ Мөр нэмэх</button>${o.extra || ''}</div>`;
 }
-function bindEd(root, map, after) {
-  root._edMap = map; root._edAfter = after; if (root._edBound) return; root._edBound = true;
+function bindEd(root, map, after, hook) {
+  root._edMap = map; root._edAfter = after; root._edHook = hook || null; if (root._edBound) return; root._edBound = true;
   root.addEventListener('change', ev => {
     const t = ev.target, id = t.dataset.ed, M = root._edMap; if (!id || !M[id]) return;
     const arr = M[id].arr(), r = arr[+t.dataset.r], col = M[id].cols.find(c => c.k === t.dataset.k); if (!r || !col) return;
-    r[t.dataset.k] = col.chk ? t.checked : col.num ? (t.value === '' ? '' : +t.value) : t.value; save(); root._edAfter(id);
+    r[t.dataset.k] = col.chk ? t.checked : col.num ? (t.value === '' ? '' : +t.value) : t.value; if (root._edHook) root._edHook(id, r, t.dataset.k); save(); root._edAfter(id);
   });
   root.addEventListener('click', ev => {
     const M = root._edMap, d = ev.target.closest('[data-edel]'), a = ev.target.closest('[data-eadd]');
@@ -128,29 +128,36 @@ function renderScope(el, job) {
       ${edTable('st', STAGE_COLS, sc.stages)}
       ${ganttHTML(job, P)}
     </div></div>
+    ${weldCardHTML(job)}
     <div class="jcard"><div class="bcard-h">Эрсдэлийн бүртгэл <span class="sp"></span><span class="muted" style="font-weight:400;font-size:12px">1 = бага · 2 = дунд · 3 = өндөр</span></div><div class="jbody">${edTable('rk', RISK_COLS, sc.risks)}</div></div>
     <div class="jcard"><div class="bcard-h">Тоног төхөөрөмж, багаж хэрэгсэл</div><div class="jbody">${edTable('eq', EQUIP_COLS, sc.equip)}</div></div>`;
   const re = () => renderJobMain();
+  bindWeldCard(el, job, re);
   bindFields(el, sc, [['sc_contract', 'contract'], ['sc_start', 'start'], ['sc_location', 'location'], ['sc_desc', 'desc'], ['sc_incl', 'incl'], ['sc_excl', 'excl']], k => { if (k === 'start') re(); });
   [['sc_title', 'title'], ['sc_customer', 'customer']].forEach(([id, k]) => el.querySelector('#' + id).addEventListener('change', e => { job[k] = e.target.value; save(); renderJList(); }));
   bindEd(el, { st: { arr: () => sc.stages, cols: STAGE_COLS, blank: () => ({ name: '', start: 1, dur: 1, people: 1, hours: 8, pct: 0 }) }, rk: { arr: () => sc.risks, cols: RISK_COLS, blank: () => ({ d: '', cause: '', p: 1, i: 1, prev: '', owner: '' }) }, eq: { arr: () => sc.equip, cols: EQUIP_COLS, blank: () => ({ name: '', cat: '', qty: 1, unit: 'ш', loc: 'Цех', st: 'Ажиллагаатай', stage: '' }) } }, re);
 }
 
 /* ---------- detailed quotation ---------- */
-const LINE_COLS = [{ k: 'name', t: 'Нэр' }, { k: 'qty', t: 'Тоо', num: 1, w: 80 }, { k: 'unit', t: 'Нэгж', w: 70 }, { k: 'price', t: 'Нэгж үнэ, ₮', num: 1, w: 110 }, { k: 'sum', t: 'Нийт, ₮', calc: r => money((+r.qty || 0) * (+r.price || 0)) }, { k: 'note', t: 'Нийлүүлэгч / тайлбар' }];
+const MAT_COLS = [{ k: 'name', t: 'Нэр (сангаас сонгох эсвэл шинээр шивэх)', list: 'dl-mat' }, { k: 'qty', t: 'Тоо', num: 1, w: 80 }, { k: 'unit', t: 'Нэгж', w: 64 }, { k: 'kgu', t: 'кг / нэгж', num: 1, w: 80 }, { k: 'kg', t: 'Жин, кг', calc: r => r.kgu ? nf((+r.qty || 0) * r.kgu, 1) : '—' }, { k: 'price', t: 'Нэгж үнэ, ₮', num: 1, w: 110 }, { k: 'pk', t: '₮ / кг', calc: (r, i) => r.kgu ? money(r.price / r.kgu) + (r.unit !== 'кг' ? ` <button class="linkbtn" data-kgc="${i}" title="Энэ мөрийг кг-аар бодох">→ кг</button>` : '') : '—' }, { k: 'sum', t: 'Нийт, ₮', calc: r => money((+r.qty || 0) * (+r.price || 0)) }, { k: 'note', t: 'Нийлүүлэгч / тайлбар' }];
+const toKg = r => { if (!r.kgu || r.unit === 'кг') return; r.qty = Math.round((+r.qty || 0) * r.kgu * 10) / 10; r.price = Math.round(r.price / r.kgu); r.note = [r.note, `${r.unit} → кг (${r.kgu} кг/${r.unit})`].filter(Boolean).join(' · '); r.unit = 'кг'; r.kgu = 1; };
+const LINE_COLS = [{ k: 'name', t: 'Нэр', list: 'dl-any' }, { k: 'qty', t: 'Тоо', num: 1, w: 80 }, { k: 'unit', t: 'Нэгж', w: 70 }, { k: 'price', t: 'Нэгж үнэ, ₮', num: 1, w: 110 }, { k: 'sum', t: 'Нийт, ₮', calc: r => money((+r.qty || 0) * (+r.price || 0)) }, { k: 'note', t: 'Нийлүүлэгч / тайлбар' }];
 const CONS_PRESET = [['Гагнуурын утас ER70S-6 Ø1.2', 'кг', 9500], ['CO₂ / хольц хий', 'баллон', 85000], ['Зүсэх диск 125мм', 'ш', 3500], ['Өнгөлөх диск 125мм', 'ш', 4500], ['Будаг (грунт + өнгөлгөө)', 'л', 28000], ['Уусгагч', 'л', 9000], ['Лазерын хий (N₂ / O₂)', 'баллон', 95000], ['Электрод E7018 Ø3.2', 'кг', 12000]];
 function renderJQuote(el, job) {
   const q = job.quote, c = quoteCalc(job), sc = job.scope;
   const sumRow = (label, v) => `<tr class="tot"><td></td><td colspan="4">${label}</td><td class="r num">${money(v)}</td><td colspan="2"></td></tr>`;
   el.innerHTML = `${jobSubBar(job)}
-    <div class="exports">${outBtns('quote', 'Үнийн санал')}${outBtns('cost', 'Дотоод тооцоо')}<span class="sp" style="flex:1"></span><button class="btn" id="qFromNest"${job.est ? '' : ' disabled title="Ажлыг өрөлтөд ачаалж өрнө үү"'}>Өрөлтөөс материал, зүсэлт</button></div>
+    <div class="exports">${outBtns('quote', 'Дэлгэрэнгүй задаргаа')}${outBtns('cost', 'Дотоод тооцоо')}<span class="sp" style="flex:1"></span><button class="btn" id="qFromNest"${job.est ? '' : ' disabled title="Ажлыг өрөлтөд ачаалж өрнө үү"'}>Өрөлтөөс материал, зүсэлт</button></div>
     <div class="summary">${[['Материал + consumable', money(c.matTotal)], ['Ажиллах хүч', money(c.laborTotal), `${nf(c.laborH, 0)} цаг × ${money(c.rate)}`], ['Тоног, үйлчилгээ', money(c.equip)], ['Өртөг', money(c.cost)], ['Ашиг', money(c.profit), c.net ? nf(c.profit / c.net * 100, 1) + '%' : ''], ['Санал (НӨАТ-гүй)', money(c.net)], ['Нийт (НӨАТ-тай)', money(c.total)]].map(s => `<div class="stat"><div class="k">${s[0]}</div><div class="v">${s[1]}<small>₮</small></div><div class="s">${s[2] || ''}</div></div>`).join('')}</div>
+    ${qfCardHTML(job)}
     <div class="jcard"><div class="bcard-h">Саналын мэдээлэл</div><div class="jbody"><div class="jgrid">
       ${fldIn('q_no', 'Саналын дугаар', q.no, { ph: job.no + '-Q1' })}${fldIn('q_date', 'Огноо', q.date, { type: 'date' })}${fldIn('q_valid', 'Хүчинтэй хугацаа, хоног', q.valid, { num: 1 })}${fldIn('q_delivery', 'Хийж дуусгах хугацаа', q.delivery, { ph: `${progCalc(job).end} хоног` })}
       ${fldIn('q_pay', 'Төлбөрийн нөхцөл', q.pay)}${fldIn('q_contact', 'Холбоо барих (утас, и-мэйл)', q.contact)}
-    </div></div></div>
+      <label class="check" style="align-self:end"><input type="checkbox" id="q_netIn"${q.netIn !== false ? ' checked' : ''}><span>Нийлүүлэгчийн НӨАТ-тай үнийг НӨАТ-гүй болгож оруулах</span></label>
+    </div></div></div>${catDatalists()}
     <div class="jcard"><div class="bcard-h">A. Материал & худалдан авалт</div><div class="jbody">
-      ${edTable('qm', LINE_COLS, q.mats, { foot: sumRow('Материалын дүн', c.mat) })}
+      ${edTable('qm', MAT_COLS, q.mats, { foot: `<tr class="tot"><td></td><td colspan="3">Материалын дүн</td><td class="r num">${nf(c.matKg, 1)}</td><td></td><td class="r num">${c.matKg ? money(c.mat / c.matKg) : ''}</td><td class="r num">${money(c.mat)}</td><td colspan="2"></td></tr>`, extra: `<button class="btn sm ghost" id="qAllKg">Бүх мөрийг кг-аар бодох</button><span class="note">Нэрийг шивэхэд сангаас санал болгоно. Санд байхгүй бол үнэ, нийлүүлэгчийг нь бичихэд автоматаар хадгална.</span>` })}
+      ${(() => { const nk = job.est ? job.est.kg : 0, pk = (() => { try { return jobWeight(jobParts(job)); } catch (e) { return 0; } })(); if (!c.matKg && !nk && !pk) return ''; const ref = nk || pk, d = ref && c.matKg ? (c.matKg - ref) / ref * 100 : null; return `<div class="phint ${d != null && d < -2 ? 'need' : ''}"><b>⚖ Жингийн шалгалт:</b> санал ${nf(c.matKg, 1)} кг${c.matKg ? ` (дундаж ${money(c.mat / c.matKg)} ₮/кг)` : ''}${nk ? ` · өрөлтийн листийн жин ${nf(nk, 1)} кг` : ''}${pk ? ` · партуудын цэвэр жин ${nf(pk, 1)} кг` : ''}${d != null ? ` · зөрүү <b>${d > 0 ? '+' : ''}${nf(d, 1)}%</b>${d < -2 ? ' — саналын материал дутуу байж магадгүй' : ''}` : ''}</div>`; })()}
       <div class="jgrid">${fldIn('q_trans', 'Тээвэр / хүргэлт, ₮', q.trans, { num: 1 })}${fldIn('q_scrap', 'Хаягдал нөөц, %', q.scrapPct, { num: 1 })}<div class="fld">Хаягдал нөөц, ₮<div class="mono" style="padding:7px 0">${money(c.scrap)}</div></div></div>
     </div></div>
     <div class="jcard"><div class="bcard-h">B. Consumable (гагнуурын утас, хий, диск, будаг…)</div><div class="jbody">
@@ -187,8 +194,12 @@ function renderJQuote(el, job) {
     if (!['no', 'date', 'delivery', 'pay', 'contact', 'note'].includes(k)) re();
   });
   el.querySelector('#q_spread').addEventListener('change', e => { q.spread = e.target.checked; save(); });
+  bindQfCard(el, job);
+  el.querySelector('#q_netIn').addEventListener('change', e => { q.netIn = e.target.checked; save(); });
+  el.querySelectorAll('[data-kgc]').forEach(b => b.addEventListener('click', () => { toKg(q.mats[+b.dataset.kgc]); save(); re(); }));
+  el.querySelector('#qAllKg').addEventListener('click', () => { q.mats.forEach(toKg); save(); re(); });
   const L = () => ({ name: '', qty: 1, unit: 'ш', price: 0, note: '' });
-  bindEd(el, { qm: { arr: () => q.mats, cols: LINE_COLS, blank: L }, qc: { arr: () => q.cons, cols: LINE_COLS, blank: L }, qe: { arr: () => q.equipRows, cols: LINE_COLS, blank: L }, qo: { arr: () => q.other, cols: LINE_COLS, blank: L } }, re);
+  bindEd(el, { qm: { arr: () => q.mats, cols: MAT_COLS, blank: L }, qc: { arr: () => q.cons, cols: LINE_COLS, blank: L }, qe: { arr: () => q.equipRows, cols: LINE_COLS, blank: L }, qo: { arr: () => q.other, cols: LINE_COLS, blank: L } }, re, (id, row, key) => quoteLineHook(job, id, row, key));
   el.querySelector('#qConsPre').addEventListener('change', e => { const p = CONS_PRESET[+e.target.value]; if (!p) return; q.cons.push({ name: p[0], qty: 1, unit: p[1], price: p[2], note: '' }); save(); re(); });
   el.querySelector('#qToPrice').addEventListener('click', () => { job.price = Math.round(c.net); jobLog(`Гэрээний үнэ саналаас: ${money(job.price)} ₮`, job); re(); toast('Гэрээний үнэ шинэчлэгдлээ'); });
   el.querySelector('#qFromNest').addEventListener('click', () => {
@@ -290,6 +301,7 @@ async function scopeDoc(job) {
   D.table([{ t: '№', w: 8, m: 1 }, { t: 'Үе шатны нэр' }, { t: 'Эхлэх', w: 24, m: 1 }, { t: 'Дуусах', w: 24, m: 1 }, { t: 'Хоног', w: 14, a: 'r', m: 1 }, { t: 'Хүн', w: 12, a: 'r', m: 1 }, { t: 'Нийт цаг', w: 18, a: 'r', m: 1 }],
     sc.stages.map((s, i) => [i + 1, s.name, sc.start ? addDays(sc.start, (+s.start || 1) - 1) : `${s.start}-р хоног`, sc.start ? addDays(sc.start, (+s.start || 1) + (+s.dur || 1) - 2) : '', s.dur, s.people, nf(c.labor[i].h, 0)]));
   ganttDoc(D, job, null);
+  { const Wr = jobWeldRows(job); if (Wr.rows.length) { D.h2('Гагнуур · урьдчилан халаалт', WELD_PROC.find(p => p[0] === Wr.W.proc)[1]); D.table([{ t: 'Материал' }, { t: 'Ангилал', w: 34 }, { t: 'Зузаан, мм', w: 18, a: 'r', m: 1 }, { t: 'Халаалт min', w: 22, a: 'r', m: 1 }, { t: 'Interpass max', w: 22, a: 'r', m: 1 }, { t: 'Эх үүсвэр', w: 34 }], Wr.rows.map(r => ({ cells: [r.mat, r.grade, r.t, phTxt(r), r.max ? r.max + ' °C' : '—', r.std], fill: r.min ? '#fff1e6' : null }))); D.para(Wr.max ? `Урьдчилан халаалт ${Wr.max} °C-аас багагүй; гагнуурын тэнхлэгээс хоёр тийш зузаанаас багагүй, 75 мм-ээс багагүй зайд. Батлагдсан WPS-ийг мөрдөнө.` : 'Урьдчилан халаалт шаардлагагүй (металл 0 °C-аас хүйтэн бол 20 °C хүртэл халаана).', { size: 2.7, color: DC.ink2 }); } }
   D.h2('Эрсдэлийн бүртгэл', '1 = бага · 2 = дунд · 3 = өндөр');
   D.table([{ t: '№', w: 8, m: 1 }, { t: 'Эрсдэл' }, { t: 'Шалтгаан' }, { t: 'Магадлал', w: 16, a: 'c', m: 1 }, { t: 'Нөлөө', w: 14, a: 'c', m: 1 }, { t: 'Оноо', w: 12, a: 'c', m: 1 }, { t: 'Урьдчилан сэргийлэх' }, { t: 'Хариуцах', w: 26 }],
     sc.risks.filter(r => r.d).map((r, i) => { const s = (+r.p || 0) * (+r.i || 0); return { cells: [i + 1, r.d, r.cause, r.p, r.i, s, r.prev, r.owner], fill: s >= 6 ? '#fde7e7' : null }; }));
@@ -311,7 +323,14 @@ async function quoteDoc(job) {
   const tot = (label, v) => ({ bold: 1, fill: DC.soft, cells: ['', label, '', '', '', money(v * k)] });
   let n = 0; const sec = t => `${String.fromCharCode(65 + n++)}. ${t}`;
   const mrows = lineRows(q.mats); if (c.scrap) mrows.push(['', `Хаягдал нөөц (${q.scrapPct}%)`, '', '', '', money(c.scrap * k)]); if (c.trans) mrows.push(['', 'Тээвэр / хүргэлт', '', '', '', money(c.trans * k)]);
-  if (mrows.length) { D.h2(sec('Материал & худалдан авалт')); D.table(lineCols, mrows.concat([tot('Материалын дүн', c.mat + c.scrap + c.trans)])); }
+  if (mrows.length) {
+    D.h2(sec('Материал & худалдан авалт'), c.matKg ? `нийт ${nf(c.matKg, 1)} кг` : '');
+    if (c.matKg) { const mc = [{ t: '№', w: 8, m: 1 }, { t: 'Нэр' }, { t: 'Тоо', w: 16, a: 'r', m: 1 }, { t: 'Нэгж', w: 12 }, { t: 'Жин, кг', w: 18, a: 'r', m: 1 }, { t: 'Нэгж үнэ, ₮', w: 24, a: 'r', m: 1 }, { t: 'Нийт, ₮', w: 26, a: 'r', m: 1 }];
+      const rr2 = q.mats.filter(r => r.name || +r.price).map((r, i) => [i + 1, r.name, nf(+r.qty || 0, 2).replace(/[.,]00$/, ''), r.unit, r.kgu ? nf((+r.qty || 0) * r.kgu, 1) : '', money((+r.price || 0) * k), money((+r.qty || 0) * (+r.price || 0) * k)]);
+      if (c.scrap) rr2.push(['', `Хаягдал нөөц (${q.scrapPct}%)`, '', '', '', '', money(c.scrap * k)]); if (c.trans) rr2.push(['', 'Тээвэр / хүргэлт', '', '', '', '', money(c.trans * k)]);
+      D.table(mc, rr2.concat([{ bold: 1, fill: DC.soft, cells: ['', 'Материалын дүн', '', '', nf(c.matKg, 1), '', money((c.mat + c.scrap + c.trans) * k)] }])); }
+    else D.table(lineCols, mrows.concat([tot('Материалын дүн', c.mat + c.scrap + c.trans)]));
+  }
   if (q.cons.length) { D.h2(sec('Consumable')); D.table(lineCols, lineRows(q.cons).concat([tot('Consumable дүн', c.cons)])); }
   if (c.laborTotal) {
     D.h2(sec('Ажиллах хүч'));
