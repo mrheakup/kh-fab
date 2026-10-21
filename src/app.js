@@ -1238,7 +1238,7 @@ $('#xCsv').addEventListener('click', () => {
 
 /* ---------- PDF report ---------- */
 function reportPages() {
-  const PW = 297, PH = 210, K = 6, pages = [], F = '"IBM Plex Sans", Arial, sans-serif', FM = '"IBM Plex Mono", Consolas, monospace';
+  const PW = 297, PH = 210, K = PRINT_K, pages = [], F = '"IBM Plex Sans", Arial, sans-serif', FM = '"IBM Plex Mono", Consolas, monospace';
   const dateStr = R.date.toLocaleDateString('mn-MN') + ' ' + R.date.toLocaleTimeString('mn-MN', { hour: '2-digit', minute: '2-digit' });
   const page = () => {
     const c = document.createElement('canvas'); c.width = PW * K; c.height = PH * K;
@@ -1317,7 +1317,7 @@ $('#xPdf').addEventListener('click', async () => {
   toast('PDF бэлтгэж байна…');
   try { await document.fonts.ready; } catch (e) { } await logoImg();
   const pages = reportPages();
-  if (window.__pv) { window.__pv = 0; printImgs(pages.map((c, i) => ({ url: c.toDataURL('image/jpeg', 0.92), alias: 'p' + i })), true, 'a4', S.jobName + "_тайлан"); return; }
+  if (window.__pv) { window.__pv = 0; printImgs(pages.map((c, i) => ({ url: c.toDataURL('image/jpeg', 0.95), alias: 'p' + i })), true, 'a4', S.jobName + "_тайлан"); return; }
   const pdf = i18nPdf(new window.jspdf.jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4', compress: true }));
   pages.forEach((c, i) => { if (i) pdf.addPage(); pdf.addImage(c.toDataURL('image/jpeg', 0.9), 'JPEG', 0, 0, 297, 210); });
   saveFile(safeName(S.jobName) + '_тайлан.pdf', pdf.output('blob'), 'application/pdf');
@@ -1361,7 +1361,7 @@ function wrapText(x, text, maxW) { const words = String(text).split(/\s+/), line
 async function quotePdf() {
   if (!window.jspdf) { toast('PDF сан ачаалагдсангүй — интернэт холболтоо шалгана уу'); return; }
   try { await document.fonts.ready; } catch (e) { } await logoImg();
-  const q = S.quote, d = quoteData(), PW = 210, PH = 297, K = 6, F = '"IBM Plex Sans", Arial, sans-serif', FM = '"IBM Plex Mono", Consolas, monospace', pages = [];
+  const q = S.quote, d = quoteData(), PW = 210, PH = 297, K = PRINT_K, F = '"IBM Plex Sans", Arial, sans-serif', FM = '"IBM Plex Mono", Consolas, monospace', pages = [];
   const today = new Date(), until = new Date(today.getTime() + (+q.valid || 0) * 864e5), ds = t => t.toLocaleDateString('mn-MN');
   const page = () => { const c = document.createElement('canvas'); c.width = PW * K; c.height = PH * K; const x = c.getContext('2d'); x.scale(K, K); x.fillStyle = '#fff'; x.fillRect(0, 0, PW, PH); pages.push(c); return x; };
   let x = page();
@@ -1391,7 +1391,7 @@ async function quotePdf() {
   y = Math.max(y + 14, PH - 35);
   x.fillStyle = '#10161c'; x.font = `400 3.3px ${F}`; x.fillText('Бэлтгэсэн: ____________________  / ' + (q.by || '') + ' /', 15, y);
   const pdf = i18nPdf(new window.jspdf.jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true }));
-  pages.forEach((c, i) => { if (i) pdf.addPage(); pdf.addImage(c.toDataURL('image/jpeg', 0.92), 'JPEG', 0, 0, PW, PH); });
+  pages.forEach((c, i) => { if (i) pdf.addPage(); pdf.addImage(c.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, PW, PH); });
   saveFile(safeName(`Үнийн_санал_${q.no}_${q.customer || S.jobName}`) + '.pdf', pdf.output('blob'), 'application/pdf');
 }
 

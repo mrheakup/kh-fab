@@ -56,9 +56,9 @@ const ppeGlyph = t => (PPE_KEYS.find(([re]) => re.test(t)) || [, null])[1];
 const loadImgSrc = src => new Promise(res => { if (!src) return res(null); const im = new Image(); im.onload = () => res(im); im.onerror = () => res(null); im.src = src; });
 
 /* ---------- the poster, designed on A3 (297 × 420 mm) ---------- */
-async function posterImg(m, fmt) {
+async function posterImg(m, fmt, prev) {
   try { await document.fonts.ready; } catch (e) { } await logoImg();
-  const photo = await loadImgSrc(m.photo), T = instrOf(m), P = posterOf(m), s = fmt === 'a3' ? 1 : 210 / 297, K = fmt === 'a3' ? 4 : 5;
+  const photo = await loadImgSrc(m.photo), T = instrOf(m), P = posterOf(m), s = fmt === 'a3' ? 1 : 210 / 297, K = prev ? (fmt === 'a3' ? 3 : 4) : (fmt === 'a3' ? 9 : 12);
   const W = 297, H = 420, M = 12, c = document.createElement('canvas'); c.width = Math.round(W * s * K); c.height = Math.round(H * s * K);
   const x = c.getContext('2d'); x.scale(s * K, s * K); x.fillStyle = '#fff'; x.fillRect(0, 0, W, H);
   const txt = (t, X, Y, o = {}) => { x.font = `${o.b ? 700 : o.sb ? 600 : 400} ${o.s || 4}px ${DF}`; x.fillStyle = o.c || SG.ink; x.textAlign = o.a || 'left'; x.textBaseline = o.bl || 'alphabetic'; let v = tr(String(t)); if (o.w) while (v.length > 1 && x.measureText(v).width > o.w) v = v.slice(0, -2) + '…'; x.fillText(v, X, Y); };
@@ -127,7 +127,7 @@ async function posterImg(m, fmt) {
   x.fillStyle = '#23272b'; x.fillRect(0, H - 13, W, 13);
   txt(`Kh International · ISO 9001${S.iso.formInstr ? ' · ' + S.iso.formInstr : ''}${S.iso.rev ? ' · Хувилбар ' + S.iso.rev : ''}`, M, H - 4.8, { s: 3.2, c: '#c9cfd6' });
   txt(`Баталсан: ____________   Огноо: ${today()}`, W - M, H - 4.8, { s: 3.2, c: '#c9cfd6', a: 'right' });
-  return c.toDataURL('image/jpeg', 0.92);
+  return c.toDataURL('image/jpeg', prev ? 0.9 : 0.95);
 }
 async function posterOut(mode, ms, fmt) {
   try { const imgs = []; for (const m of ms) imgs.push({ url: await posterImg(m, fmt), alias: 'pst' + m.id }); const name = ms.length === 1 ? `${ms[0].no}_${ms[0].name}_ханын_самбар_${fmt.toUpperCase()}` : `Kh_International_ханын_самбар_бүгд_${fmt.toUpperCase()}`; if (mode === 'print') printImgs(imgs, false, fmt, name); else pdfImgs(imgs, false, name, fmt); }

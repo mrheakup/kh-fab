@@ -349,7 +349,7 @@ async function labelsPdf(items, fileName) {
   if (!window.jspdf) { toast('PDF сан ачаалагдсангүй'); return; }
   if (!window.qrcode) { toast('QR сан ачаалагдсангүй — интернэт холболтоо шалгана уу'); return; }
   try { await document.fonts.ready; } catch (e) { } await logoImg();
-  const PW = 210, PH = 297, K = 6, cols = 3, rows = 8, LW = 70, LH = 37.125, F = '"IBM Plex Sans", Arial, sans-serif', FM = '"IBM Plex Mono", Consolas, monospace', pages = [];
+  const PW = 210, PH = 297, K = PRINT_K, cols = 3, rows = 8, LW = 70, LH = 37.125, F = '"IBM Plex Sans", Arial, sans-serif', FM = '"IBM Plex Mono", Consolas, monospace', pages = [];
   let x = null;
   const fit = (s, w) => { s = String(s ?? ''); while (s.length > 2 && x.measureText(s).width > w) s = s.slice(0, -2) + '…'; return s; };
   items.forEach((it, i) => {
@@ -395,7 +395,7 @@ $('#remLabels').addEventListener('click', remLabelsPdf);
 async function jobCardPdf(job) {
   if (!window.jspdf) { toast('PDF сан ачаалагдсангүй'); return; }
   try { await document.fonts.ready; } catch (e) { } await logoImg();
-  const PW = 210, PH = 297, K = 6, F = '"IBM Plex Sans", Arial, sans-serif', FM = '"IBM Plex Mono", Consolas, monospace', pages = [];
+  const PW = 210, PH = 297, K = PRINT_K, F = '"IBM Plex Sans", Arial, sans-serif', FM = '"IBM Plex Mono", Consolas, monospace', pages = [];
   const parts = jobParts(job), e = job.est, a = job.act || {};
   let x, y;
   const foot = `Kh International · ISO 9001 чанарын удирдлагын тогтолцоо${S.iso.formTrace ? ' · Маягт ' + S.iso.formTrace : ''}${S.iso.rev ? ' · Хувилбар ' + S.iso.rev : ''}`;
@@ -443,9 +443,9 @@ async function jobCardPdf(job) {
   need(40); y += 6;
   x.font = `400 3.2px ${F}`; x.fillStyle = '#10161c';
   [['Бэлтгэсэн', 15], ['Хянасан (ЧХ)', 80], ['Хүлээн авсан', 145]].forEach(([t, X]) => { x.fillText(t, X, y); x.strokeStyle = '#8a95a1'; x.lineWidth = 0.25; x.beginPath(); x.moveTo(X, y + 12); x.lineTo(X + 50, y + 12); x.stroke(); x.font = `400 2.6px ${F}`; x.fillStyle = '#6a7684'; x.fillText('гарын үсэг / огноо', X, y + 15.5); x.font = `400 3.2px ${F}`; x.fillStyle = '#10161c'; });
-  if (window.__pv) { window.__pv = 0; printImgs(pages.map((c, i) => ({ url: c.toDataURL('image/jpeg', 0.92), alias: 'p' + i })), false, 'a4', job.no + "_ажлын_карт"); return; }
+  if (window.__pv) { window.__pv = 0; printImgs(pages.map((c, i) => ({ url: c.toDataURL('image/jpeg', 0.95), alias: 'p' + i })), false, 'a4', job.no + "_ажлын_карт"); return; }
   const pdf = i18nPdf(new window.jspdf.jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true }));
-  pages.forEach((c, i) => { if (i) pdf.addPage(); pdf.addImage(c.toDataURL('image/jpeg', 0.92), 'JPEG', 0, 0, PW, PH); });
+  pages.forEach((c, i) => { if (i) pdf.addPage(); pdf.addImage(c.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, PW, PH); });
   saveFile(safeName(`${job.no}_ажлын_карт`) + '.pdf', pdf.output('blob'), 'application/pdf');
   jobLog('Ажлын карт PDF гаргасан', job);
 }

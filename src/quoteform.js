@@ -34,11 +34,11 @@ function qfLines(job) {
   add(q.equipRows); if (c.equipPctV) L.push({ d: 'Equipment wear', u: 'lot', q: 1, p: c.equipPctV * k }); add(q.other);
   return L;
 }
-async function quoteFormImgs(job) {
+async function quoteFormImgs(job, KK) {
   try { await document.fonts.ready; } catch (e) { } await logoImg();
   const q = job.quote, f = qfDefaults(job), C = company(), lines = qfLines(job), vatR = +q.vat || 0;
   const excl = lines.reduce((a, l) => a + Math.round(l.p) * l.q, 0), disc = +f.discount || 0, vat = Math.round((excl - disc) * vatR / 100), total = excl - disc + vat;
-  const W = 215.9, H = 279.4, K = 5, L0 = 23.9, R0 = 198.0, pages = [];
+  const W = 215.9, H = 279.4, K = KK || PRINT_K, L0 = 23.9, R0 = 198.0, pages = [];
   let x, y;
   const newPage = () => { const c = document.createElement('canvas'); c.width = Math.round(W * K); c.height = Math.round(H * K); x = c.getContext('2d'); x.scale(K, K); x.fillStyle = '#fff'; x.fillRect(0, 0, W, H); pages.push(c); };
   const T = (s, X, Y, o = {}) => { x.font = `${o.b ? 700 : 400} ${(o.s || 2.55) * 1.08}px ${QFS.F}`; x.fillStyle = o.c || '#000'; x.textAlign = o.a || 'left'; x.textBaseline = 'middle'; let v = String(s ?? ''); if (o.w) while (v.length > 1 && x.measureText(v).width > o.w) v = v.slice(0, -2) + '…'; x.fillText(v, X, Y); if (o.u) { const w = x.measureText(v).width, x0 = o.a === 'right' ? X - w : o.a === 'center' ? X - w / 2 : X; x.strokeStyle = o.c; x.lineWidth = 0.12; x.beginPath(); x.moveTo(x0, Y + 1.1); x.lineTo(x0 + w, Y + 1.1); x.stroke(); } };
@@ -102,7 +102,7 @@ async function quoteFormImgs(job) {
   tots.forEach(([k, v], i) => { const Y = tY + rh * (i + 0.5); T(k, 129.3, Y, { b: 1, s: 2.45, w: 27.5 }); T(v, R0 - 0.4, Y, { b: 1, s: 2.5, a: 'right' }); });
   y = tY + rh * 5; box(L0, y, R0 - L0, 8.1, QFS.fill); T('THANK YOU FOR YOUR COOPERATION!', (L0 + R0) / 2, y + 4.05, { b: 1, s: 3.35, a: 'center' });
   if (pages.length > 1) pages.forEach((c, i) => { const g = c.getContext('2d'); g.font = `400 2.3px ${QFS.F}`; g.fillStyle = '#555'; g.textAlign = 'right'; g.textBaseline = 'alphabetic'; g.fillText(`Page ${i + 1} of ${pages.length}`, R0, H - 8); });
-  return pages.map((c, i) => ({ url: c.toDataURL('image/jpeg', 0.93), alias: 'qf' + i }));
+  return pages.map((c, i) => ({ url: c.toDataURL('image/jpeg', 0.95), alias: 'qf' + i }));
 }
 async function quoteFormOut(job, mode) {
   try { const imgs = await quoteFormImgs(job), f = qfDefaults(job), name = `${job.quote.no || job.no} - ${job.customer || 'Customer'} - Quotation for ${f.title || job.title || ''}`.trim();
@@ -134,10 +134,10 @@ function bindQfCard(el, job) {
   Object.keys(CO_DEF).forEach(k => { const i = el.querySelector('#co_' + k); if (i) i.addEventListener('change', () => { C[k] = i.value; S.company = C; save(); }); });
   el.querySelectorAll('[data-qf]').forEach(b => b.addEventListener('click', () => quoteFormOut(job, b.dataset.qf)));
   const img = el.querySelector('.qfprev'); let tm = 0;
-  const refresh = () => { clearTimeout(tm); tm = setTimeout(() => quoteFormImgs(job).then(im => { if (img.isConnected) { img.src = im[0].url; img._imgs = im; } }).catch(() => { }), 150); };
+  const refresh = () => { clearTimeout(tm); tm = setTimeout(() => quoteFormImgs(job, PREV_K).then(im => { if (img.isConnected) { img.src = im[0].url; img._imgs = im; } }).catch(() => { }), 150); };
   el.querySelector('.qffields').addEventListener('change', refresh);
   el.querySelectorAll('.clbox').forEach(b => clauseBox(b, f, b.dataset.ck, refresh)); refresh();
-  el.querySelector('.qfprevbox').addEventListener('click', () => { if (img._imgs) printImgs(img._imgs, false, 'letter', `${job.quote.no || job.no} - Quotation`, true); });
+  el.querySelector('.qfprevbox').addEventListener('click', async () => { printImgs(await quoteFormImgs(job), false, 'letter', `${job.quote.no || job.no} - Quotation`, true); });
 }
 /* included / excluded editor: pick from the standard + own list, or type a new clause (it is remembered) */
 function clauseBox(box, f, k, refresh) {

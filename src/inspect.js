@@ -243,8 +243,8 @@ function renderInspMain() {
     el.querySelector('#pstPhoto').addEventListener('click', () => pickMachinePhoto(m, () => renderInspMain()));
     const pd = el.querySelector('#pstPhotoDel'); if (pd) pd.addEventListener('click', () => { delete m.photo; save(); renderInspMain(); });
     el.querySelectorAll('[data-pst]').forEach(b => b.addEventListener('click', () => posterOut(b.dataset.pst, [m], b.dataset.f)));
-    el.querySelectorAll('[data-ins]').forEach(t => t.addEventListener('change', () => posterImg(m, 'a4').then(u => { const i = el.querySelector('#pstImg'); if (i) i.src = u; })));
-    posterImg(m, 'a4').then(u => { const i = el.querySelector('#pstImg'); if (i) i.src = u; });
+    el.querySelectorAll('[data-ins]').forEach(t => t.addEventListener('change', () => posterImg(m, 'a4', true).then(u => { const i = el.querySelector('#pstImg'); if (i) i.src = u; })));
+    posterImg(m, 'a4', true).then(u => { const i = el.querySelector('#pstImg'); if (i) i.src = u; });
   }
   if (IN2.tab === 'log') {
     bindEd(el, { lg: { arr: () => { const rows = I.logs.filter(r => r.mid === m.id); return { length: rows.length, splice: (i) => { I.logs.splice(I.logs.indexOf(rows[i]), 1); }, push: v => I.logs.push(v), ...rows }; }, cols: IN2.logCols, blank: () => m.kind === 'vehicle' ? { mid: m.id, out: '', in: '', driver: '', route: '', km: '' } : { mid: m.id, date: today(), next: '', desc: '', by: '' } } }, () => renderInspMain());

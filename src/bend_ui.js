@@ -173,7 +173,7 @@ async function bendPdf() {
   const p = curProf(); if (!p) return;
   if (!window.jspdf) { toast('PDF сан ачаалагдсангүй'); return; }
   try { await document.fonts.ready; } catch (e) { } await logoImg();
-  const c = bendCalc(p), plan = planSequence(p, c), PW = 210, PH = 297, K = 6, F = '"IBM Plex Sans", Arial, sans-serif', FM = '"IBM Plex Mono", Consolas, monospace', pages = [];
+  const c = bendCalc(p), plan = planSequence(p, c), PW = 210, PH = 297, K = PRINT_K, F = '"IBM Plex Sans", Arial, sans-serif', FM = '"IBM Plex Mono", Consolas, monospace', pages = [];
   const page = () => { const cv = document.createElement('canvas'); cv.width = PW * K; cv.height = PH * K; const x = cv.getContext('2d'); x.scale(K, K); x.fillStyle = '#fff'; x.fillRect(0, 0, PW, PH); pages.push(cv); return x; };
   const sub = (x, X0, Y0, w, h) => { const cv = document.createElement('canvas'); cv.width = w * K; cv.height = h * K; cv.style.width = w + 'px'; const cx = cv.getContext('2d'); cx.scale(K, K); return { cv, ctx: { x: cx, w, h } }; };
   let x = page(); const pal = bpal(true);
@@ -203,9 +203,9 @@ async function bendPdf() {
   });
   if (c.warn.length) { yy = Math.min(PH - 25, yy + sh + 12); x.fillStyle = '#c43131'; x.font = `400 3px ${F}`; c.warn.forEach(w => { x.fillText('• ' + w, 15, yy); yy += 4.5; }); }
   pages.forEach(cv => { const g = cv.getContext('2d'); g.font = `400 2.6px ${F}`; g.fillStyle = '#6a7684'; g.textAlign = 'left'; g.fillText('Kh International · ISO 9001 чанарын удирдлагын тогтолцоо · Бэлтгэсэн: ________  Хянасан: ________  Оператор: ________', 15, PH - 8); });
-  if (window.__pv) { window.__pv = 0; printImgs(pages.map((c, i) => ({ url: c.toDataURL('image/jpeg', 0.92), alias: 'p' + i })), false, 'a4', "Нугалах_хуудас"); return; }
+  if (window.__pv) { window.__pv = 0; printImgs(pages.map((c, i) => ({ url: c.toDataURL('image/jpeg', 0.95), alias: 'p' + i })), false, 'a4', "Нугалах_хуудас"); return; }
   const pdf = i18nPdf(new window.jspdf.jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true }));
-  pages.forEach((cv, i) => { if (i) pdf.addPage(); pdf.addImage(cv.toDataURL('image/jpeg', 0.92), 'JPEG', 0, 0, PW, PH); });
+  pages.forEach((cv, i) => { if (i) pdf.addPage(); pdf.addImage(cv.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, PW, PH); });
   saveFile(safeName(`Нугалах_${p.name}`) + '.pdf', pdf.output('blob'), 'application/pdf');
 }
 $('#bPdf').addEventListener('click', bendPdf);

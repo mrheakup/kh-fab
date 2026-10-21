@@ -1,3 +1,5 @@
+/* print resolution: 12 px/mm ≈ 305 dpi for every PDF / print; live previews pass a smaller K */
+const PRINT_K = 12, PREV_K = 4;
 /* ================= Kh International — logo + printable document engine =================
    KH_LOGO_DEFAULT is injected by build.py from src/logo.png. Every document is drawn on
    canvases (so Cyrillic fonts render exactly), then saved as PDF or sent straight to the printer. */
@@ -27,7 +29,7 @@ async function kdoc(opt) {
   if (!window.jspdf && !opt.noPdfLib) { /* printing still works without jsPDF */ }
   try { await document.fonts.ready; } catch (e) { }
   await logoImg();
-  const land = !!opt.landscape, PW = land ? 297 : 210, PH = land ? 210 : 297, K = opt.K || 5, M = opt.margin || 14, pages = [];
+  const land = !!opt.landscape, PW = land ? 297 : 210, PH = land ? 210 : 297, K = opt.K || PRINT_K, M = opt.margin || 14, pages = [];
   const D = { PW, PH, M, W: PW - 2 * M, pages, x: null, y: 0, land };
   D.foot = opt.foot || `Kh International · ISO 9001 чанарын удирдлагын тогтолцоо${S.iso && S.iso.rev ? ' · Хувилбар ' + S.iso.rev : ''}`;
   D.page = () => {
@@ -165,14 +167,14 @@ function printImgs(imgs, land, fmt = 'a4', name = 'Kh_International') {
   document.addEventListener('keydown', esc);
   m.addEventListener('click', e => { const b = e.target.closest('[data-pv]'); if (e.target === m) close(); if (!b) return; const a = b.dataset.pv; if (a === 'close') close(); else if (a === 'pdf') pdfImgs(imgs, land, name, fmt); else doPrint(imgs, land, fmt); });
 }
-const docImgs = D => D.pages.map((c, i) => ({ url: c.toDataURL('image/jpeg', 0.9), alias: 'p' + i }));
+const docImgs = D => D.pages.map((c, i) => ({ url: c.toDataURL('image/jpeg', 0.95), alias: 'p' + i }));
 function docPdf(D, name) { pdfImgs(docImgs(D), D.land, name); }
 function docPrint(D, name) { printImgs(docImgs(D), D.land, 'a4', name); }
 /* draw one page on a fresh canvas and return it as an image */
-async function pageImg(land, draw, K = 5) {
+async function pageImg(land, draw, K = PRINT_K) {
   const PW = land ? 297 : 210, PH = land ? 210 : 297, c = document.createElement('canvas'); c.width = PW * K; c.height = PH * K;
   const x = c.getContext('2d'); x.scale(K, K); x.fillStyle = '#fff'; x.fillRect(0, 0, PW, PH); draw(x, PW, PH);
-  return c.toDataURL('image/jpeg', 0.9);
+  return c.toDataURL('image/jpeg', 0.95);
 }
 /* run a builder and send it to pdf / print */
 async function docOut(mode, build, name) {

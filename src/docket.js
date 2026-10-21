@@ -23,9 +23,9 @@ function dockItemsFrom(job, src) {
 const dockBack = r => Math.max(0, Math.round(((+r.ordered || 0) - (+r.shipped || 0)) * 100) / 100);
 const imgLoad = src => new Promise(res => { const i = new Image(); i.onload = () => res(i); i.onerror = () => res(null); i.src = src; });
 
-async function docketImgs(job) {
+async function docketImgs(job, KK) {
   try { await document.fonts.ready; } catch (e) { } await logoImg();
-  const D = dockDefaults(job), C = company(), W = 210, H = 297, K = 5, L0 = 18, R0 = 192;
+  const D = dockDefaults(job), C = company(), W = 210, H = 297, K = KK || PRINT_K, L0 = 18, R0 = 192;
   const c = document.createElement('canvas'); c.width = W * K; c.height = H * K; const x = c.getContext('2d'); x.scale(K, K); x.fillStyle = '#fff'; x.fillRect(0, 0, W, H);
   const T = (s, X, Y, o = {}) => { x.font = `${o.b ? 700 : 400} ${(o.s || 3.1) * 1.08}px ${QFS.F}`; x.fillStyle = o.c || '#000'; x.textAlign = o.a || 'left'; x.textBaseline = 'middle'; let v = tr(String(s ?? '')); if (o.w) while (v.length > 1 && x.measureText(v).width > o.w) v = v.slice(0, -2) + '…'; x.fillText(v, X, Y); return x.measureText(v).width; };
   const ln = (a, b, c2, d, w = 0.25, col = '#000') => { x.strokeStyle = col; x.lineWidth = w; x.beginPath(); x.moveTo(a, b); x.lineTo(c2, d); x.stroke(); };
@@ -79,7 +79,7 @@ async function docketImgs(job) {
   T('Delivered sign:', L0, sigY, { b: 1, s: 3.3 }); ln(L0 + 24, sigY + 1.2, 95, sigY + 1.2, 0.25);
   T('Received sign:', 118, sigY, { b: 1, s: 3.3 }); ln(118 + 23, sigY + 1.2, R0, sigY + 1.2, 0.25);
   if (D.delivered) T(D.delivered, L0 + 24, sigY + 5, { s: 2.8, c: '#444' }); if (D.received) T(D.received, 141, sigY + 5, { s: 2.8, c: '#444' });
-  return [{ url: c.toDataURL('image/jpeg', 0.93), alias: 'dd' }];
+  return [{ url: c.toDataURL('image/jpeg', 0.95), alias: 'dd' }];
 }
 const n0d = v => { const n = +v || 0; return Number.isInteger(n) ? String(n) : String(Math.round(n * 100) / 100); };
 
@@ -90,7 +90,7 @@ async function tagImgs(job) {
   const items = D.items.filter(r => r.desc && +r.shipped > 0);
   items.forEach((r, i) => { const n = Math.max(1, Math.round(+r.pk || 1)); for (let k = 1; k <= n; k++) tags.push({ r, i, k, n }); });
   if (!tags.length) throw new Error('Шошго гаргах мөр алга (Shipped > 0)');
-  const W = 210, H = 297, K = 5, cols = 2, rows = per / 2, M = 6, gw = (W - 2 * M) / cols, gh = (H - 2 * M) / rows, pages = [];
+  const W = 210, H = 297, K = PRINT_K, cols = 2, rows = per / 2, M = 6, gw = (W - 2 * M) / cols, gh = (H - 2 * M) / rows, pages = [];
   for (let s = 0; s < tags.length; s += per) {
     const c = document.createElement('canvas'); c.width = W * K; c.height = H * K; const x = c.getContext('2d'); x.scale(K, K); x.fillStyle = '#fff'; x.fillRect(0, 0, W, H);
     tags.slice(s, s + per).forEach((t, j) => {
@@ -110,7 +110,7 @@ async function tagImgs(job) {
       drawQR(x, [job.no, 'DD' + D.no, D.po ? 'PO ' + D.po : '', `#${t.i + 1}`, `${t.k}/${t.n}`, t.r.desc].filter(Boolean).join(' | '), X0 + w - 4 - qr, Y0 + h - 4 - qr - 5 * sc, qr);
       T('Know us, know the quality', X0 + 4, Y0 + h - 4 * sc, { s: 2.4, c: QFS.blue, b: 1 }); T(C.mail, X0 + w - 4, Y0 + h - 4 * sc, { s: 2.3, a: 'right', c: QFS.link });
     });
-    pages.push({ url: c.toDataURL('image/jpeg', 0.93), alias: 'tg' + pages.length });
+    pages.push({ url: c.toDataURL('image/jpeg', 0.95), alias: 'tg' + pages.length });
   }
   return pages;
 }
@@ -137,7 +137,7 @@ function dockCardHTML(job) {
 }
 function bindDockCard(el, job) {
   const D = dockDefaults(job), img = el.querySelector('.dkprev'); let tm = 0;
-  const refresh = () => { clearTimeout(tm); tm = setTimeout(() => docketImgs(job).then(im => { if (img && img.isConnected) { img.src = im[0].url; img._imgs = im; } }).catch(e => console.error(e)), 150); };
+  const refresh = () => { clearTimeout(tm); tm = setTimeout(() => docketImgs(job, PREV_K).then(im => { if (img && img.isConnected) { img.src = im[0].url; img._imgs = im; } }).catch(e => console.error(e)), 150); };
   const re = () => renderJobMain();
   ['no', 'date', 'to', 'supplied', 'po', 'orderDate', 'delDate', 'phone', 'contact', 'address', 'delivered', 'received', 'note'].forEach(k => { const i = el.querySelector('#dk_' + k); if (i) i.addEventListener('change', () => {
     D[k] = i.value.trim(); if (k === 'no') { const n = parseInt(D.no, 10); if (n > (+S.docketSeq || 0)) S.docketSeq = n; }
@@ -151,6 +151,6 @@ function bindDockCard(el, job) {
   const pb = el.querySelector('#dkPhoto'); if (pb) pb.addEventListener('click', () => { const f = document.createElement('input'); f.type = 'file'; f.accept = 'image/*'; f.onchange = async () => { const file = f.files[0]; if (file) addPh(await imgThumb(file, 1400)); }; f.click(); });
   const ff = el.querySelector('#dkFromFiles'); if (ff) ff.addEventListener('click', async () => { const imgsF = (job.files || []).filter(f => jfIsImg(f)); const pick = imgsF.length === 1 ? imgsF[0] : imgsF[(+prompt(imgsF.map((f, i) => `${i + 1}. ${f.name}`).join('\n') + '\n\nДугаар:', '1') || 1) - 1]; if (!pick) return; const d = await docGet(pick.id); if (d) addPh(await imgThumb(d.blob, 1400)); });
   el.querySelectorAll('[data-dph]').forEach(b => b.addEventListener('click', () => { D.photos.splice(+b.dataset.dph, 1); save(); re(); }));
-  el.querySelector('.qfprevbox').addEventListener('click', () => { if (img._imgs) printImgs(img._imgs, false, 'a4', `DD${D.no} - Delivery Docket`); });
+  el.querySelector('.qfprevbox').addEventListener('click', async () => { printImgs(await docketImgs(job), false, 'a4', `DD${D.no} - Delivery Docket`); });
   return { refresh, edMap: { dki: { arr: () => D.items, cols: DOCK_COLS, blank: () => ({ desc: '', ordered: 1, shipped: 1, pk: 1, kg: '' }) } } };
 }
