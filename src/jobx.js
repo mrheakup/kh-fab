@@ -101,6 +101,7 @@ function jobSubBar(job) {
   if (job.kind === 'quote') return `<nav class="rtabs jsub stepper qbar"><span class="pill qst-${job.qst || 'draft'}" style="align-self:center">ҮНИЙН САНАЛ</span><label class="mono" style="align-self:center;display:flex;gap:6px;align-items:center">№<input id="qb_no" class="inp mono" value="${esc(job.quote.no || job.no)}" placeholder="SQ1756" title="Үнийн саналын дугаар — өөрөө оруулна" style="width:120px"></label>
     <input id="qb_cust" class="inp" list="dl-org" placeholder="Захиалагч (байгууллага)" value="${esc(job.customer)}" style="flex:1 1 200px;min-width:0">
     <input id="qb_title" class="inp" placeholder="Ажлын нэр" value="${esc(job.title)}" style="flex:1 1 200px;min-width:0">
+    <select id="qb_owner" class="inp" style="width:auto;max-width:200px" title="Үнийн санал хариуцагч">${peopleOpts(job.owner, '— хариуцагч —')}</select>
     <select id="qb_st" class="inp" style="width:auto">${QST.filter(x => x[0] !== 'won').map(([k, n]) => `<option value="${k}"${(job.qst || 'draft') === k ? ' selected' : ''}>${n}</option>`).join('')}</select>
     <button class="btn primary" id="qb_won" title="Захиалагч баталсан — бүх алхам (scope, үйлдвэрлэл, явц, хүлээлгэх) нээгдэнэ">✓ Ажил болгох</button><button class="btn ghost" id="qb_del">Устгах</button></nav>`;
   return `<nav class="rtabs jsub stepper">${JSUB.map(([k, n, d], i) => `${i ? '<span class="arr">›</span>' : ''}<button data-jsub="${k}" title="${d}" class="${(J.sub || 'main') === k ? 'on' : ''}${jobStepDone(job, k) ? ' done' : ''}"><span class="sn">${jobStepDone(job, k) ? '✓' : i + 1}</span>${n}</button>`).join('')}<span class="sp" style="flex:1"></span><span class="muted mono" style="align-self:center;font-size:12px;padding-right:6px">${esc(job.no)}${job.title ? ' · ' + esc(job.title) : ''}</span></nav>`;
@@ -112,8 +113,9 @@ function bindSubBar(el) {
   const c = el.querySelector('#qb_cust'), t = el.querySelector('#qb_title'), st = el.querySelector('#qb_st');
   if (c) c.addEventListener('change', () => { job.customer = c.value.trim(); if (job.customer) { orgLearn({ org: job.customer }); if (job.quote.qf) qfFillFromDir(job.quote.qf, job.customer); } save(); renderJList(); renderJobMain(); });
   if (t) t.addEventListener('change', () => { job.title = t.value.trim(); if (job.quote.qf && !job.quote.qf.title) { job.quote.qf.title = job.title; job.quote.qf.rfqName = job.quote.qf.rfqName || job.title; } save(); renderJList(); renderJobMain(); });
+  const ow = el.querySelector('#qb_owner'); if (ow) ow.addEventListener('change', () => { job.owner = ow.value; jobLog('Хариуцагч: ' + (pName(job.owner) || '—'), job); renderJList(); });
   if (st) st.addEventListener('change', () => { job.qst = st.value; jobLog('Саналын төлөв: ' + qstName(job.qst), job); renderJList(); });
-  const w = el.querySelector('#qb_won'); if (w) w.addEventListener('click', () => { if (!confirm(`${job.no} саналыг баталж ажил болгох уу? Бүх мэдээлэл хадгалагдана.`)) return; quoteToJob(job); renderJobs(); toast('Ажил боллоо: ' + job.no); });
+  const w = el.querySelector('#qb_won'); if (w) w.addEventListener('click', () => { if (!confirm(`${job.no} саналыг баталж ажил болгох уу? Бүх мэдээлэл хадгалагдана.`)) return; quoteToJob(job); setModule('jobs'); J.sel = job.id; J.sub = 'main'; renderJobs(); toast('Ажил боллоо: ' + job.no); });
   const d = el.querySelector('#qb_del'); if (d) d.addEventListener('click', ev => { const b = ev.currentTarget; if (!b.dataset.arm) { b.dataset.arm = 1; b.textContent = 'Дахин дарж баталгаажуулна'; setTimeout(() => { delete b.dataset.arm; b.textContent = 'Устгах'; }, 3000); return; } S.jobs = S.jobs.filter(j => j !== job); J.sel = null; save(); renderJobs(); });
 }
 function renderJobSub(el, job) {

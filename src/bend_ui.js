@@ -9,15 +9,28 @@ function bpal(print) {
   return { part: cssv('--accent'), ink: cssv('--ink'), accent: cssv('--accent'), blue: isDark() ? '#6ea8ff' : '#2563a8', sheet: cssv('--sheet'), tool: isDark() ? '#55626f' : '#b9c3cd', bad: cssv('--bad'), font: 'IBM Plex Sans, Arial, sans-serif' };
 }
 /* module switch */
-function setModule(m) {
-  $$('.modtabs button').forEach(b => b.classList.toggle('on', b.dataset.mod === m));
+const MOD_ALIAS = { dash: 'jobs', quotes: 'jobs', jobs: 'jobs', docs: 'jobs' };
+const JVIEW_T = { dash: ['Хяналтын самбар', 'Үнийн санал → ажил → ашиг'], quotes: ['Үнийн санал', 'Бэлдэх, илгээх, ажил болгох'], jobs: ['Ажил', 'Scope, үйлдвэрлэл, явц, хүлээлгэх'], docs: ['Баримт бичиг', 'Иж бүрдэл, материалын гэрчилгээ'] };
+function setModule(v) {
+  const m = MOD_ALIAS[v] || v;
+  $$('.modtabs button').forEach(b => b.classList.toggle('on', b.dataset.mod === v));
+  if (m === 'jobs' && typeof J !== 'undefined') {
+    document.documentElement.dataset.jview = v;
+    J.dash = v === 'dash';
+    if (v === 'docs') { if (!['kits', 'certs'].includes(J.tab)) J.tab = 'kits'; } else J.tab = 'jobs';
+    $$('[data-jtab]').forEach(x => x.classList.toggle('on', x.dataset.jtab === J.tab)); ['jobs', 'kits', 'certs'].forEach(t => { const e = $('#jtab-' + t); if (e) e.hidden = t !== J.tab; });
+    const f = $('#jFilter'); if (f && (v === 'quotes' || v === 'jobs')) f.value = v;
+    if (v === 'quotes' || v === 'jobs') { const cur = findJob(J.sel); if (!cur || (v === 'quotes') !== isQ(cur)) { const first = S.jobs.find(j => (v === 'quotes') === isQ(j)); J.sel = first ? first.id : null; } J.sub = v === 'quotes' ? 'quote' : (J.sub === 'quote' ? 'main' : J.sub); }
+    const pt = $('#jobsPT'); if (pt) pt.innerHTML = `${JVIEW_T[v][0]}<small>${JVIEW_T[v][1]}</small>`;
+  } else document.documentElement.dataset.jview = '';
   $('#nestSide').hidden = $('#nestMain').hidden = m !== 'nest';
   $('#bendSide').hidden = $('#bendMain').hidden = m !== 'bend'; if ($('#rollMain')) $('#rollMain').hidden = true;
   $('#jobsSide').hidden = $('#jobsMain').hidden = m !== 'jobs';
   if ($('#infoSide')) $('#infoSide').hidden = $('#infoMain').hidden = m !== 'info';
   if ($('#inspSide')) $('#inspSide').hidden = $('#inspMain').hidden = m !== 'insp';
-  if (m === 'info') { if (typeof renderInfo === 'function') renderInfo(); } else if (m === 'insp') { if (typeof renderInsp === 'function') renderInsp(); } else if (m === 'bend') { renderBend(); if (typeof showBendTab === 'function') showBendTab(RT.tab); } else if (m === 'jobs') renderJobs(); else drawView();
-  try { localStorage.setItem(KEY + ':mod', m); } catch (e) { }
+  if ($('#teamSide')) $('#teamSide').hidden = $('#teamMain').hidden = m !== 'team';
+  if (m === 'info') { if (typeof renderInfo === 'function') renderInfo(); } else if (m === 'insp') { if (typeof renderInsp === 'function') renderInsp(); } else if (m === 'team') { if (typeof renderTeam === 'function') renderTeam(); } else if (m === 'bend') { renderBend(); if (typeof showBendTab === 'function') showBendTab(RT.tab); } else if (m === 'jobs') renderJobs(); else drawView();
+  try { localStorage.setItem(KEY + ':mod', v); } catch (e) { }
 }
 $$('.modtabs button').forEach(b => b.addEventListener('click', () => setModule(b.dataset.mod)));
 $$('[data-btab]').forEach(b => b.addEventListener('click', () => showBendTab(b.dataset.btab)));

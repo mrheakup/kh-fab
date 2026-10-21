@@ -345,6 +345,35 @@ table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
 .cladd{display:flex;gap:6px;flex-wrap:wrap}.cladd select{flex:1 1 200px;min-width:0}.cladd input{flex:1 1 160px;min-width:0}
 .dkph{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px}.dkph figure{position:relative;margin:0}.dkph img{height:80px;border:1px solid var(--line);border-radius:4px;display:block}.dkph .x{position:absolute;top:2px;right:2px;background:var(--surface)}
 tr.rcut td:first-child{box-shadow:inset 3px 0 0 var(--accent)}
+.dhead{display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap}.dhead h2{margin:0;font-size:20px;letter-spacing:-.01em}.dhead p{margin:2px 0 0;font-size:12.5px}
+.dgrid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:12px}@media (max-width:1250px){.dgrid{grid-template-columns:1fr}}
+.dgrid.dg1{grid-template-columns:minmax(0,1.7fr) minmax(0,1fr)}@media (max-width:1500px){.dgrid.dg1{grid-template-columns:1fr}}
+.funnel{display:flex;height:14px;border-radius:999px;overflow:hidden;gap:3px}.funnel i{display:block;min-width:6px;border-radius:999px}
+.flegend{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:12.5px}.flegend b{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:6px;vertical-align:0}
+.mbars{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;height:150px;align-items:end}.mb{display:grid;grid-template-rows:1fr auto auto;height:100%;text-align:center;font-size:11.5px;color:var(--ink-2)}
+.mb .bars{display:flex;align-items:flex-end;justify-content:center;gap:4px;min-height:0}.mb .bars i{display:block;width:14px;border-radius:4px 4px 0 0;min-height:2px}.mb .g{background:#c7d2fe}.mb .w{background:#12b76a}.mb small{color:var(--ink-3)}
+.seg.dper button{padding:5px 12px}
+
+/* jobs module views: quotes / jobs / dashboard / documents */
+html[data-jview="docs"] [data-jtab="jobs"]{display:none}
+html:not([data-jview="docs"]) [data-jtab="kits"],html:not([data-jview="docs"]) [data-jtab="certs"]{display:none}
+html[data-jview="quotes"] #jNew,html[data-jview="jobs"] #qNew{display:none}
+/* team & tasks */
+.av{display:inline-grid;place-items:center;border-radius:50%;color:#fff;font-weight:700;flex:none;line-height:1}.av.none{background:var(--surface-2);color:var(--ink-3);box-shadow:inset 0 0 0 1px var(--line);font-size:11px}
+.pdot{display:inline-block;width:8px;height:8px;border-radius:50%;flex:none}.sdot{display:inline-block;width:9px;height:9px;border-radius:50%}
+.tdue{font:500 11.5px var(--f-mono);color:var(--ink-2);background:var(--surface-2);border-radius:6px;padding:1px 6px}.tdue.late{color:#b42318;background:#fef3f2}.tdue.soon{color:#b54708;background:#fffaeb}
+.tmwrap{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;align-items:start}.tmwrap.withd{grid-template-columns:minmax(0,1fr) 380px}@media (max-width:1300px){.tmwrap.withd{grid-template-columns:1fr}}
+.kanban{display:grid;grid-template-columns:repeat(4,minmax(165px,1fr));gap:12px;align-items:start;overflow-x:auto}
+.kcol{background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:8px;min-height:200px}.kcol.over{outline:2px dashed var(--accent);outline-offset:-3px}
+.kh{display:flex;align-items:center;gap:8px;font-weight:600;font-size:13px;padding:4px 6px 10px}.kh i{width:9px;height:9px;border-radius:50%}.kh .linkbtn{margin-left:auto;font-size:18px;line-height:1}
+.kl{display:grid;gap:8px}
+.tcard{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 11px;cursor:pointer;display:grid;gap:6px;box-shadow:0 1px 2px rgba(16,24,40,.04)}.tcard:hover{border-color:var(--ink-3)}.tcard.on{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}.tcard.drag{opacity:.5}
+.tcard .tt{display:flex;gap:8px;align-items:baseline}.tcard .tt b{font-weight:600;font-size:13.5px;line-height:1.35}.tcard .tj{font-size:12px;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tcard .tf{display:flex;align-items:center;gap:6px}
+.tlist{display:grid}.trow{display:flex;align-items:center;gap:10px;padding:9px 16px;border-top:1px solid var(--line-2);cursor:pointer;font-size:13.5px;min-width:0}.trow:first-child{border-top:0}.trow:hover{background:var(--surface-2)}.trow.on{background:var(--accent-soft)}.trow>span:not(.sp):not(.pill):not(.av):not(.tdue):not(.pdot){white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.tdetail{position:sticky;top:0}.tdetail .ttl{font-size:17px;font-weight:600;padding:10px 12px}
+.wlgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}.wl .bcard-h{gap:10px}.wl .jbody{gap:8px;padding:12px 0 6px}.wl .jbody>div:not(.trow){padding:0 16px}
+.wlnow{font-size:13px;color:var(--accent)}.wlnow a,.wlji{cursor:pointer}.wlnow a:hover,.wlji:hover{text-decoration:underline}.wlj{display:grid;gap:4px}.wlji{display:flex;justify-content:space-between;gap:8px;font-size:13px}
+.jtrow{display:flex;gap:12px;flex-wrap:wrap}
 /* ---- skin: modern — left navigation rail + context panel + workspace (SaaS dashboard look) ---- */
 .mico,.mgrp,.mco,.ptitle{display:none}
 html[data-skin="modern"]:not([data-theme="dark"]){--bg:#f5f6f8;--surface:#fff;--surface-2:#f9fafb;--line:#e4e7ec;--line-2:#eef0f3;--ink:#101828;--ink-2:#475467;--ink-3:#98a2b3;--accent:#3e63dd;--accent-ink:#fff;--accent-soft:#eef2ff}
@@ -456,13 +485,19 @@ html[data-skin="modern"][data-var="bento"] .stepper{border-radius:999px;backgrou
   <header class="top">
     <div class="brand"><span class="logo-wrap"><img class="brand-logo" alt="Kh International" src=""></span></div>
     <nav class="modtabs" role="tablist">
+      <button data-mod="dash" role="tab" title="Үнийн санал, ажил, ашгийн тойм"><svg class="mico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>Хяналтын самбар</button>
+      <span class="mgrp">Захиалга</span>
+      <button data-mod="quotes" role="tab" title="Үнийн санал бэлдэх, илгээх, ажил болгох"><svg class="mico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg>Үнийн санал</button>
+      <button data-mod="jobs" role="tab" title="Ажлын scope, үйлдвэрлэл, явц, зардал, хүлээлгэх"><svg class="mico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18"/></svg>Ажил</button>
       <span class="mgrp">Үйлдвэрлэл</span>
-      <button data-mod="jobs" role="tab" title="Захиалга, үнийн санал, хуваарь, явц, зардал, хүлээлгэх"><svg class="mico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18"/></svg><i class="mi">1</i>Ажил</button>
-      <button data-mod="nest" class="on" role="tab" title="Лист дээр парт өрөх, лазер зүсэлт, G-code, DXF"><svg class="mico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="3"/><path d="M14 14h4v4h-4zM14 5v4h5"/></svg><i class="mi">2</i>Зүсэлт</button>
-      <button data-mod="bend" role="tab" title="Нугалах пресс, 3 булт галзуу"><svg class="mico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h7l9-9"/><path d="M4 16h5l8-8"/><circle cx="17" cy="5" r="1.5"/></svg><i class="mi">3</i>Нугалалт</button>
-      <span class="msep"></span><span class="mgrp">Хяналт · сан</span>
+      <button data-mod="nest" class="on" role="tab" title="Лист дээр парт өрөх, лазер зүсэлт, G-code, DXF"><svg class="mico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="3"/><path d="M14 14h4v4h-4zM14 5v4h5"/></svg>Зүсэлт</button>
+      <button data-mod="bend" role="tab" title="Нугалах пресс, 3 булт галзуу"><svg class="mico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h7l9-9"/><path d="M4 16h5l8-8"/><circle cx="17" cy="5" r="1.5"/></svg>Нугалалт</button>
+      <span class="mgrp">Баг · хяналт</span>
+      <button data-mod="team" role="tab" title="Даалгавар, хэн юу хийж байна, хүмүүс"><svg class="mico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M7 12l2 2 4-4M14 16h3"/></svg>Даалгавар</button>
       <button data-mod="insp" role="tab" title="Тоног төхөөрөмжийн өдөр тутмын үзлэг, ажлын заавар, ханын самбар"><svg class="mico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v2h6V3M9 12l2 2 4-4M9 17h6"/></svg>Үзлэг · ХАБ</button>
-      <button data-mod="info" role="tab" title="Үнийн сан, стандарт, загвар, уул уурхайн техник, файлууд"><svg class="mico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h6a3 3 0 0 1 3 3v13a2 2 0 0 0-2-2H4z"/><path d="M20 4h-4a3 3 0 0 0-3 3v13a2 2 0 0 1 2-2h5z"/></svg>Сан</button>
+      <span class="mgrp">Баримт бичиг</span>
+      <button data-mod="docs" role="tab" title="Иж бүрдэл (парт жагсаалт), материалын гэрчилгээ"><svg class="mico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7a2 2 0 0 1 2-2h4l2 2h6a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M9 13h6"/></svg>Иж бүрдэл, гэрчилгээ</button>
+      <button data-mod="info" role="tab" title="Үнийн сан, харилцагч, стандарт, загвар, техник, файлууд"><svg class="mico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h6a3 3 0 0 1 3 3v13a2 2 0 0 0-2-2H4z"/><path d="M20 4h-4a3 3 0 0 0-3 3v13a2 2 0 0 1 2-2h5z"/></svg>Сан</button>
     </nav>
     <span id="updBadge" class="pill rem" hidden></span>
     <div class="top-actions">
@@ -535,8 +570,18 @@ html[data-skin="modern"][data-var="bento"] .stepper{border-radius:999px;backgrou
     </div>
   </aside>
   <main class="main" id="infoMain" hidden></main>
+  <aside class="side" id="teamSide" hidden>
+    <div class="ptitle">Даалгавар<small>Хэн юу хийж байна · хүмүүс</small></div>
+    <nav class="tabs" role="tablist"><button data-ttab="tasks" class="on">Даалгавар</button><button data-ttab="people">Хүмүүс</button></nav>
+    <div class="panel-body">
+      <label class="fld" style="margin-bottom:10px">Би<select id="tmMe" class="inp"></select></label>
+      <section id="ttab-tasks"><div class="ptools"><button class="btn primary" id="tmAddT">+ Даалгавар</button></div><div id="tmWho" class="plist" style="margin-top:10px"></div></section>
+      <section id="ttab-people" hidden><div class="ptools"><button class="btn primary" id="tmAddP">+ Хүн нэмэх</button></div><div id="tmPeople" class="plist" style="margin-top:10px"></div></section>
+    </div>
+  </aside>
+  <main class="main" id="teamMain" hidden></main>
   <aside class="side" id="jobsSide" hidden>
-    <div class="ptitle">Ажил<small>Үнийн санал, захиалга, хүлээлгэх</small></div>
+    <div class="ptitle" id="jobsPT">Ажил<small>Үнийн санал, захиалга, хүлээлгэх</small></div>
     <nav class="tabs" role="tablist">
       <button data-jtab="jobs" class="on">Ажлууд <span class="badge" id="cntJobs"></span></button>
       <button data-jtab="kits">Иж бүрдэл <span class="badge" id="cntKits"></span></button>

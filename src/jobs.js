@@ -24,7 +24,7 @@ function nextSQ() {
 }
 function newQuote() {
   const no = nextSQ();
-  const job = { id: uid(), kind: 'quote', qst: 'draft', no, short: no.replace(/^\D+/, ''), customer: '', title: '', due: '', status: 'new', note: '', items: [], extra: [], est: null, act: { hours: '', kg: '', other: '' }, trace: [], log: [], created: today() };
+  const job = { id: uid(), owner: S.me || '', kind: 'quote', qst: 'draft', no, short: no.replace(/^\D+/, ''), customer: '', title: '', due: '', status: 'new', note: '', items: [], extra: [], est: null, act: { hours: '', kg: '', other: '' }, trace: [], log: [], created: today() };
   S.jobs.unshift(job); jx(job); job.quote.no = no; jobLog('Үнийн санал нээсэн', job);
   J.sel = job.id; J.sub = 'quote'; J.dash = false; save(); return job;
 }
@@ -41,7 +41,7 @@ function newJob() {
   const y = new Date().getFullYear();
   if (S.jobYear !== y) { S.jobYear = y; S.jobSeq = 0; }
   const n = ++S.jobSeq, short = String(n).padStart(3, '0');
-  const job = { id: uid(), no: `KH-${y}-${short}`, short, customer: '', title: '', due: '', status: 'new', note: '', items: [], extra: [], est: null, act: { hours: '', kg: '', other: '' }, trace: [], log: [], created: today() };
+  const job = { id: uid(), owner: S.me || '', no: `KH-${y}-${short}`, short, customer: '', title: '', due: '', status: 'new', note: '', items: [], extra: [], est: null, act: { hours: '', kg: '', other: '' }, trace: [], log: [], created: today() };
   S.jobs.unshift(job); jobLog('Ажил нээсэн', job);
   J.sel = job.id; save(); return job;
 }
@@ -106,14 +106,14 @@ function renderJList() {
   const list = S.jobs.filter(j => fOk(j) && (!inOrg || inOrg.has(j)) && (!q || hay(j).includes(q)));
   $('#jList').innerHTML = list.length ? list.map(j => {
     const late = j.due && j.due < today() && !['done', 'given'].includes(j.status);
-    return `<div class="jitem${J.sel === j.id && J.tab === 'jobs' ? ' on' : ''}" data-id="${j.id}"><span class="no">${esc(j.no)}${S.activeJob === j.id ? ' <span class="pill rem">өрөлтөд</span>' : ''}</span>${isQ(j) ? `<span class="pill qst-${j.qst || 'draft'}">Санал · ${qstName(j.qst)}</span>` : `<span class="pill st-${j.status}">${jstName(j.status)}</span>`}<span class="t">${esc(j.title || '—')}${j.customer ? ' · ' + esc(j.customer) : ''}${j.quote && j.quote.qf && j.quote.qf.person ? ' · ' + esc(personSplit(j.quote.qf.person).name) : ''}${j.due ? ` · <span class="${late ? 'late' : ''}">${esc(j.due)}</span>` : ''}</span></div>`;
+    return `<div class="jitem${J.sel === j.id && J.tab === 'jobs' ? ' on' : ''}" data-id="${j.id}"><span class="no">${esc(j.no)}${S.activeJob === j.id ? ' <span class="pill rem">өрөлтөд</span>' : ''}</span>${isQ(j) ? `<span class="pill qst-${j.qst || 'draft'}">Санал · ${qstName(j.qst)}</span>` : `<span class="pill st-${j.status}">${jstName(j.status)}</span>`}<span class="t">${esc(j.title || '—')}${j.customer ? ' · ' + esc(j.customer) : ''}${j.quote && j.quote.qf && j.quote.qf.person ? ' · ' + esc(personSplit(j.quote.qf.person).name) : ''}${j.owner && typeof pName === 'function' && pName(j.owner) ? ' · 👤 ' + esc(pName(j.owner)) : ''}${j.due ? ` · <span class="${late ? 'late' : ''}">${esc(j.due)}</span>` : ''}</span></div>`;
   }).join('') : `<div class="emptyp">${S.jobs.length ? 'Хайлтад тохирох ажил алга.' : 'Ажил алга. <b>+ Шинэ ажил</b> товчоор эхэлнэ.'}</div>`;
   ['formTrace', 'rev', 'operators', 'formQuote', 'formScope', 'formInstr'].forEach(k => $('#iso_' + k).value = S.iso[k] || '');
 }
-$('#jDash').addEventListener('click', () => { J.dash = true; renderJList(); renderJobMain(); });
-$('#jList').addEventListener('click', e => { const it = e.target.closest('.jitem'); if (!it) return; J.sel = it.dataset.id; J.traceForm = false; J.dash = false; renderJList(); renderJobMain(); });
-$('#qNew').addEventListener('click', () => { newQuote(); renderJobs(); setTimeout(() => { const el = $('#qb_no'); if (el) { el.focus(); el.setSelectionRange(el.value.length, el.value.length); } }, 50); });
-$('#jNew').addEventListener('click', () => { J.dash = false; J.sub = 'main'; newJob(); renderJobs(); setTimeout(() => { const el = $('#jf_title'); if (el) el.focus(); }, 50); });
+$('#jDash').addEventListener('click', () => setModule('dash'));
+$('#jList').addEventListener('click', e => { const it = e.target.closest('.jitem'); if (!it) return; J.sel = it.dataset.id; { const v = document.documentElement.dataset.jview, q = isQ(findJob(J.sel)); if (v === 'dash' || (v === 'quotes' && !q) || (v === 'jobs' && q)) { setModule(q ? 'quotes' : 'jobs'); J.sel = it.dataset.id; } } J.traceForm = false; J.dash = false; renderJList(); renderJobMain(); });
+$('#qNew').addEventListener('click', () => { const q = newQuote(); setModule('quotes'); J.sel = q.id; J.sub = 'quote'; renderJobs(); setTimeout(() => { const el = $('#qb_no'); if (el) { el.focus(); el.setSelectionRange(el.value.length, el.value.length); } }, 50); });
+$('#jNew').addEventListener('click', () => { const nj = newJob(); setModule('jobs'); J.sel = nj.id; J.dash = false; J.sub = 'main'; renderJobs(); setTimeout(() => { const el = $('#jf_title'); if (el) el.focus(); }, 50); });
 $('#jSearch').addEventListener('input', renderJList);
 $('#jFilter').addEventListener('change', renderJList);
 $('#jOrg').addEventListener('change', renderJList);
@@ -139,7 +139,7 @@ $('#kFromParts').addEventListener('click', () => { if (kitFromParts()) { renderJ
 $('#btnKitFrom').addEventListener('click', () => {
   if (!kitFromParts()) return;
   J.tab = 'kits'; $$('[data-jtab]').forEach(x => x.classList.toggle('on', x.dataset.jtab === 'kits')); ['jobs', 'kits', 'certs'].forEach(t => $('#jtab-' + t).hidden = t !== 'kits');
-  setModule('jobs'); toast('Иж бүрдэл үүслээ — нэрийг нь өгнө үү');
+  setModule('docs'); toast('Иж бүрдэл үүслээ — нэрийг нь өгнө үү');
 });
 
 function renderCertSide() {
@@ -218,9 +218,9 @@ function renderJobMain() {
       <div id="jTraceForm"></div>
       ${job.trace.length ? `<div class="tblwrap"><table class="dt"><thead><tr><th>Огноо</th><th>Лист</th><th>Хэмжээ</th><th>Материал</th><th class="r">Тоо</th><th>Хайлалт №</th><th>Гэрчилгээ №</th><th>Оператор</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>` : '<p class="note">Зүссэн лист бүрийн хавтангийн хайлалтын дугаар, операторыг энд бүртгэнэ. ISO аудитад бүтээгдэхүүнээс материалын гэрчилгээ хүртэл мөрдөх боломжтой болно.</p>'}
     </div></div>
-    ${jobNextHTML(job)}${jobFilesHTML(job)}<div class="jcard" data-v="main"><div class="bcard-h">Түүх</div><div class="jbody"><div class="jlog">${job.log.map(l => `<div><span class="mono">${esc(l.t)}</span>${esc(l.m)}</div>`).join('') || '<span class="note">—</span>'}</div></div></div>
+    ${jobNextHTML(job)}${jobTasksHTML(job)}${jobFilesHTML(job)}<div class="jcard" data-v="main"><div class="bcard-h">Түүх</div><div class="jbody"><div class="jlog">${job.log.map(l => `<div><span class="mono">${esc(l.t)}</span>${esc(l.m)}</div>`).join('') || '<span class="note">—</span>'}</div></div></div>
     <datalist id="opList">${ops.map(o => `<option value="${esc(o)}">`).join('')}</datalist>`;
-  bindSubBar(el); bindJobFiles(el, job);
+  bindSubBar(el); bindJobFiles(el, job); bindJobTasks(el, job);
   { const v = J.sub === 'prod' ? 'prod' : 'main'; el.querySelectorAll('[data-v]').forEach(n => { n.hidden = n.dataset.v !== v; }); el.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => { J.sub = b.dataset.go; renderJobMain(); })); }
   // field bindings
   ['no', 'title', 'customer', 'due', 'note'].forEach(k => $('#jf_' + k).addEventListener('change', ev => { const v = ev.target.value.trim(); if (k === 'no' && !v) return; if (k === 'no') { job.no = v; job.short = (v.match(/(\d+)\s*$/) || [, v])[1]; } else job[k] = v; if (k === 'customer' && v) { orgLearn({ org: v }); if (job.quote && job.quote.qf && qfFillFromDir(job.quote.qf, v)) toast('Захиалагчийн хаяг, ID үнийн саналд бөглөгдлөө'); } save(); renderJList(); }));
@@ -430,6 +430,53 @@ async function jobCardPdf(job) {
 }
 
 /* ---------- dashboard: deadlines, budget vs actual, margin ---------- */
+/* ---------- quotation → job tracking (dashboard top) ---------- */
+const DPER = [['month', 'Энэ сар'], ['quarter', 'Энэ улирал'], ['year', 'Энэ жил'], ['all', 'Бүгд']];
+function perStart(p) { const t = new Date(today() + 'T00:00:00'); if (p === 'month') t.setDate(1); else if (p === 'quarter') { t.setMonth(Math.floor(t.getMonth() / 3) * 3); t.setDate(1); } else if (p === 'year') { t.setMonth(0); t.setDate(1); } else return ''; return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-01`; }
+function quoteStats(per) {
+  const from = perStart(per), Q = S.jobs.filter(j => (isQ(j) || j.qst) && j.quote).map(j => { let c = null; try { c = quoteCalc(j); } catch (e) { } const net = c ? c.net : 0; return { j, st: isQ(j) ? (j.qst || 'draft') : 'won', date: j.quote.date || j.created || '', net, profit: c ? c.profit : 0, pct: net ? c.profit / net * 100 : null }; }).filter(o => !from || o.date >= from);
+  const by = k => Q.filter(o => o.st === k), sum = (a, f) => a.reduce((x, o) => x + (f(o) || 0), 0);
+  const given = Q.filter(o => o.st !== 'draft'), won = by('won'), lost = by('lost'), sent = by('sent'), draft = by('draft');
+  return { Q, given, won, lost, sent, draft, sum, conv: given.length ? won.length / given.length * 100 : null, convV: sum(given, o => o.net) ? sum(won, o => o.net) / sum(given, o => o.net) * 100 : null, mAll: sum(given, o => o.net) ? sum(given, o => o.profit) / sum(given, o => o.net) * 100 : null, mWon: sum(won, o => o.net) ? sum(won, o => o.profit) / sum(won, o => o.net) * 100 : null };
+}
+function quoteDashHTML() {
+  const per = J.dper || 'year', Sx = quoteStats(per), { Q, given, won, lost, sent, draft, sum } = Sx, mm = v => nf(v / 1e6, 1);
+  const pc = v => v == null ? '—' : nf(v, 1) + '%';
+  const seg = [['draft', 'Ноорог', draft, '#98a2b3'], ['sent', 'Илгээсэн', sent, '#3e63dd'], ['won', 'Ажил болсон', won, '#12b76a'], ['lost', 'Татгалзсан', lost, '#f04438']], tot = Q.length || 1;
+  // last 6 months: given vs won value
+  const mons = []; { const t = new Date(today() + 'T00:00:00'); t.setDate(1); for (let i = 5; i >= 0; i--) { const d = new Date(t); d.setMonth(t.getMonth() - i); mons.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`); } }
+  const all = quoteStats('all'), mv = mons.map(m => ({ m, g: all.sum(all.given.filter(o => o.date.startsWith(m)), o => o.net), w: all.sum(all.won.filter(o => o.date.startsWith(m)), o => o.net) })), mx = Math.max(1, ...mv.map(o => o.g));
+  const cust = {}; given.forEach(o => { const k = o.j.customer || '—'; const c = cust[k] = cust[k] || { n: 0, w: 0, v: 0, wv: 0 }; c.n++; c.v += o.net; if (o.st === 'won') { c.w++; c.wv += o.net; } });
+  const top = Object.entries(cust).sort((a, b) => b[1].wv - a[1].wv || b[1].v - a[1].v).slice(0, 6);
+  const stName = k => ({ draft: 'Ноорог', sent: 'Илгээсэн', won: 'Ажил болсон', lost: 'Татгалзсан' })[k];
+  const stCls = k => ({ draft: 'qst-draft', sent: 'qst-sent', won: 'st-done', lost: 'qst-lost' })[k];
+  return `<div class="dhead"><div><h2>Хяналтын самбар</h2><p class="muted">Үнийн санал → ажил → ашиг</p></div><span class="sp" style="flex:1"></span><div class="seg dper">${DPER.map(([k, n]) => `<button data-dper="${k}" class="${per === k ? 'on' : ''}">${n}</button>`).join('')}</div></div>
+    <div class="summary">${[
+      ['Өгсөн үнийн санал', `${given.length}`, `${mm(sum(given, o => o.net))} сая₮ · ноорог ${draft.length}`],
+      ['Хариу хүлээж буй', `${sent.length}`, `${mm(sum(sent, o => o.net))} сая₮`],
+      ['Ажил болсон', `${won.length}`, `${mm(sum(won, o => o.net))} сая₮ · ${pc(Sx.conv)} хувиргалт`],
+      ['Татгалзсан', `${lost.length}`, `${mm(sum(lost, o => o.net))} сая₮`],
+      ['Дундаж ашиг (санал)', pc(Sx.mAll), `батлагдсан: ${pc(Sx.mWon)}`],
+      ['Үнийн дүнгээр хувиргалт', pc(Sx.convV), 'ажил болсон / өгсөн дүн']
+    ].map(s => `<div class="stat"><div class="k">${s[0]}</div><div class="v">${s[1]}</div><div class="s">${esc(s[2])}</div></div>`).join('')}</div>
+    <div class="dgrid">
+      <div class="jcard"><div class="bcard-h">Саналын урсгал <span class="pill">${Q.length}</span></div><div class="jbody">
+        <div class="funnel">${seg.filter(x => x[2].length).map(([k, n, a, c]) => `<i style="flex:${a.length};background:${c}" title="${n}: ${a.length}"></i>`).join('') || '<i style="flex:1;background:var(--line)"></i>'}</div>
+        <div class="flegend">${seg.map(([k, n, a, c]) => `<span><b style="background:${c}"></b>${n} <span class="mono">${a.length}</span> <span class="muted mono">${mm(sum(a, o => o.net))} сая₮</span></span>`).join('')}</div>
+      </div></div>
+      <div class="jcard"><div class="bcard-h">Сүүлийн 6 сар — өгсөн ба ажил болсон (сая₮)</div><div class="jbody"><div class="mbars">${mv.map(o => `<div class="mb"><div class="bars"><i class="g" style="height:${o.g / mx * 100}%" title="Өгсөн ${mm(o.g)}"></i><i class="w" style="height:${o.w / mx * 100}%" title="Ажил болсон ${mm(o.w)}"></i></div><span class="mono">${o.m.slice(5)}</span><small class="mono">${o.g ? mm(o.g) : ''}</small></div>`).join('')}</div>
+        <div class="flegend"><span><b style="background:#c7d2fe"></b>Өгсөн</span><span><b style="background:#12b76a"></b>Ажил болсон</span></div></div></div>
+    </div>
+    <div class="dgrid dg1">
+      <div class="jcard"><div class="bcard-h">Үнийн саналууд</div><div class="tblwrap" style="border:0"><table class="dt"><thead><tr><th>№</th><th>Огноо</th><th>Захиалагч</th><th>Ажил</th><th class="r">Дүн (НӨАТ-гүй), ₮</th><th class="r">Ашиг</th><th>Төлөв</th><th>Ажил</th></tr></thead><tbody>
+        ${Q.slice().sort((a, b) => String(b.date).localeCompare(String(a.date))).slice(0, 30).map(o => `<tr class="jrow" data-id="${o.j.id}" style="cursor:pointer"><td class="num"><b>${esc(o.j.quote.no || o.j.no)}</b></td><td class="num">${esc(o.date)}</td><td>${esc(o.j.customer || '—')}</td><td>${esc(o.j.title || '—')}</td><td class="r num">${money(o.net)}</td><td class="r num ${o.pct != null && o.pct < 10 ? 'late' : ''}">${pc(o.pct)}</td><td><span class="pill ${stCls(o.st)}">${stName(o.st)}</span></td><td class="num">${o.st === 'won' ? esc(o.j.no) : ''}</td></tr>`).join('') || '<tr><td colspan="8" class="muted">Энэ хугацаанд үнийн санал алга. «+ Үнийн санал» товчоор эхэлнэ.</td></tr>'}
+      </tbody></table></div></div>
+      <div class="jcard"><div class="bcard-h">Захиалагчаар</div><div class="tblwrap" style="border:0"><table class="dt"><thead><tr><th>Захиалагч</th><th class="r">Санал</th><th class="r">Ажил болсон</th><th class="r">Ажлын дүн, сая₮</th></tr></thead><tbody>
+        ${top.map(([k, c]) => `<tr><td>${esc(k)}</td><td class="r num">${c.n}</td><td class="r num">${c.w} <span class="muted">(${nf(c.w / c.n * 100, 0)}%)</span></td><td class="r num">${mm(c.wv)}</td></tr>`).join('') || '<tr><td colspan="4" class="muted">—</td></tr>'}
+      </tbody></table></div></div>
+    </div>
+    <h3 style="margin:8px 0 0">Явагдаж буй ажлууд</h3>`;
+}
 function renderDash(el) {
   const JB = S.jobs.filter(x => !isQ(x)), open = JB.filter(x => !['done', 'given'].includes(x.status));
   const late = open.filter(x => x.due && daysLeft(x.due) < 0), soon = open.filter(x => x.due && daysLeft(x.due) >= 0 && daysLeft(x.due) <= 7);
@@ -445,7 +492,7 @@ function renderDash(el) {
   const d0 = new Date(dates[0] + 'T00:00:00'), d1 = new Date(Math.max(new Date(dates[dates.length - 1] + 'T00:00:00'), +d0 + 14 * 864e5)), span = (d1 - d0) || 1;
   const pc = d => Math.max(0, Math.min(100, (new Date(d + 'T00:00:00') - d0) / span * 100));
   const rows = M.slice().sort((a, b) => (open.includes(b.j) - open.includes(a.j)) || String(a.j.due || '9999').localeCompare(String(b.j.due || '9999')));
-  el.innerHTML = `
+  el.innerHTML = `${quoteDashHTML()}
     <div class="summary">${[
       ['Идэвхтэй ажил', `${open.length}`, `${JB.length} нийт · ${S.jobs.length - JB.length} санал`],
       ['Хугацаа хэтэрсэн', `<span class="${late.length ? 'late' : ''}">${late.length}</span>`, late.map(x => x.no).join(', ') || 'алга'],
@@ -462,5 +509,6 @@ function renderDash(el) {
       ${rows.map(({ j: x, m }) => { const dl = daysLeft(x.due), lateX = dl != null && dl < 0 && open.includes(x), dv = m.has && m.plan ? (m.act - m.plan) / m.plan * 100 : null; return `<tr class="jrow" data-id="${x.id}" style="cursor:pointer"><td class="num"><b>${esc(x.no)}</b></td><td>${esc(x.title || '—')}</td><td>${esc(x.customer || '—')}</td><td><span class="pill st-${x.status}">${jstName(x.status)}</span><span class="jprog"><i style="width:${(stIdx(x.status) + 1) / JST.length * 100}%"></i></span></td><td class="num${lateX ? ' late' : ''}">${esc(x.due || '—')}</td><td class="r num">${m.price ? nf(m.price) : '—'}</td><td class="r num">${m.plan ? nf(m.plan) : '—'}</td><td class="r num">${m.has ? nf(m.act) : '—'}</td><td class="r num">${dv == null ? '—' : `<span class="${dv > 5 ? 'late' : ''}">${dv > 0 ? '+' : ''}${nf(dv, 1)}%</span>`}</td><td class="r num">${m.margin == null ? '—' : `<span class="${m.margin < 0 ? 'late' : ''}">${nf(m.margin)}</span>`}</td></tr>`; }).join('')}
       </tbody></table></div></div>
     <p class="note">Төсөв = өрөлтөөс гарсан материал + зүсэлтийн өртөг + төлөвлөсөн бусад зардал. Бодит = бодит кг, зүсэлтийн цаг, бусад зардал. Ашиг = гэрээний үнэ − (бодит, байхгүй бол төсөв). Мөр дээр дарж ажлыг нээнэ.</p>`;
-  el.querySelectorAll('[data-id]').forEach(r => r.addEventListener('click', () => { J.sel = r.dataset.id; J.dash = false; renderJList(); renderJobMain(); }));
+  el.querySelectorAll('[data-id]').forEach(r => r.addEventListener('click', () => { const j = findJob(r.dataset.id); J.sel = j.id; setModule(isQ(j) ? 'quotes' : 'jobs'); J.sel = j.id; J.sub = isQ(j) ? 'quote' : 'main'; renderJobs(); }));
+  el.querySelectorAll('[data-dper]').forEach(b => b.addEventListener('click', () => { J.dper = b.dataset.dper; renderDash(el); }));
 }

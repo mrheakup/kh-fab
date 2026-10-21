@@ -345,6 +345,35 @@ table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
 .cladd{display:flex;gap:6px;flex-wrap:wrap}.cladd select{flex:1 1 200px;min-width:0}.cladd input{flex:1 1 160px;min-width:0}
 .dkph{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px}.dkph figure{position:relative;margin:0}.dkph img{height:80px;border:1px solid var(--line);border-radius:4px;display:block}.dkph .x{position:absolute;top:2px;right:2px;background:var(--surface)}
 tr.rcut td:first-child{box-shadow:inset 3px 0 0 var(--accent)}
+.dhead{display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap}.dhead h2{margin:0;font-size:20px;letter-spacing:-.01em}.dhead p{margin:2px 0 0;font-size:12.5px}
+.dgrid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:12px}@media (max-width:1250px){.dgrid{grid-template-columns:1fr}}
+.dgrid.dg1{grid-template-columns:minmax(0,1.7fr) minmax(0,1fr)}@media (max-width:1500px){.dgrid.dg1{grid-template-columns:1fr}}
+.funnel{display:flex;height:14px;border-radius:999px;overflow:hidden;gap:3px}.funnel i{display:block;min-width:6px;border-radius:999px}
+.flegend{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:12.5px}.flegend b{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:6px;vertical-align:0}
+.mbars{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;height:150px;align-items:end}.mb{display:grid;grid-template-rows:1fr auto auto;height:100%;text-align:center;font-size:11.5px;color:var(--ink-2)}
+.mb .bars{display:flex;align-items:flex-end;justify-content:center;gap:4px;min-height:0}.mb .bars i{display:block;width:14px;border-radius:4px 4px 0 0;min-height:2px}.mb .g{background:#c7d2fe}.mb .w{background:#12b76a}.mb small{color:var(--ink-3)}
+.seg.dper button{padding:5px 12px}
+
+/* jobs module views: quotes / jobs / dashboard / documents */
+html[data-jview="docs"] [data-jtab="jobs"]{display:none}
+html:not([data-jview="docs"]) [data-jtab="kits"],html:not([data-jview="docs"]) [data-jtab="certs"]{display:none}
+html[data-jview="quotes"] #jNew,html[data-jview="jobs"] #qNew{display:none}
+/* team & tasks */
+.av{display:inline-grid;place-items:center;border-radius:50%;color:#fff;font-weight:700;flex:none;line-height:1}.av.none{background:var(--surface-2);color:var(--ink-3);box-shadow:inset 0 0 0 1px var(--line);font-size:11px}
+.pdot{display:inline-block;width:8px;height:8px;border-radius:50%;flex:none}.sdot{display:inline-block;width:9px;height:9px;border-radius:50%}
+.tdue{font:500 11.5px var(--f-mono);color:var(--ink-2);background:var(--surface-2);border-radius:6px;padding:1px 6px}.tdue.late{color:#b42318;background:#fef3f2}.tdue.soon{color:#b54708;background:#fffaeb}
+.tmwrap{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;align-items:start}.tmwrap.withd{grid-template-columns:minmax(0,1fr) 380px}@media (max-width:1300px){.tmwrap.withd{grid-template-columns:1fr}}
+.kanban{display:grid;grid-template-columns:repeat(4,minmax(165px,1fr));gap:12px;align-items:start;overflow-x:auto}
+.kcol{background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:8px;min-height:200px}.kcol.over{outline:2px dashed var(--accent);outline-offset:-3px}
+.kh{display:flex;align-items:center;gap:8px;font-weight:600;font-size:13px;padding:4px 6px 10px}.kh i{width:9px;height:9px;border-radius:50%}.kh .linkbtn{margin-left:auto;font-size:18px;line-height:1}
+.kl{display:grid;gap:8px}
+.tcard{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 11px;cursor:pointer;display:grid;gap:6px;box-shadow:0 1px 2px rgba(16,24,40,.04)}.tcard:hover{border-color:var(--ink-3)}.tcard.on{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}.tcard.drag{opacity:.5}
+.tcard .tt{display:flex;gap:8px;align-items:baseline}.tcard .tt b{font-weight:600;font-size:13.5px;line-height:1.35}.tcard .tj{font-size:12px;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tcard .tf{display:flex;align-items:center;gap:6px}
+.tlist{display:grid}.trow{display:flex;align-items:center;gap:10px;padding:9px 16px;border-top:1px solid var(--line-2);cursor:pointer;font-size:13.5px;min-width:0}.trow:first-child{border-top:0}.trow:hover{background:var(--surface-2)}.trow.on{background:var(--accent-soft)}.trow>span:not(.sp):not(.pill):not(.av):not(.tdue):not(.pdot){white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.tdetail{position:sticky;top:0}.tdetail .ttl{font-size:17px;font-weight:600;padding:10px 12px}
+.wlgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}.wl .bcard-h{gap:10px}.wl .jbody{gap:8px;padding:12px 0 6px}.wl .jbody>div:not(.trow){padding:0 16px}
+.wlnow{font-size:13px;color:var(--accent)}.wlnow a,.wlji{cursor:pointer}.wlnow a:hover,.wlji:hover{text-decoration:underline}.wlj{display:grid;gap:4px}.wlji{display:flex;justify-content:space-between;gap:8px;font-size:13px}
+.jtrow{display:flex;gap:12px;flex-wrap:wrap}
 /* ---- skin: modern — left navigation rail + context panel + workspace (SaaS dashboard look) ---- */
 .mico,.mgrp,.mco,.ptitle{display:none}
 html[data-skin="modern"]:not([data-theme="dark"]){--bg:#f5f6f8;--surface:#fff;--surface-2:#f9fafb;--line:#e4e7ec;--line-2:#eef0f3;--ink:#101828;--ink-2:#475467;--ink-3:#98a2b3;--accent:#3e63dd;--accent-ink:#fff;--accent-soft:#eef2ff}
@@ -456,13 +485,19 @@ html[data-skin="modern"][data-var="bento"] .stepper{border-radius:999px;backgrou
   <header class="top">
     <div class="brand"><span class="logo-wrap"><img class="brand-logo" alt="Kh International" src=""></span></div>
     <nav class="modtabs" role="tablist">
+      <button data-mod="dash" role="tab" title="Үнийн санал, ажил, ашгийн тойм"><svg class="mico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>Хяналтын самбар</button>
+      <span class="mgrp">Захиалга</span>
+      <button data-mod="quotes" role="tab" title="Үнийн санал бэлдэх, илгээх, ажил болгох"><svg class="mico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg>Үнийн санал</button>
+      <button data-mod="jobs" role="tab" title="Ажлын scope, үйлдвэрлэл, явц, зардал, хүлээлгэх"><svg class="mico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18"/></svg>Ажил</button>
       <span class="mgrp">Үйлдвэрлэл</span>
-      <button data-mod="jobs" role="tab" title="Захиалга, үнийн санал, хуваарь, явц, зардал, хүлээлгэх"><svg class="mico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18"/></svg><i class="mi">1</i>Ажил</button>
-      <button data-mod="nest" class="on" role="tab" title="Лист дээр парт өрөх, лазер зүсэлт, G-code, DXF"><svg class="mico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="3"/><path d="M14 14h4v4h-4zM14 5v4h5"/></svg><i class="mi">2</i>Зүсэлт</button>
-      <button data-mod="bend" role="tab" title="Нугалах пресс, 3 булт галзуу"><svg class="mico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h7l9-9"/><path d="M4 16h5l8-8"/><circle cx="17" cy="5" r="1.5"/></svg><i class="mi">3</i>Нугалалт</button>
-      <span class="msep"></span><span class="mgrp">Хяналт · сан</span>
+      <button data-mod="nest" class="on" role="tab" title="Лист дээр парт өрөх, лазер зүсэлт, G-code, DXF"><svg class="mico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="3"/><path d="M14 14h4v4h-4zM14 5v4h5"/></svg>Зүсэлт</button>
+      <button data-mod="bend" role="tab" title="Нугалах пресс, 3 булт галзуу"><svg class="mico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h7l9-9"/><path d="M4 16h5l8-8"/><circle cx="17" cy="5" r="1.5"/></svg>Нугалалт</button>
+      <span class="mgrp">Баг · хяналт</span>
+      <button data-mod="team" role="tab" title="Даалгавар, хэн юу хийж байна, хүмүүс"><svg class="mico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M7 12l2 2 4-4M14 16h3"/></svg>Даалгавар</button>
       <button data-mod="insp" role="tab" title="Тоног төхөөрөмжийн өдөр тутмын үзлэг, ажлын заавар, ханын самбар"><svg class="mico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v2h6V3M9 12l2 2 4-4M9 17h6"/></svg>Үзлэг · ХАБ</button>
-      <button data-mod="info" role="tab" title="Үнийн сан, стандарт, загвар, уул уурхайн техник, файлууд"><svg class="mico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h6a3 3 0 0 1 3 3v13a2 2 0 0 0-2-2H4z"/><path d="M20 4h-4a3 3 0 0 0-3 3v13a2 2 0 0 1 2-2h5z"/></svg>Сан</button>
+      <span class="mgrp">Баримт бичиг</span>
+      <button data-mod="docs" role="tab" title="Иж бүрдэл (парт жагсаалт), материалын гэрчилгээ"><svg class="mico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7a2 2 0 0 1 2-2h4l2 2h6a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M9 13h6"/></svg>Иж бүрдэл, гэрчилгээ</button>
+      <button data-mod="info" role="tab" title="Үнийн сан, харилцагч, стандарт, загвар, техник, файлууд"><svg class="mico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h6a3 3 0 0 1 3 3v13a2 2 0 0 0-2-2H4z"/><path d="M20 4h-4a3 3 0 0 0-3 3v13a2 2 0 0 1 2-2h5z"/></svg>Сан</button>
     </nav>
     <span id="updBadge" class="pill rem" hidden></span>
     <div class="top-actions">
@@ -535,8 +570,18 @@ html[data-skin="modern"][data-var="bento"] .stepper{border-radius:999px;backgrou
     </div>
   </aside>
   <main class="main" id="infoMain" hidden></main>
+  <aside class="side" id="teamSide" hidden>
+    <div class="ptitle">Даалгавар<small>Хэн юу хийж байна · хүмүүс</small></div>
+    <nav class="tabs" role="tablist"><button data-ttab="tasks" class="on">Даалгавар</button><button data-ttab="people">Хүмүүс</button></nav>
+    <div class="panel-body">
+      <label class="fld" style="margin-bottom:10px">Би<select id="tmMe" class="inp"></select></label>
+      <section id="ttab-tasks"><div class="ptools"><button class="btn primary" id="tmAddT">+ Даалгавар</button></div><div id="tmWho" class="plist" style="margin-top:10px"></div></section>
+      <section id="ttab-people" hidden><div class="ptools"><button class="btn primary" id="tmAddP">+ Хүн нэмэх</button></div><div id="tmPeople" class="plist" style="margin-top:10px"></div></section>
+    </div>
+  </aside>
+  <main class="main" id="teamMain" hidden></main>
   <aside class="side" id="jobsSide" hidden>
-    <div class="ptitle">Ажил<small>Үнийн санал, захиалга, хүлээлгэх</small></div>
+    <div class="ptitle" id="jobsPT">Ажил<small>Үнийн санал, захиалга, хүлээлгэх</small></div>
     <nav class="tabs" role="tablist">
       <button data-jtab="jobs" class="on">Ажлууд <span class="badge" id="cntJobs"></span></button>
       <button data-jtab="kits">Иж бүрдэл <span class="badge" id="cntKits"></span></button>
@@ -4151,7 +4196,99 @@ const I18N_EN = {
 "Загвар: Тайван (Linear)": "Style: Calm (Linear)",
 "Загвар: Харанхуй (Supabase)": "Style: Dark (Supabase)",
 "Загвар: Fintech (Stripe)": "Style: Fintech (Stripe)",
-"Загвар: Bento (улбар шар)": "Style: Bento (orange)"
+"Загвар: Bento (улбар шар)": "Style: Bento (orange)",
+"Энэ сар": "This month",
+"Энэ улирал": "This quarter",
+"Энэ жил": "This year",
+"Хяналтын самбар": "Dashboard",
+"Үнийн санал → ажил → ашиг": "Quotation → job → profit",
+"Өгсөн үнийн санал": "Quotes issued",
+"Хариу хүлээж буй": "Awaiting reply",
+"Ажил болсон": "Won (became job)",
+"Дундаж ашиг (санал)": "Average margin (quotes)",
+"Үнийн дүнгээр хувиргалт": "Win rate by value",
+"ажил болсон / өгсөн дүн": "won / issued value",
+"Саналын урсгал": "Quote pipeline",
+"Сүүлийн 6 сар — өгсөн ба ажил болсон (сая₮)": "Last 6 months — issued vs won (M₮)",
+"Өгсөн": "Issued",
+"Үнийн саналууд": "Quotations",
+"Дүн (НӨАТ-гүй), ₮": "Amount (excl. VAT), ₮",
+"Захиалагчаар": "By customer",
+"Ажлын дүн, сая₮": "Won value, M₮",
+"Явагдаж буй ажлууд": "Jobs in progress",
+"Энэ хугацаанд үнийн санал алга. «+ Үнийн санал» товчоор эхэлнэ.": "No quotations in this period. Start with «+ Quotation».",
+"хувиргалт": "conversion",
+"батлагдсан:": "accepted:",
+"ноорог": "draft",
+"Үнийн санал бэлдэх, илгээх, ажил болгох": "Prepare, send, convert quotes to jobs",
+"Ажлын scope, үйлдвэрлэл, явц, зардал, хүлээлгэх": "Job scope, production, progress, cost, handover",
+"Баг · хяналт": "Team · control",
+"Даалгавар": "Tasks",
+"Даалгавар, хэн юу хийж байна, хүмүүс": "Tasks, who is doing what, people",
+"Баримт бичиг": "Documents",
+"Иж бүрдэл, гэрчилгээ": "Kits, certificates",
+"Иж бүрдэл (парт жагсаалт), материалын гэрчилгээ": "Kits (part lists), material certificates",
+"Үнийн сан, харилцагч, стандарт, загвар, техник, файлууд": "Price library, customers, standards, templates, machines, files",
+"Үнийн санал, ажил, ашгийн тойм": "Overview of quotes, jobs and profit",
+"Бэлдэх, илгээх, ажил болгох": "Prepare, send, convert",
+"Scope, үйлдвэрлэл, явц, хүлээлгэх": "Scope, production, progress, handover",
+"Иж бүрдэл, материалын гэрчилгээ": "Kits, material certificates",
+"Хэн юу хийж байна · хүмүүс": "Who is doing what · people",
+"Хүмүүс": "People",
+"Би": "Me",
+"+ Даалгавар": "+ Task",
+"+ Хүн нэмэх": "+ Add person",
+"— би хэн бэ? —": "— who am I? —",
+"Бүх хүн": "Everyone",
+"★ Миний даалгавар": "★ My tasks",
+"Хариуцагчгүй": "Unassigned",
+"Дотоод ажил": "Internal work",
+"Хийх": "To do",
+"Хийгдэж буй": "In progress",
+"Шалгах": "Review",
+"Яаралтай": "Urgent",
+"Бага": "Low",
+"— хариуцагч —": "— owner —",
+"Жагсаалт": "List",
+"Хэн юу хийж байна": "Who's doing what",
+"нээлттэй": "open",
+"Хайх…": "Search…",
+"Энэ баганад нэмэх": "Add to this column",
+"(гарчиггүй)": "(untitled)",
+"Одоо:": "Now:",
+"Одоо хийж буй даалгавар алга": "Nothing in progress",
+"Хариуцсан ажил / санал": "Owned jobs / quotes",
+"Юу хийх вэ?": "What needs doing?",
+"Ач холбогдол": "Priority",
+"Дуусах огноо": "Due date",
+"Холбоотой ажил / санал": "Linked job / quote",
+"Дэлгэрэнгүй, шалгах зүйлс…": "Details, checklist…",
+"Энэ даалгаврыг устгах уу?": "Delete this task?",
+"Оператор, ажилчид, инженерүүд — ажил, үнийн санал, даалгаварт хариуцагчаар сонгогдоно": "Operators, workers, engineers — selectable as owners of jobs, quotes and tasks",
+"Албан тушаал / үүрэг": "Position / role",
+"идэвхгүй": "inactive",
+"Хариуцсан ажил, үнийн санал": "Owned jobs and quotes",
+"Ажил, үнийн саналын «Хариуцагч» талбараас сонгоно.": "Set from the «Owner» field of a job or quote.",
+"Хариуцагч, даалгавар": "Owner, tasks",
+"Ажлын хариуцагч": "Job owner",
+"Хүн нэмэх: зүүн цэс → «Даалгавар» → Хүмүүс": "Add people: left menu → «Tasks» → People",
+"Энэ ажилд хэн юу хийхийг даалгавар болгон нэмнэ (зүсэлт — оператор, гагнуур — гагнуурчин, QC…).": "Add who does what on this job as tasks (cutting — operator, welding — welder, QC…).",
+"Даалгавар (юу хийх вэ?):": "Task (what needs doing?):",
+"Үнийн санал хариуцагч": "Quote owner",
+"Хүн нэмээгүй байна. «+ Хүн нэмэх».": "No people yet. «+ Add person».",
+"Шинэ ажилтан": "New employee",
+"Даалгавар алга.": "No tasks.",
+"Инженер": "Engineer",
+"Технологич": "Process engineer",
+"Оператор (лазер)": "Operator (laser)",
+"Оператор (нугалах)": "Operator (press brake)",
+"Гагнуурчин": "Welder",
+"Слесарь": "Fitter",
+"Токарь": "Turner",
+"Будагчин": "Painter",
+"Чанар (QC)": "Quality (QC)",
+"Худалдан авалт": "Procurement",
+"Даалгавар нэмсэн:": "Task added:"
 };
 /* ================= KH Fab — language (МН / EN) and theme (Day / Night) =================
    The UI is written in Mongolian. In English mode every Mongolian fragment that reaches the
@@ -7405,7 +7542,7 @@ function nextSQ() {
 }
 function newQuote() {
   const no = nextSQ();
-  const job = { id: uid(), kind: 'quote', qst: 'draft', no, short: no.replace(/^\D+/, ''), customer: '', title: '', due: '', status: 'new', note: '', items: [], extra: [], est: null, act: { hours: '', kg: '', other: '' }, trace: [], log: [], created: today() };
+  const job = { id: uid(), owner: S.me || '', kind: 'quote', qst: 'draft', no, short: no.replace(/^\D+/, ''), customer: '', title: '', due: '', status: 'new', note: '', items: [], extra: [], est: null, act: { hours: '', kg: '', other: '' }, trace: [], log: [], created: today() };
   S.jobs.unshift(job); jx(job); job.quote.no = no; jobLog('Үнийн санал нээсэн', job);
   J.sel = job.id; J.sub = 'quote'; J.dash = false; save(); return job;
 }
@@ -7422,7 +7559,7 @@ function newJob() {
   const y = new Date().getFullYear();
   if (S.jobYear !== y) { S.jobYear = y; S.jobSeq = 0; }
   const n = ++S.jobSeq, short = String(n).padStart(3, '0');
-  const job = { id: uid(), no: `KH-${y}-${short}`, short, customer: '', title: '', due: '', status: 'new', note: '', items: [], extra: [], est: null, act: { hours: '', kg: '', other: '' }, trace: [], log: [], created: today() };
+  const job = { id: uid(), owner: S.me || '', no: `KH-${y}-${short}`, short, customer: '', title: '', due: '', status: 'new', note: '', items: [], extra: [], est: null, act: { hours: '', kg: '', other: '' }, trace: [], log: [], created: today() };
   S.jobs.unshift(job); jobLog('Ажил нээсэн', job);
   J.sel = job.id; save(); return job;
 }
@@ -7487,14 +7624,14 @@ function renderJList() {
   const list = S.jobs.filter(j => fOk(j) && (!inOrg || inOrg.has(j)) && (!q || hay(j).includes(q)));
   $('#jList').innerHTML = list.length ? list.map(j => {
     const late = j.due && j.due < today() && !['done', 'given'].includes(j.status);
-    return `<div class="jitem${J.sel === j.id && J.tab === 'jobs' ? ' on' : ''}" data-id="${j.id}"><span class="no">${esc(j.no)}${S.activeJob === j.id ? ' <span class="pill rem">өрөлтөд</span>' : ''}</span>${isQ(j) ? `<span class="pill qst-${j.qst || 'draft'}">Санал · ${qstName(j.qst)}</span>` : `<span class="pill st-${j.status}">${jstName(j.status)}</span>`}<span class="t">${esc(j.title || '—')}${j.customer ? ' · ' + esc(j.customer) : ''}${j.quote && j.quote.qf && j.quote.qf.person ? ' · ' + esc(personSplit(j.quote.qf.person).name) : ''}${j.due ? ` · <span class="${late ? 'late' : ''}">${esc(j.due)}</span>` : ''}</span></div>`;
+    return `<div class="jitem${J.sel === j.id && J.tab === 'jobs' ? ' on' : ''}" data-id="${j.id}"><span class="no">${esc(j.no)}${S.activeJob === j.id ? ' <span class="pill rem">өрөлтөд</span>' : ''}</span>${isQ(j) ? `<span class="pill qst-${j.qst || 'draft'}">Санал · ${qstName(j.qst)}</span>` : `<span class="pill st-${j.status}">${jstName(j.status)}</span>`}<span class="t">${esc(j.title || '—')}${j.customer ? ' · ' + esc(j.customer) : ''}${j.quote && j.quote.qf && j.quote.qf.person ? ' · ' + esc(personSplit(j.quote.qf.person).name) : ''}${j.owner && typeof pName === 'function' && pName(j.owner) ? ' · 👤 ' + esc(pName(j.owner)) : ''}${j.due ? ` · <span class="${late ? 'late' : ''}">${esc(j.due)}</span>` : ''}</span></div>`;
   }).join('') : `<div class="emptyp">${S.jobs.length ? 'Хайлтад тохирох ажил алга.' : 'Ажил алга. <b>+ Шинэ ажил</b> товчоор эхэлнэ.'}</div>`;
   ['formTrace', 'rev', 'operators', 'formQuote', 'formScope', 'formInstr'].forEach(k => $('#iso_' + k).value = S.iso[k] || '');
 }
-$('#jDash').addEventListener('click', () => { J.dash = true; renderJList(); renderJobMain(); });
-$('#jList').addEventListener('click', e => { const it = e.target.closest('.jitem'); if (!it) return; J.sel = it.dataset.id; J.traceForm = false; J.dash = false; renderJList(); renderJobMain(); });
-$('#qNew').addEventListener('click', () => { newQuote(); renderJobs(); setTimeout(() => { const el = $('#qb_no'); if (el) { el.focus(); el.setSelectionRange(el.value.length, el.value.length); } }, 50); });
-$('#jNew').addEventListener('click', () => { J.dash = false; J.sub = 'main'; newJob(); renderJobs(); setTimeout(() => { const el = $('#jf_title'); if (el) el.focus(); }, 50); });
+$('#jDash').addEventListener('click', () => setModule('dash'));
+$('#jList').addEventListener('click', e => { const it = e.target.closest('.jitem'); if (!it) return; J.sel = it.dataset.id; { const v = document.documentElement.dataset.jview, q = isQ(findJob(J.sel)); if (v === 'dash' || (v === 'quotes' && !q) || (v === 'jobs' && q)) { setModule(q ? 'quotes' : 'jobs'); J.sel = it.dataset.id; } } J.traceForm = false; J.dash = false; renderJList(); renderJobMain(); });
+$('#qNew').addEventListener('click', () => { const q = newQuote(); setModule('quotes'); J.sel = q.id; J.sub = 'quote'; renderJobs(); setTimeout(() => { const el = $('#qb_no'); if (el) { el.focus(); el.setSelectionRange(el.value.length, el.value.length); } }, 50); });
+$('#jNew').addEventListener('click', () => { const nj = newJob(); setModule('jobs'); J.sel = nj.id; J.dash = false; J.sub = 'main'; renderJobs(); setTimeout(() => { const el = $('#jf_title'); if (el) el.focus(); }, 50); });
 $('#jSearch').addEventListener('input', renderJList);
 $('#jFilter').addEventListener('change', renderJList);
 $('#jOrg').addEventListener('change', renderJList);
@@ -7520,7 +7657,7 @@ $('#kFromParts').addEventListener('click', () => { if (kitFromParts()) { renderJ
 $('#btnKitFrom').addEventListener('click', () => {
   if (!kitFromParts()) return;
   J.tab = 'kits'; $$('[data-jtab]').forEach(x => x.classList.toggle('on', x.dataset.jtab === 'kits')); ['jobs', 'kits', 'certs'].forEach(t => $('#jtab-' + t).hidden = t !== 'kits');
-  setModule('jobs'); toast('Иж бүрдэл үүслээ — нэрийг нь өгнө үү');
+  setModule('docs'); toast('Иж бүрдэл үүслээ — нэрийг нь өгнө үү');
 });
 
 function renderCertSide() {
@@ -7599,9 +7736,9 @@ function renderJobMain() {
       <div id="jTraceForm"></div>
       ${job.trace.length ? `<div class="tblwrap"><table class="dt"><thead><tr><th>Огноо</th><th>Лист</th><th>Хэмжээ</th><th>Материал</th><th class="r">Тоо</th><th>Хайлалт №</th><th>Гэрчилгээ №</th><th>Оператор</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>` : '<p class="note">Зүссэн лист бүрийн хавтангийн хайлалтын дугаар, операторыг энд бүртгэнэ. ISO аудитад бүтээгдэхүүнээс материалын гэрчилгээ хүртэл мөрдөх боломжтой болно.</p>'}
     </div></div>
-    ${jobNextHTML(job)}${jobFilesHTML(job)}<div class="jcard" data-v="main"><div class="bcard-h">Түүх</div><div class="jbody"><div class="jlog">${job.log.map(l => `<div><span class="mono">${esc(l.t)}</span>${esc(l.m)}</div>`).join('') || '<span class="note">—</span>'}</div></div></div>
+    ${jobNextHTML(job)}${jobTasksHTML(job)}${jobFilesHTML(job)}<div class="jcard" data-v="main"><div class="bcard-h">Түүх</div><div class="jbody"><div class="jlog">${job.log.map(l => `<div><span class="mono">${esc(l.t)}</span>${esc(l.m)}</div>`).join('') || '<span class="note">—</span>'}</div></div></div>
     <datalist id="opList">${ops.map(o => `<option value="${esc(o)}">`).join('')}</datalist>`;
-  bindSubBar(el); bindJobFiles(el, job);
+  bindSubBar(el); bindJobFiles(el, job); bindJobTasks(el, job);
   { const v = J.sub === 'prod' ? 'prod' : 'main'; el.querySelectorAll('[data-v]').forEach(n => { n.hidden = n.dataset.v !== v; }); el.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => { J.sub = b.dataset.go; renderJobMain(); })); }
   // field bindings
   ['no', 'title', 'customer', 'due', 'note'].forEach(k => $('#jf_' + k).addEventListener('change', ev => { const v = ev.target.value.trim(); if (k === 'no' && !v) return; if (k === 'no') { job.no = v; job.short = (v.match(/(\d+)\s*$/) || [, v])[1]; } else job[k] = v; if (k === 'customer' && v) { orgLearn({ org: v }); if (job.quote && job.quote.qf && qfFillFromDir(job.quote.qf, v)) toast('Захиалагчийн хаяг, ID үнийн саналд бөглөгдлөө'); } save(); renderJList(); }));
@@ -7811,6 +7948,53 @@ async function jobCardPdf(job) {
 }
 
 /* ---------- dashboard: deadlines, budget vs actual, margin ---------- */
+/* ---------- quotation → job tracking (dashboard top) ---------- */
+const DPER = [['month', 'Энэ сар'], ['quarter', 'Энэ улирал'], ['year', 'Энэ жил'], ['all', 'Бүгд']];
+function perStart(p) { const t = new Date(today() + 'T00:00:00'); if (p === 'month') t.setDate(1); else if (p === 'quarter') { t.setMonth(Math.floor(t.getMonth() / 3) * 3); t.setDate(1); } else if (p === 'year') { t.setMonth(0); t.setDate(1); } else return ''; return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-01`; }
+function quoteStats(per) {
+  const from = perStart(per), Q = S.jobs.filter(j => (isQ(j) || j.qst) && j.quote).map(j => { let c = null; try { c = quoteCalc(j); } catch (e) { } const net = c ? c.net : 0; return { j, st: isQ(j) ? (j.qst || 'draft') : 'won', date: j.quote.date || j.created || '', net, profit: c ? c.profit : 0, pct: net ? c.profit / net * 100 : null }; }).filter(o => !from || o.date >= from);
+  const by = k => Q.filter(o => o.st === k), sum = (a, f) => a.reduce((x, o) => x + (f(o) || 0), 0);
+  const given = Q.filter(o => o.st !== 'draft'), won = by('won'), lost = by('lost'), sent = by('sent'), draft = by('draft');
+  return { Q, given, won, lost, sent, draft, sum, conv: given.length ? won.length / given.length * 100 : null, convV: sum(given, o => o.net) ? sum(won, o => o.net) / sum(given, o => o.net) * 100 : null, mAll: sum(given, o => o.net) ? sum(given, o => o.profit) / sum(given, o => o.net) * 100 : null, mWon: sum(won, o => o.net) ? sum(won, o => o.profit) / sum(won, o => o.net) * 100 : null };
+}
+function quoteDashHTML() {
+  const per = J.dper || 'year', Sx = quoteStats(per), { Q, given, won, lost, sent, draft, sum } = Sx, mm = v => nf(v / 1e6, 1);
+  const pc = v => v == null ? '—' : nf(v, 1) + '%';
+  const seg = [['draft', 'Ноорог', draft, '#98a2b3'], ['sent', 'Илгээсэн', sent, '#3e63dd'], ['won', 'Ажил болсон', won, '#12b76a'], ['lost', 'Татгалзсан', lost, '#f04438']], tot = Q.length || 1;
+  // last 6 months: given vs won value
+  const mons = []; { const t = new Date(today() + 'T00:00:00'); t.setDate(1); for (let i = 5; i >= 0; i--) { const d = new Date(t); d.setMonth(t.getMonth() - i); mons.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`); } }
+  const all = quoteStats('all'), mv = mons.map(m => ({ m, g: all.sum(all.given.filter(o => o.date.startsWith(m)), o => o.net), w: all.sum(all.won.filter(o => o.date.startsWith(m)), o => o.net) })), mx = Math.max(1, ...mv.map(o => o.g));
+  const cust = {}; given.forEach(o => { const k = o.j.customer || '—'; const c = cust[k] = cust[k] || { n: 0, w: 0, v: 0, wv: 0 }; c.n++; c.v += o.net; if (o.st === 'won') { c.w++; c.wv += o.net; } });
+  const top = Object.entries(cust).sort((a, b) => b[1].wv - a[1].wv || b[1].v - a[1].v).slice(0, 6);
+  const stName = k => ({ draft: 'Ноорог', sent: 'Илгээсэн', won: 'Ажил болсон', lost: 'Татгалзсан' })[k];
+  const stCls = k => ({ draft: 'qst-draft', sent: 'qst-sent', won: 'st-done', lost: 'qst-lost' })[k];
+  return `<div class="dhead"><div><h2>Хяналтын самбар</h2><p class="muted">Үнийн санал → ажил → ашиг</p></div><span class="sp" style="flex:1"></span><div class="seg dper">${DPER.map(([k, n]) => `<button data-dper="${k}" class="${per === k ? 'on' : ''}">${n}</button>`).join('')}</div></div>
+    <div class="summary">${[
+      ['Өгсөн үнийн санал', `${given.length}`, `${mm(sum(given, o => o.net))} сая₮ · ноорог ${draft.length}`],
+      ['Хариу хүлээж буй', `${sent.length}`, `${mm(sum(sent, o => o.net))} сая₮`],
+      ['Ажил болсон', `${won.length}`, `${mm(sum(won, o => o.net))} сая₮ · ${pc(Sx.conv)} хувиргалт`],
+      ['Татгалзсан', `${lost.length}`, `${mm(sum(lost, o => o.net))} сая₮`],
+      ['Дундаж ашиг (санал)', pc(Sx.mAll), `батлагдсан: ${pc(Sx.mWon)}`],
+      ['Үнийн дүнгээр хувиргалт', pc(Sx.convV), 'ажил болсон / өгсөн дүн']
+    ].map(s => `<div class="stat"><div class="k">${s[0]}</div><div class="v">${s[1]}</div><div class="s">${esc(s[2])}</div></div>`).join('')}</div>
+    <div class="dgrid">
+      <div class="jcard"><div class="bcard-h">Саналын урсгал <span class="pill">${Q.length}</span></div><div class="jbody">
+        <div class="funnel">${seg.filter(x => x[2].length).map(([k, n, a, c]) => `<i style="flex:${a.length};background:${c}" title="${n}: ${a.length}"></i>`).join('') || '<i style="flex:1;background:var(--line)"></i>'}</div>
+        <div class="flegend">${seg.map(([k, n, a, c]) => `<span><b style="background:${c}"></b>${n} <span class="mono">${a.length}</span> <span class="muted mono">${mm(sum(a, o => o.net))} сая₮</span></span>`).join('')}</div>
+      </div></div>
+      <div class="jcard"><div class="bcard-h">Сүүлийн 6 сар — өгсөн ба ажил болсон (сая₮)</div><div class="jbody"><div class="mbars">${mv.map(o => `<div class="mb"><div class="bars"><i class="g" style="height:${o.g / mx * 100}%" title="Өгсөн ${mm(o.g)}"></i><i class="w" style="height:${o.w / mx * 100}%" title="Ажил болсон ${mm(o.w)}"></i></div><span class="mono">${o.m.slice(5)}</span><small class="mono">${o.g ? mm(o.g) : ''}</small></div>`).join('')}</div>
+        <div class="flegend"><span><b style="background:#c7d2fe"></b>Өгсөн</span><span><b style="background:#12b76a"></b>Ажил болсон</span></div></div></div>
+    </div>
+    <div class="dgrid dg1">
+      <div class="jcard"><div class="bcard-h">Үнийн саналууд</div><div class="tblwrap" style="border:0"><table class="dt"><thead><tr><th>№</th><th>Огноо</th><th>Захиалагч</th><th>Ажил</th><th class="r">Дүн (НӨАТ-гүй), ₮</th><th class="r">Ашиг</th><th>Төлөв</th><th>Ажил</th></tr></thead><tbody>
+        ${Q.slice().sort((a, b) => String(b.date).localeCompare(String(a.date))).slice(0, 30).map(o => `<tr class="jrow" data-id="${o.j.id}" style="cursor:pointer"><td class="num"><b>${esc(o.j.quote.no || o.j.no)}</b></td><td class="num">${esc(o.date)}</td><td>${esc(o.j.customer || '—')}</td><td>${esc(o.j.title || '—')}</td><td class="r num">${money(o.net)}</td><td class="r num ${o.pct != null && o.pct < 10 ? 'late' : ''}">${pc(o.pct)}</td><td><span class="pill ${stCls(o.st)}">${stName(o.st)}</span></td><td class="num">${o.st === 'won' ? esc(o.j.no) : ''}</td></tr>`).join('') || '<tr><td colspan="8" class="muted">Энэ хугацаанд үнийн санал алга. «+ Үнийн санал» товчоор эхэлнэ.</td></tr>'}
+      </tbody></table></div></div>
+      <div class="jcard"><div class="bcard-h">Захиалагчаар</div><div class="tblwrap" style="border:0"><table class="dt"><thead><tr><th>Захиалагч</th><th class="r">Санал</th><th class="r">Ажил болсон</th><th class="r">Ажлын дүн, сая₮</th></tr></thead><tbody>
+        ${top.map(([k, c]) => `<tr><td>${esc(k)}</td><td class="r num">${c.n}</td><td class="r num">${c.w} <span class="muted">(${nf(c.w / c.n * 100, 0)}%)</span></td><td class="r num">${mm(c.wv)}</td></tr>`).join('') || '<tr><td colspan="4" class="muted">—</td></tr>'}
+      </tbody></table></div></div>
+    </div>
+    <h3 style="margin:8px 0 0">Явагдаж буй ажлууд</h3>`;
+}
 function renderDash(el) {
   const JB = S.jobs.filter(x => !isQ(x)), open = JB.filter(x => !['done', 'given'].includes(x.status));
   const late = open.filter(x => x.due && daysLeft(x.due) < 0), soon = open.filter(x => x.due && daysLeft(x.due) >= 0 && daysLeft(x.due) <= 7);
@@ -7826,7 +8010,7 @@ function renderDash(el) {
   const d0 = new Date(dates[0] + 'T00:00:00'), d1 = new Date(Math.max(new Date(dates[dates.length - 1] + 'T00:00:00'), +d0 + 14 * 864e5)), span = (d1 - d0) || 1;
   const pc = d => Math.max(0, Math.min(100, (new Date(d + 'T00:00:00') - d0) / span * 100));
   const rows = M.slice().sort((a, b) => (open.includes(b.j) - open.includes(a.j)) || String(a.j.due || '9999').localeCompare(String(b.j.due || '9999')));
-  el.innerHTML = `
+  el.innerHTML = `${quoteDashHTML()}
     <div class="summary">${[
       ['Идэвхтэй ажил', `${open.length}`, `${JB.length} нийт · ${S.jobs.length - JB.length} санал`],
       ['Хугацаа хэтэрсэн', `<span class="${late.length ? 'late' : ''}">${late.length}</span>`, late.map(x => x.no).join(', ') || 'алга'],
@@ -7843,7 +8027,8 @@ function renderDash(el) {
       ${rows.map(({ j: x, m }) => { const dl = daysLeft(x.due), lateX = dl != null && dl < 0 && open.includes(x), dv = m.has && m.plan ? (m.act - m.plan) / m.plan * 100 : null; return `<tr class="jrow" data-id="${x.id}" style="cursor:pointer"><td class="num"><b>${esc(x.no)}</b></td><td>${esc(x.title || '—')}</td><td>${esc(x.customer || '—')}</td><td><span class="pill st-${x.status}">${jstName(x.status)}</span><span class="jprog"><i style="width:${(stIdx(x.status) + 1) / JST.length * 100}%"></i></span></td><td class="num${lateX ? ' late' : ''}">${esc(x.due || '—')}</td><td class="r num">${m.price ? nf(m.price) : '—'}</td><td class="r num">${m.plan ? nf(m.plan) : '—'}</td><td class="r num">${m.has ? nf(m.act) : '—'}</td><td class="r num">${dv == null ? '—' : `<span class="${dv > 5 ? 'late' : ''}">${dv > 0 ? '+' : ''}${nf(dv, 1)}%</span>`}</td><td class="r num">${m.margin == null ? '—' : `<span class="${m.margin < 0 ? 'late' : ''}">${nf(m.margin)}</span>`}</td></tr>`; }).join('')}
       </tbody></table></div></div>
     <p class="note">Төсөв = өрөлтөөс гарсан материал + зүсэлтийн өртөг + төлөвлөсөн бусад зардал. Бодит = бодит кг, зүсэлтийн цаг, бусад зардал. Ашиг = гэрээний үнэ − (бодит, байхгүй бол төсөв). Мөр дээр дарж ажлыг нээнэ.</p>`;
-  el.querySelectorAll('[data-id]').forEach(r => r.addEventListener('click', () => { J.sel = r.dataset.id; J.dash = false; renderJList(); renderJobMain(); }));
+  el.querySelectorAll('[data-id]').forEach(r => r.addEventListener('click', () => { const j = findJob(r.dataset.id); J.sel = j.id; setModule(isQ(j) ? 'quotes' : 'jobs'); J.sel = j.id; J.sub = isQ(j) ? 'quote' : 'main'; renderJobs(); }));
+  el.querySelectorAll('[data-dper]').forEach(b => b.addEventListener('click', () => { J.dper = b.dataset.dper; renderDash(el); }));
 }
 
 /* ================= Kh International — job scope, detailed quotation, progress & expenses, acceptance =================
@@ -7949,6 +8134,7 @@ function jobSubBar(job) {
   if (job.kind === 'quote') return `<nav class="rtabs jsub stepper qbar"><span class="pill qst-${job.qst || 'draft'}" style="align-self:center">ҮНИЙН САНАЛ</span><label class="mono" style="align-self:center;display:flex;gap:6px;align-items:center">№<input id="qb_no" class="inp mono" value="${esc(job.quote.no || job.no)}" placeholder="SQ1756" title="Үнийн саналын дугаар — өөрөө оруулна" style="width:120px"></label>
     <input id="qb_cust" class="inp" list="dl-org" placeholder="Захиалагч (байгууллага)" value="${esc(job.customer)}" style="flex:1 1 200px;min-width:0">
     <input id="qb_title" class="inp" placeholder="Ажлын нэр" value="${esc(job.title)}" style="flex:1 1 200px;min-width:0">
+    <select id="qb_owner" class="inp" style="width:auto;max-width:200px" title="Үнийн санал хариуцагч">${peopleOpts(job.owner, '— хариуцагч —')}</select>
     <select id="qb_st" class="inp" style="width:auto">${QST.filter(x => x[0] !== 'won').map(([k, n]) => `<option value="${k}"${(job.qst || 'draft') === k ? ' selected' : ''}>${n}</option>`).join('')}</select>
     <button class="btn primary" id="qb_won" title="Захиалагч баталсан — бүх алхам (scope, үйлдвэрлэл, явц, хүлээлгэх) нээгдэнэ">✓ Ажил болгох</button><button class="btn ghost" id="qb_del">Устгах</button></nav>`;
   return `<nav class="rtabs jsub stepper">${JSUB.map(([k, n, d], i) => `${i ? '<span class="arr">›</span>' : ''}<button data-jsub="${k}" title="${d}" class="${(J.sub || 'main') === k ? 'on' : ''}${jobStepDone(job, k) ? ' done' : ''}"><span class="sn">${jobStepDone(job, k) ? '✓' : i + 1}</span>${n}</button>`).join('')}<span class="sp" style="flex:1"></span><span class="muted mono" style="align-self:center;font-size:12px;padding-right:6px">${esc(job.no)}${job.title ? ' · ' + esc(job.title) : ''}</span></nav>`;
@@ -7960,8 +8146,9 @@ function bindSubBar(el) {
   const c = el.querySelector('#qb_cust'), t = el.querySelector('#qb_title'), st = el.querySelector('#qb_st');
   if (c) c.addEventListener('change', () => { job.customer = c.value.trim(); if (job.customer) { orgLearn({ org: job.customer }); if (job.quote.qf) qfFillFromDir(job.quote.qf, job.customer); } save(); renderJList(); renderJobMain(); });
   if (t) t.addEventListener('change', () => { job.title = t.value.trim(); if (job.quote.qf && !job.quote.qf.title) { job.quote.qf.title = job.title; job.quote.qf.rfqName = job.quote.qf.rfqName || job.title; } save(); renderJList(); renderJobMain(); });
+  const ow = el.querySelector('#qb_owner'); if (ow) ow.addEventListener('change', () => { job.owner = ow.value; jobLog('Хариуцагч: ' + (pName(job.owner) || '—'), job); renderJList(); });
   if (st) st.addEventListener('change', () => { job.qst = st.value; jobLog('Саналын төлөв: ' + qstName(job.qst), job); renderJList(); });
-  const w = el.querySelector('#qb_won'); if (w) w.addEventListener('click', () => { if (!confirm(`${job.no} саналыг баталж ажил болгох уу? Бүх мэдээлэл хадгалагдана.`)) return; quoteToJob(job); renderJobs(); toast('Ажил боллоо: ' + job.no); });
+  const w = el.querySelector('#qb_won'); if (w) w.addEventListener('click', () => { if (!confirm(`${job.no} саналыг баталж ажил болгох уу? Бүх мэдээлэл хадгалагдана.`)) return; quoteToJob(job); setModule('jobs'); J.sel = job.id; J.sub = 'main'; renderJobs(); toast('Ажил боллоо: ' + job.no); });
   const d = el.querySelector('#qb_del'); if (d) d.addEventListener('click', ev => { const b = ev.currentTarget; if (!b.dataset.arm) { b.dataset.arm = 1; b.textContent = 'Дахин дарж баталгаажуулна'; setTimeout(() => { delete b.dataset.arm; b.textContent = 'Устгах'; }, 3000); return; } S.jobs = S.jobs.filter(j => j !== job); J.sel = null; save(); renderJobs(); });
 }
 function renderJobSub(el, job) {
@@ -9866,15 +10053,28 @@ function bpal(print) {
   return { part: cssv('--accent'), ink: cssv('--ink'), accent: cssv('--accent'), blue: isDark() ? '#6ea8ff' : '#2563a8', sheet: cssv('--sheet'), tool: isDark() ? '#55626f' : '#b9c3cd', bad: cssv('--bad'), font: 'IBM Plex Sans, Arial, sans-serif' };
 }
 /* module switch */
-function setModule(m) {
-  $$('.modtabs button').forEach(b => b.classList.toggle('on', b.dataset.mod === m));
+const MOD_ALIAS = { dash: 'jobs', quotes: 'jobs', jobs: 'jobs', docs: 'jobs' };
+const JVIEW_T = { dash: ['Хяналтын самбар', 'Үнийн санал → ажил → ашиг'], quotes: ['Үнийн санал', 'Бэлдэх, илгээх, ажил болгох'], jobs: ['Ажил', 'Scope, үйлдвэрлэл, явц, хүлээлгэх'], docs: ['Баримт бичиг', 'Иж бүрдэл, материалын гэрчилгээ'] };
+function setModule(v) {
+  const m = MOD_ALIAS[v] || v;
+  $$('.modtabs button').forEach(b => b.classList.toggle('on', b.dataset.mod === v));
+  if (m === 'jobs' && typeof J !== 'undefined') {
+    document.documentElement.dataset.jview = v;
+    J.dash = v === 'dash';
+    if (v === 'docs') { if (!['kits', 'certs'].includes(J.tab)) J.tab = 'kits'; } else J.tab = 'jobs';
+    $$('[data-jtab]').forEach(x => x.classList.toggle('on', x.dataset.jtab === J.tab)); ['jobs', 'kits', 'certs'].forEach(t => { const e = $('#jtab-' + t); if (e) e.hidden = t !== J.tab; });
+    const f = $('#jFilter'); if (f && (v === 'quotes' || v === 'jobs')) f.value = v;
+    if (v === 'quotes' || v === 'jobs') { const cur = findJob(J.sel); if (!cur || (v === 'quotes') !== isQ(cur)) { const first = S.jobs.find(j => (v === 'quotes') === isQ(j)); J.sel = first ? first.id : null; } J.sub = v === 'quotes' ? 'quote' : (J.sub === 'quote' ? 'main' : J.sub); }
+    const pt = $('#jobsPT'); if (pt) pt.innerHTML = `${JVIEW_T[v][0]}<small>${JVIEW_T[v][1]}</small>`;
+  } else document.documentElement.dataset.jview = '';
   $('#nestSide').hidden = $('#nestMain').hidden = m !== 'nest';
   $('#bendSide').hidden = $('#bendMain').hidden = m !== 'bend'; if ($('#rollMain')) $('#rollMain').hidden = true;
   $('#jobsSide').hidden = $('#jobsMain').hidden = m !== 'jobs';
   if ($('#infoSide')) $('#infoSide').hidden = $('#infoMain').hidden = m !== 'info';
   if ($('#inspSide')) $('#inspSide').hidden = $('#inspMain').hidden = m !== 'insp';
-  if (m === 'info') { if (typeof renderInfo === 'function') renderInfo(); } else if (m === 'insp') { if (typeof renderInsp === 'function') renderInsp(); } else if (m === 'bend') { renderBend(); if (typeof showBendTab === 'function') showBendTab(RT.tab); } else if (m === 'jobs') renderJobs(); else drawView();
-  try { localStorage.setItem(KEY + ':mod', m); } catch (e) { }
+  if ($('#teamSide')) $('#teamSide').hidden = $('#teamMain').hidden = m !== 'team';
+  if (m === 'info') { if (typeof renderInfo === 'function') renderInfo(); } else if (m === 'insp') { if (typeof renderInsp === 'function') renderInsp(); } else if (m === 'team') { if (typeof renderTeam === 'function') renderTeam(); } else if (m === 'bend') { renderBend(); if (typeof showBendTab === 'function') showBendTab(RT.tab); } else if (m === 'jobs') renderJobs(); else drawView();
+  try { localStorage.setItem(KEY + ':mod', v); } catch (e) { }
 }
 $$('.modtabs button').forEach(b => b.addEventListener('click', () => setModule(b.dataset.mod)));
 $$('[data-btab]').forEach(b => b.addEventListener('click', () => showBendTab(b.dataset.btab)));
@@ -11999,6 +12199,163 @@ const ICOLS = [{ k: 'sec', t: 'Шалгах хэсэг', w: 150 }, { k: 'item', 
   $('#iPosterAll').addEventListener('click', () => posterOut('pdf', IS().machines, 'a3'));
 })();
 
+/* ================= Kh International — team & tasks (Notion / Linear style) =================
+   People (operators, welders, engineers…), who owns which job / quotation, and a task board:
+   tasks can be linked to a job or quotation, or be internal work (дотоод тохижуулалт, засвар, сургалт…).
+   Views: Board (drag between columns) · List (grouped, Linear-like) · «Хэн юу хийж байна» (workload). */
+const ROLES = ['Менежер', 'Инженер', 'Технологич', 'Оператор (лазер)', 'Оператор (нугалах)', 'Гагнуурчин', 'Слесарь', 'Токарь', 'Будагчин', 'Чанар (QC)', 'Агуулах', 'Худалдан авалт', 'Туслах'];
+const TSTAT = [['todo', 'Хийх', '#98a2b3'], ['doing', 'Хийгдэж буй', '#3e63dd'], ['review', 'Шалгах', '#f79009'], ['done', 'Дууссан', '#12b76a']];
+const TPRIO = [['urgent', 'Яаралтай', '#f04438'], ['high', 'Өндөр', '#f79009'], ['med', 'Дунд', '#3e63dd'], ['low', 'Бага', '#98a2b3']];
+const TTYPE = [['job', 'Ажил'], ['quote', 'Үнийн санал'], ['internal', 'Дотоод ажил'], ['other', 'Бусад']];
+const TM = { tab: 'tasks', view: 'board', who: '', type: '', q: '', sel: null, psel: null };
+function people() {
+  if (!Array.isArray(S.people)) {
+    S.people = [];
+    (S.iso && S.iso.operators || '').split(',').map(x => x.trim()).filter(Boolean).forEach(n => S.people.push({ id: uid(), name: n, role: 'Оператор (лазер)', phone: '', active: true }));
+    save();
+  }
+  return S.people;
+}
+const tasks = () => (Array.isArray(S.tasks) ? S.tasks : (S.tasks = []));
+const pName = id => { const p = people().find(x => x.id === id); return p ? p.name : ''; };
+const initials = n => String(n || '?').split(/\s+/).map(w => w.replace(/[^\p{L}]/gu, '')[0] || '').join('').slice(0, 2).toUpperCase() || '?';
+const avCol = n => { let h = 0; for (const c of String(n)) h = (h * 31 + c.charCodeAt(0)) % 360; return `hsl(${h} 55% 45%)`; };
+const avatar = (id, sz = 24) => { const n = pName(id); return n ? `<span class="av" style="width:${sz}px;height:${sz}px;background:${avCol(n)};font-size:${Math.round(sz * .42)}px" title="${esc(n)}">${esc(initials(n))}</span>` : `<span class="av none" style="width:${sz}px;height:${sz}px" title="Хариуцагчгүй">?</span>`; };
+const peopleOpts = (sel, empty = '— хариуцагч —') => `<option value="">${empty}</option>` + people().filter(p => p.active !== false || p.id === sel).map(p => `<option value="${p.id}"${p.id === sel ? ' selected' : ''}>${esc(p.name)}${p.role ? ' · ' + esc(p.role) : ''}</option>`).join('');
+const jobLabel = j => j ? `${j.kind === 'quote' ? (j.quote && j.quote.no) || j.no : j.no}${j.title ? ' · ' + j.title : ''}` : '';
+function newTask(o = {}) { const t = { id: uid(), title: '', desc: '', status: 'todo', prio: 'med', assignee: S.me || '', due: '', jobId: '', type: 'internal', created: today(), done: '', ...o }; tasks().unshift(t); save(); return t; }
+
+/* ---------- side ---------- */
+function renderTeamSide() {
+  $$('[data-ttab]').forEach(b => b.classList.toggle('on', b.dataset.ttab === TM.tab));
+  $('#ttab-tasks').hidden = TM.tab !== 'tasks'; $('#ttab-people').hidden = TM.tab !== 'people';
+  const P = people(), T = tasks(), open = T.filter(t => t.status !== 'done');
+  $('#tmMe').innerHTML = peopleOpts(S.me, '— би хэн бэ? —');
+  $('#tmWho').innerHTML = `<div class="jitem${!TM.who ? ' on' : ''}" data-who=""><span class="no" style="font-family:inherit">Бүх хүн</span><span class="pill">${open.length}</span></div>` +
+    (S.me ? `<div class="jitem${TM.who === S.me ? ' on' : ''}" data-who="${S.me}"><span class="no" style="font-family:inherit">★ Миний даалгавар</span><span class="pill">${open.filter(t => t.assignee === S.me).length}</span></div>` : '') +
+    `<div class="jitem${TM.who === '-' ? ' on' : ''}" data-who="-"><span class="no" style="font-family:inherit">Хариуцагчгүй</span><span class="pill">${open.filter(t => !t.assignee).length}</span></div>` +
+    TTYPE.map(([k, n]) => `<div class="jitem${TM.type === k ? ' on' : ''}" data-ttype="${k}"><span class="no" style="font-family:inherit">${n}</span><span class="pill">${open.filter(t => t.type === k).length}</span></div>`).join('');
+  $('#tmPeople').innerHTML = P.length ? P.map(p => { const n = open.filter(t => t.assignee === p.id).length, jb = S.jobs.filter(j => j.owner === p.id && !['done', 'given'].includes(j.status) && j.qst !== 'lost').length; return `<div class="jitem${TM.psel === p.id ? ' on' : ''}" data-pid="${p.id}" style="grid-template-columns:auto minmax(0,1fr) auto;align-items:center">${avatar(p.id, 30)}<span><b>${esc(p.name)}</b><br><small class="muted">${esc(p.role || '')}${p.active === false ? ' · идэвхгүй' : ''}</small></span><span class="pill">${n} даалгавар · ${jb} ажил</span></div>`; }).join('') : '<p class="note">Хүн нэмээгүй байна. «+ Хүн нэмэх».</p>';
+}
+(() => {
+  $$('[data-ttab]').forEach(b => b.addEventListener('click', () => { TM.tab = b.dataset.ttab; renderTeam(); }));
+  $('#tmMe').addEventListener('change', e => { S.me = e.target.value; save(); renderTeam(); });
+  $('#tmWho').addEventListener('click', e => { const w = e.target.closest('[data-who]'), ty = e.target.closest('[data-ttype]'); if (w) { TM.who = w.dataset.who; TM.type = ''; } if (ty) { TM.type = TM.type === ty.dataset.ttype ? '' : ty.dataset.ttype; } renderTeam(); });
+  $('#tmPeople').addEventListener('click', e => { const it = e.target.closest('[data-pid]'); if (it) { TM.psel = it.dataset.pid; renderTeam(); } });
+  $('#tmAddP').addEventListener('click', () => { const p = { id: uid(), name: 'Шинэ ажилтан', role: 'Оператор (лазер)', phone: '', active: true }; people().push(p); TM.psel = p.id; save(); renderTeam(); setTimeout(() => { const i = $('#pp_name'); if (i) { i.focus(); i.select(); } }, 50); });
+  $('#tmAddT').addEventListener('click', () => { const t = newTask({ assignee: TM.who && TM.who !== '-' ? TM.who : (S.me || ''), type: TM.type || 'internal' }); TM.sel = t.id; renderTeam(); setTimeout(() => { const i = $('#tk_title'); if (i) i.focus(); }, 50); });
+})();
+
+/* ---------- main ---------- */
+function renderTeam() { people(); renderTeamSide(); const el = $('#teamMain'); if (TM.tab === 'people') renderPeopleMain(el); else renderTasksMain(el); }
+function taskFilter() {
+  const q = (TM.q || '').toLowerCase();
+  return tasks().filter(t => (!TM.who || (TM.who === '-' ? !t.assignee : t.assignee === TM.who)) && (!TM.type || t.type === TM.type) && (!q || [t.title, t.desc, pName(t.assignee), jobLabel(findJob(t.jobId))].join(' ').toLowerCase().includes(q)));
+}
+const prioDot = k => { const p = TPRIO.find(x => x[0] === k) || TPRIO[2]; return `<span class="pdot" style="background:${p[2]}" title="${p[1]}"></span>`; };
+const dueTag = t => { if (!t.due) return ''; const d = daysLeft(t.due), late = d < 0 && t.status !== 'done'; return `<span class="tdue${late ? ' late' : d <= 2 && t.status !== 'done' ? ' soon' : ''}">${esc(t.due.slice(5))}</span>`; };
+function taskCard(t) {
+  const j = findJob(t.jobId);
+  return `<div class="tcard${TM.sel === t.id ? ' on' : ''}" draggable="true" data-tid="${t.id}"><div class="tt">${prioDot(t.prio)}<b>${esc(t.title || '(гарчиггүй)')}</b></div>
+    ${j ? `<div class="tj">${esc(jobLabel(j))}</div>` : `<div class="tj muted">${(TTYPE.find(x => x[0] === t.type) || TTYPE[2])[1]}</div>`}
+    <div class="tf">${avatar(t.assignee, 22)}<span class="sp" style="flex:1"></span>${dueTag(t)}</div></div>`;
+}
+function renderTasksMain(el) {
+  const L = taskFilter(), who = TM.who === '-' ? 'Хариуцагчгүй' : TM.who ? pName(TM.who) : 'Бүх хүн';
+  const views = [['board', 'Самбар'], ['list', 'Жагсаалт'], ['load', 'Хэн юу хийж байна']];
+  let body = '';
+  if (TM.view === 'board') body = `<div class="kanban">${TSTAT.map(([k, n, c]) => { const a = L.filter(t => t.status === k); return `<div class="kcol" data-col="${k}"><div class="kh"><i style="background:${c}"></i>${n}<span class="muted mono">${a.length}</span><button class="linkbtn" data-kadd="${k}" title="Энэ баганад нэмэх">+</button></div><div class="kl">${a.map(taskCard).join('')}</div></div>`; }).join('')}</div>`;
+  else if (TM.view === 'list') body = TSTAT.map(([k, n, c]) => { const a = L.filter(t => t.status === k).sort((x, y) => TPRIO.findIndex(p => p[0] === x.prio) - TPRIO.findIndex(p => p[0] === y.prio) || String(x.due || '9').localeCompare(String(y.due || '9'))); return a.length ? `<div class="jcard"><div class="bcard-h"><i class="sdot" style="background:${c}"></i>${n} <span class="pill">${a.length}</span></div><div class="tlist">${a.map(t => { const j = findJob(t.jobId); return `<div class="trow${TM.sel === t.id ? ' on' : ''}" data-tid="${t.id}">${prioDot(t.prio)}<b>${esc(t.title || '(гарчиггүй)')}</b><span class="muted">${esc(j ? jobLabel(j) : (TTYPE.find(x => x[0] === t.type) || TTYPE[2])[1])}</span><span class="sp" style="flex:1"></span>${dueTag(t)}${avatar(t.assignee, 22)}</div>`; }).join('')}</div></div>` : ''; }).join('') || '<p class="note">Даалгавар алга.</p>';
+  else body = workloadHTML();
+  el.innerHTML = `<div class="dhead"><div><h2>Даалгавар</h2><p class="muted">${esc(who)}${TM.type ? ' · ' + TTYPE.find(x => x[0] === TM.type)[1] : ''} · ${L.filter(t => t.status !== 'done').length} нээлттэй</p></div><span class="sp" style="flex:1"></span>
+      <input class="inp" id="tmQ" placeholder="Хайх…" value="${esc(TM.q)}" style="width:200px"><div class="seg">${views.map(([k, n]) => `<button data-tview="${k}" class="${TM.view === k ? 'on' : ''}">${n}</button>`).join('')}</div></div>
+    <div class="tmwrap${TM.sel ? ' withd' : ''}"><div class="tmbody">${body}</div>${TM.sel ? taskDetailHTML(tasks().find(t => t.id === TM.sel)) : ''}</div>`;
+  bindTasksMain(el);
+}
+function workloadHTML() {
+  const P = people().filter(p => p.active !== false), T = tasks(), act = S.jobs.filter(j => !['done', 'given'].includes(j.status) && j.qst !== 'lost');
+  const card = (id, name, role) => {
+    const tk = T.filter(t => (id ? t.assignee === id : !t.assignee) && t.status !== 'done'), jb = act.filter(j => (id ? j.owner === id : false));
+    const doing = tk.filter(t => t.status === 'doing');
+    return `<div class="jcard wl"><div class="bcard-h">${id ? avatar(id, 30) : '<span class="av none" style="width:30px;height:30px">?</span>'}<span><b>${esc(name)}</b><br><small class="muted" style="font-weight:400">${esc(role || '')}</small></span><span class="sp"></span><span class="pill">${tk.length}</span></div><div class="jbody">
+      ${doing.length ? `<div class="wlnow">▶ Одоо: ${doing.map(t => `<a data-tid="${t.id}">${esc(t.title)}</a>`).join(', ')}</div>` : '<div class="muted" style="font-size:12.5px">Одоо хийж буй даалгавар алга</div>'}
+      ${jb.length ? `<div class="wlj"><small class="muted">Хариуцсан ажил / санал</small>${jb.map(j => `<a class="wlji" data-job="${j.id}">${esc(jobLabel(j))} <span class="pill ${j.kind === 'quote' ? 'qst-' + (j.qst || 'draft') : 'st-' + j.status}">${j.kind === 'quote' ? qstName(j.qst) : jstName(j.status)}</span></a>`).join('')}</div>` : ''}
+      ${tk.filter(t => t.status !== 'doing').slice(0, 6).map(t => `<div class="trow" data-tid="${t.id}">${prioDot(t.prio)}<span>${esc(t.title)}</span><span class="sp" style="flex:1"></span>${dueTag(t)}</div>`).join('')}
+    </div></div>`;
+  };
+  return `<div class="wlgrid">${P.map(p => card(p.id, p.name, p.role)).join('')}${T.some(t => !t.assignee && t.status !== 'done') ? card('', 'Хариуцагчгүй', '') : ''}</div>`;
+}
+function taskDetailHTML(t) {
+  if (!t) return '';
+  const J = S.jobs.filter(j => j.qst !== 'lost');
+  return `<aside class="tdetail jcard"><div class="bcard-h">Даалгавар <span class="sp"></span><button class="btn sm ghost" data-tdel="${t.id}">Устгах</button><button class="btn sm ghost" data-tclose>✕</button></div><div class="jbody">
+    <input id="tk_title" class="inp ttl" value="${esc(t.title)}" placeholder="Юу хийх вэ?">
+    <div class="jgrid">
+      <label class="fld">Төлөв<select id="tk_status">${TSTAT.map(([k, n]) => `<option value="${k}"${t.status === k ? ' selected' : ''}>${n}</option>`).join('')}</select></label>
+      <label class="fld">Ач холбогдол<select id="tk_prio">${TPRIO.map(([k, n]) => `<option value="${k}"${t.prio === k ? ' selected' : ''}>${n}</option>`).join('')}</select></label>
+      <label class="fld">Хариуцагч<select id="tk_assignee">${peopleOpts(t.assignee)}</select></label>
+      <label class="fld">Дуусах огноо<input id="tk_due" type="date" value="${esc(t.due)}"></label>
+      <label class="fld">Төрөл<select id="tk_type">${TTYPE.map(([k, n]) => `<option value="${k}"${t.type === k ? ' selected' : ''}>${n}</option>`).join('')}</select></label>
+      <label class="fld">Холбоотой ажил / санал<select id="tk_jobId"><option value="">—</option>${J.map(j => `<option value="${j.id}"${t.jobId === j.id ? ' selected' : ''}>${esc(jobLabel(j))}</option>`).join('')}</select></label>
+    </div>
+    <label class="fld">Тайлбар<textarea id="tk_desc" class="inp" rows="6" placeholder="Дэлгэрэнгүй, шалгах зүйлс…">${esc(t.desc)}</textarea></label>
+    <p class="note">Үүсгэсэн ${esc(t.created)}${t.done ? ' · дууссан ' + esc(t.done) : ''}</p>
+  </div></aside>`;
+}
+function bindTasksMain(el) {
+  const re = () => renderTeam();
+  const q = el.querySelector('#tmQ'); q.addEventListener('input', () => { TM.q = q.value; clearTimeout(q._t); q._t = setTimeout(() => { re(); const n = $('#tmQ'); n.focus(); n.setSelectionRange(n.value.length, n.value.length); }, 250); });
+  el.querySelectorAll('[data-tview]').forEach(b => b.addEventListener('click', () => { TM.view = b.dataset.tview; re(); }));
+  el.querySelectorAll('[data-tid]').forEach(c => c.addEventListener('click', e => { e.stopPropagation(); TM.sel = c.dataset.tid; re(); }));
+  el.querySelectorAll('[data-job]').forEach(a => a.addEventListener('click', () => openJobFrom(a.dataset.job)));
+  el.querySelectorAll('[data-kadd]').forEach(b => b.addEventListener('click', () => { const t = newTask({ status: b.dataset.kadd, assignee: TM.who && TM.who !== '-' ? TM.who : (S.me || ''), type: TM.type || 'internal' }); TM.sel = t.id; re(); setTimeout(() => { const i = $('#tk_title'); if (i) i.focus(); }, 50); }));
+  // drag & drop between columns
+  el.querySelectorAll('.tcard').forEach(c => c.addEventListener('dragstart', e => { e.dataTransfer.setData('text/plain', c.dataset.tid); c.classList.add('drag'); }));
+  el.querySelectorAll('.kcol').forEach(col => { col.addEventListener('dragover', e => { e.preventDefault(); col.classList.add('over'); }); col.addEventListener('dragleave', () => col.classList.remove('over')); col.addEventListener('drop', e => { e.preventDefault(); const t = tasks().find(x => x.id === e.dataTransfer.getData('text/plain')); if (t) setTaskStatus(t, col.dataset.col); re(); }); });
+  const d = el.querySelector('.tdetail'); if (!d) return; const t = tasks().find(x => x.id === TM.sel);
+  ['title', 'status', 'prio', 'assignee', 'due', 'type', 'jobId', 'desc'].forEach(k => { const i = d.querySelector('#tk_' + k); if (i) i.addEventListener('change', () => { if (k === 'status') setTaskStatus(t, i.value); else t[k] = i.value; if (k === 'jobId' && t.jobId) { const j = findJob(t.jobId); t.type = j && j.kind === 'quote' ? 'quote' : 'job'; } save(); re(); }); });
+  d.querySelector('[data-tclose]').addEventListener('click', () => { TM.sel = null; re(); });
+  d.querySelector('[data-tdel]').addEventListener('click', () => { if (!confirm('Энэ даалгаврыг устгах уу?')) return; S.tasks = tasks().filter(x => x !== t); TM.sel = null; save(); re(); });
+}
+function setTaskStatus(t, st) { if (t.status === st) return; t.status = st; t.done = st === 'done' ? today() : ''; const j = findJob(t.jobId); if (j) jobLog(`Даалгавар «${t.title}» → ${TSTAT.find(x => x[0] === st)[1]}${t.assignee ? ' (' + pName(t.assignee) + ')' : ''}`, j); save(); }
+function openJobFrom(id) { const j = findJob(id); if (!j) return; J.sel = id; J.dash = false; J.tab = 'jobs'; J.sub = j.kind === 'quote' ? 'quote' : 'main'; setModule('jobs'); }
+
+/* ---------- people ---------- */
+function renderPeopleMain(el) {
+  const p = people().find(x => x.id === TM.psel);
+  if (!p) { el.innerHTML = `<div class="dhead"><div><h2>Хүмүүс</h2><p class="muted">Оператор, ажилчид, инженерүүд — ажил, үнийн санал, даалгаварт хариуцагчаар сонгогдоно</p></div></div>${workloadHTML()}`; bindTasksMain2(el); return; }
+  const T = tasks().filter(t => t.assignee === p.id), JB = S.jobs.filter(j => j.owner === p.id);
+  el.innerHTML = `<div class="dhead"><div style="display:flex;gap:12px;align-items:center">${avatar(p.id, 44)}<div><h2>${esc(p.name)}</h2><p class="muted">${esc(p.role || '')}</p></div></div><span class="sp" style="flex:1"></span><button class="btn ghost" id="ppDel">Устгах</button></div>
+    <div class="jcard"><div class="jbody"><div class="jgrid">${fldIn('pp_name', 'Нэр', p.name)}<label class="fld">Албан тушаал / үүрэг<input id="pp_role" list="dl-roles" value="${esc(p.role || '')}"></label>${fldIn('pp_phone', 'Утас', p.phone)}<label class="check" style="align-self:end"><input type="checkbox" id="pp_active"${p.active !== false ? ' checked' : ''}><span>Идэвхтэй</span></label></div>
+      <datalist id="dl-roles">${ROLES.map(r => `<option value="${esc(r)}">`).join('')}</datalist></div></div>
+    <div class="dgrid"><div class="jcard"><div class="bcard-h">Даалгавар <span class="pill">${T.filter(t => t.status !== 'done').length} нээлттэй</span><span class="sp"></span><button class="btn sm" id="ppAddT">+ Даалгавар</button></div><div class="tlist">${T.map(t => `<div class="trow" data-tid="${t.id}">${prioDot(t.prio)}<span>${esc(t.title)}</span><span class="pill">${TSTAT.find(x => x[0] === t.status)[1]}</span><span class="sp" style="flex:1"></span>${dueTag(t)}</div>`).join('') || '<p class="note" style="padding:12px">—</p>'}</div></div>
+      <div class="jcard"><div class="bcard-h">Хариуцсан ажил, үнийн санал <span class="pill">${JB.length}</span></div><div class="tlist">${JB.map(j => `<div class="trow" data-job="${j.id}"><b>${esc(jobLabel(j))}</b><span class="sp" style="flex:1"></span><span class="pill ${j.kind === 'quote' ? 'qst-' + (j.qst || 'draft') : 'st-' + j.status}">${j.kind === 'quote' ? qstName(j.qst) : jstName(j.status)}</span></div>`).join('') || '<p class="note" style="padding:12px">Ажил, үнийн саналын «Хариуцагч» талбараас сонгоно.</p>'}</div></div></div>`;
+  [['name', 'pp_name'], ['role', 'pp_role'], ['phone', 'pp_phone']].forEach(([k, id]) => el.querySelector('#' + id).addEventListener('change', e => { p[k] = e.target.value.trim(); save(); renderTeam(); }));
+  el.querySelector('#pp_active').addEventListener('change', e => { p.active = e.target.checked; save(); renderTeam(); });
+  el.querySelector('#ppDel').addEventListener('click', () => { if (!confirm(`«${p.name}»-г устгах уу? Түүний даалгавар хариуцагчгүй болно.`)) return; tasks().forEach(t => { if (t.assignee === p.id) t.assignee = ''; }); S.jobs.forEach(j => { if (j.owner === p.id) j.owner = ''; }); S.people = people().filter(x => x !== p); TM.psel = null; save(); renderTeam(); });
+  el.querySelector('#ppAddT').addEventListener('click', () => { const t = newTask({ assignee: p.id }); TM.sel = t.id; TM.tab = 'tasks'; TM.who = p.id; renderTeam(); });
+  bindTasksMain2(el);
+}
+function bindTasksMain2(el) {
+  el.querySelectorAll('[data-tid]').forEach(c => c.addEventListener('click', () => { TM.sel = c.dataset.tid; TM.tab = 'tasks'; renderTeam(); }));
+  el.querySelectorAll('[data-job]').forEach(a => a.addEventListener('click', () => openJobFrom(a.dataset.job)));
+}
+
+/* ---------- inside a job / quote: owner + its tasks ---------- */
+function jobTasksHTML(job) {
+  const T = tasks().filter(t => t.jobId === job.id);
+  return `<div class="jcard" data-v="main"><div class="bcard-h">Хариуцагч, даалгавар <span class="pill">${T.filter(t => t.status !== 'done').length} нээлттэй</span><span class="sp"></span><button class="btn sm" id="jtAdd">+ Даалгавар</button></div><div class="jbody">
+    <div class="jtrow"><label class="fld" style="max-width:320px">Ажлын хариуцагч<select id="jf_owner">${peopleOpts(job.owner)}</select></label><span class="muted" style="font-size:12.5px;align-self:end;padding-bottom:8px">Хүн нэмэх: зүүн цэс → «Даалгавар» → Хүмүүс</span></div>
+    ${T.length ? `<div class="tlist">${T.map(t => `<div class="trow" data-tid="${t.id}"><input type="checkbox" data-tdone="${t.id}"${t.status === 'done' ? ' checked' : ''}>${prioDot(t.prio)}<span class="${t.status === 'done' ? 'muted' : ''}" style="${t.status === 'done' ? 'text-decoration:line-through' : ''}">${esc(t.title || '(гарчиггүй)')}</span><span class="pill">${TSTAT.find(x => x[0] === t.status)[1]}</span><span class="sp" style="flex:1"></span>${dueTag(t)}${avatar(t.assignee, 22)}</div>`).join('')}</div>` : '<p class="note">Энэ ажилд хэн юу хийхийг даалгавар болгон нэмнэ (зүсэлт — оператор, гагнуур — гагнуурчин, QC…).</p>'}
+  </div></div>`;
+}
+function bindJobTasks(el, job) {
+  const o = el.querySelector('#jf_owner'); if (o) o.addEventListener('change', () => { job.owner = o.value; jobLog('Хариуцагч: ' + (pName(job.owner) || '—'), job); save(); renderJList(); });
+  const a = el.querySelector('#jtAdd'); if (a) a.addEventListener('click', () => { const title = prompt('Даалгавар (юу хийх вэ?):', ''); if (!title) return; const who = people().length ? prompt('Хэн хийх вэ? (нэр, хоосон бол дараа сонгоно)\n' + people().map(p => p.name).join(', '), '') : ''; const p = who && people().find(x => x.name.toLowerCase().startsWith(who.toLowerCase())); newTask({ title, jobId: job.id, type: job.kind === 'quote' ? 'quote' : 'job', assignee: p ? p.id : '' }); jobLog('Даалгавар нэмсэн: ' + title, job); renderJobMain(); });
+  el.querySelectorAll('[data-tdone]').forEach(c => c.addEventListener('click', e => { e.stopPropagation(); const t = tasks().find(x => x.id === c.dataset.tdone); if (t) { setTaskStatus(t, c.checked ? 'done' : 'todo'); renderJobMain(); } }));
+  el.querySelectorAll('.jcard [data-tid]').forEach(r => r.addEventListener('click', e => { if (e.target.matches('input')) return; TM.sel = r.dataset.tid; TM.tab = 'tasks'; setModule('team'); }));
+}
+
 /* ================= KH Fab — «Мэдээлэл · сан»: mining machines, bucket types, product templates, own file library ================= */
 const IN = { tab: 'cat', cat: 'all', q: '', sel: null, bt: null, tpl: 'pegboard', lib: null, p: {} };
 let LIB = (() => { try { return JSON.parse(localStorage.getItem('kh-lib') || '[]'); } catch (e) { return []; } })();
@@ -12228,7 +12585,7 @@ function renderLib(el) {
   }
 }
 
-try { const m0 = localStorage.getItem(KEY + ':mod'); if (m0 === 'bend' || m0 === 'jobs' || m0 === 'info' || m0 === 'insp') setModule(m0); } catch (e) { }
+try { const m0 = localStorage.getItem(KEY + ':mod'); if (['bend', 'jobs', 'info', 'insp', 'dash', 'quotes', 'docs', 'team'].includes(m0)) setModule(m0); } catch (e) { }
 
 applyLogoUI(); contactLists();
 </script>
