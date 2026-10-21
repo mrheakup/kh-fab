@@ -219,7 +219,7 @@ function renderScope(el, job) {
       <div class="jgrid">${fldIn('sc_incl', 'Scope-д орох', sc.incl, { area: 1, rows: 3 })}${fldIn('sc_excl', 'Scope-д ОРОХГҮЙ', sc.excl, { area: 1, rows: 3 })}</div>
     </div></div>
     <div class="jcard"><div class="bcard-h">Үе шат — хуваарь <span class="sp"></span><span class="muted" style="font-weight:400;font-size:12px">Хүн × цаг нь үнийн саналын ажиллах хүчний зардал болно</span></div><div class="jbody">
-      ${edTable('st', STAGE_COLS, sc.stages)}
+      ${edTable('st', stageCols(), sc.stages)}
       ${ganttHTML(job, P)}
     </div></div>
     ${weldCardHTML(job)}
@@ -229,7 +229,7 @@ function renderScope(el, job) {
   bindWeldCard(el, job, re);
   bindFields(el, sc, [['sc_contract', 'contract'], ['sc_start', 'start'], ['sc_location', 'location'], ['sc_desc', 'desc'], ['sc_incl', 'incl'], ['sc_excl', 'excl']], k => { if (k === 'start') re(); });
   [['sc_title', 'title'], ['sc_customer', 'customer']].forEach(([id, k]) => el.querySelector('#' + id).addEventListener('change', e => { job[k] = e.target.value; save(); renderJList(); }));
-  bindEd(el, { st: { arr: () => sc.stages, cols: STAGE_COLS, blank: () => ({ name: '', start: 1, dur: 1, people: 1, hours: 8, pct: 0 }) }, rk: { arr: () => sc.risks, cols: RISK_COLS, blank: () => ({ d: '', cause: '', p: 1, i: 1, prev: '', owner: '' }) }, eq: { arr: () => sc.equip, cols: EQUIP_COLS, blank: () => ({ name: '', cat: '', qty: 1, unit: 'ш', loc: 'Цех', st: 'Ажиллагаатай', stage: '' }) } }, re);
+  bindEd(el, { st: { arr: () => sc.stages, cols: stageCols(), blank: () => ({ name: '', start: 1, dur: 1, people: 1, hours: 8, pct: 0 }) }, rk: { arr: () => sc.risks, cols: RISK_COLS, blank: () => ({ d: '', cause: '', p: 1, i: 1, prev: '', owner: '' }) }, eq: { arr: () => sc.equip, cols: EQUIP_COLS, blank: () => ({ name: '', cat: '', qty: 1, unit: 'ш', loc: 'Цех', st: 'Ажиллагаатай', stage: '' }) } }, re);
 }
 
 /* ---------- detailed quotation ---------- */

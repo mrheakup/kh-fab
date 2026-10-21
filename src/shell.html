@@ -361,6 +361,12 @@ html[data-jview="jobs"] .grid2:has(#jSearch),html[data-jview="quotes"] .grid2:ha
 .tcal{display:grid;grid-template-columns:repeat(7,1fr);border-top:1px solid var(--line-2)}.tch{padding:6px 8px;font-size:11.5px;color:var(--ink-3);text-transform:uppercase;border-bottom:1px solid var(--line-2)}
 .tcd{min-height:96px;border-right:1px solid var(--line-2);border-bottom:1px solid var(--line-2);padding:4px;display:grid;align-content:start;gap:3px;cursor:default}.tcd.blank{background:var(--surface-2)}.tcd.now .tdn{background:var(--accent);color:#fff;border-radius:999px;padding:0 6px}
 .tdn{font:600 11.5px var(--f-mono);color:var(--ink-2);justify-self:end}.tce{font-size:11.5px;background:var(--surface-2);border-left:3px solid;border-radius:4px;padding:2px 5px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pg{display:grid;gap:4px;overflow-x:auto}.pgh,.pgr{display:grid;grid-template-columns:240px minmax(500px,1fr);align-items:center;gap:8px}.pgt{position:relative;height:18px;border-bottom:1px solid var(--line)}.pgt i{position:absolute;font:500 10.5px var(--f-mono);color:var(--ink-3);transform:translateX(-50%);font-style:normal}
+.pgr{cursor:pointer;padding:3px 0;border-bottom:1px solid var(--line-2)}.pgr:hover{background:var(--surface-2)}.pgl{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pgl small{display:block;color:var(--ink-3);font-size:11.5px}
+.pgb{position:relative;height:30px}.pgjob{position:absolute;top:3px;height:24px;border-radius:6px;background:var(--surface-2);box-shadow:inset 0 0 0 1px var(--line)}.pgjob.late{box-shadow:inset 0 0 0 1.5px #f04438}
+.pgst{position:absolute;top:9px;height:12px;border-radius:4px;background:color-mix(in srgb,var(--accent) 30%,transparent);overflow:hidden}.pgst i{display:block;height:100%;background:var(--accent)}
+.today{position:absolute;top:0;bottom:0;width:2px;background:#f04438;opacity:.6}
+.load .lc{background:linear-gradient(90deg,color-mix(in srgb,var(--accent) 18%,transparent) var(--p),transparent var(--p))}.load small{color:var(--ink-3)}
 .jfcard.drop{outline:2px dashed var(--accent);outline-offset:-4px}
 .clbox{display:grid;gap:6px}.clist{margin:0;padding-left:22px;display:grid;gap:4px}.clist li{display:flex;gap:4px;align-items:center}.clist li.sub{margin-left:22px;list-style:disc}.clist li .inp{flex:1;min-width:0;padding:4px 6px}
 .cladd{display:flex;gap:6px;flex-wrap:wrap}.cladd select{flex:1 1 200px;min-width:0}.cladd input{flex:1 1 160px;min-width:0}
@@ -511,6 +517,7 @@ html[data-skin="modern"][data-var="bento"] .stepper{border-radius:999px;backgrou
       <button data-mod="quotes" role="tab" title="Үнийн санал бэлдэх, илгээх, ажил болгох"><svg class="mico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg>Үнийн санал</button>
       <button data-mod="jobs" role="tab" title="Ажлын scope, үйлдвэрлэл, явц, зардал, хүлээлгэх"><svg class="mico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18"/></svg>Ажил</button>
       <span class="mgrp">Үйлдвэрлэл</span>
+      <button data-mod="plan" role="tab" title="Бүх ажлын Gantt хуваарь, машин/постын ачаалал"><svg class="mico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5h8M3 12h13M3 19h6"/><rect x="13" y="3" width="8" height="4" rx="1"/><rect x="17" y="10" width="4" height="4" rx="1"/><rect x="11" y="17" width="7" height="4" rx="1"/></svg>Төлөвлөгөө</button>
       <button data-mod="nest" class="on" role="tab" title="Лист дээр парт өрөх, лазер зүсэлт, G-code, DXF"><svg class="mico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="3"/><path d="M14 14h4v4h-4zM14 5v4h5"/></svg>Зүсэлт</button>
       <button data-mod="bend" role="tab" title="Нугалах пресс, 3 булт галзуу"><svg class="mico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h7l9-9"/><path d="M4 16h5l8-8"/><circle cx="17" cy="5" r="1.5"/></svg>Нугалалт</button>
       <span class="mgrp">Баг · хяналт</span>
@@ -593,6 +600,11 @@ html[data-skin="modern"][data-var="bento"] .stepper{border-radius:999px;backgrou
     </div>
   </aside>
   <main class="main" id="infoMain" hidden></main>
+  <aside class="side" id="planSide" hidden>
+    <div class="ptitle">Төлөвлөгөө<small>Gantt · машины ачаалал</small></div>
+    <div class="panel-body"><p class="hint">Ажил бүрийн «Үйлдвэрлэл → Хуваарь, scope» дээр эхлэх огноо, үе шат, үе шат бүрийн машин/постыг оноосноор энд бүх ажлын хуваарь болон машины ачаалал гарна.</p><p class="hint">Шинэ ажил нээхдээ «Ажлын загвар»-аас сонговол үе шат, машин, даалгавар бэлэн бөглөгдөнө.</p></div>
+  </aside>
+  <main class="main" id="planMain" hidden></main>
   <aside class="side" id="ideasSide" hidden>
     <div class="ptitle">Санаа, сайжруулалт<small>Тохижуулалт · сайжруулалт · төсөв · шийдвэр</small></div>
     <div class="panel-body">

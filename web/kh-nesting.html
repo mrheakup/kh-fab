@@ -361,6 +361,12 @@ html[data-jview="jobs"] .grid2:has(#jSearch),html[data-jview="quotes"] .grid2:ha
 .tcal{display:grid;grid-template-columns:repeat(7,1fr);border-top:1px solid var(--line-2)}.tch{padding:6px 8px;font-size:11.5px;color:var(--ink-3);text-transform:uppercase;border-bottom:1px solid var(--line-2)}
 .tcd{min-height:96px;border-right:1px solid var(--line-2);border-bottom:1px solid var(--line-2);padding:4px;display:grid;align-content:start;gap:3px;cursor:default}.tcd.blank{background:var(--surface-2)}.tcd.now .tdn{background:var(--accent);color:#fff;border-radius:999px;padding:0 6px}
 .tdn{font:600 11.5px var(--f-mono);color:var(--ink-2);justify-self:end}.tce{font-size:11.5px;background:var(--surface-2);border-left:3px solid;border-radius:4px;padding:2px 5px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pg{display:grid;gap:4px;overflow-x:auto}.pgh,.pgr{display:grid;grid-template-columns:240px minmax(500px,1fr);align-items:center;gap:8px}.pgt{position:relative;height:18px;border-bottom:1px solid var(--line)}.pgt i{position:absolute;font:500 10.5px var(--f-mono);color:var(--ink-3);transform:translateX(-50%);font-style:normal}
+.pgr{cursor:pointer;padding:3px 0;border-bottom:1px solid var(--line-2)}.pgr:hover{background:var(--surface-2)}.pgl{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pgl small{display:block;color:var(--ink-3);font-size:11.5px}
+.pgb{position:relative;height:30px}.pgjob{position:absolute;top:3px;height:24px;border-radius:6px;background:var(--surface-2);box-shadow:inset 0 0 0 1px var(--line)}.pgjob.late{box-shadow:inset 0 0 0 1.5px #f04438}
+.pgst{position:absolute;top:9px;height:12px;border-radius:4px;background:color-mix(in srgb,var(--accent) 30%,transparent);overflow:hidden}.pgst i{display:block;height:100%;background:var(--accent)}
+.today{position:absolute;top:0;bottom:0;width:2px;background:#f04438;opacity:.6}
+.load .lc{background:linear-gradient(90deg,color-mix(in srgb,var(--accent) 18%,transparent) var(--p),transparent var(--p))}.load small{color:var(--ink-3)}
 .jfcard.drop{outline:2px dashed var(--accent);outline-offset:-4px}
 .clbox{display:grid;gap:6px}.clist{margin:0;padding-left:22px;display:grid;gap:4px}.clist li{display:flex;gap:4px;align-items:center}.clist li.sub{margin-left:22px;list-style:disc}.clist li .inp{flex:1;min-width:0;padding:4px 6px}
 .cladd{display:flex;gap:6px;flex-wrap:wrap}.cladd select{flex:1 1 200px;min-width:0}.cladd input{flex:1 1 160px;min-width:0}
@@ -511,6 +517,7 @@ html[data-skin="modern"][data-var="bento"] .stepper{border-radius:999px;backgrou
       <button data-mod="quotes" role="tab" title="Үнийн санал бэлдэх, илгээх, ажил болгох"><svg class="mico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg>Үнийн санал</button>
       <button data-mod="jobs" role="tab" title="Ажлын scope, үйлдвэрлэл, явц, зардал, хүлээлгэх"><svg class="mico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18"/></svg>Ажил</button>
       <span class="mgrp">Үйлдвэрлэл</span>
+      <button data-mod="plan" role="tab" title="Бүх ажлын Gantt хуваарь, машин/постын ачаалал"><svg class="mico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5h8M3 12h13M3 19h6"/><rect x="13" y="3" width="8" height="4" rx="1"/><rect x="17" y="10" width="4" height="4" rx="1"/><rect x="11" y="17" width="7" height="4" rx="1"/></svg>Төлөвлөгөө</button>
       <button data-mod="nest" class="on" role="tab" title="Лист дээр парт өрөх, лазер зүсэлт, G-code, DXF"><svg class="mico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="3"/><path d="M14 14h4v4h-4zM14 5v4h5"/></svg>Зүсэлт</button>
       <button data-mod="bend" role="tab" title="Нугалах пресс, 3 булт галзуу"><svg class="mico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h7l9-9"/><path d="M4 16h5l8-8"/><circle cx="17" cy="5" r="1.5"/></svg>Нугалалт</button>
       <span class="mgrp">Баг · хяналт</span>
@@ -593,6 +600,11 @@ html[data-skin="modern"][data-var="bento"] .stepper{border-radius:999px;backgrou
     </div>
   </aside>
   <main class="main" id="infoMain" hidden></main>
+  <aside class="side" id="planSide" hidden>
+    <div class="ptitle">Төлөвлөгөө<small>Gantt · машины ачаалал</small></div>
+    <div class="panel-body"><p class="hint">Ажил бүрийн «Үйлдвэрлэл → Хуваарь, scope» дээр эхлэх огноо, үе шат, үе шат бүрийн машин/постыг оноосноор энд бүх ажлын хуваарь болон машины ачаалал гарна.</p><p class="hint">Шинэ ажил нээхдээ «Ажлын загвар»-аас сонговол үе шат, машин, даалгавар бэлэн бөглөгдөнө.</p></div>
+  </aside>
+  <main class="main" id="planMain" hidden></main>
   <aside class="side" id="ideasSide" hidden>
     <div class="ptitle">Санаа, сайжруулалт<small>Тохижуулалт · сайжруулалт · төсөв · шийдвэр</small></div>
     <div class="panel-body">
@@ -4522,7 +4534,52 @@ const I18N_EN = {
 "Материал, сэлбэг худалдан авах": "Purchase material, parts",
 "NDT / шалгалтын тайлан": "NDT / inspection report",
 "Ажлыг даалгавар болгон хуваарилах (хэн юу хийх)": "Split the job into tasks (who does what)",
-"Токарийн ажил": "Turning work"
+"Токарийн ажил": "Turning work",
+"Төлөвлөгөө": "Planning",
+"Бүх ажлын Gantt хуваарь, машин/постын ачаалал": "All-jobs Gantt, machine/station load",
+"Gantt · машины ачаалал": "Gantt · machine load",
+"Үйлдвэрлэлийн төлөвлөгөө": "Production plan",
+"идэвхтэй ажил": "active jobs",
+"Машин, хүчин чадал": "Machines, capacity",
+"Бүх ажлын хуваарь (Gantt)": "All jobs schedule (Gantt)",
+"Машин, постын ачаалал — 7 хоногоор (цаг / хүчин чадал)": "Machine / station load by week (hours / capacity)",
+"Машин / пост": "Machine / station",
+"Чадал/7хон": "Capacity/wk",
+"Ажлын загвар": "Job template",
+"Загвар хэрэглэх…": "Apply template…",
+"Энэ ажлыг загвар болгох": "Save this job as template",
+"Загвар хэрэглэлээ:": "Template applied:",
+"Загвар хадгалагдлаа:": "Template saved:",
+"Загварын нэр:": "Template name:",
+"Давтах": "Repeat",
+"Давтахгүй": "No repeat",
+"Өдөр бүр": "Daily",
+"Долоо хоног бүр": "Weekly",
+"Сар бүр": "Monthly",
+"Улирал бүр": "Quarterly",
+"Нэхэмжлэл, төлбөр": "Invoices, payments",
+"+ Нэхэмжлэл": "+ Invoice",
+"Гэрээ (НӨАТ-тай)": "Contract (incl. VAT)",
+"Нэхэмжилсэн": "Invoiced",
+"Төлөгдсөн": "Paid",
+"Авлага": "Receivable",
+"Нэхэмжлэл №": "Invoice №",
+"Төлөх хугацаа": "Due date",
+"Төлсөн, ₮": "Paid, ₮",
+"+ Төлбөр": "+ Payment",
+"Төлсөн": "Paid",
+"Хэсэгчлэн төлсөн": "Partly paid",
+"хугацаа хэтэрсэн": "overdue",
+"бүрэн төлсөн": "fully paid",
+"авлагатай": "receivable",
+"нэхэмжлээгүй": "not invoiced",
+"Авлага, төлбөр": "Receivables, payments",
+"Нийт авлага": "Total receivable",
+"нэхэмжлэл": "invoices",
+"Нэхэмжлээгүй дууссан ажил": "Finished jobs not invoiced",
+"хүлээлгэсэн ч нэхэмжлэл үүсгээгүй": "delivered but no invoice",
+"Нэхэмжлэл": "Invoice",
+"Үлдэгдэл, ₮": "Balance, ₮"
 };
 /* ================= KH Fab — language (МН / EN) and theme (Day / Night) =================
    The UI is written in Mongolian. In English mode every Mongolian fragment that reaches the
@@ -8023,9 +8080,9 @@ function renderJobMain() {
       <div id="jTraceForm"></div>
       ${job.trace.length ? `<div class="tblwrap"><table class="dt"><thead><tr><th>Огноо</th><th>Лист</th><th>Хэмжээ</th><th>Материал</th><th class="r">Тоо</th><th>Хайлалт №</th><th>Гэрчилгээ №</th><th>Оператор</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>` : '<p class="note">Зүссэн лист бүрийн хавтангийн хайлалтын дугаар, операторыг энд бүртгэнэ. ISO аудитад бүтээгдэхүүнээс материалын гэрчилгээ хүртэл мөрдөх боломжтой болно.</p>'}
     </div></div>
-    ${jobNextHTML(job)}${jobTasksHTML(job)}${jobFilesHTML(job)}${srcFolderHTML(job)}<div class="jcard" data-v="main"><div class="bcard-h">Түүх</div><div class="jbody"><div class="jlog">${job.log.map(l => `<div><span class="mono">${esc(l.t)}</span>${esc(l.m)}</div>`).join('') || '<span class="note">—</span>'}</div></div></div>
+    ${jobNextHTML(job)}${jobInvHTML(job)}${jobTasksHTML(job)}${jobTplHTML(job)}${jobFilesHTML(job)}${srcFolderHTML(job)}<div class="jcard" data-v="main"><div class="bcard-h">Түүх</div><div class="jbody"><div class="jlog">${job.log.map(l => `<div><span class="mono">${esc(l.t)}</span>${esc(l.m)}</div>`).join('') || '<span class="note">—</span>'}</div></div></div>
     <datalist id="opList">${ops.map(o => `<option value="${esc(o)}">`).join('')}</datalist>`;
-  bindSubBar(el); bindJobFiles(el, job); bindJobTasks(el, job); bindSrcFolder(el, job);
+  bindSubBar(el); bindJobFiles(el, job); bindJobTasks(el, job); bindSrcFolder(el, job); bindJobInv(el, job); bindJobTpl(el, job);
   el.querySelectorAll('[data-st]').forEach(b => b.addEventListener('click', () => { if (b.dataset.st === job.status) return; const o = jstName(job.status); job.status = b.dataset.st; jobLog(`Төлөв: ${o} → ${jstName(job.status)}`, job); save(); renderJList(); renderJobMain(); }));
   el.querySelectorAll('[data-op]').forEach(b => b.addEventListener('click', () => { const o = job.ops = job.ops || [], k = b.dataset.op, i = o.indexOf(k); if (i >= 0) o.splice(i, 1); else o.push(k); save(); renderJobMain(); }));
   { const nd = el.querySelector('#jf_need'); if (nd) nd.addEventListener('change', () => { job.need = nd.value.trim(); if (job.need) jobLog('Тэмдэглэл: ' + job.need, job); save(); renderJList(); }); }
@@ -8283,7 +8340,7 @@ function quoteDashHTML() {
         ${top.map(([k, c]) => `<tr><td>${esc(k)}</td><td class="r num">${c.n}</td><td class="r num">${c.w} <span class="muted">(${nf(c.w / c.n * 100, 0)}%)</span></td><td class="r num">${mm(c.wv)}</td></tr>`).join('') || '<tr><td colspan="4" class="muted">—</td></tr>'}
       </tbody></table></div></div>
     </div>
-    <h3 style="margin:8px 0 0">Явагдаж буй ажлууд</h3>`;
+`;
 }
 function renderDash(el) {
   const JB = S.jobs.filter(x => !isQ(x)), open = JB.filter(x => !['done', 'given'].includes(x.status));
@@ -8300,7 +8357,12 @@ function renderDash(el) {
   const d0 = new Date(dates[0] + 'T00:00:00'), d1 = new Date(Math.max(new Date(dates[dates.length - 1] + 'T00:00:00'), +d0 + 14 * 864e5)), span = (d1 - d0) || 1;
   const pc = d => Math.max(0, Math.min(100, (new Date(d + 'T00:00:00') - d0) / span * 100));
   const rows = M.slice().sort((a, b) => (open.includes(b.j) - open.includes(a.j)) || String(a.j.due || '9999').localeCompare(String(b.j.due || '9999')));
+  const RC = receivables(), rcSum = RC.reduce((a, r) => a + r.left, 0), rcLate = RC.filter(r => r.st[0] === 'late');
   el.innerHTML = `${quoteDashHTML()}
+    <h3 style="margin:8px 0 0">Авлага, төлбөр</h3>
+    <div class="summary">${[['Нийт авлага', money(rcSum) + '<small>₮</small>', `${RC.length} нэхэмжлэл`], ['Хугацаа хэтэрсэн', `<span class="${rcLate.length ? 'late' : ''}">${money(rcLate.reduce((a, r) => a + r.left, 0))}</span><small>₮</small>`, `${rcLate.length} нэхэмжлэл`], ['Нэхэмжлээгүй дууссан ажил', String(S.jobs.filter(x => !isQ(x) && ['done', 'given'].includes(x.status) && !(x.inv || []).length).length), 'хүлээлгэсэн ч нэхэмжлэл үүсгээгүй']].map(s => `<div class="stat"><div class="k">${s[0]}</div><div class="v">${s[1]}</div><div class="s">${esc(s[2])}</div></div>`).join('')}</div>
+    ${RC.length ? `<div class="jcard"><div class="tblwrap" style="border:0"><table class="dt"><thead><tr><th>Нэхэмжлэл</th><th>Ажил</th><th>Захиалагч</th><th>Төлөх хугацаа</th><th class="r">Үлдэгдэл, ₮</th><th>Төлөв</th></tr></thead><tbody>${RC.slice(0, 15).map(r => `<tr class="jrow" data-id="${r.j.id}" style="cursor:pointer"><td class="num">${esc(r.i.no)}</td><td class="num">${esc(r.j.no)}</td><td>${esc(r.j.customer || '—')}</td><td class="num ${r.st[0] === 'late' ? 'late' : ''}">${esc(r.i.due || '')}</td><td class="r num">${money(r.left)}</td><td><span class="pill ${r.st[0] === 'late' ? 'qst-lost' : r.st[0] === 'part' ? 'st-nest' : 'qst-sent'}">${r.st[1]}</span></td></tr>`).join('')}</tbody></table></div></div>` : ''}
+    <h3 style="margin:8px 0 0">Явагдаж буй ажлууд</h3>
     <div class="summary">${[
       ['Идэвхтэй ажил', `${open.length}`, `${JB.length} нийт · ${S.jobs.length - JB.length} санал`],
       ['Хугацаа хэтэрсэн', `<span class="${late.length ? 'late' : ''}">${late.length}</span>`, late.map(x => x.no).join(', ') || 'алга'],
@@ -8542,7 +8604,7 @@ function renderScope(el, job) {
       <div class="jgrid">${fldIn('sc_incl', 'Scope-д орох', sc.incl, { area: 1, rows: 3 })}${fldIn('sc_excl', 'Scope-д ОРОХГҮЙ', sc.excl, { area: 1, rows: 3 })}</div>
     </div></div>
     <div class="jcard"><div class="bcard-h">Үе шат — хуваарь <span class="sp"></span><span class="muted" style="font-weight:400;font-size:12px">Хүн × цаг нь үнийн саналын ажиллах хүчний зардал болно</span></div><div class="jbody">
-      ${edTable('st', STAGE_COLS, sc.stages)}
+      ${edTable('st', stageCols(), sc.stages)}
       ${ganttHTML(job, P)}
     </div></div>
     ${weldCardHTML(job)}
@@ -8552,7 +8614,7 @@ function renderScope(el, job) {
   bindWeldCard(el, job, re);
   bindFields(el, sc, [['sc_contract', 'contract'], ['sc_start', 'start'], ['sc_location', 'location'], ['sc_desc', 'desc'], ['sc_incl', 'incl'], ['sc_excl', 'excl']], k => { if (k === 'start') re(); });
   [['sc_title', 'title'], ['sc_customer', 'customer']].forEach(([id, k]) => el.querySelector('#' + id).addEventListener('change', e => { job[k] = e.target.value; save(); renderJList(); }));
-  bindEd(el, { st: { arr: () => sc.stages, cols: STAGE_COLS, blank: () => ({ name: '', start: 1, dur: 1, people: 1, hours: 8, pct: 0 }) }, rk: { arr: () => sc.risks, cols: RISK_COLS, blank: () => ({ d: '', cause: '', p: 1, i: 1, prev: '', owner: '' }) }, eq: { arr: () => sc.equip, cols: EQUIP_COLS, blank: () => ({ name: '', cat: '', qty: 1, unit: 'ш', loc: 'Цех', st: 'Ажиллагаатай', stage: '' }) } }, re);
+  bindEd(el, { st: { arr: () => sc.stages, cols: stageCols(), blank: () => ({ name: '', start: 1, dur: 1, people: 1, hours: 8, pct: 0 }) }, rk: { arr: () => sc.risks, cols: RISK_COLS, blank: () => ({ d: '', cause: '', p: 1, i: 1, prev: '', owner: '' }) }, eq: { arr: () => sc.equip, cols: EQUIP_COLS, blank: () => ({ name: '', cat: '', qty: 1, unit: 'ш', loc: 'Цех', st: 'Ажиллагаатай', stage: '' }) } }, re);
 }
 
 /* ---------- detailed quotation ---------- */
@@ -10509,8 +10571,9 @@ function setModule(v) {
   if ($('#infoSide')) $('#infoSide').hidden = $('#infoMain').hidden = m !== 'info';
   if ($('#inspSide')) $('#inspSide').hidden = $('#inspMain').hidden = m !== 'insp';
   if ($('#teamSide')) $('#teamSide').hidden = $('#teamMain').hidden = m !== 'team';
+  if ($('#planSide')) $('#planSide').hidden = $('#planMain').hidden = m !== 'plan';
   if ($('#ideasSide')) $('#ideasSide').hidden = $('#ideaMain').hidden = m !== 'ideas';
-  if (m === 'info') { if (typeof renderInfo === 'function') renderInfo(); } else if (m === 'insp') { if (typeof renderInsp === 'function') renderInsp(); } else if (m === 'team') { if (typeof renderTeam === 'function') renderTeam(); } else if (m === 'ideas') { if (typeof renderIdeas === 'function') renderIdeas(); } else if (m === 'bend') { renderBend(); if (typeof showBendTab === 'function') showBendTab(RT.tab); } else if (m === 'jobs') renderJobs(); else drawView();
+  if (m === 'info') { if (typeof renderInfo === 'function') renderInfo(); } else if (m === 'insp') { if (typeof renderInsp === 'function') renderInsp(); } else if (m === 'team') { if (typeof renderTeam === 'function') renderTeam(); } else if (m === 'ideas') { if (typeof renderIdeas === 'function') renderIdeas(); } else if (m === 'plan') { if (typeof renderPlan === 'function') renderPlan($('#planMain')); } else if (m === 'bend') { renderBend(); if (typeof showBendTab === 'function') showBendTab(RT.tab); } else if (m === 'jobs') renderJobs(); else drawView();
   try { localStorage.setItem(KEY + ':mod', v); } catch (e) { }
 }
 $$('.modtabs button').forEach(b => b.addEventListener('click', () => setModule(b.dataset.mod)));
@@ -12693,7 +12756,7 @@ const prioDot = k => { const p = TPRIO.find(x => x[0] === k) || TPRIO[2]; return
 const dueTag = t => { if (!t.due) return ''; const d = daysLeft(t.due), late = d < 0 && t.status !== 'done'; return `<span class="tdue${late ? ' late' : d <= 2 && t.status !== 'done' ? ' soon' : ''}">${esc(t.due.slice(5))}</span>`; };
 function taskCard(t) {
   const j = findJob(t.jobId);
-  return `<div class="tcard${TM.sel === t.id ? ' on' : ''}" draggable="true" data-tid="${t.id}"><div class="tt">${prioDot(t.prio)}<b>${esc(t.title || '(гарчиггүй)')}</b></div>
+  return `<div class="tcard${TM.sel === t.id ? ' on' : ''}" draggable="true" data-tid="${t.id}"><div class="tt">${prioDot(t.prio)}<b>${esc(t.title || '(гарчиггүй)')}</b>${t.repeat ? '<span class="muted" title="Давтагдах">↻</span>' : ''}</div>
     ${j ? `<div class="tj">${esc(jobLabel(j))}</div>` : `<div class="tj muted">${(TTYPE.find(x => x[0] === t.type) || TTYPE[2])[1]}</div>`}
     ${(t.tags || []).length ? `<div class="ttags">${t.tags.map(g => `<span class="tag" style="--h:${avCol(g)}">${esc(g)}</span>`).join('')}</div>` : ''}
     <div class="tf">${avatar(t.assignee, 22)}${(t.sub || []).length ? `<span class="muted mono" style="font-size:11.5px">☑ ${t.sub.filter(x => x.done).length}/${t.sub.length}</span>` : ''}${(t.comments || []).length ? `<span class="muted mono" style="font-size:11.5px">💬 ${t.comments.length}</span>` : ''}<span class="sp" style="flex:1"></span>${dueTag(t)}</div></div>`;
@@ -12758,6 +12821,7 @@ function taskDetailHTML(t) {
       <label class="fld">Ач холбогдол<select id="tk_prio">${TPRIO.map(([k, n]) => `<option value="${k}"${t.prio === k ? ' selected' : ''}>${n}</option>`).join('')}</select></label>
       <label class="fld">Хариуцагч<select id="tk_assignee">${peopleOpts(t.assignee)}</select></label>
       <label class="fld">Дуусах огноо<input id="tk_due" type="date" value="${esc(t.due)}"></label>
+      <label class="fld">Давтах<select id="tk_repeat">${TREP.map(([k, n]) => `<option value="${k}"${(t.repeat || '') === k ? ' selected' : ''}>${n}</option>`).join('')}</select></label>
       <label class="fld">Төрөл<select id="tk_type">${TTYPE.map(([k, n]) => `<option value="${k}"${t.type === k ? ' selected' : ''}>${n}</option>`).join('')}</select></label>
       <label class="fld">Холбоотой ажил / санал<select id="tk_jobId"><option value="">—</option>${J.map(j => `<option value="${j.id}"${t.jobId === j.id ? ' selected' : ''}>${esc(jobLabel(j))}</option>`).join('')}</select></label>
     </div>
@@ -12784,7 +12848,7 @@ function bindTasksMain(el) {
   el.querySelectorAll('.tcard').forEach(c => c.addEventListener('dragstart', e => { e.dataTransfer.setData('text/plain', c.dataset.tid); c.classList.add('drag'); }));
   el.querySelectorAll('.kcol').forEach(col => { col.addEventListener('dragover', e => { e.preventDefault(); col.classList.add('over'); }); col.addEventListener('dragleave', () => col.classList.remove('over')); col.addEventListener('drop', e => { e.preventDefault(); const t = tasks().find(x => x.id === e.dataTransfer.getData('text/plain')); if (t) setTaskStatus(t, col.dataset.col); re(); }); });
   const d = el.querySelector('.tdetail'); if (!d) return; const t = tasks().find(x => x.id === TM.sel);
-  ['title', 'status', 'prio', 'assignee', 'due', 'type', 'jobId', 'desc'].forEach(k => { const i = d.querySelector('#tk_' + k); if (i) i.addEventListener('change', () => { if (k === 'status') setTaskStatus(t, i.value); else t[k] = i.value; if (k === 'jobId' && t.jobId) { const j = findJob(t.jobId); t.type = j && j.kind === 'quote' ? 'quote' : 'job'; } save(); re(); }); });
+  ['title', 'status', 'prio', 'assignee', 'due', 'type', 'jobId', 'desc', 'repeat'].forEach(k => { const i = d.querySelector('#tk_' + k); if (i) i.addEventListener('change', () => { if (k === 'status') setTaskStatus(t, i.value); else t[k] = i.value; if (k === 'jobId' && t.jobId) { const j = findJob(t.jobId); t.type = j && j.kind === 'quote' ? 'quote' : 'job'; } save(); re(); }); });
   d.querySelector('#tk_tags').addEventListener('change', e => { t.tags = e.target.value.split(',').map(x => x.trim()).filter(Boolean); save(); re(); });
   t.sub = t.sub || []; t.comments = t.comments || [];
   d.querySelectorAll('[data-sd]').forEach(c => c.addEventListener('change', () => { t.sub[+c.dataset.sd].done = c.checked; save(); re(); }));
@@ -12795,7 +12859,7 @@ function bindTasksMain(el) {
   d.querySelector('[data-tclose]').addEventListener('click', () => { TM.sel = null; re(); });
   d.querySelector('[data-tdel]').addEventListener('click', () => { if (!confirm('Энэ даалгаврыг устгах уу?')) return; S.tasks = tasks().filter(x => x !== t); TM.sel = null; save(); re(); });
 }
-function setTaskStatus(t, st) { if (t.status === st) return; t.status = st; t.done = st === 'done' ? today() : ''; const j = findJob(t.jobId); if (j) jobLog(`Даалгавар «${t.title}» → ${TSTAT.find(x => x[0] === st)[1]}${t.assignee ? ' (' + pName(t.assignee) + ')' : ''}`, j); save(); }
+function setTaskStatus(t, st) { if (t.status === st) return; t.status = st; t.done = st === 'done' ? today() : ''; if (st === 'done' && typeof spawnRecurring === 'function') spawnRecurring(t); const j = findJob(t.jobId); if (j) jobLog(`Даалгавар «${t.title}» → ${TSTAT.find(x => x[0] === st)[1]}${t.assignee ? ' (' + pName(t.assignee) + ')' : ''}`, j); save(); }
 function openJobFrom(id) { const j = findJob(id); if (!j) return; J.sel = id; J.dash = false; J.tab = 'jobs'; J.sub = j.kind === 'quote' ? 'quote' : 'main'; setModule('jobs'); }
 
 /* ---------- people ---------- */
@@ -12936,6 +13000,115 @@ async function ideasListDoc() {
     D.table([{ t: '№', w: 16, m: 1 }, { t: 'Санаа' }, { t: 'Ангилал', w: 34 }, { t: 'Хариуцагч', w: 28 }, { t: 'Төсөв, ₮', w: 24, a: 'r', m: 1 }, { t: 'Хэмнэлт/сар', w: 22, a: 'r', m: 1 }], L.map(i => [i.no, i.title || '—', i.cat, pName(i.owner) || '—', money(ideaCost(i)), i.saving ? money(i.saving) : ''])); });
   D.sigs(['Бэлтгэсэн', 'Захирал']);
   return D;
+}
+
+/* ================= Kh International — job templates, recurring tasks, all-jobs Gantt + machine load, invoices & payments ================= */
+
+/* ---------- machines (for load planning) ---------- */
+const MACH_DEF = [['laser', 'Лазер зүсэгч', 48], ['press', 'Нугалах пресс', 48], ['lathe', 'Токарь CA6240', 48], ['bore', 'Line bore', 48], ['weld', 'Гагнуурын пост', 96], ['blast', 'Элс цэвэрлэгээ, будаг', 48], ['mill', 'Фрезер', 48], ['crane', 'Гүүрэн кран', 60]];
+function machines() { if (!Array.isArray(S.machines)) S.machines = MACH_DEF.map(([id, name, cap]) => ({ id, name, cap })); return S.machines; }
+const machName = id => (machines().find(m => m.id === id) || {}).name || '';
+function stageCols() { return STAGE_COLS.concat([{ k: 'mach', t: 'Машин / пост', sel: [['', '—']].concat(machines().map(m => [m.id, m.name])), w: 150 }]); }
+
+/* ---------- job templates ---------- */
+const JT_DEF = [
+  { id: 'bucket', name: 'Шанага засвар', ops: ['weld', 'repair', 'ndt', 'blast'], stages: [['Хүлээн авах, үзлэг (VIR)', 1, 1, 2, 4, ''], ['Хуучин хуяг, ирмэг авах (gouging)', 2, 2, 2, 8, 'weld'], ['Хуяг, ирмэг зүсэх', 2, 1, 1, 6, 'laser'], ['Гагнуур, угсралт', 4, 5, 3, 8, 'weld'], ['NDT, хэмжилт', 9, 1, 1, 6, ''], ['Будаг, хүлээлгэх', 10, 1, 2, 6, 'blast']], tasks: [['Үзлэгийн тайлан (VIR) бэлдэх', 0], ['Hardox материал захиалах', 1], ['Гагнуурын WPS шалгах', 2], ['NDT тайлан', 9], ['Packing list, хүлээлгэх', 10]], cons: ['Hyundai 71MC Ф1.6', 'Gauge / Гауж элэктрод 8мм', 'CO2/ Нүүрс төрөгч', 'Grindering disk Ф125 / 5мм /'] },
+  { id: 'linebore', name: 'Line bore засвар', ops: ['bore', 'weld', 'ndt', 'site'], stages: [['Хэмжилт, үзлэг', 1, 1, 2, 4, ''], ['Нүх наплавка (build-up)', 2, 2, 1, 8, 'weld'], ['Line bore боловсруулалт', 4, 2, 1, 8, 'bore'], ['Хэмжилт, тайлан', 6, 1, 1, 4, '']], tasks: [['Line bore багаж бэлдэх', 0], ['Хэмжилтийн тайлан', 6]], cons: ['70 S6 Ф1.2', 'Argon 100%'] },
+  { id: 'fence', name: 'Хашаа, металл хийц (цуврал)', ops: ['laser', 'weld', 'blast', 'buy'], stages: [['Зураг, BOM', 1, 1, 1, 6, ''], ['Материал худалдан авах', 1, 3, 1, 4, ''], ['Зүсэлт', 3, 2, 1, 8, 'laser'], ['Гагнуур, угсралт', 5, 5, 4, 8, 'weld'], ['Будаг', 10, 2, 2, 8, 'blast'], ['Савлах, тээвэр', 12, 1, 3, 4, 'crane']], tasks: [['Материалын захиалга (PO)', 0], ['Анхны дээж (first article) шалгах', 5], ['Тээвэр захиалах', 11]], cons: ['Lincoln / Линколн Ф1,2', 'Epoxy Paint', 'Cutting disk Ф125 / 1мм /'] },
+  { id: 'laser', name: 'Лазер зүсэлт (лист)', ops: ['laser'], stages: [['Өрөлт, программ', 1, 1, 1, 2, ''], ['Лазер зүсэлт', 1, 1, 1, 6, 'laser'], ['Шалгах, савлах', 2, 1, 1, 2, '']], tasks: [['Материал шалгах (heat №)', 0], ['Зүсэлтийн бүртгэл', 1]], cons: [] },
+  { id: 'mach', name: 'Токарь / механик боловсруулалт', ops: ['mach'], stages: [['Зураг, технологи', 1, 1, 1, 2, ''], ['Токарь', 1, 2, 1, 8, 'lathe'], ['Хэмжилт', 3, 1, 1, 2, '']], tasks: [['Материал (бар, хоолой) бэлдэх', 0], ['Хэмжилтийн хуудас', 3]], cons: [] }
+];
+function jtemplates() { if (!Array.isArray(S.jtpl)) S.jtpl = JSON.parse(JSON.stringify(JT_DEF)); return S.jtpl; }
+function applyTemplate(job, t) {
+  jx(job); const sc = job.scope;
+  job.ops = [...new Set([...(job.ops || []), ...(t.ops || [])])];
+  if (t.stages && t.stages.length) sc.stages = t.stages.map(([name, start, dur, people, hours, mach]) => ({ name, start, dur, people, hours, pct: 0, mach: mach || '' }));
+  if (!sc.start) sc.start = today();
+  (t.cons || []).forEach(n => { if (job.quote.cons.some(r => r.name === n)) return; const c = catFindExact(n); const r = { grp: c ? c.grp : '', name: n, qty: 0, unit: c ? c.unit : 'ш', price: c ? netPrice(c, job.quote) : '', note: '' }; job.quote.cons.push(r); });
+  (t.tasks || []).forEach(([title, off]) => newTask({ title, jobId: job.id, type: 'job', assignee: '', due: addDays(sc.start, +off || 0) }));
+  if (!job.due) { const end = Math.max(1, ...sc.stages.map(s => (+s.start || 1) + (+s.dur || 1) - 1)); job.due = addDays(sc.start, end); }
+  jobLog(`Загвар хэрэглэсэн: ${t.name}`, job); save();
+}
+function templateFromJob(job, name) {
+  const sc = job.scope || { stages: [], start: '' }, T = tasks().filter(t => t.jobId === job.id), st = sc.start || job.created || today();
+  const t = { id: uid(), name, ops: job.ops || [], stages: sc.stages.map(s => [s.name, +s.start || 1, +s.dur || 1, +s.people || 1, +s.hours || 0, s.mach || '']), tasks: T.map(x => [x.title, x.due ? Math.max(0, Math.round((new Date(x.due) - new Date(st)) / 864e5)) : 0]), cons: (job.quote && job.quote.cons || []).map(r => r.name).filter(Boolean) };
+  jtemplates().push(t); save(); return t;
+}
+function jobTplHTML(job) {
+  return `<div class="jcard" data-v="main"><div class="bcard-h">Ажлын загвар <span class="sp"></span><select id="jtSel" class="inp" style="width:auto"><option value="">Загвар хэрэглэх…</option>${jtemplates().map(t => `<option value="${t.id}">${esc(t.name)}</option>`).join('')}</select><button class="btn sm ghost" id="jtSave" title="Энэ ажлын үе шат, даалгавар, consumable-ийг загвар болгон хадгална">Энэ ажлыг загвар болгох</button></div>
+    <div class="jbody"><p class="note">Загвар нь ажлын төрөл, үе шат (машинтай), даалгавар (огноотой), consumable-ийг бэлэн бөглөнө. Одоо байгаа даалгавар устахгүй.</p></div></div>`;
+}
+function bindJobTpl(el, job) {
+  const s = el.querySelector('#jtSel'); if (s) s.addEventListener('change', () => { const t = jtemplates().find(x => x.id === s.value); if (!t) return; if (!confirm(`«${t.name}» загварыг хэрэглэх үү? Үе шат солигдож, даалгавар нэмэгдэнэ.`)) { s.value = ''; return; } applyTemplate(job, t); toast('Загвар хэрэглэлээ: ' + t.name); renderJobMain(); });
+  const b = el.querySelector('#jtSave'); if (b) b.addEventListener('click', () => { const n = prompt('Загварын нэр:', job.title || 'Шинэ загвар'); if (!n) return; templateFromJob(job, n); toast('Загвар хадгалагдлаа: ' + n); renderJobMain(); });
+}
+
+/* ---------- recurring tasks ---------- */
+const TREP = [['', 'Давтахгүй'], ['daily', 'Өдөр бүр'], ['weekly', 'Долоо хоног бүр'], ['monthly', 'Сар бүр'], ['quarterly', 'Улирал бүр']];
+function nextDue(d, r) { const t = new Date((d || today()) + 'T00:00:00'); if (r === 'daily') t.setDate(t.getDate() + 1); else if (r === 'weekly') t.setDate(t.getDate() + 7); else if (r === 'monthly') t.setMonth(t.getMonth() + 1); else if (r === 'quarterly') t.setMonth(t.getMonth() + 3); return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`; }
+function spawnRecurring(t) {
+  if (!t.repeat || t.status !== 'done' || t._spawned) return;
+  t._spawned = 1; let due = nextDue(t.due || today(), t.repeat); while (due < today()) due = nextDue(due, t.repeat);
+  const n = newTask({ title: t.title, desc: t.desc, prio: t.prio, assignee: t.assignee, type: t.type, jobId: t.jobId, due, repeat: t.repeat, tags: (t.tags || []).slice(), sub: (t.sub || []).map(x => ({ t: x.t, done: false })) });
+  toast(`↻ Дараагийн «${t.title}» → ${due}`); return n;
+}
+
+/* ---------- invoices & payments ---------- */
+const invs = job => (job.inv = job.inv || []);
+const invPaid = i => (i.pays || []).reduce((a, p) => a + (+p.amount || 0), 0);
+function invState(i) { const p = invPaid(i), a = +i.amount || 0; if (a && p >= a) return ['paid', 'Төлсөн']; if (i.due && i.due < today()) return ['late', 'Хугацаа хэтэрсэн']; if (p > 0) return ['part', 'Хэсэгчлэн төлсөн']; return ['open', 'Нэхэмжилсэн']; }
+function jobInvSum(job) { const I = invs(job), inv = I.reduce((a, i) => a + (+i.amount || 0), 0), paid = I.reduce((a, i) => a + invPaid(i), 0), late = I.filter(i => invState(i)[0] === 'late').reduce((a, i) => a + (+i.amount || 0) - invPaid(i), 0); return { inv, paid, due: inv - paid, late, n: I.length }; }
+function jobInvHTML(job) {
+  const I = invs(job), s = jobInvSum(job); let c = null; try { c = quoteCalc(job); } catch (e) { }
+  const contract = (+job.price || (c ? c.net : 0)) * (1 + ((job.quote && +job.quote.vat) || 0) / 100);
+  return `<div class="jcard" data-v="main"><div class="bcard-h">Нэхэмжлэл, төлбөр <span class="pill ${s.late ? 'qst-lost' : s.inv && !s.due ? 'st-done' : s.inv ? 'qst-sent' : ''}">${s.late ? 'хугацаа хэтэрсэн' : s.inv && !s.due ? 'бүрэн төлсөн' : s.inv ? 'авлагатай' : 'нэхэмжлээгүй'}</span><span class="sp"></span><button class="btn sm" id="invAdd">+ Нэхэмжлэл</button></div><div class="jbody">
+    <div class="summary">${[['Гэрээ (НӨАТ-тай)', money(contract)], ['Нэхэмжилсэн', money(s.inv)], ['Төлөгдсөн', money(s.paid)], ['Авлага', money(s.due), s.late ? 'late' : '']].map(([k, v, cl]) => `<div class="stat"><div class="k">${k}</div><div class="v ${cl || ''}">${v}<small>₮</small></div></div>`).join('')}</div>
+    ${I.length ? `<div class="tblwrap"><table class="dt"><thead><tr><th>Нэхэмжлэл №</th><th>Огноо</th><th>Төлөх хугацаа</th><th class="r">Дүн, ₮</th><th class="r">Төлсөн, ₮</th><th>Төлөв</th><th></th></tr></thead><tbody>
+      ${I.map((i, k) => { const [st, sn] = invState(i); return `<tr><td><input class="inp cell" data-iv="${k}" data-ik="no" value="${esc(i.no)}"></td><td><input class="inp cell" type="date" data-iv="${k}" data-ik="date" value="${esc(i.date)}"></td><td><input class="inp cell" type="date" data-iv="${k}" data-ik="due" value="${esc(i.due)}"></td><td class="r"><input class="inp cell mono" type="number" style="text-align:right" data-iv="${k}" data-ik="amount" value="${esc(i.amount)}"></td><td class="r num">${money(invPaid(i))}<div class="muted" style="font-size:11px">${(i.pays || []).map(p => `${esc(p.date)} · ${money(p.amount)}`).join('<br>')}</div></td><td><span class="pill ${st === 'paid' ? 'st-done' : st === 'late' ? 'qst-lost' : st === 'part' ? 'st-nest' : 'qst-sent'}">${sn}</span></td><td style="white-space:nowrap"><button class="btn sm" data-pay="${k}">+ Төлбөр</button><button class="x" data-idel="${k}">×</button></td></tr>`; }).join('')}
+    </tbody></table></div>` : '<p class="note">Нэхэмжлэл үүсгээгүй. «+ Нэхэмжлэл» дарахад гэрээний үлдэгдэл дүнгээр бөглөгдөнө (урьдчилгаа бол дүнг засна).</p>'}
+  </div></div>`;
+}
+function bindJobInv(el, job) {
+  const re = () => { save(); renderJobMain(); };
+  const a = el.querySelector('#invAdd'); if (a) a.addEventListener('click', () => { let c = null; try { c = quoteCalc(job); } catch (e) { } const contract = Math.round((+job.price || (c ? c.net : 0)) * (1 + ((job.quote && +job.quote.vat) || 0) / 100)), s = jobInvSum(job); S.invSeq = (+S.invSeq || 0) + 1; invs(job).push({ no: 'INV-' + String(S.invSeq).padStart(4, '0'), date: today(), due: addDays(today(), 30), amount: Math.max(0, contract - s.inv), pays: [] }); jobLog('Нэхэмжлэл үүсгэсэн', job); re(); });
+  el.querySelectorAll('[data-iv]').forEach(f => f.addEventListener('change', () => { const i = invs(job)[+f.dataset.iv]; i[f.dataset.ik] = f.dataset.ik === 'amount' ? +f.value || 0 : f.value; re(); }));
+  el.querySelectorAll('[data-pay]').forEach(b => b.addEventListener('click', () => { const i = invs(job)[+b.dataset.pay], left = (+i.amount || 0) - invPaid(i); const v = prompt(`Төлбөрийн дүн, ₮ (үлдэгдэл ${money(left)}):`, String(Math.max(0, left))); if (v == null) return; const amt = +String(v).replace(/[^\d.]/g, ''); if (!amt) return; const d = prompt('Төлсөн огноо (YYYY-MM-DD):', today()) || today(); (i.pays = i.pays || []).push({ date: d, amount: amt }); jobLog(`Төлбөр орсон: ${money(amt)} ₮ (${i.no})`, job); re(); }));
+  el.querySelectorAll('[data-idel]').forEach(b => b.addEventListener('click', () => { if (!confirm('Нэхэмжлэлийг устгах уу?')) return; invs(job).splice(+b.dataset.idel, 1); re(); }));
+}
+function receivables() {
+  const R = []; S.jobs.forEach(j => (j.inv || []).forEach(i => { const left = (+i.amount || 0) - invPaid(i); if (left > 0) R.push({ j, i, left, st: invState(i) }); }));
+  return R.sort((a, b) => String(a.i.due || '').localeCompare(String(b.i.due || '')));
+}
+
+/* ---------- all-jobs Gantt + machine load (Үйлдвэрлэл → Төлөвлөгөө) ---------- */
+const PL = { weeks: 8 };
+const isoMon = d => { const t = new Date(d + 'T00:00:00'); const w = (t.getDay() + 6) % 7; t.setDate(t.getDate() - w); return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`; };
+function planJobs() { return S.jobs.filter(j => !isQ(j) && !['done', 'given'].includes(j.status)).map(j => { jx(j); const sc = j.scope, st = sc.start || j.created || today(), end = Math.max(1, ...sc.stages.map(s => (+s.start || 1) + (+s.dur || 1) - 1)); return { j, st, en: j.due && j.due > st ? j.due : addDays(st, end - 1), sc }; }); }
+function machineLoad(P) {
+  const w0 = isoMon(today()), weeks = Array.from({ length: PL.weeks }, (_, i) => addDays(w0, i * 7)), L = {};
+  machines().forEach(m => L[m.id] = weeks.map(() => 0));
+  P.forEach(({ sc, st }) => sc.stages.forEach(s => { if (!s.mach || !L[s.mach]) return; const dur = Math.max(1, +s.dur || 1), h = (+s.people || 0) * (+s.hours || 0) * (1 - Math.min(100, +s.pct || 0) / 100); for (let d = 0; d < dur; d++) { const day = addDays(st, (+s.start || 1) - 1 + d), wi = weeks.indexOf(isoMon(day)); if (wi >= 0) L[s.mach][wi] += h / dur; } }));
+  return { weeks, L };
+}
+function renderPlan(el) {
+  const P = planJobs(); if (!el) return;
+  const t0 = P.length ? P.map(p => p.st).sort()[0] : today(), t1 = P.length ? P.map(p => p.en).sort().slice(-1)[0] : addDays(today(), 30);
+  const a = isoMon(t0 < today() ? t0 : addDays(today(), -7)), days = Math.max(28, Math.round((new Date(t1) - new Date(a)) / 864e5) + 7), pc = d => Math.max(0, Math.min(100, (new Date(d + 'T00:00:00') - new Date(a + 'T00:00:00')) / 864e5 / days * 100));
+  const ticks = []; for (let d = 0; d < days; d += 7) ticks.push(addDays(a, d));
+  const { weeks, L } = machineLoad(P), M = machines();
+  el.innerHTML = `<div class="dhead"><div><h2>Үйлдвэрлэлийн төлөвлөгөө</h2><p class="muted">${P.length} идэвхтэй ажил · үе шат бүрт машин/пост оноосноор ачаалал бодогдоно</p></div><span class="sp" style="flex:1"></span><button class="btn ghost" id="plMach">Машин, хүчин чадал</button></div>
+    <div class="jcard"><div class="bcard-h">Бүх ажлын хуваарь (Gantt)</div><div class="jbody">
+      <div class="pg"><div class="pgh"><span></span><div class="pgt">${ticks.map(d => `<i style="left:${pc(d)}%">${d.slice(5)}</i>`).join('')}<b class="today" style="left:${pc(today())}%"></b></div></div>
+      ${P.sort((x, y) => x.st.localeCompare(y.st)).map(({ j, st, en, sc }) => { const late = j.due && j.due < today(); return `<div class="pgr" data-pj="${j.id}"><span class="pgl"><b class="mono">${esc(j.no)}</b> ${esc(j.title || '')}<small>${esc(j.customer || '')}${j.owner ? ' · ' + esc(pName(j.owner)) : ''}</small></span><div class="pgb"><div class="pgjob st-${j.status}${late ? ' late' : ''}" style="left:${pc(st)}%;width:${Math.max(0.8, pc(addDays(en, 1)) - pc(st))}%"></div>${sc.stages.map(s => { const s0 = addDays(st, (+s.start || 1) - 1); return `<div class="pgst" title="${esc(s.name)}${s.mach ? ' · ' + esc(machName(s.mach)) : ''} · ${+s.pct || 0}%" style="left:${pc(s0)}%;width:${Math.max(0.5, pc(addDays(s0, +s.dur || 1)) - pc(s0))}%"><i style="width:${Math.min(100, +s.pct || 0)}%"></i></div>`; }).join('')}<b class="today" style="left:${pc(today())}%"></b></div></div>`; }).join('') || '<p class="note">Идэвхтэй ажил алга.</p>'}</div>
+      <p class="note">Саарал — ажлын нийт хугацаа (эхлэх → дуусах), өнгөт — үе шатууд ба гүйцэтгэл. Мөр дээр дарж ажлыг нээнэ. Эхлэх огноо, үе шатыг ажлын «Үйлдвэрлэл → Хуваарь» дээр засна.</p></div></div>
+    <div class="jcard"><div class="bcard-h">Машин, постын ачаалал — 7 хоногоор (цаг / хүчин чадал)</div><div class="tblwrap" style="border:0"><table class="dt load"><thead><tr><th>Машин / пост</th><th class="r">Чадал/7хон</th>${weeks.map(w => `<th class="r">${w.slice(5)}</th>`).join('')}</tr></thead><tbody>
+      ${M.map(m => `<tr><td>${esc(m.name)}</td><td class="r num">${m.cap}</td>${L[m.id].map(h => { const p = m.cap ? h / m.cap * 100 : 0; return `<td class="r num lc" style="--p:${Math.min(100, p)}%;${p > 100 ? 'color:#b42318;font-weight:700' : ''}">${h ? Math.round(h) + ' <small>' + Math.round(p) + '%</small>' : ''}</td>`; }).join('')}</tr>`).join('')}
+    </tbody></table></div><div class="jbody"><p class="note">Ачаалал = үе шатны хүн × цаг (гүйцэтгэлийн хувийг хасаад), үргэлжлэх хоногт тэнцүү хуваана. 100%-аас дээш бол улаан.</p></div></div>`;
+  el.querySelectorAll('[data-pj]').forEach(r => r.addEventListener('click', () => { setModule('jobs'); J.sel = r.dataset.pj; J.sub = 'scope'; J.mk = 'scope'; renderJobs(); }));
+  el.querySelector('#plMach').addEventListener('click', () => {
+    const txt = prompt('Машин бүрийг «нэр = 7 хоногийн цаг» гэж нэг мөрөнд таслалаар (жишээ: Лазер зүсэгч = 48, Токарь CA6240 = 48):', machines().map(m => `${m.name} = ${m.cap}`).join(', '));
+    if (txt == null) return; const old = machines(); S.machines = txt.split(',').map(p => p.split('=')).filter(x => x[0].trim()).map(([n, c]) => { const nm = n.trim(), o = old.find(m => m.name === nm); return { id: o ? o.id : 'm' + uid().slice(0, 6), name: nm, cap: +c || 48 }; }); save(); renderPlan(el);
+  });
 }
 
 /* ================= KH Fab — «Мэдээлэл · сан»: mining machines, bucket types, product templates, own file library ================= */
@@ -13167,7 +13340,7 @@ function renderLib(el) {
   }
 }
 
-try { const m0 = localStorage.getItem(KEY + ':mod'); if (['bend', 'jobs', 'info', 'insp', 'dash', 'quotes', 'docs', 'team', 'ideas'].includes(m0)) setModule(m0); } catch (e) { }
+try { const m0 = localStorage.getItem(KEY + ':mod'); if (['bend', 'jobs', 'info', 'insp', 'dash', 'quotes', 'docs', 'team', 'ideas', 'plan'].includes(m0)) setModule(m0); } catch (e) { }
 
 applyLogoUI(); contactLists();
 </script>

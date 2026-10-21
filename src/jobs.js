@@ -245,9 +245,9 @@ function renderJobMain() {
       <div id="jTraceForm"></div>
       ${job.trace.length ? `<div class="tblwrap"><table class="dt"><thead><tr><th>Огноо</th><th>Лист</th><th>Хэмжээ</th><th>Материал</th><th class="r">Тоо</th><th>Хайлалт №</th><th>Гэрчилгээ №</th><th>Оператор</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>` : '<p class="note">Зүссэн лист бүрийн хавтангийн хайлалтын дугаар, операторыг энд бүртгэнэ. ISO аудитад бүтээгдэхүүнээс материалын гэрчилгээ хүртэл мөрдөх боломжтой болно.</p>'}
     </div></div>
-    ${jobNextHTML(job)}${jobTasksHTML(job)}${jobFilesHTML(job)}${srcFolderHTML(job)}<div class="jcard" data-v="main"><div class="bcard-h">Түүх</div><div class="jbody"><div class="jlog">${job.log.map(l => `<div><span class="mono">${esc(l.t)}</span>${esc(l.m)}</div>`).join('') || '<span class="note">—</span>'}</div></div></div>
+    ${jobNextHTML(job)}${jobInvHTML(job)}${jobTasksHTML(job)}${jobTplHTML(job)}${jobFilesHTML(job)}${srcFolderHTML(job)}<div class="jcard" data-v="main"><div class="bcard-h">Түүх</div><div class="jbody"><div class="jlog">${job.log.map(l => `<div><span class="mono">${esc(l.t)}</span>${esc(l.m)}</div>`).join('') || '<span class="note">—</span>'}</div></div></div>
     <datalist id="opList">${ops.map(o => `<option value="${esc(o)}">`).join('')}</datalist>`;
-  bindSubBar(el); bindJobFiles(el, job); bindJobTasks(el, job); bindSrcFolder(el, job);
+  bindSubBar(el); bindJobFiles(el, job); bindJobTasks(el, job); bindSrcFolder(el, job); bindJobInv(el, job); bindJobTpl(el, job);
   el.querySelectorAll('[data-st]').forEach(b => b.addEventListener('click', () => { if (b.dataset.st === job.status) return; const o = jstName(job.status); job.status = b.dataset.st; jobLog(`Төлөв: ${o} → ${jstName(job.status)}`, job); save(); renderJList(); renderJobMain(); }));
   el.querySelectorAll('[data-op]').forEach(b => b.addEventListener('click', () => { const o = job.ops = job.ops || [], k = b.dataset.op, i = o.indexOf(k); if (i >= 0) o.splice(i, 1); else o.push(k); save(); renderJobMain(); }));
   { const nd = el.querySelector('#jf_need'); if (nd) nd.addEventListener('change', () => { job.need = nd.value.trim(); if (job.need) jobLog('Тэмдэглэл: ' + job.need, job); save(); renderJList(); }); }
@@ -505,7 +505,7 @@ function quoteDashHTML() {
         ${top.map(([k, c]) => `<tr><td>${esc(k)}</td><td class="r num">${c.n}</td><td class="r num">${c.w} <span class="muted">(${nf(c.w / c.n * 100, 0)}%)</span></td><td class="r num">${mm(c.wv)}</td></tr>`).join('') || '<tr><td colspan="4" class="muted">—</td></tr>'}
       </tbody></table></div></div>
     </div>
-    <h3 style="margin:8px 0 0">Явагдаж буй ажлууд</h3>`;
+`;
 }
 function renderDash(el) {
   const JB = S.jobs.filter(x => !isQ(x)), open = JB.filter(x => !['done', 'given'].includes(x.status));
@@ -522,7 +522,12 @@ function renderDash(el) {
   const d0 = new Date(dates[0] + 'T00:00:00'), d1 = new Date(Math.max(new Date(dates[dates.length - 1] + 'T00:00:00'), +d0 + 14 * 864e5)), span = (d1 - d0) || 1;
   const pc = d => Math.max(0, Math.min(100, (new Date(d + 'T00:00:00') - d0) / span * 100));
   const rows = M.slice().sort((a, b) => (open.includes(b.j) - open.includes(a.j)) || String(a.j.due || '9999').localeCompare(String(b.j.due || '9999')));
+  const RC = receivables(), rcSum = RC.reduce((a, r) => a + r.left, 0), rcLate = RC.filter(r => r.st[0] === 'late');
   el.innerHTML = `${quoteDashHTML()}
+    <h3 style="margin:8px 0 0">Авлага, төлбөр</h3>
+    <div class="summary">${[['Нийт авлага', money(rcSum) + '<small>₮</small>', `${RC.length} нэхэмжлэл`], ['Хугацаа хэтэрсэн', `<span class="${rcLate.length ? 'late' : ''}">${money(rcLate.reduce((a, r) => a + r.left, 0))}</span><small>₮</small>`, `${rcLate.length} нэхэмжлэл`], ['Нэхэмжлээгүй дууссан ажил', String(S.jobs.filter(x => !isQ(x) && ['done', 'given'].includes(x.status) && !(x.inv || []).length).length), 'хүлээлгэсэн ч нэхэмжлэл үүсгээгүй']].map(s => `<div class="stat"><div class="k">${s[0]}</div><div class="v">${s[1]}</div><div class="s">${esc(s[2])}</div></div>`).join('')}</div>
+    ${RC.length ? `<div class="jcard"><div class="tblwrap" style="border:0"><table class="dt"><thead><tr><th>Нэхэмжлэл</th><th>Ажил</th><th>Захиалагч</th><th>Төлөх хугацаа</th><th class="r">Үлдэгдэл, ₮</th><th>Төлөв</th></tr></thead><tbody>${RC.slice(0, 15).map(r => `<tr class="jrow" data-id="${r.j.id}" style="cursor:pointer"><td class="num">${esc(r.i.no)}</td><td class="num">${esc(r.j.no)}</td><td>${esc(r.j.customer || '—')}</td><td class="num ${r.st[0] === 'late' ? 'late' : ''}">${esc(r.i.due || '')}</td><td class="r num">${money(r.left)}</td><td><span class="pill ${r.st[0] === 'late' ? 'qst-lost' : r.st[0] === 'part' ? 'st-nest' : 'qst-sent'}">${r.st[1]}</span></td></tr>`).join('')}</tbody></table></div></div>` : ''}
+    <h3 style="margin:8px 0 0">Явагдаж буй ажлууд</h3>
     <div class="summary">${[
       ['Идэвхтэй ажил', `${open.length}`, `${JB.length} нийт · ${S.jobs.length - JB.length} санал`],
       ['Хугацаа хэтэрсэн', `<span class="${late.length ? 'late' : ''}">${late.length}</span>`, late.map(x => x.no).join(', ') || 'алга'],

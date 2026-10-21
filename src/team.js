@@ -55,7 +55,7 @@ const prioDot = k => { const p = TPRIO.find(x => x[0] === k) || TPRIO[2]; return
 const dueTag = t => { if (!t.due) return ''; const d = daysLeft(t.due), late = d < 0 && t.status !== 'done'; return `<span class="tdue${late ? ' late' : d <= 2 && t.status !== 'done' ? ' soon' : ''}">${esc(t.due.slice(5))}</span>`; };
 function taskCard(t) {
   const j = findJob(t.jobId);
-  return `<div class="tcard${TM.sel === t.id ? ' on' : ''}" draggable="true" data-tid="${t.id}"><div class="tt">${prioDot(t.prio)}<b>${esc(t.title || '(гарчиггүй)')}</b></div>
+  return `<div class="tcard${TM.sel === t.id ? ' on' : ''}" draggable="true" data-tid="${t.id}"><div class="tt">${prioDot(t.prio)}<b>${esc(t.title || '(гарчиггүй)')}</b>${t.repeat ? '<span class="muted" title="Давтагдах">↻</span>' : ''}</div>
     ${j ? `<div class="tj">${esc(jobLabel(j))}</div>` : `<div class="tj muted">${(TTYPE.find(x => x[0] === t.type) || TTYPE[2])[1]}</div>`}
     ${(t.tags || []).length ? `<div class="ttags">${t.tags.map(g => `<span class="tag" style="--h:${avCol(g)}">${esc(g)}</span>`).join('')}</div>` : ''}
     <div class="tf">${avatar(t.assignee, 22)}${(t.sub || []).length ? `<span class="muted mono" style="font-size:11.5px">☑ ${t.sub.filter(x => x.done).length}/${t.sub.length}</span>` : ''}${(t.comments || []).length ? `<span class="muted mono" style="font-size:11.5px">💬 ${t.comments.length}</span>` : ''}<span class="sp" style="flex:1"></span>${dueTag(t)}</div></div>`;
@@ -120,6 +120,7 @@ function taskDetailHTML(t) {
       <label class="fld">Ач холбогдол<select id="tk_prio">${TPRIO.map(([k, n]) => `<option value="${k}"${t.prio === k ? ' selected' : ''}>${n}</option>`).join('')}</select></label>
       <label class="fld">Хариуцагч<select id="tk_assignee">${peopleOpts(t.assignee)}</select></label>
       <label class="fld">Дуусах огноо<input id="tk_due" type="date" value="${esc(t.due)}"></label>
+      <label class="fld">Давтах<select id="tk_repeat">${TREP.map(([k, n]) => `<option value="${k}"${(t.repeat || '') === k ? ' selected' : ''}>${n}</option>`).join('')}</select></label>
       <label class="fld">Төрөл<select id="tk_type">${TTYPE.map(([k, n]) => `<option value="${k}"${t.type === k ? ' selected' : ''}>${n}</option>`).join('')}</select></label>
       <label class="fld">Холбоотой ажил / санал<select id="tk_jobId"><option value="">—</option>${J.map(j => `<option value="${j.id}"${t.jobId === j.id ? ' selected' : ''}>${esc(jobLabel(j))}</option>`).join('')}</select></label>
     </div>
@@ -146,7 +147,7 @@ function bindTasksMain(el) {
   el.querySelectorAll('.tcard').forEach(c => c.addEventListener('dragstart', e => { e.dataTransfer.setData('text/plain', c.dataset.tid); c.classList.add('drag'); }));
   el.querySelectorAll('.kcol').forEach(col => { col.addEventListener('dragover', e => { e.preventDefault(); col.classList.add('over'); }); col.addEventListener('dragleave', () => col.classList.remove('over')); col.addEventListener('drop', e => { e.preventDefault(); const t = tasks().find(x => x.id === e.dataTransfer.getData('text/plain')); if (t) setTaskStatus(t, col.dataset.col); re(); }); });
   const d = el.querySelector('.tdetail'); if (!d) return; const t = tasks().find(x => x.id === TM.sel);
-  ['title', 'status', 'prio', 'assignee', 'due', 'type', 'jobId', 'desc'].forEach(k => { const i = d.querySelector('#tk_' + k); if (i) i.addEventListener('change', () => { if (k === 'status') setTaskStatus(t, i.value); else t[k] = i.value; if (k === 'jobId' && t.jobId) { const j = findJob(t.jobId); t.type = j && j.kind === 'quote' ? 'quote' : 'job'; } save(); re(); }); });
+  ['title', 'status', 'prio', 'assignee', 'due', 'type', 'jobId', 'desc', 'repeat'].forEach(k => { const i = d.querySelector('#tk_' + k); if (i) i.addEventListener('change', () => { if (k === 'status') setTaskStatus(t, i.value); else t[k] = i.value; if (k === 'jobId' && t.jobId) { const j = findJob(t.jobId); t.type = j && j.kind === 'quote' ? 'quote' : 'job'; } save(); re(); }); });
   d.querySelector('#tk_tags').addEventListener('change', e => { t.tags = e.target.value.split(',').map(x => x.trim()).filter(Boolean); save(); re(); });
   t.sub = t.sub || []; t.comments = t.comments || [];
   d.querySelectorAll('[data-sd]').forEach(c => c.addEventListener('change', () => { t.sub[+c.dataset.sd].done = c.checked; save(); re(); }));
@@ -157,7 +158,7 @@ function bindTasksMain(el) {
   d.querySelector('[data-tclose]').addEventListener('click', () => { TM.sel = null; re(); });
   d.querySelector('[data-tdel]').addEventListener('click', () => { if (!confirm('Энэ даалгаврыг устгах уу?')) return; S.tasks = tasks().filter(x => x !== t); TM.sel = null; save(); re(); });
 }
-function setTaskStatus(t, st) { if (t.status === st) return; t.status = st; t.done = st === 'done' ? today() : ''; const j = findJob(t.jobId); if (j) jobLog(`Даалгавар «${t.title}» → ${TSTAT.find(x => x[0] === st)[1]}${t.assignee ? ' (' + pName(t.assignee) + ')' : ''}`, j); save(); }
+function setTaskStatus(t, st) { if (t.status === st) return; t.status = st; t.done = st === 'done' ? today() : ''; if (st === 'done' && typeof spawnRecurring === 'function') spawnRecurring(t); const j = findJob(t.jobId); if (j) jobLog(`Даалгавар «${t.title}» → ${TSTAT.find(x => x[0] === st)[1]}${t.assignee ? ' (' + pName(t.assignee) + ')' : ''}`, j); save(); }
 function openJobFrom(id) { const j = findJob(id); if (!j) return; J.sel = id; J.dash = false; J.tab = 'jobs'; J.sub = j.kind === 'quote' ? 'quote' : 'main'; setModule('jobs'); }
 
 /* ---------- people ---------- */

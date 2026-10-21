@@ -29,8 +29,9 @@ function setModule(v) {
   if ($('#infoSide')) $('#infoSide').hidden = $('#infoMain').hidden = m !== 'info';
   if ($('#inspSide')) $('#inspSide').hidden = $('#inspMain').hidden = m !== 'insp';
   if ($('#teamSide')) $('#teamSide').hidden = $('#teamMain').hidden = m !== 'team';
+  if ($('#planSide')) $('#planSide').hidden = $('#planMain').hidden = m !== 'plan';
   if ($('#ideasSide')) $('#ideasSide').hidden = $('#ideaMain').hidden = m !== 'ideas';
-  if (m === 'info') { if (typeof renderInfo === 'function') renderInfo(); } else if (m === 'insp') { if (typeof renderInsp === 'function') renderInsp(); } else if (m === 'team') { if (typeof renderTeam === 'function') renderTeam(); } else if (m === 'ideas') { if (typeof renderIdeas === 'function') renderIdeas(); } else if (m === 'bend') { renderBend(); if (typeof showBendTab === 'function') showBendTab(RT.tab); } else if (m === 'jobs') renderJobs(); else drawView();
+  if (m === 'info') { if (typeof renderInfo === 'function') renderInfo(); } else if (m === 'insp') { if (typeof renderInsp === 'function') renderInsp(); } else if (m === 'team') { if (typeof renderTeam === 'function') renderTeam(); } else if (m === 'ideas') { if (typeof renderIdeas === 'function') renderIdeas(); } else if (m === 'plan') { if (typeof renderPlan === 'function') renderPlan($('#planMain')); } else if (m === 'bend') { renderBend(); if (typeof showBendTab === 'function') showBendTab(RT.tab); } else if (m === 'jobs') renderJobs(); else drawView();
   try { localStorage.setItem(KEY + ':mod', v); } catch (e) { }
 }
 $$('.modtabs button').forEach(b => b.addEventListener('click', () => setModule(b.dataset.mod)));
