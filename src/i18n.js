@@ -52,6 +52,7 @@ function trWalk(root) {
   let n; while ((n = w.nextNode())) { if (n.nodeType === 3) { if (TR_ORIG.has(n) || TR_CYR.test(n.data)) trText(n); } else for (const a of TR_ATTRS) if (n.hasAttribute(a)) trAttr(n, a); }
 }
 const trObs = new MutationObserver(list => {
+  if (LANG !== 'en') return;   // Mongolian UI: nothing to translate, skip walking every new node
   for (const m of list) {
     if (m.type === 'childList') m.addedNodes.forEach(trWalk);
     else if (m.type === 'characterData') { if (m.target.data !== TR_OUT.get(m.target) && !trSkip(m.target.parentElement)) trText(m.target); }

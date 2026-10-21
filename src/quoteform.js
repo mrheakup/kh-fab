@@ -123,6 +123,7 @@ async function quoteFormOut(job, mode) {
     if (mode === 'print') printImgs(imgs, false, 'letter', name); else { pdfImgs(imgs, false, name, 'letter'); if (!job._nest) jobLog('Үнийн санал (Kh загвар) PDF гаргасан', job); } }
   catch (e) { console.error(e); toast('Алдаа: ' + e.message); }
 }
+const QF_PV = new Map();
 const qfOrg = job => job._nest ? (S.quote.customer || '') : (job.customer || '');
 function qfCardHTML(job) {
   const f = qfDefaults(job), C = company();
@@ -153,7 +154,11 @@ function bindQfCard(el, job) {
   const img = el.querySelector('.qfprev'); let tm = 0, syT = 0;
   const reBar = () => { const b = el.querySelector('.qfform'); if (!b) return; b.outerHTML = qfFormBarHTML(f, orgName()); bindQfFormBar(el, job, f, orgName(), () => { if (job._nest) renderTable(); else renderJobMain(); }); };
   const sync = () => { clearTimeout(syT); syT = setTimeout(() => { const was = f.formId; formSync(f, orgName(), (job.quote && job.quote.no) || job.no); if (f.formId !== was) reBar(); }, 400); };
-  const refresh = () => { sync(); clearTimeout(tm); tm = setTimeout(() => quoteFormImgs(job, PREV_K).then(im => { if (img.isConnected) { img.src = im[0].url; img._imgs = im; } }).catch(() => { }), 150); };
+  /* preview is cached per quote: re-rendering the page does not redraw the form unless something on it changed */
+  const pvKey = () => { try { return JSON.stringify([job.quote, job.customer, job.title, company(), LANG, job._nest ? qfLines(job) : 0]); } catch (e) { return Math.random(); } };
+  const pid = job._nest ? '_nest' : job.id, hit = QF_PV.get(pid); if (hit) img.src = hit.url;
+  const refresh = () => { sync(); clearTimeout(tm); tm = setTimeout(() => { const k = pvKey(), h = QF_PV.get(pid); if (h && h.k === k) { if (img.isConnected && img.src !== h.url) img.src = h.url; return; }
+    quoteFormImgs(job, PREV_K).then(im => { QF_PV.set(pid, { k, url: im[0].url }); if (img.isConnected) { img.src = im[0].url; img._imgs = im; } }).catch(() => { }); }, 300); };
   el.querySelector('.qffields').addEventListener('change', refresh);
   el.querySelectorAll('.clbox').forEach(b => clauseBox(b, f, b.dataset.ck, refresh)); refresh();
   el.querySelector('.qfprevbox').addEventListener('click', async () => { printImgs(await quoteFormImgs(job), false, 'letter', `${job.quote.no || job.no} - Quotation`, true); });

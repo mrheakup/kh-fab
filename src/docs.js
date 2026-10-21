@@ -1,5 +1,5 @@
 /* print resolution: 12 px/mm ≈ 305 dpi for every PDF / print; live previews pass a smaller K */
-const PRINT_K = 12, PREV_K = 4;
+const PRINT_K = 12, PREV_K = 3;
 /* ================= Kh International — logo + printable document engine =================
    KH_LOGO_DEFAULT is injected by build.py from src/logo.png. Every document is drawn on
    canvases (so Cyrillic fonts render exactly), then saved as PDF or sent straight to the printer. */

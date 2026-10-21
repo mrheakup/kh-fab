@@ -77,7 +77,13 @@ function quoteLineHook(job, id, row, key) {
   CAT().push({ id: uid(), name: row.name.trim(), grp: (cat === 'cons' && row.grp) || 'Миний оруулсан', cat, unit: row.unit || 'ш', price: +row.price, kgu: +row.kgu || (row.unit === 'кг' ? 1 : 0), sup: (row.note || '').split('·')[0].trim(), spec: '', vat: false, date: today(), src: 'user' });
   toast('Шинэ материал санд нэмэгдлээ: ' + row.name);
 }
-function catDatalists() {
+let CAT_DL_K = '';
+function catDatalistsGlobal() {
+  const C = CAT(), k = C.length + ':' + C.reduce((a, c) => a + (+c.price || 0) + String(c.name).length + String(c.unit).length, 0); if (k === CAT_DL_K && document.getElementById('catLists')) return;
+  CAT_DL_K = k; let h = document.getElementById('catLists'); if (!h) { h = document.createElement('div'); h.id = 'catLists'; h.hidden = true; document.body.appendChild(h); } h.innerHTML = catDatalistsHTML();
+}
+function catDatalists() { catDatalistsGlobal(); return ''; }
+function catDatalistsHTML() {
   const C = CAT(), opt = c => `<option value="${esc(c.name)}">${esc(`${money(c.price)} ₮/${c.unit}${c.kgu && c.unit !== 'кг' ? ' · ' + money(c.price / c.kgu) + ' ₮/кг' : ''} · ${c.sup || ''}`)}</option>`;
   return `<datalist id="dl-mat">${C.filter(c => c.cat === 'mat').map(opt).join('')}</datalist><datalist id="dl-any">${C.filter(c => c.cat !== 'mat').map(opt).join('')}</datalist><datalist id="dl-cons">${C.filter(c => c.cat === 'cons').map(opt).join('')}</datalist><datalist id="dl-cgrp">${[...new Set(C.filter(c => c.cat === 'cons').map(c => c.grp).filter(Boolean))].sort().map(g => `<option value="${esc(g)}">`).join('')}</datalist>`;
 }
