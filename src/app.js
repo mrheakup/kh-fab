@@ -63,12 +63,14 @@ function remNo() { return 'R-' + String(++S.remSeq).padStart(4, '0'); }
 let saveT = 0;
 let saveWarned = false;
 function saveNow(sync) {
-  clearTimeout(saveT); S._saved = Date.now(); const txt = JSON.stringify(S);
+  clearTimeout(saveT); saveT = 0; S._saved = Date.now(); const txt = JSON.stringify(S);
   if (window.kh && window.kh.dataSave) { try { if (sync && window.kh.dataSaveSync) window.kh.dataSaveSync(txt); else window.kh.dataSave(txt).then(r => { if (r && r.error) toast('⚠ Хадгалж чадсангүй: ' + r.error, 8000); else { try { localStorage.removeItem(KEY); } catch (e) { } } }); } catch (e) { toast('Хадгалж чадсангүй: ' + e.message); } return; }
   try { localStorage.setItem(KEY, txt); } catch (e) { if (!saveWarned) { saveWarned = true; toast('⚠ Хөтчийн санах ой дүүрсэн — өгөгдөл хадгалагдсангүй! Desktop програм ашиглах эсвэл «Төсөл хадгалах»-аар нөөцлөнө үү.', 9000); } }
 }
-function save() { clearTimeout(saveT); saveT = setTimeout(() => saveNow(false), 250); }
+/* saves are batched: typing / clicking never waits for the whole state to be serialised */
+function save() { clearTimeout(saveT); saveT = setTimeout(() => { if (window.requestIdleCallback) requestIdleCallback(() => saveNow(false), { timeout: 2000 }); else saveNow(false); }, 1200); }
 window.addEventListener('beforeunload', () => { if (saveT) saveNow(true); });
+document.addEventListener('visibilitychange', () => { if (document.hidden && saveT) saveNow(false); });
 
 let R = null;            // nesting result
 let V = { g: 0, l: 0, k: 1, px: 0, py: 0, labels: true, hover: null, rtab: 'sheets', edit: false, sel: null, drag: null, path: false };
@@ -1367,7 +1369,7 @@ function renderQuote(el) {
     <div class="qtot"><div><span>Дүн</span><span>${nf(d.sub)} ₮</span></div>${S.quote.vat ? `<div><span>НӨАТ 10%</span><span>${nf(d.vat)} ₮</span></div>` : ''}<div class="big"><span>Нийт</span><span>${nf(d.total)} ₮</span></div><div class="muted" style="font-size:12px"><span>Өртөг</span><span>${nf(d.cost)} ₮</span></div></div>
     <div id="qfNest"></div>
     <div class="addrow"><button class="btn" id="qPdf">Задаргаа PDF (дотоод)</button><span class="note">Материалын өртгийг партын талбайгаар, зүсэлтийн өртгийг зүсэх уртаар хуваарилж, ашгийн хувийг нэмсэн.</span></div>`;
-  [...QF.map(f => f[0]), 'note'].forEach(k => $('#q_' + k).addEventListener('change', e => { S.quote[k] = e.target.type === 'number' ? Math.max(0, +e.target.value || 0) : e.target.value; if (k === 'customer' && e.target.value.trim() && typeof orgLearn === 'function') { orgLearn({ org: e.target.value }); if (S.quote.qf) qfFillFromDir(S.quote.qf, e.target.value); } save(); renderQuote(el); }));
+  [...QF.map(f => f[0]), 'note'].forEach(k => $('#q_' + k).addEventListener('change', e => { S.quote[k] = e.target.type === 'number' ? Math.max(0, +e.target.value || 0) : e.target.value; if (k === 'customer' && e.target.value.trim() && typeof orgLearn === 'function') { orgLearn({ org: e.target.value }); if (S.quote.qf) { formAuto(S.quote.qf, e.target.value); qfFillFromDir(S.quote.qf, e.target.value); } } save(); renderQuote(el); }));
   $('#q_vat').addEventListener('change', e => { S.quote.vat = e.target.checked; save(); renderQuote(el); });
   $('#qPdf').addEventListener('click', quotePdf);
   { const box = $('#qfNest'), J0 = nestQuoteJob(); box.innerHTML = qfCardHTML(J0); bindQfCard(box, J0); }
@@ -1429,7 +1431,7 @@ $('#projFile').addEventListener('change', async e => {
 /* ---------- init ---------- */
 function renderAll() { renderParts(); renderDefaults(); renderStock(); renderSettings(); renderResults(); }
 renderAll();
-runNesting(true);
+setTimeout(() => runNesting(true), 0);
 
 /* ---------- text dialog ---------- */
 let tMode = 'letters', tRes = null, tTimer = 0;

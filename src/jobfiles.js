@@ -212,22 +212,33 @@ function srcFolderHTML(job) {
     ${q.srcFolder && el ? '<button class="btn sm ghost" id="sfOpen">Explorer-т нээх</button><button class="btn sm ghost" id="sfRe" title="Дахин унших">↻</button>' : ''}${el ? `<button class="btn sm ghost" id="sfPick">${q.srcFolder ? 'Фолдер солих' : 'Фолдер холбох'}</button>` : ''}${q.srcFolder ? '<button class="btn sm ghost" id="sfDel" title="Фолдерыг энэ ажлаас салгана (компьютерын файлууд устахгүй)">✕ Салгах</button>' : ''}</div>
     <div class="jbody"><div class="muted mono sfpath">${esc(q.srcFolder || 'Энэ ажил, саналд компьютерын фолдер холбоогүй байна — «Фолдер холбох».')}</div><div class="jfgrid sfgrid" id="sfList">${!el && q.srcFiles ? q.srcFiles.map(n => `<figure class="jf"><div class="th"><span class="ext">${esc(jfExt(n))}</span></div><figcaption><b>${esc(n)}</b></figcaption></figure>`).join('') : ''}</div></div></div>`;
 }
+const SF_CACHE = {}, TH_CACHE = new Map();
+/* thumbnails are made by the desktop side (small PNG) one by one, and cached for the session */
+async function sfThumbs(root) {
+  for (const im of root.querySelectorAll('img[data-th]')) {
+    const p = im.dataset.th; let u = TH_CACHE.get(p);
+    if (u === undefined) { try { u = await window.kh.thumb(p, 240); } catch (e) { u = ''; } TH_CACHE.set(p, u); }
+    if (!im.isConnected) return; if (u) im.src = u; else im.replaceWith(Object.assign(document.createElement('span'), { className: 'ext', textContent: jfExt(p) }));
+  }
+}
 async function bindSrcFolder(el, job) {
   const card = el.querySelector('.sfcard'); if (!card) return;
   if (!(window.kh && window.kh.listDir)) { const dz = card.querySelector('#sfDel'); if (dz) dz.addEventListener('click', () => { if (!confirm('Фолдерыг салгах уу?')) return; job.quote.srcFolder = ''; job.quote.srcFiles = []; save(); renderJobMain(); }); return; }
   const q = job.quote; jx(job);
-  const pk = card.querySelector('#sfPick'); if (pk) pk.addEventListener('click', async () => { const d = await window.kh.pickDir(); if (d) { q.srcFolder = d; jobLog('Фолдер холбосон: ' + d, job); save(); renderJobMain(); } });
+  const pk = card.querySelector('#sfPick'); if (pk) pk.addEventListener('click', async () => { const d = await window.kh.pickDir(); if (d) { q.srcFolder = d; SF_CACHE._force = 1; jobLog('Фолдер холбосон: ' + d, job); save(); renderJobMain(); } });
   const op = card.querySelector('#sfOpen'); if (op) op.addEventListener('click', async () => { const e = await window.kh.openPath(q.srcFolder); if (e) toast('Фолдер олдсонгүй'); });
   const dz = card.querySelector('#sfDel'); if (dz) dz.addEventListener('click', () => { if (!confirm('Фолдерыг энэ ажил/саналаас салгах уу? (Компьютер дээрх файлууд устахгүй)')) return; jobLog('Фолдер салгасан: ' + q.srcFolder, job); q.srcFolder = ''; q.srcFiles = []; save(); renderJobMain(); });
-  const rr = card.querySelector('#sfRe'); if (rr) rr.addEventListener('click', () => renderJobMain());
+  const rr = card.querySelector('#sfRe'); if (rr) rr.addEventListener('click', () => { SF_CACHE._force = 1; renderJobMain(); });
   if (!q.srcFolder) return;
   const list = card.querySelector('#sfList'), n = card.querySelector('#sfN');
-  let r; try { r = await window.kh.listDir(q.srcFolder); } catch (e) { r = { error: e.message }; }
+  const ck = q.srcFolder, hit = SF_CACHE[ck]; let r;
+  if (hit && !SF_CACHE._force && Date.now() - hit.t < 120e3) r = hit.r; else { SF_CACHE._force = 0; n.textContent = '…'; try { r = await window.kh.listDir(q.srcFolder); } catch (e) { r = { error: e.message }; } if (r && !r.error) SF_CACHE[ck] = { t: Date.now(), r }; }
   if (!list.isConnected) return;
   if (!r || r.error) { n.textContent = '!'; list.innerHTML = `<p class="note">Фолдер олдсонгүй: ${esc(q.srcFolder)}. Өөр компьютер эсвэл зөөгдсөн байж магадгүй — «Фолдер солих».</p>`; return; }
-  const F = r.files.sort((a, b) => (/\.(xlsx|pdf)$/i.test(b.rel) && /^SQ/i.test(b.rel)) - (/\.(xlsx|pdf)$/i.test(a.rel) && /^SQ/i.test(a.rel)) || b.mtime - a.mtime);
+  const F = r.files.slice().sort((a, b) => (/\.(xlsx|pdf)$/i.test(b.rel) && /^SQ/i.test(b.rel)) - (/\.(xlsx|pdf)$/i.test(a.rel) && /^SQ/i.test(a.rel)) || b.mtime - a.mtime);
   n.textContent = F.length;
-  list.innerHTML = F.map((f, i) => { const img = /\.(png|jpe?g|gif|webp|bmp)$/i.test(f.rel); return `<figure class="jf" data-sf="${i}" title="${esc(f.rel)}"><div class="th">${img ? `<img loading="lazy" src="${fileUrl(f.path)}" alt="">` : `<span class="ext">${esc(jfExt(f.rel))}</span>`}</div><figcaption><b>${esc(f.rel.split('/').pop())}</b><small>${f.rel.includes('/') ? esc(f.rel.split('/').slice(0, -1).join('/')) + ' · ' : ''}${fsz(f.size)} · ${new Date(f.mtime).toISOString().slice(0, 10)}</small></figcaption>${jfCanSplit({ name: f.rel }) ? `<button class="btn sm ghost jfsplit" data-sfs="${i}">⚙ BOM / зүсэлт</button>` : ''}</figure>`; }).join('') || '<p class="note">Фолдер хоосон байна.</p>';
+  list.innerHTML = F.map((f, i) => { const img = /\.(png|jpe?g|gif|webp|bmp)$/i.test(f.rel); return `<figure class="jf" data-sf="${i}" title="${esc(f.rel)}"><div class="th">${img ? (window.kh.thumb ? `<img data-th="${esc(f.path)}" alt="">` : `<img loading="lazy" decoding="async" src="${fileUrl(f.path)}" alt="">`) : `<span class="ext">${esc(jfExt(f.rel))}</span>`}</div><figcaption><b>${esc(f.rel.split('/').pop())}</b><small>${f.rel.includes('/') ? esc(f.rel.split('/').slice(0, -1).join('/')) + ' · ' : ''}${fsz(f.size)} · ${new Date(f.mtime).toISOString().slice(0, 10)}</small></figcaption>${jfCanSplit({ name: f.rel }) ? `<button class="btn sm ghost jfsplit" data-sfs="${i}">⚙ BOM / зүсэлт</button>` : ''}</figure>`; }).join('') || '<p class="note">Фолдер хоосон байна.</p>';
+  sfThumbs(list);
   const src = async i => { const f = F[i], name = f.rel.split('/').pop(), ext = (name.split('.').pop() || '').toLowerCase(); const buf = await window.kh.readFile(f.path); const blob = new Blob([buf], { type: MIME[ext] || '' }); return { f: { name, type: MIME[ext] || '', size: f.size, path: f.path }, d: { blob } }; };
   list.addEventListener('click', async e => {
     const sp = e.target.closest('[data-sfs]'), fig = e.target.closest('[data-sf]');

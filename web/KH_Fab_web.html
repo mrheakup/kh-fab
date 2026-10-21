@@ -390,7 +390,7 @@ tr.rcut td:first-child{box-shadow:inset 3px 0 0 var(--accent)}
 
 /* jobs module views: quotes / jobs / dashboard / documents */
 html[data-jview="docs"] [data-jtab="jobs"]{display:none}
-html:not([data-jview="docs"]) [data-jtab="kits"],html:not([data-jview="docs"]) [data-jtab="certs"],html:not([data-jview="docs"]) [data-jtab="dockets"]{display:none}
+html:not([data-jview="docs"]) [data-jtab="kits"],html:not([data-jview="docs"]) [data-jtab="certs"],html:not([data-jview="docs"]) [data-jtab="dockets"],html:not([data-jview="docs"]) [data-jtab="forms"]{display:none}
 html[data-jview="quotes"] #jFilter,html[data-jview="jobs"] #jFilter,html[data-jview="quotes"] #jNew,html[data-jview="jobs"] #qNew,html[data-jview="jobs"] #qImp,html[data-jview="dash"] #qImp{display:none}
 /* team & tasks */
 .av{display:inline-grid;place-items:center;border-radius:50%;color:#fff;font-weight:700;flex:none;line-height:1}.av.none{background:var(--surface-2);color:var(--ink-3);box-shadow:inset 0 0 0 1px var(--line);font-size:11px}
@@ -513,6 +513,20 @@ html[data-skin="modern"][data-var="bento"] .summary>.stat:nth-child(1) .k,html[d
 html[data-skin="modern"][data-var="bento"] .jitem{border-color:transparent;border-radius:16px}html[data-skin="modern"][data-var="bento"] .jitem.on{background:#fff;border-color:var(--accent)}
 html[data-skin="modern"][data-var="bento"] .btn{border-radius:999px}html[data-skin="modern"][data-var="bento"] .fld input,html[data-skin="modern"][data-var="bento"] .fld select,html[data-skin="modern"][data-var="bento"] .inp{border-radius:12px}
 html[data-skin="modern"][data-var="bento"] .stepper{border-radius:999px;background:#fff}html[data-skin="modern"][data-var="bento"] .stepper button{border-radius:999px}html[data-skin="modern"][data-var="bento"] .stepper button.on{background:#141414;color:#fff}
+/* labels vs values: a label is small, semibold and muted; the value is full-size ink */
+label.fld,.fld>.flab{font-size:11.5px;font-weight:600;color:var(--ink-3);letter-spacing:.01em}
+.fld input,.fld select,.fld textarea{font-size:13.5px;font-weight:400;color:var(--ink);letter-spacing:0}
+.fld>.flab{display:block;margin-bottom:4px}
+.qfsec{border-top:1px solid var(--line);padding-top:10px;margin-top:12px}
+.qfsec-t{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);margin-bottom:8px}
+.qfform{display:flex;flex-wrap:wrap;align-items:center;gap:8px;background:var(--accent-soft);border-radius:10px;padding:8px 10px}
+.qfform .qfsec-t{margin:0}.qfform select{flex:1 1 220px;max-width:340px}.qfform-n{font-size:12px;flex:1 1 100%}
+.clist li>.inp{font-weight:600}
+.clist li.sub{list-style:none;margin-left:26px;position:relative}.clist li.sub::before{content:"–";position:absolute;left:-14px;color:var(--ink-3)}
+.clist li.sub>.inp{font-weight:400;font-size:12.5px;color:var(--ink-2);border-style:dashed}
+.bitem.fmi{grid-template-columns:1fr;display:block}.fld textarea{font-family:inherit;line-height:1.45}
+.fmorg{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);margin:12px 2px 4px}
+.fmlog{margin:0;padding-left:18px;display:grid;gap:3px;font-size:12.5px;max-height:260px;overflow:auto}
 </style>
 
 <div class="app" id="app">
@@ -639,6 +653,7 @@ html[data-skin="modern"][data-var="bento"] .stepper{border-radius:999px;backgrou
       <button data-jtab="kits">Иж бүрдэл <span class="badge" id="cntKits"></span></button>
       <button data-jtab="certs">Гэрчилгээ</button>
       <button data-jtab="dockets">Packing list</button>
+      <button data-jtab="forms">Маягт</button>
     </nav>
     <div class="panel-body">
       <section id="jtab-jobs">
@@ -678,6 +693,12 @@ html[data-skin="modern"][data-var="bento"] .stepper{border-radius:999px;backgrou
         <div class="ptools"><button class="btn primary" id="dkNew">+ Шинэ Packing list</button></div>
         <input id="dkSearch" class="inp" placeholder="Хайх: №, захиалагч, PO, бараа…" style="margin:10px 0">
         <div id="dkList" class="plist"></div>
+      </section>
+      <section id="jtab-forms" hidden>
+        <p class="hint">Байгууллага тус бүрийн үнийн саналын маягт — нөхцөл, үнэд багтсан/ороогүй, тэмдэглэл. Үнийн санал дээр захиалагч сонгоход ★ маягт автоматаар орно; санал дээр нөхцөлөө засахад энд бүртгэгдэнэ.</p>
+        <div class="ptools"><button class="btn primary" id="fmNew">+ Шинэ маягт</button></div>
+        <input id="fmSearch" class="inp" placeholder="Хайх: байгууллага, маягт…" style="margin:10px 0">
+        <div id="fmList" class="plist"></div>
       </section>
       <section id="jtab-certs" hidden>
         <p class="hint">Ирсэн хавтангийн гэрчилгээ (heat/хайлалтын дугаар). Зүсэлт бүртгэхэд аль хайлалтаас хэрэглэснийг сонгож ISO ул мөрийг хадгална.</p>
@@ -4586,7 +4607,34 @@ const I18N_EN = {
 "Нэхэмжлээгүй дууссан ажил": "Finished jobs not invoiced",
 "хүлээлгэсэн ч нэхэмжлэл үүсгээгүй": "delivered but no invoice",
 "Нэхэмжлэл": "Invoice",
-"Үлдэгдэл, ₮": "Balance, ₮"
+"Үлдэгдэл, ₮": "Balance, ₮",
+"Ажил · RFQ": "Job · RFQ",
+"Нөхцөл": "Terms",
+"Агуулга": "Content",
+"＋ Шинэ маягт болгох": "＋ Save as new form",
+"— Маягтгүй (зөвхөн энэ санал) —": "— No form (this quote only) —",
+"Бусад байгууллагын маягт": "Other organisations' forms",
+"Энэ байгууллага": "This organisation",
+"Захиалагч сонгоход тухайн байгууллагын маягт орно": "Pick a customer to load that organisation's form",
+"Маягт сонгоогүй — өөрчлөлт зөвхөн энэ саналд": "No form selected — changes stay on this quote",
+"Энэ байгууллагад маягт алга — нөхцөлөө засахад автоматаар бүртгэгдэнэ": "No form for this organisation yet — edit the terms and it is registered automatically",
+"Энэ саналын нөхцөлөөр шинэ маягт үүсгэж Баримт бичигт бүртгэнэ": "Create a new form from this quote's terms and register it in Documents",
+"Байгууллагын маягтууд": "Organisation forms",
+"+ Шинэ маягт": "+ New form",
+"Маягтын нэр": "Form name",
+"Үндсэн (★)": "Default (★)",
+"Тийм — шинэ саналд автоматаар орно": "Yes — loads into new quotes automatically",
+"Үгүй — гараар сонгоно": "No — pick by hand",
+"🖨 Жишээ хэвлэх": "🖨 Print sample",
+"Бүртгэл — өөрчлөлт, ашигласан": "Register — changes and use",
+"Хайх: байгууллага, маягт…": "Search: organisation, form…",
+"Шинэчилсэн": "Updated",
+"Үндсэн маягт": "Main form",
+"Байгууллага тус бүрийн үнийн саналын маягт — нөхцөл, үнэд багтсан/ороогүй, тэмдэглэл. Үнийн санал дээр захиалагч сонгоход ★ маягт автоматаар орно; санал дээр нөхцөлөө засахад энд бүртгэгдэнэ.": "Each organisation's quotation form — terms, included / excluded, notes. Picking a customer on a quote loads its ★ form; editing the terms on a quote registers them here.",
+"Packing list, маягт, иж бүрдэл, гэрчилгээ": "Packing lists, forms, kits, certificates",
+"Маягт алга": "No forms",
+"Хэсгээр": "By section",
+"Excel-ийн мөрүүд": "Excel lines"
 };
 /* ================= KH Fab — language (МН / EN) and theme (Day / Night) =================
    The UI is written in Mongolian. In English mode every Mongolian fragment that reaches the
@@ -6169,12 +6217,14 @@ function remNo() { return 'R-' + String(++S.remSeq).padStart(4, '0'); }
 let saveT = 0;
 let saveWarned = false;
 function saveNow(sync) {
-  clearTimeout(saveT); S._saved = Date.now(); const txt = JSON.stringify(S);
+  clearTimeout(saveT); saveT = 0; S._saved = Date.now(); const txt = JSON.stringify(S);
   if (window.kh && window.kh.dataSave) { try { if (sync && window.kh.dataSaveSync) window.kh.dataSaveSync(txt); else window.kh.dataSave(txt).then(r => { if (r && r.error) toast('⚠ Хадгалж чадсангүй: ' + r.error, 8000); else { try { localStorage.removeItem(KEY); } catch (e) { } } }); } catch (e) { toast('Хадгалж чадсангүй: ' + e.message); } return; }
   try { localStorage.setItem(KEY, txt); } catch (e) { if (!saveWarned) { saveWarned = true; toast('⚠ Хөтчийн санах ой дүүрсэн — өгөгдөл хадгалагдсангүй! Desktop програм ашиглах эсвэл «Төсөл хадгалах»-аар нөөцлөнө үү.', 9000); } }
 }
-function save() { clearTimeout(saveT); saveT = setTimeout(() => saveNow(false), 250); }
+/* saves are batched: typing / clicking never waits for the whole state to be serialised */
+function save() { clearTimeout(saveT); saveT = setTimeout(() => { if (window.requestIdleCallback) requestIdleCallback(() => saveNow(false), { timeout: 2000 }); else saveNow(false); }, 1200); }
 window.addEventListener('beforeunload', () => { if (saveT) saveNow(true); });
+document.addEventListener('visibilitychange', () => { if (document.hidden && saveT) saveNow(false); });
 
 let R = null;            // nesting result
 let V = { g: 0, l: 0, k: 1, px: 0, py: 0, labels: true, hover: null, rtab: 'sheets', edit: false, sel: null, drag: null, path: false };
@@ -7473,7 +7523,7 @@ function renderQuote(el) {
     <div class="qtot"><div><span>Дүн</span><span>${nf(d.sub)} ₮</span></div>${S.quote.vat ? `<div><span>НӨАТ 10%</span><span>${nf(d.vat)} ₮</span></div>` : ''}<div class="big"><span>Нийт</span><span>${nf(d.total)} ₮</span></div><div class="muted" style="font-size:12px"><span>Өртөг</span><span>${nf(d.cost)} ₮</span></div></div>
     <div id="qfNest"></div>
     <div class="addrow"><button class="btn" id="qPdf">Задаргаа PDF (дотоод)</button><span class="note">Материалын өртгийг партын талбайгаар, зүсэлтийн өртгийг зүсэх уртаар хуваарилж, ашгийн хувийг нэмсэн.</span></div>`;
-  [...QF.map(f => f[0]), 'note'].forEach(k => $('#q_' + k).addEventListener('change', e => { S.quote[k] = e.target.type === 'number' ? Math.max(0, +e.target.value || 0) : e.target.value; if (k === 'customer' && e.target.value.trim() && typeof orgLearn === 'function') { orgLearn({ org: e.target.value }); if (S.quote.qf) qfFillFromDir(S.quote.qf, e.target.value); } save(); renderQuote(el); }));
+  [...QF.map(f => f[0]), 'note'].forEach(k => $('#q_' + k).addEventListener('change', e => { S.quote[k] = e.target.type === 'number' ? Math.max(0, +e.target.value || 0) : e.target.value; if (k === 'customer' && e.target.value.trim() && typeof orgLearn === 'function') { orgLearn({ org: e.target.value }); if (S.quote.qf) { formAuto(S.quote.qf, e.target.value); qfFillFromDir(S.quote.qf, e.target.value); } } save(); renderQuote(el); }));
   $('#q_vat').addEventListener('change', e => { S.quote.vat = e.target.checked; save(); renderQuote(el); });
   $('#qPdf').addEventListener('click', quotePdf);
   { const box = $('#qfNest'), J0 = nestQuoteJob(); box.innerHTML = qfCardHTML(J0); bindQfCard(box, J0); }
@@ -7535,7 +7585,7 @@ $('#projFile').addEventListener('change', async e => {
 /* ---------- init ---------- */
 function renderAll() { renderParts(); renderDefaults(); renderStock(); renderSettings(); renderResults(); }
 renderAll();
-runNesting(true);
+setTimeout(() => runNesting(true), 0);
 
 /* ---------- text dialog ---------- */
 let tMode = 'letters', tRes = null, tTimer = 0;
@@ -7957,8 +8007,8 @@ function jobMoney(job) {
 const daysLeft = d => d ? Math.round((new Date(d + 'T00:00:00') - new Date(today() + 'T00:00:00')) / 864e5) : null;
 
 /* ---------- side panel ---------- */
-$$('[data-jtab]').forEach(b => b.addEventListener('click', () => { J.tab = b.dataset.jtab; $$('[data-jtab]').forEach(x => x.classList.toggle('on', x === b)); ['jobs', 'kits', 'certs', 'dockets'].forEach(t => $('#jtab-' + t).hidden = t !== J.tab); renderJobs(); }));
-function renderJobs() { renderJList(); renderKList(); renderCertSide(); renderDockSide(); renderJobMain(); }
+$$('[data-jtab]').forEach(b => b.addEventListener('click', () => { J.tab = b.dataset.jtab; $$('[data-jtab]').forEach(x => x.classList.toggle('on', x === b)); ['jobs', 'kits', 'certs', 'dockets', 'forms'].forEach(t => $('#jtab-' + t).hidden = t !== J.tab); renderJobs(); }));
+function renderJobs() { renderJList(); renderKList(); renderCertSide(); renderDockSide(); renderFormSide(); renderJobMain(); }
 function renderJList() {
   $('#cntJobs').textContent = S.jobs.filter(j => isQ(j) ? j.qst !== 'lost' : !['done', 'given'].includes(j.status)).length || '';
   { const v = document.documentElement.dataset.jview, sg = $('#jSeg'), fv = $('#jFilter').value, opts = v === 'quotes' ? [['quotes', 'Идэвхтэй'], ['closed', 'Татгалзсан'], ['all', 'Бүгд']] : v === 'jobs' ? [['jobs', 'Идэвхтэй'], ['closed', 'Архив'], ['all', 'Бүгд']] : null;
@@ -8006,7 +8056,7 @@ function kitFromParts() {
 $('#kFromParts').addEventListener('click', () => { if (kitFromParts()) { renderJobs(); toast('Иж бүрдэл үүслээ — нэрийг нь өгнө үү'); } });
 $('#btnKitFrom').addEventListener('click', () => {
   if (!kitFromParts()) return;
-  J.tab = 'kits'; $$('[data-jtab]').forEach(x => x.classList.toggle('on', x.dataset.jtab === 'kits')); ['jobs', 'kits', 'certs', 'dockets'].forEach(t => $('#jtab-' + t).hidden = t !== 'kits');
+  J.tab = 'kits'; $$('[data-jtab]').forEach(x => x.classList.toggle('on', x.dataset.jtab === 'kits')); ['jobs', 'kits', 'certs', 'dockets', 'forms'].forEach(t => $('#jtab-' + t).hidden = t !== 'kits');
   setModule('docs'); toast('Иж бүрдэл үүслээ — нэрийг нь өгнө үү');
 });
 
@@ -8027,6 +8077,7 @@ function renderJobMain() {
   if (J.tab === 'kits') { if (J.bucket) renderBucketMain(el); else renderKitMain(el); return; }
   if (J.tab === 'certs') { renderCertMain(el); return; }
   if (J.tab === 'dockets') { renderDocketMain(el); return; }
+  if (J.tab === 'forms') { renderFormMain(el); return; }
   if (J.dash && S.jobs.length) { renderDash(el); return; }
   const job = findJob(J.sel) || findJob(S.activeJob) || S.jobs[0];
   if (!job) { el.innerHTML = '<div class="jempty"><b>Ажил алга</b><br>Зүүн талын <b>+ Шинэ ажил</b> товчоор ажлын дугаар үүсгэнэ. Дугаар нь <span class="mono">KH-' + new Date().getFullYear() + '-001</span> хэлбэртэй, жил бүр шинээр эхэлнэ.</div>'; return; }
@@ -8095,7 +8146,7 @@ function renderJobMain() {
   { const nd = el.querySelector('#jf_need'); if (nd) nd.addEventListener('change', () => { job.need = nd.value.trim(); if (job.need) jobLog('Тэмдэглэл: ' + job.need, job); save(); renderJList(); }); }
   { const v = J.sub === 'prod' ? 'prod' : 'main'; el.querySelectorAll('[data-v]').forEach(n => { n.hidden = n.dataset.v !== v; }); el.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => { J.sub = b.dataset.go === 'make' ? (J.mk || 'prod') : b.dataset.go; renderJobMain(); })); }
   // field bindings
-  ['no', 'title', 'customer', 'due', 'note'].forEach(k => $('#jf_' + k).addEventListener('change', ev => { const v = ev.target.value.trim(); if (k === 'no' && !v) return; if (k === 'no') { job.no = v; job.short = (v.match(/(\d+)\s*$/) || [, v])[1]; } else job[k] = v; if (k === 'customer' && v) { orgLearn({ org: v }); if (job.quote && job.quote.qf && qfFillFromDir(job.quote.qf, v)) toast('Захиалагчийн хаяг, ID үнийн саналд бөглөгдлөө'); } save(); renderJList(); }));
+  ['no', 'title', 'customer', 'due', 'note'].forEach(k => $('#jf_' + k).addEventListener('change', ev => { const v = ev.target.value.trim(); if (k === 'no' && !v) return; if (k === 'no') { job.no = v; job.short = (v.match(/(\d+)\s*$/) || [, v])[1]; } else job[k] = v; if (k === 'customer' && v) { orgLearn({ org: v }); if (job.quote && job.quote.qf) { if (formAuto(job.quote.qf, v)) toast('📄 «' + v + '» маягт үнийн саналд орлоо'); else if (qfFillFromDir(job.quote.qf, v)) toast('Захиалагчийн хаяг, ID үнийн саналд бөглөгдлөө'); } } save(); renderJList(); }));
   $('#jf_status').addEventListener('change', ev => { const o = jstName(job.status); job.status = ev.target.value; jobLog(`Төлөв: ${o} → ${jstName(job.status)}`, job); renderJList(); renderJobMain(); });
   ['hours', 'kg', 'other'].forEach(k => $('#ja_' + k).addEventListener('change', ev => { job.act[k] = ev.target.value; save(); renderJobMain(); }));
   $('#jf_price').addEventListener('change', ev => { job.price = Math.max(0, +ev.target.value || 0); save(); renderJobMain(); });
@@ -8567,7 +8618,7 @@ function bindSubBar(el) {
   const job = findJob(J.sel); if (!job || job.kind !== 'quote') return;
   const qn = el.querySelector('#qb_no'); if (qn) qn.addEventListener('change', () => { const v = qn.value.trim(); if (!v) { qn.value = job.quote.no; return; } if (S.jobs.some(j => j !== job && ((j.quote && j.quote.no) === v || j.no === v))) toast('Анхаар: ' + v + ' дугаар өөр санал/ажилд байна'); job.quote.no = v; job.no = v; save(); renderJList(); });
   const c = el.querySelector('#qb_cust'), t = el.querySelector('#qb_title'), st = el.querySelector('#qb_st');
-  if (c) c.addEventListener('change', () => { job.customer = c.value.trim(); if (job.customer) { orgLearn({ org: job.customer }); if (job.quote.qf) qfFillFromDir(job.quote.qf, job.customer); } save(); renderJList(); renderJobMain(); });
+  if (c) c.addEventListener('change', () => { job.customer = c.value.trim(); if (job.customer) { orgLearn({ org: job.customer }); if (job.quote.qf) { qfFillFromDir(job.quote.qf, job.customer); if (formAuto(job.quote.qf, job.customer)) toast('📄 «' + job.customer + '» маягт үнийн саналд орлоо'); } } save(); renderJList(); renderJobMain(); });
   if (t) t.addEventListener('change', () => { job.title = t.value.trim(); if (job.quote.qf && !job.quote.qf.title) { job.quote.qf.title = job.title; job.quote.qf.rfqName = job.quote.qf.rfqName || job.title; } save(); renderJList(); renderJobMain(); });
   const dir = el.querySelector('#qb_dir'); if (dir) dir.addEventListener('click', async () => { if (window.kh && window.kh.openPath) { const e = await window.kh.openPath(job.quote.srcFolder); if (e) toast('Фолдер олдсонгүй: ' + job.quote.srcFolder); } else toast(job.quote.srcFolder); });
   const ow = el.querySelector('#qb_owner'); if (ow) ow.addEventListener('change', () => { job.owner = ow.value; jobLog('Хариуцагч: ' + (pName(job.owner) || '—'), job); renderJList(); });
@@ -9633,6 +9684,7 @@ function qfDefaults(job) {
   if (q.qf) return q.qf;
   q.qf = { custId: '', rfqName: job.title || '', rfqNo: 'N/A', person: '', email: '', phone: '', address: '', lead: '', delivery: "Kh will delivery customer's WHS", pay: '100% after work completion', discount: 0, mode: 'single', note: QF_NOTE,
     incl: (sc.incl ? sc.incl.split(/\n|;/) : []).map(s => s.trim()).filter(Boolean).join('\n') || 'All consumables required for the work are included in the quoted price.', excl: (sc.excl || '').split(/\n|;/).map(s => s.trim()).filter(Boolean).join('\n'), title: job.title || '' };
+  if (job.customer) formAuto(q.qf, job.customer);
   return q.qf;
 }
 /* line items for the form, net of VAT, margin spread so the sum = offer */
@@ -9723,17 +9775,17 @@ async function quoteFormOut(job, mode) {
     if (mode === 'print') printImgs(imgs, false, 'letter', name); else { pdfImgs(imgs, false, name, 'letter'); if (!job._nest) jobLog('Үнийн санал (Kh загвар) PDF гаргасан', job); } }
   catch (e) { console.error(e); toast('Алдаа: ' + e.message); }
 }
+const qfOrg = job => job._nest ? (S.quote.customer || '') : (job.customer || '');
 function qfCardHTML(job) {
   const f = qfDefaults(job), C = company();
   return `<div class="jcard"><div class="bcard-h">Захиалагчид өгөх үнийн санал — Kh International загвар <span class="sp"></span><span class="outb"><button class="btn primary" data-qf="pdf">Үнийн санал PDF</button><button class="btn ghost" data-qf="print">🖨 Хэвлэх</button></span></div><div class="jbody qfwrap"><div class="qfprevbox" title="Урьдчилан харах — дарж томруулна"><img class="qfprev" alt="Үнийн санал"></div><div class="qffields">
-    <div class="jgrid">
-      ${fldIn('qf_title', 'Ажлын нэр (Description)', f.title)}${fldIn('qf_rfqName', 'RFQ name', f.rfqName)}${fldIn('qf_rfqNo', 'RFQ number', f.rfqNo)}${fldIn('qf_custId', 'Customer ID', f.custId)}
-      ${fldIn('qf_person', 'Name / Position', f.person, { list: 'dl-person', ph: 'Нэр (албан тушаал)' })}${fldIn('qf_email', 'Email', f.email)}${fldIn('qf_phone', 'Phone number', f.phone)}${fldIn('qf_lead', 'Lead time', f.lead, { ph: '5 business days' })}
-      ${fldIn('qf_address', "Customer's address", f.address)}${fldIn('qf_pay', 'Payment term', f.pay)}${fldIn('qf_delivery', 'Delivery term', f.delivery)}${fldIn('qf_discount', 'Discount, ₮', f.discount || '', { num: 1 })}
-      <label class="fld">Мөрийн хэлбэр<select id="qf_mode"><option value="single"${f.mode === 'single' ? ' selected' : ''}>Нэг мөр (set × 1)</option><option value="sections"${f.mode === 'sections' ? ' selected' : ''}>Хэсгээр (материал, хүч, тоног…)</option><option value="detail"${f.mode === 'detail' ? ' selected' : ''}>Дэлгэрэнгүй (мөр бүр)</option>${Array.isArray(job.quote && job.quote.lines) && job.quote.lines.length ? `<option value="fixed"${f.mode === 'fixed' ? ' selected' : ''}>Excel-ээс оруулсан мөрүүд (${job.quote.lines.length})</option>` : ''}</select></label>
-    </div>
-    ${fldIn('qf_note', 'Special note', f.note, { area: 1, rows: 2 })}
-    <div class="jgrid qfcl"><div class="fld">Quote included — үнэд багтсан<div class="clbox" data-ck="incl"></div></div><div class="fld">Quote excluded — үнэд ороогүй<div class="clbox" data-ck="excl"></div></div></div>
+    ${qfFormBarHTML(f, qfOrg(job))}
+    <div class="qfsec"><div class="qfsec-t">Ажил · RFQ</div><div class="jgrid">${fldIn('qf_title', 'Ажлын нэр (Description)', f.title)}${fldIn('qf_rfqName', 'RFQ name', f.rfqName)}${fldIn('qf_rfqNo', 'RFQ number', f.rfqNo)}</div></div>
+    <div class="qfsec"><div class="qfsec-t">Захиалагч</div><div class="jgrid">${fldIn('qf_custId', 'Customer ID', f.custId)}${fldIn('qf_person', 'Name / Position', f.person, { list: 'dl-person', ph: 'Нэр (албан тушаал)' })}${fldIn('qf_email', 'Email', f.email)}${fldIn('qf_phone', 'Phone number', f.phone)}${fldIn('qf_address', "Customer's address", f.address)}</div></div>
+    <div class="qfsec"><div class="qfsec-t">Нөхцөл</div><div class="jgrid">${fldIn('qf_lead', 'Lead time', f.lead, { ph: '5 business days' })}${fldIn('qf_pay', 'Payment term', f.pay)}${fldIn('qf_delivery', 'Delivery term', f.delivery)}${fldIn('qf_discount', 'Discount, ₮', f.discount || '', { num: 1 })}
+      <label class="fld">Мөрийн хэлбэр<select id="qf_mode"><option value="single"${f.mode === 'single' ? ' selected' : ''}>Нэг мөр (set × 1)</option><option value="sections"${f.mode === 'sections' ? ' selected' : ''}>Хэсгээр (материал, хүч, тоног…)</option><option value="detail"${f.mode === 'detail' ? ' selected' : ''}>Дэлгэрэнгүй (мөр бүр)</option>${Array.isArray(job.quote && job.quote.lines) && job.quote.lines.length ? `<option value="fixed"${f.mode === 'fixed' ? ' selected' : ''}>Excel-ээс оруулсан мөрүүд (${job.quote.lines.length})</option>` : ''}</select></label></div></div>
+    <div class="qfsec"><div class="qfsec-t">Агуулга</div>${fldIn('qf_note', 'Special note', f.note, { area: 1, rows: 2 })}
+    <div class="jgrid qfcl"><div class="fld"><span class="flab">Quote included — үнэд багтсан</span><div class="clbox" data-ck="incl"></div></div><div class="fld"><span class="flab">Quote excluded — үнэд ороогүй</span><div class="clbox" data-ck="excl"></div></div></div></div>
     <details><summary class="note" style="cursor:pointer">Компанийн мэдээлэл (загварын толгой, банк, регистр)</summary><div class="jgrid" style="margin-top:8px">${[['name', 'Компанийн нэр'], ['tag', 'Уриа'], ['a1', 'Хаяг 1'], ['a2', 'Хаяг 2'], ['a3', 'Хаяг 3'], ['bank', 'Bank account'], ['reg', 'Registration'], ['currency', 'Currency']].map(([k, n]) => fldIn('co_' + k, n, C[k])).join('')}</div></details>
   </div></div></div>`;
 }
@@ -9747,8 +9799,11 @@ function bindQfCard(el, job) {
   const m = el.querySelector('#qf_mode'); if (m) m.addEventListener('change', () => { f.mode = m.value; save(); });
   Object.keys(CO_DEF).forEach(k => { const i = el.querySelector('#co_' + k); if (i) i.addEventListener('change', () => { C[k] = i.value; S.company = C; save(); }); });
   el.querySelectorAll('[data-qf]').forEach(b => b.addEventListener('click', () => quoteFormOut(job, b.dataset.qf)));
-  const img = el.querySelector('.qfprev'); let tm = 0;
-  const refresh = () => { clearTimeout(tm); tm = setTimeout(() => quoteFormImgs(job, PREV_K).then(im => { if (img.isConnected) { img.src = im[0].url; img._imgs = im; } }).catch(() => { }), 150); };
+  bindQfFormBar(el, job, f, orgName(), () => { if (job._nest) renderTable(); else renderJobMain(); });
+  const img = el.querySelector('.qfprev'); let tm = 0, syT = 0;
+  const reBar = () => { const b = el.querySelector('.qfform'); if (!b) return; b.outerHTML = qfFormBarHTML(f, orgName()); bindQfFormBar(el, job, f, orgName(), () => { if (job._nest) renderTable(); else renderJobMain(); }); };
+  const sync = () => { clearTimeout(syT); syT = setTimeout(() => { const was = f.formId; formSync(f, orgName(), (job.quote && job.quote.no) || job.no); if (f.formId !== was) reBar(); }, 400); };
+  const refresh = () => { sync(); clearTimeout(tm); tm = setTimeout(() => quoteFormImgs(job, PREV_K).then(im => { if (img.isConnected) { img.src = im[0].url; img._imgs = im; } }).catch(() => { }), 150); };
   el.querySelector('.qffields').addEventListener('change', refresh);
   el.querySelectorAll('.clbox').forEach(b => clauseBox(b, f, b.dataset.ck, refresh)); refresh();
   el.querySelector('.qfprevbox').addEventListener('click', async () => { printImgs(await quoteFormImgs(job), false, 'letter', `${job.quote.no || job.no} - Quotation`, true); });
@@ -9782,6 +9837,7 @@ function clauseBox(box, f, k, refresh) {
 /* Nesting → «Үнийн санал» tab: same company form from the nesting result */
 function nestQuoteJob() {
   const q = S.quote; if (!q.qf) q.qf = { custId: '', rfqName: S.jobName || '', rfqNo: 'N/A', person: '', email: '', phone: '', address: '', lead: '', delivery: "Kh will delivery customer's WHS", pay: '100% after work completion', discount: 0, mode: 'detail', note: QF_NOTE, incl: 'Material and laser cutting are included in the quoted price.', excl: 'Bending, welding and painting are not included.', title: S.jobName || '' };
+  if (q.customer) formAuto(q.qf, q.customer);
   const fn = () => { const d = quoteData(); if (q.qf.mode === 'single') return [{ d: q.qf.title || S.jobName || 'Laser cutting', u: 'set', q: 1, p: d.sub }];
     const lines = d.lines.map(l => ({ d: `${l.p.name} — ${l.g.label}, ${nf(l.p.info.w, 0)}×${nf(l.p.info.h, 0)} mm`, u: 'pcs', q: l.n, p: l.unit }));
     if (d.setup) lines.push({ d: 'Setup / preparation', u: 'lot', q: 1, p: d.setup }); return lines; };
@@ -9875,6 +9931,131 @@ function renderOrgMain(el) {
   const s = $('#orgSearch'); if (s) s.addEventListener('input', () => { CT.q = s.value; renderOrgSide(); });
   const l = $('#orgList'); if (l) l.addEventListener('click', e => { const it = e.target.closest('[data-org]'); if (!it) return; CT.sel = CT.sel === it.dataset.org ? null : it.dataset.org; renderOrgSide(); renderOrgMain($('#infoMain')); });
 })();
+
+/* ================= Kh International — customer quotation forms («Маягт»), one or more per organisation =================
+   Баримт бичиг → «Маягт»: each organisation's ready quotation form (terms, included / excluded, special note,
+   contact, line style). A quote picks its organisation's form automatically (★ default) or by hand; edits made
+   on a linked quote are written back to the form and logged, so the form register stays current. */
+const FORM_K = ['lead', 'delivery', 'pay', 'mode', 'note', 'incl', 'excl', 'custId', 'address', 'person', 'email', 'phone', 'discount'];
+const FORM_SYNC = FORM_K.filter(k => k !== 'discount');           // one-off discount stays on the quote
+const forms = () => (S.forms = Array.isArray(S.forms) ? S.forms : []);
+const formOrgKey = n => { const o = orgFind(n); return lc(o ? o.name : n); };
+const formsOf = org => { const k = formOrgKey(org); return k ? forms().filter(f => formOrgKey(f.org) === k) : []; };
+const formDefOf = org => { const L = formsOf(org); return L.find(f => f.def) || L[0] || null; };
+const formById = id => forms().find(f => f.id === id) || null;
+const formNo = () => 'MF-' + String(S.formSeq = (S.formSeq || 0) + 1).padStart(3, '0');
+function formNew(org, from, name) {
+  const d = {}; FORM_K.forEach(k => d[k] = from && from[k] != null ? from[k] : '');
+  if (!from) Object.assign(d, { delivery: "Kh will delivery customer's WHS", pay: '100% after work completion', mode: 'single', note: QF_NOTE, incl: 'All consumables required for the work are included in the quoted price.' });
+  const f = { id: uid(), no: formNo(), org: String(org || '').trim(), name: name || 'Үндсэн маягт', def: !formsOf(org).length, d, created: today(), updated: today(), uses: 0, log: [{ t: today(), m: from ? 'Үнийн саналаас үүсгэсэн' : 'Шинээр үүсгэсэн' }] };
+  forms().push(f); save(); return f;
+}
+const formLog = (f, m) => { f.log = f.log || []; const last = f.log[f.log.length - 1]; if (last && last.t === today() && last.m === m) return; f.log.push({ t: today(), m }); if (f.log.length > 60) f.log.splice(0, f.log.length - 60); };
+/* copy a form into a quote form (qf) */
+function formApply(qf, f) {
+  FORM_K.forEach(k => { const v = f.d[k]; if (k === 'discount') { if (+v) qf.discount = +v; return; } if (v !== '' && v != null) qf[k] = v; });
+  qf.formId = f.id; f.uses = (f.uses || 0) + 1; save();
+}
+/* a new quote form for an organisation that has a ★ form starts from it */
+function formAuto(qf, org) { if (!qf || qf.formId || qf._formOff) return false; const f = formDefOf(org); if (!f) return false; formApply(qf, f); return true; }
+/* quote edited → keep its form current (or register a first form for the organisation) */
+const FORM_TOLD = new Set();
+function formSync(qf, org, quoteNo) {
+  if (!qf || !String(org || '').trim() || qf._formOff) return;
+  let f = qf.formId ? formById(qf.formId) : null;
+  if (!f && !formsOf(org).length) {
+    f = formNew(org, qf); qf.formId = f.id; formLog(f, 'Бүртгэсэн: ' + (quoteNo || 'үнийн санал'));
+    toast(`📄 «${(orgFind(org) || {}).name || org}» байгууллагын маягт Баримт бичигт бүртгэгдлээ (${f.no})`, 5000); return;
+  }
+  if (!f) return;
+  const ch = FORM_SYNC.filter(k => String(f.d[k] ?? '') !== String(qf[k] ?? '') && !(qf[k] === '' || qf[k] == null));
+  if (!ch.length) return;
+  ch.forEach(k => f.d[k] = qf[k]); f.updated = today(); formLog(f, `Шинэчилсэн (${quoteNo || 'үнийн санал'}): ` + ch.map(formKName).join(', ')); save();
+  if (!FORM_TOLD.has(f.id)) { FORM_TOLD.add(f.id); toast(`📄 Маягт ${f.no} «${f.name}» шинэчлэгдлээ — Баримт бичиг → Маягт`, 4000); }
+}
+const FORM_KN = { lead: 'Lead time', delivery: 'Delivery term', pay: 'Payment term', mode: 'Мөрийн хэлбэр', note: 'Special note', incl: 'Included', excl: 'Excluded', custId: 'Customer ID', address: 'Хаяг', person: 'Холбоо барих хүн', email: 'Email', phone: 'Утас', discount: 'Хөнгөлөлт' };
+const formKName = k => FORM_KN[k] || k;
+
+/* bar on the quote card: which form, pick / save / detach */
+function qfFormBarHTML(qf, org) {
+  const L = formsOf(org), cur = qf.formId ? formById(qf.formId) : null, other = forms().filter(f => !L.includes(f));
+  const o = f => `<option value="${f.id}"${cur === f ? ' selected' : ''}>${f.def ? '★ ' : ''}${esc(f.name)} · ${esc(f.no)}</option>`;
+  return `<div class="qfform"><span class="qfsec-t">Маягт</span><select class="inp" id="qfFormSel"><option value="">— Маягтгүй (зөвхөн энэ санал) —</option>${L.length ? `<optgroup label="${esc((orgFind(org) || {}).name || org || 'Энэ байгууллага')}">${L.map(o).join('')}</optgroup>` : ''}${other.length ? `<optgroup label="Бусад байгууллагын маягт">${other.map(f => `<option value="${f.id}"${cur === f ? ' selected' : ''}>${esc(f.org || '—')} — ${esc(f.name)}</option>`).join('')}</optgroup>` : ''}</select>
+    <button class="btn sm ghost" id="qfFormNew" title="Энэ саналын нөхцөлөөр шинэ маягт үүсгэж Баримт бичигт бүртгэнэ">＋ Шинэ маягт болгох</button>
+    <span class="muted qfform-n">${cur ? `Энд хийсэн өөрчлөлт маягт ${esc(cur.no)}-д автоматаар бүртгэгдэнэ` : org ? (L.length ? 'Маягт сонгоогүй — өөрчлөлт зөвхөн энэ саналд' : 'Энэ байгууллагад маягт алга — нөхцөлөө засахад автоматаар бүртгэгдэнэ') : 'Захиалагч сонгоход тухайн байгууллагын маягт орно'}</span></div>`;
+}
+function bindQfFormBar(el, job, qf, org, rerender) {
+  const s = el.querySelector('#qfFormSel'); if (!s) return;
+  s.addEventListener('change', () => {
+    if (!s.value) { qf.formId = ''; qf._formOff = 1; save(); rerender(); return; }
+    const f = formById(s.value); if (!f) return; qf._formOff = 0; formApply(qf, f); formLog(f, 'Ашигласан: ' + ((job.quote || {}).no || job.no || 'үнийн санал')); toast(`Маягт «${f.name}» орлоо`); rerender();
+  });
+  el.querySelector('#qfFormNew').addEventListener('click', () => {
+    if (!org) { toast('Эхлээд захиалагч (байгууллага) оруулна уу'); return; }
+    const nm = prompt('Маягтын нэр (жишээ нь: Засвар, Шинэ үйлдвэрлэл, Шанага)', formsOf(org).length ? 'Маягт ' + (formsOf(org).length + 1) : 'Үндсэн маягт'); if (nm == null) return;
+    const f = formNew(org, qf, nm.trim() || 'Маягт'); qf.formId = f.id; qf._formOff = 0; save(); toast(`📄 ${f.no} «${f.name}» Баримт бичигт бүртгэгдлээ`); rerender();
+  });
+}
+
+/* ---------- Баримт бичиг → Маягт (side list + editor) ---------- */
+const FM = { sel: null, q: '' };
+function renderFormSide() {
+  const box = $('#fmList'); if (!box) return; const q = lc(FM.q);
+  const L = forms().filter(f => !q || lc([f.org, f.name, f.no].join(' ')).includes(q));
+  const G = {}; L.forEach(f => { const k = (orgFind(f.org) || {}).name || f.org || '— Байгууллагагүй —'; (G[k] = G[k] || []).push(f); });
+  box.innerHTML = Object.keys(G).sort().map(k => `<div class="fmorg">${esc(k)}</div>` + G[k].map(f => `<div class="bitem fmi${FM.sel === f.id && J.tab === 'forms' ? ' on' : ''}" data-fm="${f.id}"><div style="min-width:0"><div class="t">${f.def ? '★ ' : ''}${esc(f.name)}</div><div class="m">${esc(f.no)} · ${esc(f.updated || '')} · ${f.uses || 0} удаа</div></div></div>`).join('')).join('') || '<p class="note">Маягт алга. «+ Шинэ маягт» эсвэл үнийн санал дээр нөхцөлөө засахад автоматаар бүртгэгдэнэ.</p>';
+}
+(() => {
+  const n = $('#fmNew'); if (n) n.addEventListener('click', () => { const org = prompt('Байгууллагын нэр', ''); if (org == null) return; const f = formNew(org.trim(), null, 'Үндсэн маягт'); orgLearn({ org: f.org }); FM.sel = f.id; renderFormSide(); renderJobMain(); });
+  const s = $('#fmSearch'); if (s) s.addEventListener('input', () => { FM.q = s.value; renderFormSide(); });
+  const l = $('#fmList'); if (l) l.addEventListener('click', e => { const it = e.target.closest('[data-fm]'); if (!it) return; FM.sel = it.dataset.fm; renderFormSide(); renderJobMain(); });
+})();
+function formPreviewJob(f) {
+  const qf = Object.assign({ title: 'Sample work description', rfqName: 'Sample RFQ', rfqNo: 'N/A' }, f.d, { discount: +f.d.discount || 0, mode: 'single' });
+  return { _nest: 1, no: 'SQ-0000', title: 'Sample work description', customer: (orgFind(f.org) || {}).name || f.org, quote: { no: 'SQ-0000', date: today(), valid: 14, vat: 10, qf }, _linesFn: () => [{ d: qf.title, u: 'set', q: 1, p: 1000000 }] };
+}
+function renderFormMain(el) {
+  const f = formById(FM.sel);
+  if (!f) {
+    const L = forms();
+    el.innerHTML = `<div class="dhead"><div><h2>Байгууллагын маягтууд</h2><p class="muted">${L.length} маягт · ${new Set(L.map(x => formOrgKey(x.org))).size} байгууллага. Үнийн санал дээр захиалагч сонгоход ★ маягт автоматаар орно.</p></div><span class="sp" style="flex:1"></span><button class="btn primary" id="fmNew2">+ Шинэ маягт</button></div>
+      <div class="jcard"><div class="tblwrap" style="border:0"><table class="dt"><thead><tr><th>№</th><th>Байгууллага</th><th>Маягт</th><th>Payment term</th><th>Lead time</th><th class="r">Ашигласан</th><th>Шинэчилсэн</th></tr></thead><tbody>
+      ${L.map(x => `<tr class="jrow" data-fm="${x.id}" style="cursor:pointer"><td class="num"><b>${esc(x.no)}</b></td><td>${esc((orgFind(x.org) || {}).name || x.org || '—')}</td><td>${x.def ? '★ ' : ''}${esc(x.name)}</td><td>${esc(x.d.pay || '')}</td><td>${esc(x.d.lead || '')}</td><td class="r num">${x.uses || 0}</td><td class="num">${esc(x.updated || '')}</td></tr>`).join('') || '<tr><td colspan="7" class="muted">Маягт алга</td></tr>'}
+      </tbody></table></div></div>`;
+    el.querySelector('#fmNew2').addEventListener('click', () => $('#fmNew').click());
+    el.querySelectorAll('[data-fm]').forEach(r => r.addEventListener('click', () => { FM.sel = r.dataset.fm; renderFormSide(); renderJobMain(); }));
+    return;
+  }
+  const d = f.d, used = (S.jobs || []).filter(j => j.quote && j.quote.qf && j.quote.qf.formId === f.id);
+  el.innerHTML = `<div class="dhead"><div><h2>${esc(f.no)} · ${esc(f.name)}</h2><p class="muted">${esc((orgFind(f.org) || {}).name || f.org || '—')} · үүсгэсэн ${esc(f.created)} · шинэчилсэн ${esc(f.updated)}</p></div><span class="sp" style="flex:1"></span><button class="btn ghost" id="fmBack">← Жагсаалт</button><button class="btn ghost" id="fmDup">Хуулбар</button><button class="btn ghost" id="fmDel">Устгах</button></div>
+    <div class="jcard"><div class="bcard-h">Маягт <span class="sp"></span><button class="btn ghost sm" id="fmPrint">🖨 Жишээ хэвлэх</button></div><div class="jbody qfwrap"><div class="qfprevbox" title="Жишээ — дарж томруулна"><img class="qfprev" alt="Маягт"></div><div class="qffields">
+      <div class="qfsec"><div class="qfsec-t">Маягт</div><div class="jgrid">${fldIn('fm_org', 'Байгууллага', f.org, { list: 'dl-org' })}${fldIn('fm_name', 'Маягтын нэр', f.name)}<label class="fld">Үндсэн (★)<select id="fm_def"><option value="1"${f.def ? ' selected' : ''}>Тийм — шинэ саналд автоматаар орно</option><option value=""${f.def ? '' : ' selected'}>Үгүй — гараар сонгоно</option></select></label></div></div>
+      <div class="qfsec"><div class="qfsec-t">Захиалагч</div><div class="jgrid">${fldIn('fd_custId', 'Customer ID', d.custId)}${fldIn('fd_address', "Customer's address", d.address)}${fldIn('fd_person', 'Name / Position', d.person, { list: 'dl-person' })}${fldIn('fd_email', 'Email', d.email)}${fldIn('fd_phone', 'Phone number', d.phone)}</div></div>
+      <div class="qfsec"><div class="qfsec-t">Нөхцөл</div><div class="jgrid">${fldIn('fd_lead', 'Lead time', d.lead, { ph: '5 business days' })}${fldIn('fd_pay', 'Payment term', d.pay)}${fldIn('fd_delivery', 'Delivery term', d.delivery)}${fldIn('fd_discount', 'Discount, ₮', d.discount || '', { num: 1 })}
+        <label class="fld">Мөрийн хэлбэр<select id="fd_mode">${[['single', 'Нэг мөр (set × 1)'], ['sections', 'Хэсгээр'], ['detail', 'Дэлгэрэнгүй (мөр бүр)'], ['fixed', 'Excel-ийн мөрүүд']].map(([v, n]) => `<option value="${v}"${d.mode === v ? ' selected' : ''}>${n}</option>`).join('')}</select></label></div></div>
+      <div class="qfsec"><div class="qfsec-t">Агуулга</div>${fldIn('fd_note', 'Special note', d.note, { area: 1, rows: 2 })}
+      <div class="jgrid qfcl"><div class="fld"><span class="flab">Quote included — үнэд багтсан</span><div class="clbox" data-ck="incl"></div></div><div class="fld"><span class="flab">Quote excluded — үнэд ороогүй</span><div class="clbox" data-ck="excl"></div></div></div></div>
+    </div></div></div>
+    <div class="jcard"><div class="bcard-h">Бүртгэл — өөрчлөлт, ашигласан <span class="sp"></span><span class="muted" style="font-weight:400;font-size:12px">${used.length} санал холбоотой</span></div><div class="jbody">
+      ${used.length ? `<p class="note">${used.map(j => `<a href="#" class="linkbtn" data-fj="${j.id}">${esc((j.quote && j.quote.no) || j.no)}</a>`).join(' · ')}</p>` : ''}
+      <ul class="fmlog">${(f.log || []).slice().reverse().map(x => `<li><span class="num muted">${esc(x.t)}</span> ${esc(x.m)}</li>`).join('')}</ul></div></div>`;
+  const re = () => { renderFormSide(); renderFormMain(el); };
+  const img = el.querySelector('.qfprev'); let tm = 0;
+  const touch = () => { f.updated = today(); save(); };
+  const refresh = () => { clearTimeout(tm); tm = setTimeout(() => quoteFormImgs(formPreviewJob(f), PREV_K).then(im => { if (img.isConnected) img.src = im[0].url; }).catch(() => { }), 200); };
+  FORM_K.forEach(k => { const i = el.querySelector('#fd_' + k); if (i) i.addEventListener('change', () => { d[k] = k === 'discount' ? Math.max(0, +i.value || 0) : i.value; formLog(f, 'Засварласан: ' + formKName(k)); touch(); refresh(); }); });
+  el.querySelectorAll('.clbox').forEach(b => clauseBox(b, d, b.dataset.ck, () => { formLog(f, 'Засварласан: ' + formKName(b.dataset.ck)); touch(); refresh(); }));
+  el.querySelector('#fm_org').addEventListener('change', e => { f.org = e.target.value.trim(); if (f.org) orgLearn({ org: f.org }); touch(); renderFormSide(); });
+  el.querySelector('#fm_name').addEventListener('change', e => { f.name = e.target.value.trim() || f.name; touch(); renderFormSide(); });
+  el.querySelector('#fm_def').addEventListener('change', e => { if (e.target.value) formsOf(f.org).forEach(x => x.def = x === f); else f.def = false; touch(); renderFormSide(); });
+  el.querySelector('#fmBack').addEventListener('click', () => { FM.sel = null; renderFormSide(); renderJobMain(); });
+  el.querySelector('#fmDup').addEventListener('click', () => { const x = formNew(f.org, f.d, f.name + ' (хуулбар)'); x.def = false; FM.sel = x.id; save(); renderFormSide(); renderJobMain(); });
+  el.querySelector('#fmDel').addEventListener('click', () => { if (!confirm(`${f.no} «${f.name}» маягтыг устгах уу? (Өмнөх үнийн саналууд өөрчлөгдөхгүй)`)) return; S.forms = forms().filter(x => x !== f); (S.jobs || []).forEach(j => { const q = j.quote && j.quote.qf; if (q && q.formId === f.id) q.formId = ''; }); if (f.def) { const n = formsOf(f.org)[0]; if (n) n.def = true; } FM.sel = null; save(); renderFormSide(); renderJobMain(); });
+  el.querySelector('#fmPrint').addEventListener('click', async () => printImgs(await quoteFormImgs(formPreviewJob(f)), false, 'letter', `${f.no} - ${f.org} - ${f.name}`));
+  el.querySelector('.qfprevbox').addEventListener('click', async () => printImgs(await quoteFormImgs(formPreviewJob(f)), false, 'letter', `${f.no} - ${f.name}`, true));
+  el.querySelectorAll('[data-fj]').forEach(a => a.addEventListener('click', ev => { ev.preventDefault(); const j = findJob(a.dataset.fj); if (!j) return; setModule(isQ(j) ? 'quotes' : 'jobs'); J.sel = j.id; renderJobs(); }));
+  refresh();
+}
 
 /* ================= Kh International — job attachments (drawings, photos, PDFs) + BOM / cutting split =================
    Files live in IndexedDB (kh-docs, tagged with the job); the job keeps a small list with thumbnails.
@@ -10090,22 +10271,33 @@ function srcFolderHTML(job) {
     ${q.srcFolder && el ? '<button class="btn sm ghost" id="sfOpen">Explorer-т нээх</button><button class="btn sm ghost" id="sfRe" title="Дахин унших">↻</button>' : ''}${el ? `<button class="btn sm ghost" id="sfPick">${q.srcFolder ? 'Фолдер солих' : 'Фолдер холбох'}</button>` : ''}${q.srcFolder ? '<button class="btn sm ghost" id="sfDel" title="Фолдерыг энэ ажлаас салгана (компьютерын файлууд устахгүй)">✕ Салгах</button>' : ''}</div>
     <div class="jbody"><div class="muted mono sfpath">${esc(q.srcFolder || 'Энэ ажил, саналд компьютерын фолдер холбоогүй байна — «Фолдер холбох».')}</div><div class="jfgrid sfgrid" id="sfList">${!el && q.srcFiles ? q.srcFiles.map(n => `<figure class="jf"><div class="th"><span class="ext">${esc(jfExt(n))}</span></div><figcaption><b>${esc(n)}</b></figcaption></figure>`).join('') : ''}</div></div></div>`;
 }
+const SF_CACHE = {}, TH_CACHE = new Map();
+/* thumbnails are made by the desktop side (small PNG) one by one, and cached for the session */
+async function sfThumbs(root) {
+  for (const im of root.querySelectorAll('img[data-th]')) {
+    const p = im.dataset.th; let u = TH_CACHE.get(p);
+    if (u === undefined) { try { u = await window.kh.thumb(p, 240); } catch (e) { u = ''; } TH_CACHE.set(p, u); }
+    if (!im.isConnected) return; if (u) im.src = u; else im.replaceWith(Object.assign(document.createElement('span'), { className: 'ext', textContent: jfExt(p) }));
+  }
+}
 async function bindSrcFolder(el, job) {
   const card = el.querySelector('.sfcard'); if (!card) return;
   if (!(window.kh && window.kh.listDir)) { const dz = card.querySelector('#sfDel'); if (dz) dz.addEventListener('click', () => { if (!confirm('Фолдерыг салгах уу?')) return; job.quote.srcFolder = ''; job.quote.srcFiles = []; save(); renderJobMain(); }); return; }
   const q = job.quote; jx(job);
-  const pk = card.querySelector('#sfPick'); if (pk) pk.addEventListener('click', async () => { const d = await window.kh.pickDir(); if (d) { q.srcFolder = d; jobLog('Фолдер холбосон: ' + d, job); save(); renderJobMain(); } });
+  const pk = card.querySelector('#sfPick'); if (pk) pk.addEventListener('click', async () => { const d = await window.kh.pickDir(); if (d) { q.srcFolder = d; SF_CACHE._force = 1; jobLog('Фолдер холбосон: ' + d, job); save(); renderJobMain(); } });
   const op = card.querySelector('#sfOpen'); if (op) op.addEventListener('click', async () => { const e = await window.kh.openPath(q.srcFolder); if (e) toast('Фолдер олдсонгүй'); });
   const dz = card.querySelector('#sfDel'); if (dz) dz.addEventListener('click', () => { if (!confirm('Фолдерыг энэ ажил/саналаас салгах уу? (Компьютер дээрх файлууд устахгүй)')) return; jobLog('Фолдер салгасан: ' + q.srcFolder, job); q.srcFolder = ''; q.srcFiles = []; save(); renderJobMain(); });
-  const rr = card.querySelector('#sfRe'); if (rr) rr.addEventListener('click', () => renderJobMain());
+  const rr = card.querySelector('#sfRe'); if (rr) rr.addEventListener('click', () => { SF_CACHE._force = 1; renderJobMain(); });
   if (!q.srcFolder) return;
   const list = card.querySelector('#sfList'), n = card.querySelector('#sfN');
-  let r; try { r = await window.kh.listDir(q.srcFolder); } catch (e) { r = { error: e.message }; }
+  const ck = q.srcFolder, hit = SF_CACHE[ck]; let r;
+  if (hit && !SF_CACHE._force && Date.now() - hit.t < 120e3) r = hit.r; else { SF_CACHE._force = 0; n.textContent = '…'; try { r = await window.kh.listDir(q.srcFolder); } catch (e) { r = { error: e.message }; } if (r && !r.error) SF_CACHE[ck] = { t: Date.now(), r }; }
   if (!list.isConnected) return;
   if (!r || r.error) { n.textContent = '!'; list.innerHTML = `<p class="note">Фолдер олдсонгүй: ${esc(q.srcFolder)}. Өөр компьютер эсвэл зөөгдсөн байж магадгүй — «Фолдер солих».</p>`; return; }
-  const F = r.files.sort((a, b) => (/\.(xlsx|pdf)$/i.test(b.rel) && /^SQ/i.test(b.rel)) - (/\.(xlsx|pdf)$/i.test(a.rel) && /^SQ/i.test(a.rel)) || b.mtime - a.mtime);
+  const F = r.files.slice().sort((a, b) => (/\.(xlsx|pdf)$/i.test(b.rel) && /^SQ/i.test(b.rel)) - (/\.(xlsx|pdf)$/i.test(a.rel) && /^SQ/i.test(a.rel)) || b.mtime - a.mtime);
   n.textContent = F.length;
-  list.innerHTML = F.map((f, i) => { const img = /\.(png|jpe?g|gif|webp|bmp)$/i.test(f.rel); return `<figure class="jf" data-sf="${i}" title="${esc(f.rel)}"><div class="th">${img ? `<img loading="lazy" src="${fileUrl(f.path)}" alt="">` : `<span class="ext">${esc(jfExt(f.rel))}</span>`}</div><figcaption><b>${esc(f.rel.split('/').pop())}</b><small>${f.rel.includes('/') ? esc(f.rel.split('/').slice(0, -1).join('/')) + ' · ' : ''}${fsz(f.size)} · ${new Date(f.mtime).toISOString().slice(0, 10)}</small></figcaption>${jfCanSplit({ name: f.rel }) ? `<button class="btn sm ghost jfsplit" data-sfs="${i}">⚙ BOM / зүсэлт</button>` : ''}</figure>`; }).join('') || '<p class="note">Фолдер хоосон байна.</p>';
+  list.innerHTML = F.map((f, i) => { const img = /\.(png|jpe?g|gif|webp|bmp)$/i.test(f.rel); return `<figure class="jf" data-sf="${i}" title="${esc(f.rel)}"><div class="th">${img ? (window.kh.thumb ? `<img data-th="${esc(f.path)}" alt="">` : `<img loading="lazy" decoding="async" src="${fileUrl(f.path)}" alt="">`) : `<span class="ext">${esc(jfExt(f.rel))}</span>`}</div><figcaption><b>${esc(f.rel.split('/').pop())}</b><small>${f.rel.includes('/') ? esc(f.rel.split('/').slice(0, -1).join('/')) + ' · ' : ''}${fsz(f.size)} · ${new Date(f.mtime).toISOString().slice(0, 10)}</small></figcaption>${jfCanSplit({ name: f.rel }) ? `<button class="btn sm ghost jfsplit" data-sfs="${i}">⚙ BOM / зүсэлт</button>` : ''}</figure>`; }).join('') || '<p class="note">Фолдер хоосон байна.</p>';
+  sfThumbs(list);
   const src = async i => { const f = F[i], name = f.rel.split('/').pop(), ext = (name.split('.').pop() || '').toLowerCase(); const buf = await window.kh.readFile(f.path); const blob = new Blob([buf], { type: MIME[ext] || '' }); return { f: { name, type: MIME[ext] || '', size: f.size, path: f.path }, d: { blob } }; };
   list.addEventListener('click', async e => {
     const sp = e.target.closest('[data-sfs]'), fig = e.target.closest('[data-sf]');
@@ -10559,15 +10751,15 @@ function bpal(print) {
 }
 /* module switch */
 const MOD_ALIAS = { dash: 'jobs', quotes: 'jobs', jobs: 'jobs', docs: 'jobs' };
-const JVIEW_T = { dash: ['Хяналтын самбар', 'Үнийн санал → ажил → ашиг'], quotes: ['Үнийн санал', 'Бэлдэх, илгээх, ажил болгох'], jobs: ['Ажил', 'Scope, үйлдвэрлэл, явц, хүлээлгэх'], docs: ['Баримт бичиг', 'Packing list, иж бүрдэл, гэрчилгээ'] };
+const JVIEW_T = { dash: ['Хяналтын самбар', 'Үнийн санал → ажил → ашиг'], quotes: ['Үнийн санал', 'Бэлдэх, илгээх, ажил болгох'], jobs: ['Ажил', 'Scope, үйлдвэрлэл, явц, хүлээлгэх'], docs: ['Баримт бичиг', 'Packing list, маягт, иж бүрдэл, гэрчилгээ'] };
 function setModule(v) {
   const m = MOD_ALIAS[v] || v;
   $$('.modtabs button').forEach(b => b.classList.toggle('on', b.dataset.mod === v));
   if (m === 'jobs' && typeof J !== 'undefined') {
     document.documentElement.dataset.jview = v;
     J.dash = v === 'dash';
-    if (v === 'docs') { if (!['kits', 'certs', 'dockets'].includes(J.tab)) J.tab = 'dockets'; } else J.tab = 'jobs';
-    $$('[data-jtab]').forEach(x => x.classList.toggle('on', x.dataset.jtab === J.tab)); ['jobs', 'kits', 'certs', 'dockets'].forEach(t => { const e = $('#jtab-' + t); if (e) e.hidden = t !== J.tab; });
+    if (v === 'docs') { if (!['kits', 'certs', 'dockets', 'forms'].includes(J.tab)) J.tab = 'dockets'; } else J.tab = 'jobs';
+    $$('[data-jtab]').forEach(x => x.classList.toggle('on', x.dataset.jtab === J.tab)); ['jobs', 'kits', 'certs', 'dockets', 'forms'].forEach(t => { const e = $('#jtab-' + t); if (e) e.hidden = t !== J.tab; });
     const f = $('#jFilter'); if (f && (v === 'quotes' || v === 'jobs')) f.value = v;
     if (v === 'quotes' || v === 'jobs') { const cur = findJob(J.sel); if (!cur || (v === 'quotes') !== isQ(cur)) { const first = S.jobs.find(j => (v === 'quotes') === isQ(j)); J.sel = first ? first.id : null; } J.sub = v === 'quotes' ? 'quote' : (J.sub === 'quote' ? 'main' : J.sub); }
     const pt = $('#jobsPT'); if (pt) pt.innerHTML = `${JVIEW_T[v][0]}<small>${JVIEW_T[v][1]}</small>`;

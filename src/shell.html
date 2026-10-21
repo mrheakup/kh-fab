@@ -383,7 +383,7 @@ tr.rcut td:first-child{box-shadow:inset 3px 0 0 var(--accent)}
 
 /* jobs module views: quotes / jobs / dashboard / documents */
 html[data-jview="docs"] [data-jtab="jobs"]{display:none}
-html:not([data-jview="docs"]) [data-jtab="kits"],html:not([data-jview="docs"]) [data-jtab="certs"],html:not([data-jview="docs"]) [data-jtab="dockets"]{display:none}
+html:not([data-jview="docs"]) [data-jtab="kits"],html:not([data-jview="docs"]) [data-jtab="certs"],html:not([data-jview="docs"]) [data-jtab="dockets"],html:not([data-jview="docs"]) [data-jtab="forms"]{display:none}
 html[data-jview="quotes"] #jFilter,html[data-jview="jobs"] #jFilter,html[data-jview="quotes"] #jNew,html[data-jview="jobs"] #qNew,html[data-jview="jobs"] #qImp,html[data-jview="dash"] #qImp{display:none}
 /* team & tasks */
 .av{display:inline-grid;place-items:center;border-radius:50%;color:#fff;font-weight:700;flex:none;line-height:1}.av.none{background:var(--surface-2);color:var(--ink-3);box-shadow:inset 0 0 0 1px var(--line);font-size:11px}
@@ -506,6 +506,20 @@ html[data-skin="modern"][data-var="bento"] .summary>.stat:nth-child(1) .k,html[d
 html[data-skin="modern"][data-var="bento"] .jitem{border-color:transparent;border-radius:16px}html[data-skin="modern"][data-var="bento"] .jitem.on{background:#fff;border-color:var(--accent)}
 html[data-skin="modern"][data-var="bento"] .btn{border-radius:999px}html[data-skin="modern"][data-var="bento"] .fld input,html[data-skin="modern"][data-var="bento"] .fld select,html[data-skin="modern"][data-var="bento"] .inp{border-radius:12px}
 html[data-skin="modern"][data-var="bento"] .stepper{border-radius:999px;background:#fff}html[data-skin="modern"][data-var="bento"] .stepper button{border-radius:999px}html[data-skin="modern"][data-var="bento"] .stepper button.on{background:#141414;color:#fff}
+/* labels vs values: a label is small, semibold and muted; the value is full-size ink */
+label.fld,.fld>.flab{font-size:11.5px;font-weight:600;color:var(--ink-3);letter-spacing:.01em}
+.fld input,.fld select,.fld textarea{font-size:13.5px;font-weight:400;color:var(--ink);letter-spacing:0}
+.fld>.flab{display:block;margin-bottom:4px}
+.qfsec{border-top:1px solid var(--line);padding-top:10px;margin-top:12px}
+.qfsec-t{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);margin-bottom:8px}
+.qfform{display:flex;flex-wrap:wrap;align-items:center;gap:8px;background:var(--accent-soft);border-radius:10px;padding:8px 10px}
+.qfform .qfsec-t{margin:0}.qfform select{flex:1 1 220px;max-width:340px}.qfform-n{font-size:12px;flex:1 1 100%}
+.clist li>.inp{font-weight:600}
+.clist li.sub{list-style:none;margin-left:26px;position:relative}.clist li.sub::before{content:"–";position:absolute;left:-14px;color:var(--ink-3)}
+.clist li.sub>.inp{font-weight:400;font-size:12.5px;color:var(--ink-2);border-style:dashed}
+.bitem.fmi{grid-template-columns:1fr;display:block}.fld textarea{font-family:inherit;line-height:1.45}
+.fmorg{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);margin:12px 2px 4px}
+.fmlog{margin:0;padding-left:18px;display:grid;gap:3px;font-size:12.5px;max-height:260px;overflow:auto}
 </style>
 
 <div class="app" id="app">
@@ -632,6 +646,7 @@ html[data-skin="modern"][data-var="bento"] .stepper{border-radius:999px;backgrou
       <button data-jtab="kits">Иж бүрдэл <span class="badge" id="cntKits"></span></button>
       <button data-jtab="certs">Гэрчилгээ</button>
       <button data-jtab="dockets">Packing list</button>
+      <button data-jtab="forms">Маягт</button>
     </nav>
     <div class="panel-body">
       <section id="jtab-jobs">
@@ -671,6 +686,12 @@ html[data-skin="modern"][data-var="bento"] .stepper{border-radius:999px;backgrou
         <div class="ptools"><button class="btn primary" id="dkNew">+ Шинэ Packing list</button></div>
         <input id="dkSearch" class="inp" placeholder="Хайх: №, захиалагч, PO, бараа…" style="margin:10px 0">
         <div id="dkList" class="plist"></div>
+      </section>
+      <section id="jtab-forms" hidden>
+        <p class="hint">Байгууллага тус бүрийн үнийн саналын маягт — нөхцөл, үнэд багтсан/ороогүй, тэмдэглэл. Үнийн санал дээр захиалагч сонгоход ★ маягт автоматаар орно; санал дээр нөхцөлөө засахад энд бүртгэгдэнэ.</p>
+        <div class="ptools"><button class="btn primary" id="fmNew">+ Шинэ маягт</button></div>
+        <input id="fmSearch" class="inp" placeholder="Хайх: байгууллага, маягт…" style="margin:10px 0">
+        <div id="fmList" class="plist"></div>
       </section>
       <section id="jtab-certs" hidden>
         <p class="hint">Ирсэн хавтангийн гэрчилгээ (heat/хайлалтын дугаар). Зүсэлт бүртгэхэд аль хайлалтаас хэрэглэснийг сонгож ISO ул мөрийг хадгална.</p>

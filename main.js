@@ -1,5 +1,5 @@
 // KH Fab — Electron main process
-const { app, BrowserWindow, ipcMain, dialog, Menu, shell } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, Menu, shell, nativeImage } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const { autoUpdater } = require('electron-updater');
@@ -93,17 +93,29 @@ function writeData(txt) {
     const all = fs.readdirSync(d).filter(x => /^kh-data-\d{4}-\d{2}-\d{2}\.json$/.test(x)).sort(); all.slice(0, Math.max(0, all.length - 60)).forEach(x => { try { fs.unlinkSync(path.join(d, x)); } catch (e) { } }); } catch (e) { }
 }
 ipcMain.on('data-load-sync', e => { try { e.returnValue = fs.existsSync(dataFile()) ? fs.readFileSync(dataFile(), 'utf8') : null; } catch (x) { e.returnValue = null; } });
-ipcMain.handle('data-save', (e, txt) => { try { writeData(String(txt)); return { ok: true }; } catch (x) { return { error: String(x.message || x) }; } });
-ipcMain.on('data-save-sync', (e, txt) => { try { writeData(String(txt)); e.returnValue = true; } catch (x) { e.returnValue = false; } });
+/* async, coalesced writes: the main process never blocks the window while saving */
+let wPend = null, wBusy = false, wWait = [];
+async function writeDataAsync(txt) {
+  const f = dataFile(), tmp = f + '.atmp'; await fs.promises.writeFile(tmp, txt, 'utf8'); await fs.promises.rename(tmp, f);
+  try { const d = bakDir(); await fs.promises.mkdir(d, { recursive: true }); const b = path.join(d, `kh-data-${new Date().toISOString().slice(0, 10)}.json`);
+    let old = true; try { old = Date.now() - (await fs.promises.stat(b)).mtimeMs > 3600e3; } catch (x) { }
+    if (old) { await fs.promises.copyFile(f, b); const all = (await fs.promises.readdir(d)).filter(x => /^kh-data-\d{4}-\d{2}-\d{2}\.json$/.test(x)).sort(); for (const x of all.slice(0, Math.max(0, all.length - 60))) { try { await fs.promises.unlink(path.join(d, x)); } catch (y) { } } } } catch (x) { }
+}
+async function pumpWrite() { if (wBusy) return; wBusy = true; while (wPend !== null) { const t = wPend, ws = wWait; wPend = null; wWait = []; let r = { ok: true }; try { await writeDataAsync(t); } catch (x) { r = { error: String(x.message || x) }; } ws.forEach(f => f(r)); } wBusy = false; }
+ipcMain.handle('data-save', (e, txt) => new Promise(res => { wPend = String(txt); wWait.push(res); pumpWrite(); }));
+ipcMain.on('data-save-sync', (e, txt) => { try { wPend = null; writeData(String(txt)); e.returnValue = true; } catch (x) { e.returnValue = false; } });
 ipcMain.handle('data-dir', () => shell.openPath(app.getPath('userData')));
-ipcMain.handle('list-dir', (e, p) => {
-  const out = [], root = String(p || ''), skip = /^(~\$|Thumbs\.db$|desktop\.ini$|\.)/i;
-  const walk = (d, rel, depth) => { let ents = []; try { ents = fs.readdirSync(d, { withFileTypes: true }); } catch (x) { return; }
-    for (const en of ents) { if (skip.test(en.name) || en.name === 'node_modules') continue; const full = path.join(d, en.name), r = rel ? rel + '/' + en.name : en.name;
-      if (en.isDirectory()) { if (depth < 3) walk(full, r, depth + 1); } else { let st = null; try { st = fs.statSync(full); } catch (x) { } out.push({ rel: r, path: full, size: st ? st.size : 0, mtime: st ? st.mtimeMs : 0 }); } } };
-  if (!fs.existsSync(root)) return { error: 'not-found' }; walk(root, '', 0); return { files: out.slice(0, 500) };
+/* folder listing is async so a slow (OneDrive / network) folder never freezes the window */
+ipcMain.handle('list-dir', async (e, p) => {
+  const out = [], root = String(p || ''), skip = /^(~\$|Thumbs\.db$|desktop\.ini$|\.)/i, fp = fs.promises;
+  const walk = async (d, rel, depth) => { let ents = []; try { ents = await fp.readdir(d, { withFileTypes: true }); } catch (x) { return; }
+    for (const en of ents) { if (out.length >= 500) return; if (skip.test(en.name) || en.name === 'node_modules') continue; const full = path.join(d, en.name), r = rel ? rel + '/' + en.name : en.name;
+      if (en.isDirectory()) { if (depth < 3) await walk(full, r, depth + 1); } else { let st = null; try { st = await fp.stat(full); } catch (x) { } out.push({ rel: r, path: full, size: st ? st.size : 0, mtime: st ? st.mtimeMs : 0 }); } } };
+  try { await fp.access(root); } catch (x) { return { error: 'not-found' }; } await walk(root, '', 0); return { files: out };
 });
-ipcMain.handle('read-file', (e, p) => { const st = fs.statSync(String(p)); if (st.size > 80 * 1048576) throw new Error('too-big'); return fs.readFileSync(String(p)); });
+/* small thumbnail of an image on disk (instead of decoding the full photo in the page) */
+ipcMain.handle('thumb', async (e, p, w) => { try { const W = +w || 240; let im; try { im = await nativeImage.createThumbnailFromPath(String(p), { width: W, height: W }); } catch (x) { im = nativeImage.createFromPath(String(p)); } if (!im || im.isEmpty()) return ''; const sz = im.getSize(); if (sz.width > W || sz.height > W) im = im.resize(sz.width >= sz.height ? { width: W } : { height: W }); return im.toDataURL(); } catch (x) { return ''; } });
+ipcMain.handle('read-file', async (e, p) => { const st = await fs.promises.stat(String(p)); if (st.size > 80 * 1048576) throw new Error('too-big'); return fs.promises.readFile(String(p)); });
 ipcMain.handle('pick-dir', async () => { const r = await dialog.showOpenDialog(win, { properties: ['openDirectory'] }); return r.canceled ? '' : (r.filePaths[0] || ''); });
 ipcMain.handle('open-path', async (e, p) => { const r = await shell.openPath(String(p || '')); return r || ''; });
 ipcMain.handle('print-html', async (e, html, opt) => {

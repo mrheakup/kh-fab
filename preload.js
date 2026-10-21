@@ -9,6 +9,7 @@ contextBridge.exposeInMainWorld('kh', {
   openDataDir: () => ipcRenderer.invoke('data-dir'),
   listDir: p => ipcRenderer.invoke('list-dir', p),
   readFile: p => ipcRenderer.invoke('read-file', p),
+  thumb: (p, w) => ipcRenderer.invoke('thumb', p, w),
   pickDir: () => ipcRenderer.invoke('pick-dir'),
   printHtml: (html, opt) => ipcRenderer.invoke('print-html', html, opt),
   info: () => ipcRenderer.invoke('info'),
