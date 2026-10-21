@@ -12,6 +12,27 @@ function jobLog(msg, job) {
   if (job.log.length > 200) job.log.length = 200;
   save();
 }
+const QST = [['draft', 'Ноорог'], ['sent', 'Илгээсэн'], ['won', 'Батлагдсан'], ['lost', 'Татгалзсан']];
+const qstName = k => (QST.find(x => x[0] === k) || QST[0])[1];
+const isQ = j => j && j.kind === 'quote';
+/* quick quotation: only customer + quote; «Ажил болгох» turns it into a full job keeping everything */
+function newQuote() {
+  const y = new Date().getFullYear();
+  if (S.qYear !== y) { S.qYear = y; S.qSeq = 0; }
+  const n = ++S.qSeq, no = `SQ-${y}-${String(n).padStart(3, '0')}`;
+  const job = { id: uid(), kind: 'quote', qst: 'draft', no, short: String(n).padStart(3, '0'), customer: '', title: '', due: '', status: 'new', note: '', items: [], extra: [], est: null, act: { hours: '', kg: '', other: '' }, trace: [], log: [], created: today() };
+  S.jobs.unshift(job); jx(job); job.quote.no = no; jobLog('Үнийн санал нээсэн', job);
+  J.sel = job.id; J.sub = 'quote'; J.dash = false; save(); return job;
+}
+function quoteToJob(job) {
+  const y = new Date().getFullYear();
+  if (S.jobYear !== y) { S.jobYear = y; S.jobSeq = 0; }
+  const n = ++S.jobSeq, short = String(n).padStart(3, '0');
+  if (!job.quote.no) job.quote.no = job.no;
+  delete job.kind; job.qst = 'won'; job.no = `KH-${y}-${short}`; job.short = short; job.status = 'new';
+  if (!+job.price) { try { job.price = Math.round(quoteCalc(job).net); } catch (e) { } }
+  jobLog(`Үнийн санал ${job.quote.no} батлагдаж ажил болсон`, job); J.sub = 'main'; save();
+}
 function newJob() {
   const y = new Date().getFullYear();
   if (S.jobYear !== y) { S.jobYear = y; S.jobSeq = 0; }
@@ -72,21 +93,23 @@ const daysLeft = d => d ? Math.round((new Date(d + 'T00:00:00') - new Date(today
 $$('[data-jtab]').forEach(b => b.addEventListener('click', () => { J.tab = b.dataset.jtab; $$('[data-jtab]').forEach(x => x.classList.toggle('on', x === b)); ['jobs', 'kits', 'certs'].forEach(t => $('#jtab-' + t).hidden = t !== J.tab); renderJobs(); }));
 function renderJobs() { renderJList(); renderKList(); renderCertSide(); renderJobMain(); }
 function renderJList() {
-  $('#cntJobs').textContent = S.jobs.filter(j => !['done', 'given'].includes(j.status)).length || '';
+  $('#cntJobs').textContent = S.jobs.filter(j => isQ(j) ? j.qst !== 'lost' : !['done', 'given'].includes(j.status)).length || '';
   const q = ($('#jSearch').value || '').toLowerCase(), f = $('#jFilter').value, os = $('#jOrg'), og = os.value;
   { const O = orgs().slice().sort((a, b) => a.name.localeCompare(b.name)); os.innerHTML = `<option value="">Бүх байгууллага (${O.length})</option>${O.map(o => `<option value="${esc(o.id)}"${o.id === og ? ' selected' : ''}>${esc(o.name)} · ${jobsOfOrg(o).length}</option>`).join('')}`; }
   const org = orgs().find(o => o.id === og), inOrg = org ? new Set(jobsOfOrg(org)) : null;
   const hay = j => { const f2 = (j.quote && j.quote.qf) || {}; return [j.no, j.customer, j.title, j.quote && j.quote.no, f2.person, f2.email, f2.phone, f2.rfqName, f2.rfqNo, j.dock && j.dock.no, j.dock && j.dock.po].join(' ').toLowerCase(); };
-  const list = S.jobs.filter(j => (f === 'all' || (f === 'open' ? !['done', 'given'].includes(j.status) : ['done', 'given'].includes(j.status))) && (!inOrg || inOrg.has(j)) && (!q || hay(j).includes(q)));
+  const fOk = j => f === 'all' ? true : f === 'quotes' ? isQ(j) : f === 'jobs' ? !isQ(j) && !['done', 'given'].includes(j.status) : f === 'closed' ? (isQ(j) ? j.qst === 'lost' : ['done', 'given'].includes(j.status)) : (isQ(j) ? j.qst !== 'lost' : !['done', 'given'].includes(j.status));
+  const list = S.jobs.filter(j => fOk(j) && (!inOrg || inOrg.has(j)) && (!q || hay(j).includes(q)));
   $('#jList').innerHTML = list.length ? list.map(j => {
     const late = j.due && j.due < today() && !['done', 'given'].includes(j.status);
-    return `<div class="jitem${J.sel === j.id && J.tab === 'jobs' ? ' on' : ''}" data-id="${j.id}"><span class="no">${esc(j.no)}${S.activeJob === j.id ? ' <span class="pill rem">өрөлтөд</span>' : ''}</span><span class="pill st-${j.status}">${jstName(j.status)}</span><span class="t">${esc(j.title || '—')}${j.customer ? ' · ' + esc(j.customer) : ''}${j.quote && j.quote.qf && j.quote.qf.person ? ' · ' + esc(personSplit(j.quote.qf.person).name) : ''}${j.due ? ` · <span class="${late ? 'late' : ''}">${esc(j.due)}</span>` : ''}</span></div>`;
+    return `<div class="jitem${J.sel === j.id && J.tab === 'jobs' ? ' on' : ''}" data-id="${j.id}"><span class="no">${esc(j.no)}${S.activeJob === j.id ? ' <span class="pill rem">өрөлтөд</span>' : ''}</span>${isQ(j) ? `<span class="pill qst-${j.qst || 'draft'}">Санал · ${qstName(j.qst)}</span>` : `<span class="pill st-${j.status}">${jstName(j.status)}</span>`}<span class="t">${esc(j.title || '—')}${j.customer ? ' · ' + esc(j.customer) : ''}${j.quote && j.quote.qf && j.quote.qf.person ? ' · ' + esc(personSplit(j.quote.qf.person).name) : ''}${j.due ? ` · <span class="${late ? 'late' : ''}">${esc(j.due)}</span>` : ''}</span></div>`;
   }).join('') : `<div class="emptyp">${S.jobs.length ? 'Хайлтад тохирох ажил алга.' : 'Ажил алга. <b>+ Шинэ ажил</b> товчоор эхэлнэ.'}</div>`;
   ['formTrace', 'rev', 'operators', 'formQuote', 'formScope', 'formInstr'].forEach(k => $('#iso_' + k).value = S.iso[k] || '');
 }
 $('#jDash').addEventListener('click', () => { J.dash = true; renderJList(); renderJobMain(); });
 $('#jList').addEventListener('click', e => { const it = e.target.closest('.jitem'); if (!it) return; J.sel = it.dataset.id; J.traceForm = false; J.dash = false; renderJList(); renderJobMain(); });
-$('#jNew').addEventListener('click', () => { J.dash = false; newJob(); renderJobs(); setTimeout(() => { const el = $('#jf_title'); if (el) el.focus(); }, 50); });
+$('#qNew').addEventListener('click', () => { newQuote(); renderJobs(); setTimeout(() => { const el = $('#qb_cust'); if (el) el.focus(); }, 50); });
+$('#jNew').addEventListener('click', () => { J.dash = false; J.sub = 'main'; newJob(); renderJobs(); setTimeout(() => { const el = $('#jf_title'); if (el) el.focus(); }, 50); });
 $('#jSearch').addEventListener('input', renderJList);
 $('#jFilter').addEventListener('change', renderJList);
 $('#jOrg').addEventListener('change', renderJList);
@@ -135,6 +158,7 @@ function renderJobMain() {
   const job = findJob(J.sel) || findJob(S.activeJob) || S.jobs[0];
   if (!job) { el.innerHTML = '<div class="jempty"><b>Ажил алга</b><br>Зүүн талын <b>+ Шинэ ажил</b> товчоор ажлын дугаар үүсгэнэ. Дугаар нь <span class="mono">KH-' + new Date().getFullYear() + '-001</span> хэлбэртэй, жил бүр шинээр эхэлнэ.</div>'; return; }
   J.sel = job.id;
+  if (isQ(job)) J.sub = 'quote';
   if (J.sub && !['main', 'prod'].includes(J.sub)) { renderJobSub(el, job); return; }
   const parts = jobParts(job), pcs = parts.reduce((a, p) => a + p.qty, 0), kg = jobWeight(parts);
   const kitOpts = sel => '<option value="">— сонгох —</option>' + S.kits.map(k => `<option value="${k.id}"${k.id === sel ? ' selected' : ''}>${esc(k.name)}</option>`).join('');
@@ -403,9 +427,9 @@ async function jobCardPdf(job) {
 
 /* ---------- dashboard: deadlines, budget vs actual, margin ---------- */
 function renderDash(el) {
-  const open = S.jobs.filter(x => !['done', 'given'].includes(x.status));
+  const JB = S.jobs.filter(x => !isQ(x)), open = JB.filter(x => !['done', 'given'].includes(x.status));
   const late = open.filter(x => x.due && daysLeft(x.due) < 0), soon = open.filter(x => x.due && daysLeft(x.due) >= 0 && daysLeft(x.due) <= 7);
-  const M = S.jobs.map(x => ({ j: x, m: jobMoney(x) }));
+  const M = JB.map(x => ({ j: x, m: jobMoney(x) }));
   const sum = (arr, f) => arr.reduce((a, o) => a + (f(o) || 0), 0);
   const openM = M.filter(o => open.includes(o.j)), doneM = M.filter(o => !open.includes(o.j));
   const pPrice = sum(openM, o => o.m.price), pPlan = sum(openM, o => o.m.plan);
@@ -419,7 +443,7 @@ function renderDash(el) {
   const rows = M.slice().sort((a, b) => (open.includes(b.j) - open.includes(a.j)) || String(a.j.due || '9999').localeCompare(String(b.j.due || '9999')));
   el.innerHTML = `
     <div class="summary">${[
-      ['Идэвхтэй ажил', `${open.length}`, `${S.jobs.length} нийт`],
+      ['Идэвхтэй ажил', `${open.length}`, `${JB.length} нийт · ${S.jobs.length - JB.length} санал`],
       ['Хугацаа хэтэрсэн', `<span class="${late.length ? 'late' : ''}">${late.length}</span>`, late.map(x => x.no).join(', ') || 'алга'],
       ['7 хоногт дуусах', `${soon.length}`, soon.map(x => x.no).join(', ') || 'алга'],
       ['Идэвхтэй гэрээ', `${nf(pPrice / 1e6, 1)}<small>сая₮</small>`, `төсөв ${nf(pPlan / 1e6, 1)} сая₮`],

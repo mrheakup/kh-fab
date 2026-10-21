@@ -98,9 +98,23 @@ function bindFields(root, obj, keys, after) {
 
 /* ---------- sub-tab bar ---------- */
 function jobSubBar(job) {
+  if (job.kind === 'quote') return `<nav class="rtabs jsub stepper qbar"><span class="pill qst-${job.qst || 'draft'}" style="align-self:center">ҮНИЙН САНАЛ</span><b class="mono" style="align-self:center">${esc(job.no)}</b>
+    <input id="qb_cust" class="inp" list="dl-org" placeholder="Захиалагч (байгууллага)" value="${esc(job.customer)}" style="flex:1 1 200px;min-width:0">
+    <input id="qb_title" class="inp" placeholder="Ажлын нэр" value="${esc(job.title)}" style="flex:1 1 200px;min-width:0">
+    <select id="qb_st" class="inp" style="width:auto">${QST.filter(x => x[0] !== 'won').map(([k, n]) => `<option value="${k}"${(job.qst || 'draft') === k ? ' selected' : ''}>${n}</option>`).join('')}</select>
+    <button class="btn primary" id="qb_won" title="Захиалагч баталсан — бүх алхам (scope, үйлдвэрлэл, явц, хүлээлгэх) нээгдэнэ">✓ Ажил болгох</button><button class="btn ghost" id="qb_del">Устгах</button></nav>`;
   return `<nav class="rtabs jsub stepper">${JSUB.map(([k, n, d], i) => `${i ? '<span class="arr">›</span>' : ''}<button data-jsub="${k}" title="${d}" class="${(J.sub || 'main') === k ? 'on' : ''}${jobStepDone(job, k) ? ' done' : ''}"><span class="sn">${jobStepDone(job, k) ? '✓' : i + 1}</span>${n}</button>`).join('')}<span class="sp" style="flex:1"></span><span class="muted mono" style="align-self:center;font-size:12px;padding-right:6px">${esc(job.no)}${job.title ? ' · ' + esc(job.title) : ''}</span></nav>`;
 }
-function bindSubBar(el) { el.querySelectorAll('[data-jsub]').forEach(b => b.addEventListener('click', () => { J.sub = b.dataset.jsub; renderJobMain(); })); }
+function bindSubBar(el) {
+  el.querySelectorAll('[data-jsub]').forEach(b => b.addEventListener('click', () => { J.sub = b.dataset.jsub; renderJobMain(); }));
+  const job = findJob(J.sel); if (!job || job.kind !== 'quote') return;
+  const c = el.querySelector('#qb_cust'), t = el.querySelector('#qb_title'), st = el.querySelector('#qb_st');
+  if (c) c.addEventListener('change', () => { job.customer = c.value.trim(); if (job.customer) { orgLearn({ org: job.customer }); if (job.quote.qf) qfFillFromDir(job.quote.qf, job.customer); } save(); renderJList(); renderJobMain(); });
+  if (t) t.addEventListener('change', () => { job.title = t.value.trim(); if (job.quote.qf && !job.quote.qf.title) { job.quote.qf.title = job.title; job.quote.qf.rfqName = job.quote.qf.rfqName || job.title; } save(); renderJList(); renderJobMain(); });
+  if (st) st.addEventListener('change', () => { job.qst = st.value; jobLog('Саналын төлөв: ' + qstName(job.qst), job); renderJList(); });
+  const w = el.querySelector('#qb_won'); if (w) w.addEventListener('click', () => { if (!confirm(`${job.no} саналыг баталж ажил болгох уу? Бүх мэдээлэл хадгалагдана.`)) return; quoteToJob(job); renderJobs(); toast('Ажил боллоо: ' + job.no); });
+  const d = el.querySelector('#qb_del'); if (d) d.addEventListener('click', ev => { const b = ev.currentTarget; if (!b.dataset.arm) { b.dataset.arm = 1; b.textContent = 'Дахин дарж баталгаажуулна'; setTimeout(() => { delete b.dataset.arm; b.textContent = 'Устгах'; }, 3000); return; } S.jobs = S.jobs.filter(j => j !== job); J.sel = null; save(); renderJobs(); });
+}
 function renderJobSub(el, job) {
   jx(job);
   if (J.sub === 'scope') renderScope(el, job); else if (J.sub === 'quote') renderJQuote(el, job); else if (J.sub === 'prog') renderProg(el, job); else renderAcc(el, job);
@@ -186,11 +200,9 @@ function renderJQuote(el, job) {
     <div class="jcard"><div class="bcard-h">B. Consumable (гагнуурын утас, хий, диск, будаг…)</div><div class="jbody">
       ${edTable('qc', CONS_COLS, q.cons, { foot: sumRow('Consumable дүн', c.cons, 1), extra: consPickHTML(q) })}
     </div></div>
-    <div class="jcard"><div class="bcard-h">C. Ажиллах хүч <span class="sp"></span><span class="muted" style="font-weight:400;font-size:12px">Үе шат, хүн, цагийг «Scope · хуваарь»-аас авна</span></div><div class="jbody">
+    <div class="jcard"><div class="bcard-h">C. Ажиллах хүч <span class="sp"></span><span class="muted" style="font-weight:400;font-size:12px">Энд засахад «Хамрах хүрээ»-ний хуваарь мөн шинэчлэгдэнэ</span></div><div class="jbody">
       <div class="jgrid">${fldIn('q_rate', 'Цагийн хөлс, ₮', q.rate, { num: 1 })}${fldIn('q_rateK', 'Нэмэгдэл коэффициент (НДШ, ХАОАТ…)', q.rateK, { num: 1 })}<div class="fld">Тооцох хөлс, ₮/цаг<div class="mono" style="padding:7px 0">${money(c.rate)}</div></div></div>
-      <div class="tblwrap"><table class="dt"><thead><tr><th>№</th><th>Үе шат</th><th class="r">Хүн</th><th class="r">Нэг хүний цаг</th><th class="r">Нийт цаг</th><th class="r">Ц/х, ₮</th><th class="r">Нийт цалин, ₮</th></tr></thead><tbody>
-      ${c.labor.map((l, i) => `<tr><td class="num muted">${i + 1}</td><td>${esc(l.name)}</td><td class="r num">${l.people}</td><td class="r num">${l.hours}</td><td class="r num">${nf(l.h, 1)}</td><td class="r num">${money(c.rate)}</td><td class="r num">${money(l.cost)}</td></tr>`).join('')}
-      <tr class="tot"><td></td><td colspan="3">Хүчний нийт дүн</td><td class="r num">${nf(c.laborH, 1)}</td><td></td><td class="r num">${money(c.laborTotal)}</td></tr></tbody></table></div>
+      ${edTable('ql', [{ k: 'name', t: 'Ажил / үе шат (гагнуурчин, слесарь, будаг…)' }, { k: 'people', t: 'Хүн', num: 1, w: 70 }, { k: 'hours', t: 'Нэг хүний цаг', num: 1, w: 90 }, { k: 'th', t: 'Нийт цаг', calc: (r, i) => nf(c.labor[i] ? c.labor[i].h : 0, 1) }, { k: 'tc', t: 'Нийт цалин, ₮', calc: (r, i) => money(c.labor[i] ? c.labor[i].cost : 0) }], sc.stages, { foot: `<tr class="tot"><td></td><td colspan="3">Хүчний нийт дүн</td><td class="r num">${nf(c.laborH, 1)}</td><td class="r num">${money(c.laborTotal)}</td><td></td></tr>` })}
     </div></div>
     <div class="jcard"><div class="bcard-h">D. Тоног төхөөрөмж, үйлчилгээ (лазер зүсэлт, нугалалт, NDT, кран…)</div><div class="jbody">
       ${edTable('qe', LINE_COLS, q.equipRows, { foot: sumRow('Тоног, үйлчилгээний мөрүүд', c.equipRows) })}
@@ -222,7 +234,7 @@ function renderJQuote(el, job) {
   el.querySelectorAll('[data-kgc]').forEach(b => b.addEventListener('click', () => { toKg(q.mats[+b.dataset.kgc]); save(); re(); }));
   el.querySelector('#qAllKg').addEventListener('click', () => { q.mats.forEach(toKg); save(); re(); });
   const L = () => ({ name: '', qty: 1, unit: 'ш', price: 0, note: '' });
-  bindEd(el, { qm: { arr: () => q.mats, cols: MAT_COLS, blank: L }, qc: { arr: () => q.cons, cols: CONS_COLS, blank: () => ({ grp: '', name: '', qty: 1, unit: 'ш', price: '', note: '' }) }, qe: { arr: () => q.equipRows, cols: LINE_COLS, blank: L }, qo: { arr: () => q.other, cols: LINE_COLS, blank: L } }, re, (id, row, key) => quoteLineHook(job, id, row, key));
+  bindEd(el, { qm: { arr: () => q.mats, cols: MAT_COLS, blank: L }, ql: { arr: () => sc.stages, cols: [{ k: 'name' }, { k: 'people', num: 1 }, { k: 'hours', num: 1 }], blank: () => ({ name: '', start: 1, dur: 1, people: 1, hours: 8, pct: 0 }) }, qc: { arr: () => q.cons, cols: CONS_COLS, blank: () => ({ grp: '', name: '', qty: 1, unit: 'ш', price: '', note: '' }) }, qe: { arr: () => q.equipRows, cols: LINE_COLS, blank: L }, qo: { arr: () => q.other, cols: LINE_COLS, blank: L } }, re, (id, row, key) => quoteLineHook(job, id, row, key));
   const consRow = c => { const r = { grp: c.grp || '', name: c.name, qty: 1, unit: c.unit, price: netPrice(c, q), note: '' }; quoteLineHook(job, 'qc', r, 'name'); return r; };
   el.querySelector('#qConsPre').addEventListener('change', e => { const c = CAT().find(x => x.id === e.target.value); if (!c) return; q.cons.push(consRow(c)); save(); re(); });
   el.querySelector('#qConsGrp').addEventListener('change', e => { const g = consGroups().find(([k]) => k === e.target.value); if (!g) return; const have = new Set(q.cons.map(r => String(r.name).toLowerCase())); let n = 0; g[1].forEach(c => { if (have.has(c.name.toLowerCase())) return; const r = consRow(c); r.qty = 0; q.cons.push(r); n++; }); save(); re(); toast(`${g[0]}: ${n} мөр нэмэгдлээ — тоог бөглөнө үү`); });

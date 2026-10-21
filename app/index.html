@@ -344,6 +344,7 @@ table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
 .jf .x{position:absolute;top:4px;right:4px;background:var(--surface)}.jf .jfsplit{margin:0 8px 8px}.jf.geo.on{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}.jf.geo canvas{width:160px;height:110px}
 .pvmodal .jf figcaption{color:var(--ink);text-align:left;opacity:1}.pvmodal .jf{width:auto}
 #infoSide .tabs{overflow-x:auto;scrollbar-width:thin}#infoSide .tabs button{white-space:nowrap;flex:none;padding-left:10px;padding-right:10px}
+.qbar{gap:8px;align-items:center;flex-wrap:wrap;padding:8px}.pill.qst-draft{border-color:#8a96a3;color:#5b6773}.pill.qst-sent{border-color:#4472c4;color:#4472c4}.pill.qst-lost{border-color:#c0392b;color:#c0392b}
 .jfcard.drop{outline:2px dashed var(--accent);outline-offset:-4px}
 .clbox{display:grid;gap:6px}.clist{margin:0;padding-left:22px;display:grid;gap:4px}.clist li{display:flex;gap:4px;align-items:center}.clist li.sub{margin-left:22px;list-style:disc}.clist li .inp{flex:1;min-width:0;padding:4px 6px}
 .cladd{display:flex;gap:6px;flex-wrap:wrap}.cladd select{flex:1 1 200px;min-width:0}.cladd input{flex:1 1 160px;min-width:0}
@@ -437,10 +438,10 @@ tr.rcut td:first-child{box-shadow:inset 3px 0 0 var(--accent)}
     </nav>
     <div class="panel-body">
       <section id="jtab-jobs">
-        <div class="ptools"><button class="btn primary" id="jNew">+ Шинэ ажил</button><button class="btn" id="jDash">Самбар</button></div>
+        <div class="ptools"><button class="btn primary" id="jNew">+ Шинэ ажил</button><button class="btn" id="qNew" title="Зөвхөн үнийн санал — батлагдвал ажил болгоно">+ Үнийн санал</button><button class="btn" id="jDash">Самбар</button></div>
         <div class="grid2" style="margin:10px 0">
           <input id="jSearch" class="inp" placeholder="Хайх: дугаар, захиалагч, хүн, үнийн санал…" aria-label="Хайх">
-          <select id="jFilter" class="inp" aria-label="Төлөв"><option value="open">Идэвхтэй</option><option value="all">Бүгд</option><option value="closed">Дууссан</option></select>
+          <select id="jFilter" class="inp" aria-label="Төлөв"><option value="open">Идэвхтэй (ажил + санал)</option><option value="jobs">Зөвхөн ажил</option><option value="quotes">Зөвхөн үнийн санал</option><option value="all">Бүгд</option><option value="closed">Дууссан / татгалзсан</option></select>
         </div>
         <select id="jOrg" class="inp" aria-label="Байгууллага" style="margin:-4px 0 10px;width:100%"><option value="">Бүх байгууллага</option></select>
         <div id="jList" class="plist"></div>
@@ -4002,7 +4003,27 @@ const I18N_EN = {
 "Стандарт": "Standard",
 "Миний нэмсэн": "My clauses",
 "Дээш": "Up",
-"Нэр (албан тушаал)": "Name (position)"
+"Нэр (албан тушаал)": "Name (position)",
+"Ноорог": "Draft",
+"Илгээсэн": "Sent",
+"Батлагдсан": "Accepted",
+"Татгалзсан": "Declined",
+"✓ Ажил болгох": "✓ Convert to job",
+"Захиалагч баталсан — бүх алхам (scope, үйлдвэрлэл, явц, хүлээлгэх) нээгдэнэ": "Customer accepted — opens all steps (scope, production, progress, handover)",
+"саналыг баталж ажил болгох уу? Бүх мэдээлэл хадгалагдана.": "— accept this quotation and convert it to a job? All data is kept.",
+"Ажил боллоо:": "Converted to job:",
+"Саналын төлөв:": "Quotation status:",
+"Үнийн санал нээсэн": "Quotation created",
+"батлагдаж ажил болсон": "accepted and converted to a job",
+"+ Үнийн санал": "+ Quotation",
+"Зөвхөн үнийн санал — батлагдвал ажил болгоно": "Quotation only — convert to a job when accepted",
+"Идэвхтэй (ажил + санал)": "Active (jobs + quotes)",
+"Зөвхөн ажил": "Jobs only",
+"Зөвхөн үнийн санал": "Quotations only",
+"Дууссан / татгалзсан": "Done / declined",
+"санал": "quotes",
+"Ажил / үе шат (гагнуурчин, слесарь, будаг…)": "Work / stage (welder, fitter, painter…)",
+"Энд засахад «Хамрах хүрээ»-ний хуваарь мөн шинэчлэгдэнэ": "Editing here also updates the «Scope» schedule"
 };
 /* ================= KH Fab — language (МН / EN) and theme (Day / Night) =================
    The UI is written in Mongolian. In English mode every Mongolian fragment that reaches the
@@ -7241,6 +7262,27 @@ function jobLog(msg, job) {
   if (job.log.length > 200) job.log.length = 200;
   save();
 }
+const QST = [['draft', 'Ноорог'], ['sent', 'Илгээсэн'], ['won', 'Батлагдсан'], ['lost', 'Татгалзсан']];
+const qstName = k => (QST.find(x => x[0] === k) || QST[0])[1];
+const isQ = j => j && j.kind === 'quote';
+/* quick quotation: only customer + quote; «Ажил болгох» turns it into a full job keeping everything */
+function newQuote() {
+  const y = new Date().getFullYear();
+  if (S.qYear !== y) { S.qYear = y; S.qSeq = 0; }
+  const n = ++S.qSeq, no = `SQ-${y}-${String(n).padStart(3, '0')}`;
+  const job = { id: uid(), kind: 'quote', qst: 'draft', no, short: String(n).padStart(3, '0'), customer: '', title: '', due: '', status: 'new', note: '', items: [], extra: [], est: null, act: { hours: '', kg: '', other: '' }, trace: [], log: [], created: today() };
+  S.jobs.unshift(job); jx(job); job.quote.no = no; jobLog('Үнийн санал нээсэн', job);
+  J.sel = job.id; J.sub = 'quote'; J.dash = false; save(); return job;
+}
+function quoteToJob(job) {
+  const y = new Date().getFullYear();
+  if (S.jobYear !== y) { S.jobYear = y; S.jobSeq = 0; }
+  const n = ++S.jobSeq, short = String(n).padStart(3, '0');
+  if (!job.quote.no) job.quote.no = job.no;
+  delete job.kind; job.qst = 'won'; job.no = `KH-${y}-${short}`; job.short = short; job.status = 'new';
+  if (!+job.price) { try { job.price = Math.round(quoteCalc(job).net); } catch (e) { } }
+  jobLog(`Үнийн санал ${job.quote.no} батлагдаж ажил болсон`, job); J.sub = 'main'; save();
+}
 function newJob() {
   const y = new Date().getFullYear();
   if (S.jobYear !== y) { S.jobYear = y; S.jobSeq = 0; }
@@ -7301,21 +7343,23 @@ const daysLeft = d => d ? Math.round((new Date(d + 'T00:00:00') - new Date(today
 $$('[data-jtab]').forEach(b => b.addEventListener('click', () => { J.tab = b.dataset.jtab; $$('[data-jtab]').forEach(x => x.classList.toggle('on', x === b)); ['jobs', 'kits', 'certs'].forEach(t => $('#jtab-' + t).hidden = t !== J.tab); renderJobs(); }));
 function renderJobs() { renderJList(); renderKList(); renderCertSide(); renderJobMain(); }
 function renderJList() {
-  $('#cntJobs').textContent = S.jobs.filter(j => !['done', 'given'].includes(j.status)).length || '';
+  $('#cntJobs').textContent = S.jobs.filter(j => isQ(j) ? j.qst !== 'lost' : !['done', 'given'].includes(j.status)).length || '';
   const q = ($('#jSearch').value || '').toLowerCase(), f = $('#jFilter').value, os = $('#jOrg'), og = os.value;
   { const O = orgs().slice().sort((a, b) => a.name.localeCompare(b.name)); os.innerHTML = `<option value="">Бүх байгууллага (${O.length})</option>${O.map(o => `<option value="${esc(o.id)}"${o.id === og ? ' selected' : ''}>${esc(o.name)} · ${jobsOfOrg(o).length}</option>`).join('')}`; }
   const org = orgs().find(o => o.id === og), inOrg = org ? new Set(jobsOfOrg(org)) : null;
   const hay = j => { const f2 = (j.quote && j.quote.qf) || {}; return [j.no, j.customer, j.title, j.quote && j.quote.no, f2.person, f2.email, f2.phone, f2.rfqName, f2.rfqNo, j.dock && j.dock.no, j.dock && j.dock.po].join(' ').toLowerCase(); };
-  const list = S.jobs.filter(j => (f === 'all' || (f === 'open' ? !['done', 'given'].includes(j.status) : ['done', 'given'].includes(j.status))) && (!inOrg || inOrg.has(j)) && (!q || hay(j).includes(q)));
+  const fOk = j => f === 'all' ? true : f === 'quotes' ? isQ(j) : f === 'jobs' ? !isQ(j) && !['done', 'given'].includes(j.status) : f === 'closed' ? (isQ(j) ? j.qst === 'lost' : ['done', 'given'].includes(j.status)) : (isQ(j) ? j.qst !== 'lost' : !['done', 'given'].includes(j.status));
+  const list = S.jobs.filter(j => fOk(j) && (!inOrg || inOrg.has(j)) && (!q || hay(j).includes(q)));
   $('#jList').innerHTML = list.length ? list.map(j => {
     const late = j.due && j.due < today() && !['done', 'given'].includes(j.status);
-    return `<div class="jitem${J.sel === j.id && J.tab === 'jobs' ? ' on' : ''}" data-id="${j.id}"><span class="no">${esc(j.no)}${S.activeJob === j.id ? ' <span class="pill rem">өрөлтөд</span>' : ''}</span><span class="pill st-${j.status}">${jstName(j.status)}</span><span class="t">${esc(j.title || '—')}${j.customer ? ' · ' + esc(j.customer) : ''}${j.quote && j.quote.qf && j.quote.qf.person ? ' · ' + esc(personSplit(j.quote.qf.person).name) : ''}${j.due ? ` · <span class="${late ? 'late' : ''}">${esc(j.due)}</span>` : ''}</span></div>`;
+    return `<div class="jitem${J.sel === j.id && J.tab === 'jobs' ? ' on' : ''}" data-id="${j.id}"><span class="no">${esc(j.no)}${S.activeJob === j.id ? ' <span class="pill rem">өрөлтөд</span>' : ''}</span>${isQ(j) ? `<span class="pill qst-${j.qst || 'draft'}">Санал · ${qstName(j.qst)}</span>` : `<span class="pill st-${j.status}">${jstName(j.status)}</span>`}<span class="t">${esc(j.title || '—')}${j.customer ? ' · ' + esc(j.customer) : ''}${j.quote && j.quote.qf && j.quote.qf.person ? ' · ' + esc(personSplit(j.quote.qf.person).name) : ''}${j.due ? ` · <span class="${late ? 'late' : ''}">${esc(j.due)}</span>` : ''}</span></div>`;
   }).join('') : `<div class="emptyp">${S.jobs.length ? 'Хайлтад тохирох ажил алга.' : 'Ажил алга. <b>+ Шинэ ажил</b> товчоор эхэлнэ.'}</div>`;
   ['formTrace', 'rev', 'operators', 'formQuote', 'formScope', 'formInstr'].forEach(k => $('#iso_' + k).value = S.iso[k] || '');
 }
 $('#jDash').addEventListener('click', () => { J.dash = true; renderJList(); renderJobMain(); });
 $('#jList').addEventListener('click', e => { const it = e.target.closest('.jitem'); if (!it) return; J.sel = it.dataset.id; J.traceForm = false; J.dash = false; renderJList(); renderJobMain(); });
-$('#jNew').addEventListener('click', () => { J.dash = false; newJob(); renderJobs(); setTimeout(() => { const el = $('#jf_title'); if (el) el.focus(); }, 50); });
+$('#qNew').addEventListener('click', () => { newQuote(); renderJobs(); setTimeout(() => { const el = $('#qb_cust'); if (el) el.focus(); }, 50); });
+$('#jNew').addEventListener('click', () => { J.dash = false; J.sub = 'main'; newJob(); renderJobs(); setTimeout(() => { const el = $('#jf_title'); if (el) el.focus(); }, 50); });
 $('#jSearch').addEventListener('input', renderJList);
 $('#jFilter').addEventListener('change', renderJList);
 $('#jOrg').addEventListener('change', renderJList);
@@ -7364,6 +7408,7 @@ function renderJobMain() {
   const job = findJob(J.sel) || findJob(S.activeJob) || S.jobs[0];
   if (!job) { el.innerHTML = '<div class="jempty"><b>Ажил алга</b><br>Зүүн талын <b>+ Шинэ ажил</b> товчоор ажлын дугаар үүсгэнэ. Дугаар нь <span class="mono">KH-' + new Date().getFullYear() + '-001</span> хэлбэртэй, жил бүр шинээр эхэлнэ.</div>'; return; }
   J.sel = job.id;
+  if (isQ(job)) J.sub = 'quote';
   if (J.sub && !['main', 'prod'].includes(J.sub)) { renderJobSub(el, job); return; }
   const parts = jobParts(job), pcs = parts.reduce((a, p) => a + p.qty, 0), kg = jobWeight(parts);
   const kitOpts = sel => '<option value="">— сонгох —</option>' + S.kits.map(k => `<option value="${k.id}"${k.id === sel ? ' selected' : ''}>${esc(k.name)}</option>`).join('');
@@ -7632,9 +7677,9 @@ async function jobCardPdf(job) {
 
 /* ---------- dashboard: deadlines, budget vs actual, margin ---------- */
 function renderDash(el) {
-  const open = S.jobs.filter(x => !['done', 'given'].includes(x.status));
+  const JB = S.jobs.filter(x => !isQ(x)), open = JB.filter(x => !['done', 'given'].includes(x.status));
   const late = open.filter(x => x.due && daysLeft(x.due) < 0), soon = open.filter(x => x.due && daysLeft(x.due) >= 0 && daysLeft(x.due) <= 7);
-  const M = S.jobs.map(x => ({ j: x, m: jobMoney(x) }));
+  const M = JB.map(x => ({ j: x, m: jobMoney(x) }));
   const sum = (arr, f) => arr.reduce((a, o) => a + (f(o) || 0), 0);
   const openM = M.filter(o => open.includes(o.j)), doneM = M.filter(o => !open.includes(o.j));
   const pPrice = sum(openM, o => o.m.price), pPlan = sum(openM, o => o.m.plan);
@@ -7648,7 +7693,7 @@ function renderDash(el) {
   const rows = M.slice().sort((a, b) => (open.includes(b.j) - open.includes(a.j)) || String(a.j.due || '9999').localeCompare(String(b.j.due || '9999')));
   el.innerHTML = `
     <div class="summary">${[
-      ['Идэвхтэй ажил', `${open.length}`, `${S.jobs.length} нийт`],
+      ['Идэвхтэй ажил', `${open.length}`, `${JB.length} нийт · ${S.jobs.length - JB.length} санал`],
       ['Хугацаа хэтэрсэн', `<span class="${late.length ? 'late' : ''}">${late.length}</span>`, late.map(x => x.no).join(', ') || 'алга'],
       ['7 хоногт дуусах', `${soon.length}`, soon.map(x => x.no).join(', ') || 'алга'],
       ['Идэвхтэй гэрээ', `${nf(pPrice / 1e6, 1)}<small>сая₮</small>`, `төсөв ${nf(pPlan / 1e6, 1)} сая₮`],
@@ -7766,9 +7811,23 @@ function bindFields(root, obj, keys, after) {
 
 /* ---------- sub-tab bar ---------- */
 function jobSubBar(job) {
+  if (job.kind === 'quote') return `<nav class="rtabs jsub stepper qbar"><span class="pill qst-${job.qst || 'draft'}" style="align-self:center">ҮНИЙН САНАЛ</span><b class="mono" style="align-self:center">${esc(job.no)}</b>
+    <input id="qb_cust" class="inp" list="dl-org" placeholder="Захиалагч (байгууллага)" value="${esc(job.customer)}" style="flex:1 1 200px;min-width:0">
+    <input id="qb_title" class="inp" placeholder="Ажлын нэр" value="${esc(job.title)}" style="flex:1 1 200px;min-width:0">
+    <select id="qb_st" class="inp" style="width:auto">${QST.filter(x => x[0] !== 'won').map(([k, n]) => `<option value="${k}"${(job.qst || 'draft') === k ? ' selected' : ''}>${n}</option>`).join('')}</select>
+    <button class="btn primary" id="qb_won" title="Захиалагч баталсан — бүх алхам (scope, үйлдвэрлэл, явц, хүлээлгэх) нээгдэнэ">✓ Ажил болгох</button><button class="btn ghost" id="qb_del">Устгах</button></nav>`;
   return `<nav class="rtabs jsub stepper">${JSUB.map(([k, n, d], i) => `${i ? '<span class="arr">›</span>' : ''}<button data-jsub="${k}" title="${d}" class="${(J.sub || 'main') === k ? 'on' : ''}${jobStepDone(job, k) ? ' done' : ''}"><span class="sn">${jobStepDone(job, k) ? '✓' : i + 1}</span>${n}</button>`).join('')}<span class="sp" style="flex:1"></span><span class="muted mono" style="align-self:center;font-size:12px;padding-right:6px">${esc(job.no)}${job.title ? ' · ' + esc(job.title) : ''}</span></nav>`;
 }
-function bindSubBar(el) { el.querySelectorAll('[data-jsub]').forEach(b => b.addEventListener('click', () => { J.sub = b.dataset.jsub; renderJobMain(); })); }
+function bindSubBar(el) {
+  el.querySelectorAll('[data-jsub]').forEach(b => b.addEventListener('click', () => { J.sub = b.dataset.jsub; renderJobMain(); }));
+  const job = findJob(J.sel); if (!job || job.kind !== 'quote') return;
+  const c = el.querySelector('#qb_cust'), t = el.querySelector('#qb_title'), st = el.querySelector('#qb_st');
+  if (c) c.addEventListener('change', () => { job.customer = c.value.trim(); if (job.customer) { orgLearn({ org: job.customer }); if (job.quote.qf) qfFillFromDir(job.quote.qf, job.customer); } save(); renderJList(); renderJobMain(); });
+  if (t) t.addEventListener('change', () => { job.title = t.value.trim(); if (job.quote.qf && !job.quote.qf.title) { job.quote.qf.title = job.title; job.quote.qf.rfqName = job.quote.qf.rfqName || job.title; } save(); renderJList(); renderJobMain(); });
+  if (st) st.addEventListener('change', () => { job.qst = st.value; jobLog('Саналын төлөв: ' + qstName(job.qst), job); renderJList(); });
+  const w = el.querySelector('#qb_won'); if (w) w.addEventListener('click', () => { if (!confirm(`${job.no} саналыг баталж ажил болгох уу? Бүх мэдээлэл хадгалагдана.`)) return; quoteToJob(job); renderJobs(); toast('Ажил боллоо: ' + job.no); });
+  const d = el.querySelector('#qb_del'); if (d) d.addEventListener('click', ev => { const b = ev.currentTarget; if (!b.dataset.arm) { b.dataset.arm = 1; b.textContent = 'Дахин дарж баталгаажуулна'; setTimeout(() => { delete b.dataset.arm; b.textContent = 'Устгах'; }, 3000); return; } S.jobs = S.jobs.filter(j => j !== job); J.sel = null; save(); renderJobs(); });
+}
 function renderJobSub(el, job) {
   jx(job);
   if (J.sub === 'scope') renderScope(el, job); else if (J.sub === 'quote') renderJQuote(el, job); else if (J.sub === 'prog') renderProg(el, job); else renderAcc(el, job);
@@ -7854,11 +7913,9 @@ function renderJQuote(el, job) {
     <div class="jcard"><div class="bcard-h">B. Consumable (гагнуурын утас, хий, диск, будаг…)</div><div class="jbody">
       ${edTable('qc', CONS_COLS, q.cons, { foot: sumRow('Consumable дүн', c.cons, 1), extra: consPickHTML(q) })}
     </div></div>
-    <div class="jcard"><div class="bcard-h">C. Ажиллах хүч <span class="sp"></span><span class="muted" style="font-weight:400;font-size:12px">Үе шат, хүн, цагийг «Scope · хуваарь»-аас авна</span></div><div class="jbody">
+    <div class="jcard"><div class="bcard-h">C. Ажиллах хүч <span class="sp"></span><span class="muted" style="font-weight:400;font-size:12px">Энд засахад «Хамрах хүрээ»-ний хуваарь мөн шинэчлэгдэнэ</span></div><div class="jbody">
       <div class="jgrid">${fldIn('q_rate', 'Цагийн хөлс, ₮', q.rate, { num: 1 })}${fldIn('q_rateK', 'Нэмэгдэл коэффициент (НДШ, ХАОАТ…)', q.rateK, { num: 1 })}<div class="fld">Тооцох хөлс, ₮/цаг<div class="mono" style="padding:7px 0">${money(c.rate)}</div></div></div>
-      <div class="tblwrap"><table class="dt"><thead><tr><th>№</th><th>Үе шат</th><th class="r">Хүн</th><th class="r">Нэг хүний цаг</th><th class="r">Нийт цаг</th><th class="r">Ц/х, ₮</th><th class="r">Нийт цалин, ₮</th></tr></thead><tbody>
-      ${c.labor.map((l, i) => `<tr><td class="num muted">${i + 1}</td><td>${esc(l.name)}</td><td class="r num">${l.people}</td><td class="r num">${l.hours}</td><td class="r num">${nf(l.h, 1)}</td><td class="r num">${money(c.rate)}</td><td class="r num">${money(l.cost)}</td></tr>`).join('')}
-      <tr class="tot"><td></td><td colspan="3">Хүчний нийт дүн</td><td class="r num">${nf(c.laborH, 1)}</td><td></td><td class="r num">${money(c.laborTotal)}</td></tr></tbody></table></div>
+      ${edTable('ql', [{ k: 'name', t: 'Ажил / үе шат (гагнуурчин, слесарь, будаг…)' }, { k: 'people', t: 'Хүн', num: 1, w: 70 }, { k: 'hours', t: 'Нэг хүний цаг', num: 1, w: 90 }, { k: 'th', t: 'Нийт цаг', calc: (r, i) => nf(c.labor[i] ? c.labor[i].h : 0, 1) }, { k: 'tc', t: 'Нийт цалин, ₮', calc: (r, i) => money(c.labor[i] ? c.labor[i].cost : 0) }], sc.stages, { foot: `<tr class="tot"><td></td><td colspan="3">Хүчний нийт дүн</td><td class="r num">${nf(c.laborH, 1)}</td><td class="r num">${money(c.laborTotal)}</td><td></td></tr>` })}
     </div></div>
     <div class="jcard"><div class="bcard-h">D. Тоног төхөөрөмж, үйлчилгээ (лазер зүсэлт, нугалалт, NDT, кран…)</div><div class="jbody">
       ${edTable('qe', LINE_COLS, q.equipRows, { foot: sumRow('Тоног, үйлчилгээний мөрүүд', c.equipRows) })}
@@ -7890,7 +7947,7 @@ function renderJQuote(el, job) {
   el.querySelectorAll('[data-kgc]').forEach(b => b.addEventListener('click', () => { toKg(q.mats[+b.dataset.kgc]); save(); re(); }));
   el.querySelector('#qAllKg').addEventListener('click', () => { q.mats.forEach(toKg); save(); re(); });
   const L = () => ({ name: '', qty: 1, unit: 'ш', price: 0, note: '' });
-  bindEd(el, { qm: { arr: () => q.mats, cols: MAT_COLS, blank: L }, qc: { arr: () => q.cons, cols: CONS_COLS, blank: () => ({ grp: '', name: '', qty: 1, unit: 'ш', price: '', note: '' }) }, qe: { arr: () => q.equipRows, cols: LINE_COLS, blank: L }, qo: { arr: () => q.other, cols: LINE_COLS, blank: L } }, re, (id, row, key) => quoteLineHook(job, id, row, key));
+  bindEd(el, { qm: { arr: () => q.mats, cols: MAT_COLS, blank: L }, ql: { arr: () => sc.stages, cols: [{ k: 'name' }, { k: 'people', num: 1 }, { k: 'hours', num: 1 }], blank: () => ({ name: '', start: 1, dur: 1, people: 1, hours: 8, pct: 0 }) }, qc: { arr: () => q.cons, cols: CONS_COLS, blank: () => ({ grp: '', name: '', qty: 1, unit: 'ш', price: '', note: '' }) }, qe: { arr: () => q.equipRows, cols: LINE_COLS, blank: L }, qo: { arr: () => q.other, cols: LINE_COLS, blank: L } }, re, (id, row, key) => quoteLineHook(job, id, row, key));
   const consRow = c => { const r = { grp: c.grp || '', name: c.name, qty: 1, unit: c.unit, price: netPrice(c, q), note: '' }; quoteLineHook(job, 'qc', r, 'name'); return r; };
   el.querySelector('#qConsPre').addEventListener('change', e => { const c = CAT().find(x => x.id === e.target.value); if (!c) return; q.cons.push(consRow(c)); save(); re(); });
   el.querySelector('#qConsGrp').addEventListener('change', e => { const g = consGroups().find(([k]) => k === e.target.value); if (!g) return; const have = new Set(q.cons.map(r => String(r.name).toLowerCase())); let n = 0; g[1].forEach(c => { if (have.has(c.name.toLowerCase())) return; const r = consRow(c); r.qty = 0; q.cons.push(r); n++; }); save(); re(); toast(`${g[0]}: ${n} мөр нэмэгдлээ — тоог бөглөнө үү`); });

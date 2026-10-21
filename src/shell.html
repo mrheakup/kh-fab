@@ -339,6 +339,7 @@ table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
 .jf .x{position:absolute;top:4px;right:4px;background:var(--surface)}.jf .jfsplit{margin:0 8px 8px}.jf.geo.on{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}.jf.geo canvas{width:160px;height:110px}
 .pvmodal .jf figcaption{color:var(--ink);text-align:left;opacity:1}.pvmodal .jf{width:auto}
 #infoSide .tabs{overflow-x:auto;scrollbar-width:thin}#infoSide .tabs button{white-space:nowrap;flex:none;padding-left:10px;padding-right:10px}
+.qbar{gap:8px;align-items:center;flex-wrap:wrap;padding:8px}.pill.qst-draft{border-color:#8a96a3;color:#5b6773}.pill.qst-sent{border-color:#4472c4;color:#4472c4}.pill.qst-lost{border-color:#c0392b;color:#c0392b}
 .jfcard.drop{outline:2px dashed var(--accent);outline-offset:-4px}
 .clbox{display:grid;gap:6px}.clist{margin:0;padding-left:22px;display:grid;gap:4px}.clist li{display:flex;gap:4px;align-items:center}.clist li.sub{margin-left:22px;list-style:disc}.clist li .inp{flex:1;min-width:0;padding:4px 6px}
 .cladd{display:flex;gap:6px;flex-wrap:wrap}.cladd select{flex:1 1 200px;min-width:0}.cladd input{flex:1 1 160px;min-width:0}
@@ -432,10 +433,10 @@ tr.rcut td:first-child{box-shadow:inset 3px 0 0 var(--accent)}
     </nav>
     <div class="panel-body">
       <section id="jtab-jobs">
-        <div class="ptools"><button class="btn primary" id="jNew">+ Шинэ ажил</button><button class="btn" id="jDash">Самбар</button></div>
+        <div class="ptools"><button class="btn primary" id="jNew">+ Шинэ ажил</button><button class="btn" id="qNew" title="Зөвхөн үнийн санал — батлагдвал ажил болгоно">+ Үнийн санал</button><button class="btn" id="jDash">Самбар</button></div>
         <div class="grid2" style="margin:10px 0">
           <input id="jSearch" class="inp" placeholder="Хайх: дугаар, захиалагч, хүн, үнийн санал…" aria-label="Хайх">
-          <select id="jFilter" class="inp" aria-label="Төлөв"><option value="open">Идэвхтэй</option><option value="all">Бүгд</option><option value="closed">Дууссан</option></select>
+          <select id="jFilter" class="inp" aria-label="Төлөв"><option value="open">Идэвхтэй (ажил + санал)</option><option value="jobs">Зөвхөн ажил</option><option value="quotes">Зөвхөн үнийн санал</option><option value="all">Бүгд</option><option value="closed">Дууссан / татгалзсан</option></select>
         </div>
         <select id="jOrg" class="inp" aria-label="Байгууллага" style="margin:-4px 0 10px;width:100%"><option value="">Бүх байгууллага</option></select>
         <div id="jList" class="plist"></div>
