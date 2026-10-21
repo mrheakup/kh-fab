@@ -12,7 +12,7 @@ function imgThumb(blob, max = 360) {
   return new Promise(res => { const u = URL.createObjectURL(blob), im = new Image(); im.onload = () => { const k = Math.min(1, max / Math.max(im.naturalWidth, im.naturalHeight)), c = document.createElement('canvas'); c.width = Math.max(1, Math.round(im.naturalWidth * k)); c.height = Math.max(1, Math.round(im.naturalHeight * k)); c.getContext('2d').drawImage(im, 0, 0, c.width, c.height); URL.revokeObjectURL(u); res(c.toDataURL('image/jpeg', 0.8)); }; im.onerror = () => { URL.revokeObjectURL(u); res(''); }; im.src = u; });
 }
 /* PDF pages → images (view + print) */
-async function pdfPages(blob, dpi = 150, maxPages = 30) {
+async function pdfPages(blob, dpi = 220, maxPages = 30) {
   const lib = await getPdfjs(), buf = await blob.arrayBuffer();
   let pdf; try { pdf = await lib.getDocument({ data: new Uint8Array(buf), isEvalSupported: false }).promise; } catch (e) { lib.GlobalWorkerOptions.workerPort = null; pdf = await lib.getDocument({ data: new Uint8Array(buf), isEvalSupported: false }).promise; }
   const out = [];
@@ -67,12 +67,12 @@ async function jfImagePages(job, f, blob) {
   x.drawImage(im, 10 + (bw - w) / 2, 15 + (bh - h) / 2, w, h); URL.revokeObjectURL(u);
   return { imgs: [{ url: c.toDataURL('image/jpeg', 0.92), alias: 'ji' }], land };
 }
-async function jfView(job, id) {
-  const f = (job.files || []).find(x => x.id === id), d = f && await docGet(id); if (!d) { toast('Файл олдсонгүй (өөр компьютерт хавсаргасан байж магадгүй)'); return; }
+async function jfView(job, id, src) {
+  const f = src ? src.f : (job.files || []).find(x => x.id === id), d = src ? src.d : f && await docGet(id); if (!d) { toast('Файл олдсонгүй (өөр компьютерт хавсаргасан байж магадгүй)'); return; }
   const old = document.getElementById('pvModal'); if (old) old.remove();
   const m = document.createElement('div'); m.id = 'pvModal'; m.className = 'pvmodal';
   m.innerHTML = `<div class="pvbar"><b>${esc(f.name)}</b><span class="muted">${esc(job.no)} · ${fsz(f.size)}</span><span class="sp" style="flex:1"></span>
-    <input class="inp" id="jfNote" placeholder="Тайлбар (жишээ: Rev B, захиалагчийн зураг)" value="${esc(f.note || '')}" style="width:260px">
+    ${src ? `<button class="btn" data-a="attach">+ Ажилд хавсаргах</button><button class="btn ghost" data-a="ext">Програмаар нээх</button>` : `<input class="inp" id="jfNote" placeholder="Тайлбар (жишээ: Rev B, захиалагчийн зураг)" value="${esc(f.note || '')}" style="width:260px">`}
     ${jfCanSplit(f) ? '<button class="btn" data-a="split">⚙ BOM / зүсэлт ялгах</button>' : ''}<button class="btn primary" data-a="print" disabled>🖨 Хэвлэх</button><button class="btn" data-a="save">Компьютерт хадгалах</button><button class="btn ghost" data-a="close">Хаах ✕</button></div>
     <div class="pvpages"><p class="muted" style="padding:30px">Ачаалж байна…</p></div>`;
   document.body.appendChild(m);
@@ -85,12 +85,12 @@ async function jfView(job, id) {
     else box.innerHTML = `<div class="jcard" style="max-width:520px;margin:40px auto"><div class="jbody"><p><b>${esc(f.name)}</b> — энэ төрлийн файлыг програм дотор харуулахгүй.</p><p class="note">«Компьютерт хадгалах» дарж өөрийн програмаар (Excel, Word, AutoCAD, Inventor…) нээнэ үү.${jfCanSplit(f) ? ' Эсвэл «BOM / зүсэлт ялгах»-аар доторх жагсаалт, контурыг уншина.' : ''}</p></div></div>`;
   } catch (e) { console.error(e); box.innerHTML = `<p class="note" style="padding:30px">Харуулж чадсангүй: ${esc(e.message || e)}. «Компьютерт хадгалах»-аар нээнэ үү.</p>`; }
   if (P) pb.disabled = false;
-  m.querySelector('#jfNote').addEventListener('change', e => { f.note = e.target.value.trim(); save(); });
+  const nt = m.querySelector('#jfNote'); if (nt) nt.addEventListener('change', e => { f.note = e.target.value.trim(); save(); });
   m.addEventListener('click', e => {
     const b = e.target.closest('[data-a]'); if (e.target === m) close(); if (!b) return; const a = b.dataset.a;
-    if (a === 'close') close(); else if (a === 'save') saveFile(f.name, d.blob);
+    if (a === 'close') close(); else if (a === 'save') saveFile(f.name, d.blob); else if (a === 'ext' && src) window.kh.openPath(src.f.path); else if (a === 'attach' && src) { jobFilesAdd(job, [new File([d.blob], f.name, { type: f.type || '' })]).then(() => toast('Ажилд хавсаргалаа: ' + f.name)); }
     else if (a === 'print' && P) { close(); printImgs(P.imgs, !!P.land, 'a4', `${job.no} - ${f.name.replace(/\.[^.]+$/, '')}`); }
-    else if (a === 'split') { close(); jfSplit(job, id); }
+    else if (a === 'split') { close(); jfSplit(job, id, src); }
   });
   const t = setInterval(() => { if (!m.isConnected) { clearInterval(t); renderJobMain(); } }, 400);
 }
@@ -137,8 +137,8 @@ function bomRowParse(r) {
   const type = PURCHASE_RE.test(txt) ? 'buy' : PROFILE_RE.test(txt) ? 'mat' : (PLATE_RE.test(txt) || (thk > 0 && L > 0 && W > 0)) ? 'cut' : 'mat';
   return { no: r.no || '', name: String(r.name || r.size || '').trim(), qty: Math.round(+r.qty || 0) || 1, mat: String(r.mat || (txt.match(/Hardox\s*\d+|Strenx\s*\d+|S\d{3}\w*|09Г2С|Q\d{3}\w*|Ст\s*3|AR\s*\d{3}|NM\s*\d{3}/i) || [''])[0]).trim(), thk: thk > 0 ? thk : '', L: L || '', W: W || '', type, on: type !== 'skip' };
 }
-async function jfSplit(job, id) {
-  const f = (job.files || []).find(x => x.id === id), d = f && await docGet(id); if (!d) { toast('Файл олдсонгүй'); return; }
+async function jfSplit(job, id, src) {
+  const f = src ? src.f : (job.files || []).find(x => x.id === id), d = src ? src.d : f && await docGet(id); if (!d) { toast('Файл олдсонгүй'); return; }
   toast('Зургийг уншиж байна…');
   let rows = [], geo = [], msg = [];
   const file = new File([d.blob], f.name, { type: f.type || '' });
@@ -199,5 +199,40 @@ function jfSplitModal(job, f, B, geo, msg) {
       B.filter(r => r.on && (r.type === 'mat' || r.type === 'buy')).forEach(r => { const row = { name: [r.name, r.mat && !String(r.name).includes(r.mat) ? r.mat : ''].filter(Boolean).join(' '), qty: r.qty, unit: 'ш', kgu: '', price: '', note: (r.type === 'buy' ? 'Худалдан авах · ' : '') + 'BOM: ' + f.name }; quoteLineHook(job, 'qm', row, 'name'); job.quote.mats.push(row); r.on = false; n++; });
       jobLog(`«${f.name}»-аас ${n} BOM мөр үнийн саналд нэмсэн`, job); save(); toast(`${n} мөр «Үнийн санал → A. Материал»-д нэмэгдлээ — үнэгүй мөрийг бөглөнө үү`); draw(); return;
     }
+  });
+}
+
+/* ---------- linked SQ / job folder on the PC (Electron): live file list, view, print, attach ---------- */
+const MIME = { pdf: 'application/pdf', png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', gif: 'image/gif', webp: 'image/webp', bmp: 'image/bmp', svg: 'image/svg+xml', dxf: 'application/dxf', csv: 'text/csv', txt: 'text/plain', xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' };
+const fileUrl = p => 'file:///' + String(p).replace(/\\/g, '/').split('/').map(encodeURIComponent).join('/').replace(/^([A-Za-z])%3A/, '$1:');
+function srcFolderHTML(job) {
+  const q = job.quote || {}, el = !!(window.kh && window.kh.listDir);
+  if (!q.srcFolder && !el) return '';
+  return `<div class="jcard sfcard" data-v="main"><div class="bcard-h">📁 Фолдер — файлууд <span class="pill" id="sfN">${q.srcFolder ? '…' : '—'}</span><span class="sp"></span>
+    ${q.srcFolder && el ? '<button class="btn sm ghost" id="sfOpen">Explorer-т нээх</button><button class="btn sm ghost" id="sfRe" title="Дахин унших">↻</button>' : ''}${el ? `<button class="btn sm ghost" id="sfPick">${q.srcFolder ? 'Фолдер солих' : 'Фолдер холбох'}</button>` : ''}</div>
+    <div class="jbody"><div class="muted mono sfpath">${esc(q.srcFolder || 'Энэ ажил, саналд компьютерын фолдер холбоогүй байна — «Фолдер холбох».')}</div><div class="jfgrid sfgrid" id="sfList">${!el && q.srcFiles ? q.srcFiles.map(n => `<figure class="jf"><div class="th"><span class="ext">${esc(jfExt(n))}</span></div><figcaption><b>${esc(n)}</b></figcaption></figure>`).join('') : ''}</div></div></div>`;
+}
+async function bindSrcFolder(el, job) {
+  const card = el.querySelector('.sfcard'); if (!card || !(window.kh && window.kh.listDir)) return;
+  const q = job.quote; jx(job);
+  const pk = card.querySelector('#sfPick'); if (pk) pk.addEventListener('click', async () => { const d = await window.kh.pickDir(); if (d) { q.srcFolder = d; jobLog('Фолдер холбосон: ' + d, job); save(); renderJobMain(); } });
+  const op = card.querySelector('#sfOpen'); if (op) op.addEventListener('click', async () => { const e = await window.kh.openPath(q.srcFolder); if (e) toast('Фолдер олдсонгүй'); });
+  const rr = card.querySelector('#sfRe'); if (rr) rr.addEventListener('click', () => renderJobMain());
+  if (!q.srcFolder) return;
+  const list = card.querySelector('#sfList'), n = card.querySelector('#sfN');
+  let r; try { r = await window.kh.listDir(q.srcFolder); } catch (e) { r = { error: e.message }; }
+  if (!list.isConnected) return;
+  if (!r || r.error) { n.textContent = '!'; list.innerHTML = `<p class="note">Фолдер олдсонгүй: ${esc(q.srcFolder)}. Өөр компьютер эсвэл зөөгдсөн байж магадгүй — «Фолдер солих».</p>`; return; }
+  const F = r.files.sort((a, b) => (/\.(xlsx|pdf)$/i.test(b.rel) && /^SQ/i.test(b.rel)) - (/\.(xlsx|pdf)$/i.test(a.rel) && /^SQ/i.test(a.rel)) || b.mtime - a.mtime);
+  n.textContent = F.length;
+  list.innerHTML = F.map((f, i) => { const img = /\.(png|jpe?g|gif|webp|bmp)$/i.test(f.rel); return `<figure class="jf" data-sf="${i}" title="${esc(f.rel)}"><div class="th">${img ? `<img loading="lazy" src="${fileUrl(f.path)}" alt="">` : `<span class="ext">${esc(jfExt(f.rel))}</span>`}</div><figcaption><b>${esc(f.rel.split('/').pop())}</b><small>${f.rel.includes('/') ? esc(f.rel.split('/').slice(0, -1).join('/')) + ' · ' : ''}${fsz(f.size)} · ${new Date(f.mtime).toISOString().slice(0, 10)}</small></figcaption>${jfCanSplit({ name: f.rel }) ? `<button class="btn sm ghost jfsplit" data-sfs="${i}">⚙ BOM / зүсэлт</button>` : ''}</figure>`; }).join('') || '<p class="note">Фолдер хоосон байна.</p>';
+  const src = async i => { const f = F[i], name = f.rel.split('/').pop(), ext = (name.split('.').pop() || '').toLowerCase(); const buf = await window.kh.readFile(f.path); const blob = new Blob([buf], { type: MIME[ext] || '' }); return { f: { name, type: MIME[ext] || '', size: f.size, path: f.path }, d: { blob } }; };
+  list.addEventListener('click', async e => {
+    const sp = e.target.closest('[data-sfs]'), fig = e.target.closest('[data-sf]');
+    try {
+      if (sp) { e.stopPropagation(); jfSplit(job, null, await src(+sp.dataset.sfs)); return; }
+      if (!fig) return; const f = F[+fig.dataset.sf];
+      if (/\.(pdf|png|jpe?g|gif|webp|bmp)$/i.test(f.rel)) jfView(job, null, await src(+fig.dataset.sf)); else { const er = await window.kh.openPath(f.path); if (er) toast('Нээж чадсангүй: ' + er); }
+    } catch (err) { toast('Файл уншиж чадсангүй: ' + (err.message || err)); }
   });
 }

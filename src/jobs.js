@@ -239,9 +239,9 @@ function renderJobMain() {
       <div id="jTraceForm"></div>
       ${job.trace.length ? `<div class="tblwrap"><table class="dt"><thead><tr><th>Огноо</th><th>Лист</th><th>Хэмжээ</th><th>Материал</th><th class="r">Тоо</th><th>Хайлалт №</th><th>Гэрчилгээ №</th><th>Оператор</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>` : '<p class="note">Зүссэн лист бүрийн хавтангийн хайлалтын дугаар, операторыг энд бүртгэнэ. ISO аудитад бүтээгдэхүүнээс материалын гэрчилгээ хүртэл мөрдөх боломжтой болно.</p>'}
     </div></div>
-    ${jobNextHTML(job)}${jobTasksHTML(job)}${jobFilesHTML(job)}<div class="jcard" data-v="main"><div class="bcard-h">Түүх</div><div class="jbody"><div class="jlog">${job.log.map(l => `<div><span class="mono">${esc(l.t)}</span>${esc(l.m)}</div>`).join('') || '<span class="note">—</span>'}</div></div></div>
+    ${jobNextHTML(job)}${jobTasksHTML(job)}${jobFilesHTML(job)}${srcFolderHTML(job)}<div class="jcard" data-v="main"><div class="bcard-h">Түүх</div><div class="jbody"><div class="jlog">${job.log.map(l => `<div><span class="mono">${esc(l.t)}</span>${esc(l.m)}</div>`).join('') || '<span class="note">—</span>'}</div></div></div>
     <datalist id="opList">${ops.map(o => `<option value="${esc(o)}">`).join('')}</datalist>`;
-  bindSubBar(el); bindJobFiles(el, job); bindJobTasks(el, job);
+  bindSubBar(el); bindJobFiles(el, job); bindJobTasks(el, job); bindSrcFolder(el, job);
   { const v = J.sub === 'prod' ? 'prod' : 'main'; el.querySelectorAll('[data-v]').forEach(n => { n.hidden = n.dataset.v !== v; }); el.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => { J.sub = b.dataset.go; renderJobMain(); })); }
   // field bindings
   ['no', 'title', 'customer', 'due', 'note'].forEach(k => $('#jf_' + k).addEventListener('change', ev => { const v = ev.target.value.trim(); if (k === 'no' && !v) return; if (k === 'no') { job.no = v; job.short = (v.match(/(\d+)\s*$/) || [, v])[1]; } else job[k] = v; if (k === 'customer' && v) { orgLearn({ org: v }); if (job.quote && job.quote.qf && qfFillFromDir(job.quote.qf, v)) toast('Захиалагчийн хаяг, ID үнийн саналд бөглөгдлөө'); } save(); renderJList(); }));

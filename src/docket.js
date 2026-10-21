@@ -69,11 +69,13 @@ async function docketImgs(job, KK) {
     y += h;
   });
   // photos
-  const sigY = H - 22, ph = (D.photos || []).slice(0, 4), top = yEnd + 8, avail = sigY - 14 - top;
+  const sigY = H - 22, ph = (D.photos || []).slice(0, 4), top = yEnd + 5, avail = sigY - 14 - top;
   if (D.note) { T('Note: ' + D.note, L0, top - 2, { s: 2.9, w: R0 - L0 }); }
   if (ph.length && avail > 25) {
     const ims = (await Promise.all(ph.map(imgLoad))).filter(Boolean), n = ims.length, cols = n > 1 ? 2 : 1, rows = Math.ceil(n / cols), gw = (R0 - L0 - (cols - 1) * 6) / cols, gh = (avail - (rows - 1) * 6 - (D.note ? 4 : 0)) / rows;
-    ims.forEach((im, i) => { const k = Math.min(gw / im.naturalWidth, gh / im.naturalHeight), w = im.naturalWidth * k, h = im.naturalHeight * k, cx = L0 + (i % cols) * (gw + 6) + (gw - w) / 2, cy = top + (D.note ? 4 : 0) + Math.floor(i / cols) * (gh + 6) + (gh - h) / 2; x.drawImage(im, cx, cy, w, h); });
+    let yy = top + (D.note ? 4 : 0);
+    for (let r0 = 0; r0 < n; r0 += cols) { const row = ims.slice(r0, r0 + cols).map(im => { const k = Math.min(gw / im.naturalWidth, gh / im.naturalHeight); return { im, w: im.naturalWidth * k, h: im.naturalHeight * k }; }), rh = Math.max(...row.map(o => o.h));
+      row.forEach((o, j) => x.drawImage(o.im, L0 + j * (gw + 6) + (gw - o.w) / 2, yy, o.w, o.h)); yy += rh + 6; }
   }
   // signatures
   T('Delivered sign:', L0, sigY, { b: 1, s: 3.3 }); ln(L0 + 24, sigY + 1.2, 95, sigY + 1.2, 0.25);

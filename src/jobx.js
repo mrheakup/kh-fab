@@ -187,7 +187,7 @@ const CONS_PRESET = [['Гагнуурын утас ER70S-6 Ø1.2', 'кг', 9500]
 function renderJQuote(el, job) {
   const q = job.quote, c = quoteCalc(job), sc = job.scope;
   const sumRow = (label, v, ex = 0) => `<tr class="tot"><td></td><td colspan="${4 + ex}">${label}</td><td class="r num">${money(v)}</td><td colspan="2"></td></tr>`;
-  el.innerHTML = `${jobSubBar(job)}
+  el.innerHTML = `${jobSubBar(job)}${srcFolderHTML(job)}
     <div class="exports">${outBtns('quote', 'Дэлгэрэнгүй задаргаа')}${outBtns('cost', 'Дотоод тооцоо')}<span class="sp" style="flex:1"></span><button class="btn" id="qFromNest"${job.est ? '' : ' disabled title="Ажлыг өрөлтөд ачаалж өрнө үү"'}>Өрөлтөөс материал, зүсэлт</button></div>
     <div class="summary">${[['Материал + consumable', money(c.matTotal)], ['Ажиллах хүч', money(c.laborTotal), `${nf(c.laborH, 0)} цаг × ${money(c.rate)}`], ['Тоног, үйлчилгээ', money(c.equip)], ['Өртөг', money(c.cost)], (q.noCost && !c.cost ? ['Ашиг', '—', 'Excel-ээс оруулсан — өртөг оруулаагүй'] : ['Ашиг', money(c.profit), c.net ? nf(c.profit / c.net * 100, 1) + '%' : '']), ['Санал (НӨАТ-гүй)', money(c.net)], ['Нийт (НӨАТ-тай)', money(c.total)]].map(s => `<div class="stat"><div class="k">${s[0]}</div><div class="v">${s[1]}<small>₮</small></div><div class="s">${s[2] || ''}</div></div>`).join('')}</div>
     ${qfCardHTML(job)}
@@ -233,7 +233,7 @@ function renderJQuote(el, job) {
     if (!['no', 'date', 'delivery', 'pay', 'contact', 'note'].includes(k)) re();
   });
   el.querySelector('#q_spread').addEventListener('change', e => { q.spread = e.target.checked; save(); });
-  bindQfCard(el, job);
+  bindQfCard(el, job); bindSrcFolder(el, job);
   el.querySelector('#q_netIn').addEventListener('change', e => { q.netIn = e.target.checked; save(); });
   el.querySelectorAll('[data-kgc]').forEach(b => b.addEventListener('click', () => { toKg(q.mats[+b.dataset.kgc]); save(); re(); }));
   el.querySelector('#qAllKg').addEventListener('click', () => { q.mats.forEach(toKg); save(); re(); });

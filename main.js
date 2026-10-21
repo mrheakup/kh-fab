@@ -84,6 +84,15 @@ ipcMain.handle('save-file', async (e, name, data) => {
   return r.filePath;
 });
 ipcMain.handle('show-in-folder', (e, p) => shell.showItemInFolder(p));
+ipcMain.handle('list-dir', (e, p) => {
+  const out = [], root = String(p || ''), skip = /^(~\$|Thumbs\.db$|desktop\.ini$|\.)/i;
+  const walk = (d, rel, depth) => { let ents = []; try { ents = fs.readdirSync(d, { withFileTypes: true }); } catch (x) { return; }
+    for (const en of ents) { if (skip.test(en.name) || en.name === 'node_modules') continue; const full = path.join(d, en.name), r = rel ? rel + '/' + en.name : en.name;
+      if (en.isDirectory()) { if (depth < 3) walk(full, r, depth + 1); } else { let st = null; try { st = fs.statSync(full); } catch (x) { } out.push({ rel: r, path: full, size: st ? st.size : 0, mtime: st ? st.mtimeMs : 0 }); } } };
+  if (!fs.existsSync(root)) return { error: 'not-found' }; walk(root, '', 0); return { files: out.slice(0, 500) };
+});
+ipcMain.handle('read-file', (e, p) => { const st = fs.statSync(String(p)); if (st.size > 80 * 1048576) throw new Error('too-big'); return fs.readFileSync(String(p)); });
+ipcMain.handle('pick-dir', async () => { const r = await dialog.showOpenDialog(win, { properties: ['openDirectory'] }); return r.canceled ? '' : (r.filePaths[0] || ''); });
 ipcMain.handle('open-path', async (e, p) => { const r = await shell.openPath(String(p || '')); return r || ''; });
 ipcMain.handle('print-html', async (e, html, opt) => {
   const tmp = path.join(app.getPath('temp'), `kh-print-${Date.now()}.html`);

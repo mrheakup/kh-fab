@@ -2675,5 +2675,20 @@
 "Фолдер олдсонгүй:": "Folder not found:",
 "Excel-ээс оруулсан мөрүүд": "Lines imported from Excel",
 "Задаргаа (Excel):": "Breakdown (Excel):",
-"Excel-ээс оруулсан — өртөг оруулаагүй": "Imported from Excel — no cost entered"
+"Excel-ээс оруулсан — өртөг оруулаагүй": "Imported from Excel — no cost entered",
+"📁 Фолдер — файлууд": "📁 Folder — files",
+"Explorer-т нээх": "Open in Explorer",
+"Дахин унших": "Reload",
+"Фолдер солих": "Change folder",
+"Фолдер холбох": "Link folder",
+"Энэ ажил, саналд компьютерын фолдер холбоогүй байна — «Фолдер холбох».": "No PC folder linked to this job/quote — «Link folder».",
+"Фолдер холбосон:": "Folder linked:",
+"Фолдер олдсонгүй": "Folder not found",
+"Өөр компьютер эсвэл зөөгдсөн байж магадгүй — «Фолдер солих».": "It may be on another PC or moved — «Change folder».",
+"Фолдер хоосон байна.": "Folder is empty.",
+"Нээж чадсангүй:": "Could not open:",
+"Файл уншиж чадсангүй:": "Could not read file:",
+"+ Ажилд хавсаргах": "+ Attach to job",
+"Програмаар нээх": "Open with program",
+"Ажилд хавсаргалаа:": "Attached to job:"
 }
