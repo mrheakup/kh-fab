@@ -2562,5 +2562,12 @@
 "Загвар: Цех": "Style: Workshop",
 "Загвар: Том (touch)": "Style: Large (touch)",
 "Загвар: Хуучин": "Style: Classic",
-"Програмын загвар": "App style"
+"Програмын загвар": "App style",
+"Загвар: Орчин үеийн": "Style: Modern",
+"Хяналт · сан": "Control · library",
+"Тоног төхөөрөмж, ажлын заавар": "Equipment, work instructions",
+"Үнэ, харилцагч, стандарт, файл": "Prices, customers, standards, files",
+"Үнийн санал, захиалга, хүлээлгэх": "Quotations, orders, handover",
+"Лист өрөлт, лазер, G-code": "Sheet nesting, laser, G-code",
+"Пресс, галзуу, багаж": "Press brake, rolls, tooling"
 }

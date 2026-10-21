@@ -90,7 +90,7 @@ function i18nButtons() {
 }
 (() => {
   try { const t = localStorage.getItem(THEME_KEY); if (t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t); } catch (e) { }
-  { let k = 'corp'; try { k = localStorage.getItem('kh-skin') || 'corp'; } catch (e) { } document.documentElement.setAttribute('data-skin', k);
+  { let k = 'modern'; try { k = localStorage.getItem('kh-skin') || 'modern'; if (!localStorage.getItem('kh-skin2')) { k = 'modern'; localStorage.setItem('kh-skin', k); localStorage.setItem('kh-skin2', '1'); } } catch (e) { } document.documentElement.setAttribute('data-skin', k);
     const sel = document.getElementById('skinSel'); if (sel) { sel.value = k; sel.addEventListener('change', () => { document.documentElement.setAttribute('data-skin', sel.value); try { localStorage.setItem('kh-skin', sel.value); } catch (e) { } }); } }
   document.documentElement.lang = LANG === 'en' ? 'en' : 'mn';
   trObs.observe(document.documentElement, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: TR_ATTRS });
