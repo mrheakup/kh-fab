@@ -17,8 +17,19 @@ function jobStepDone(job, k) {
   if (k === 'prog') return !!(sc && sc.stages.length && sc.stages.every(s => +s.pct >= 100));
   if (k === 'acc') return !!((a && a.done) || (job.dock && job.dock.issued));
 }
+const JSTEP = [['main', 'Мэдээлэл', 'Захиалагч, хариуцагч, даалгавар, хавсралт'], ['quote', 'Үнийн санал', 'Материал, хүч, тоног, ашиг → захиалагчид'], ['make', 'Үйлдвэрлэл', 'Хуваарь · парт, зүсэлт · явц, зардал'], ['acc', 'Хүлээлгэх', 'Packing list, шошго, хүлээн авалтын акт']];
+const MAKE = [['scope', 'Хуваарь, scope'], ['prod', 'Парт, зүсэлт'], ['prog', 'Явц, зардал']];
+const stepOf = sub => ['scope', 'prod', 'prog'].includes(sub) ? 'make' : (sub || 'main');
+/* one-line status per step, instead of ambiguous ✓ marks */
+function stepInfo(job, k) {
+  jx(job); const q = job.quote;
+  if (k === 'quote') { if (!jobStepDone(job, 'quote')) return 'бөглөөгүй'; let c = null; try { c = quoteCalc(job); } catch (e) { } return `${q.no ? q.no + ' · ' : ''}${money(c ? c.net : 0)} ₮`; }
+  if (k === 'make') { const P = (() => { try { return progCalc(job); } catch (e) { return null; } })(); return `${jstName(job.status)}${P ? ' · ' + Math.round(P.pct * 100) + '%' : ''}`; }
+  if (k === 'acc') return job.dock && job.dock.issued ? `Docket ${job.dock.no} · ${job.dock.issued}` : (job.acc && job.acc.done ? 'акт ' + job.acc.done : 'хүлээлгээгүй');
+  return job.customer || 'захиалагч бөглөөгүй';
+}
 function jobNextHTML(job) {
-  return `<div class="jcard" data-v="main"><div class="bcard-h">Ажлын алхмууд</div><div class="jbody"><div class="jsteps">${JSUB.slice(1).map(([k, n, d], i) => `<button class="jstep${jobStepDone(job, k) ? ' done' : ''}" data-go="${k}"><span class="sn">${jobStepDone(job, k) ? '✓' : i + 2}</span><span><b>${n}</b><small>${d}</small></span></button>`).join('')}</div></div></div>`;
+  return `<div class="jcard" data-v="main"><div class="bcard-h">Ажлын явц</div><div class="jbody"><div class="jsteps">${JSTEP.slice(1).map(([k, n, d], i) => `<button class="jstep" data-go="${k}"><span class="sn">${i + 2}</span><span><b>${n}</b><small>${esc(stepInfo(job, k))}</small></span></button>`).join('')}</div></div></div>`;
 }
 
 function costDef() { S.costDef = Object.assign({}, COST_DEF, S.costDef || {}); return S.costDef; }
@@ -104,10 +115,14 @@ function jobSubBar(job) {
     <select id="qb_owner" class="inp" style="width:auto;max-width:200px" title="Үнийн санал хариуцагч">${peopleOpts(job.owner, '— хариуцагч —')}</select>
     <select id="qb_st" class="inp" style="width:auto">${QST.filter(x => x[0] !== 'won').map(([k, n]) => `<option value="${k}"${(job.qst || 'draft') === k ? ' selected' : ''}>${n}</option>`).join('')}</select>
     ${job.quote.srcFolder ? `<button class="btn ghost" id="qb_dir" title="${esc(job.quote.srcFolder)}">📁 Фолдер</button>` : ''}<button class="btn primary" id="qb_won" title="Захиалагч баталсан — бүх алхам (scope, үйлдвэрлэл, явц, хүлээлгэх) нээгдэнэ">✓ Ажил болгох</button><button class="btn ghost" id="qb_del">Устгах</button></nav>`;
-  return `<nav class="rtabs jsub stepper">${JSUB.map(([k, n, d], i) => `${i ? '<span class="arr">›</span>' : ''}<button data-jsub="${k}" title="${d}" class="${(J.sub || 'main') === k ? 'on' : ''}${jobStepDone(job, k) ? ' done' : ''}"><span class="sn">${jobStepDone(job, k) ? '✓' : i + 1}</span>${n}</button>`).join('')}<span class="sp" style="flex:1"></span><span class="muted mono" style="align-self:center;font-size:12px;padding-right:6px">${esc(job.no)}${job.title ? ' · ' + esc(job.title) : ''}</span></nav>`;
+  const cur = stepOf(J.sub);
+  return `<nav class="rtabs jsub stepper">${JSTEP.map(([k, n, d], i) => `${i ? '<span class="arr">›</span>' : ''}<button data-jsub="${k}" title="${d}" class="${cur === k ? 'on' : ''}"><span class="sn">${i + 1}</span>${n}</button>`).join('')}<span class="sp" style="flex:1"></span>
+    <label class="jstat" title="Ажлын төлөв">Төлөв <select id="sb_status" class="inp">${JST.map(([k, n]) => `<option value="${k}"${k === job.status ? ' selected' : ''}>${n}</option>`).join('')}</select></label><span class="muted mono jno">${esc(job.no)}</span></nav>
+    ${cur === 'make' ? `<nav class="rtabs mktabs">${MAKE.map(([k, n]) => `<button data-jsub="${k}" class="${J.sub === k ? 'on' : ''}">${n}</button>`).join('')}</nav>` : ''}`;
 }
 function bindSubBar(el) {
-  el.querySelectorAll('[data-jsub]').forEach(b => b.addEventListener('click', () => { J.sub = b.dataset.jsub; renderJobMain(); }));
+  el.querySelectorAll('[data-jsub]').forEach(b => b.addEventListener('click', () => { const k = b.dataset.jsub; if (k === 'make') J.sub = J.mk || 'prod'; else { J.sub = k; if (['scope', 'prod', 'prog'].includes(k)) J.mk = k; } renderJobMain(); }));
+  { const ss = el.querySelector('#sb_status'), jb = findJob(J.sel); if (ss && jb) ss.addEventListener('change', () => { const o = jstName(jb.status); jb.status = ss.value; jobLog(`Төлөв: ${o} → ${jstName(jb.status)}`, jb); save(); renderJList(); renderJobMain(); }); }
   const job = findJob(J.sel); if (!job || job.kind !== 'quote') return;
   const qn = el.querySelector('#qb_no'); if (qn) qn.addEventListener('change', () => { const v = qn.value.trim(); if (!v) { qn.value = job.quote.no; return; } if (S.jobs.some(j => j !== job && ((j.quote && j.quote.no) === v || j.no === v))) toast('Анхаар: ' + v + ' дугаар өөр санал/ажилд байна'); job.quote.no = v; job.no = v; save(); renderJList(); });
   const c = el.querySelector('#qb_cust'), t = el.querySelector('#qb_title'), st = el.querySelector('#qb_st');

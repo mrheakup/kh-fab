@@ -56,7 +56,7 @@ function renderTplList() {
   const all = [['bucket', 'Шанага (параметрт)', 'Уурхай'], ...Object.entries(TPL).map(([k, t]) => [k, t.name, t.cat])];
   $('#tplList').innerHTML = all.map(([k, n, c]) => `<div class="jitem${IN.tpl === k ? ' on' : ''}" data-id="${k}"><span class="no">${esc(n)}</span><span class="pill">${esc(c)}</span></div>`).join('');
 }
-$('#tplList').addEventListener('click', e => { const it = e.target.closest('.jitem'); if (!it) return; if (it.dataset.id === 'bucket') { J.tab = 'kits'; J.bucket = true; BK.edit = null; $$('[data-jtab]').forEach(x => x.classList.toggle('on', x.dataset.jtab === 'kits')); ['jobs', 'kits', 'certs'].forEach(t => $('#jtab-' + t).hidden = t !== 'kits'); setModule('jobs'); return; } IN.tpl = it.dataset.id; renderTplList(); renderInfoMain(); });
+$('#tplList').addEventListener('click', e => { const it = e.target.closest('.jitem'); if (!it) return; if (it.dataset.id === 'bucket') { J.tab = 'kits'; J.bucket = true; BK.edit = null; $$('[data-jtab]').forEach(x => x.classList.toggle('on', x.dataset.jtab === 'kits')); ['jobs', 'kits', 'certs', 'dockets'].forEach(t => $('#jtab-' + t).hidden = t !== 'kits'); setModule('jobs'); return; } IN.tpl = it.dataset.id; renderTplList(); renderInfoMain(); });
 function renderLibSide() {
   $('#extLinks').innerHTML = EXTLIBS.map(x => `<div class="jitem"><span class="no"><a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.name)}</a></span><span class="pill">${esc(x.kind)}</span><span class="t">${esc(x.lic)}</span></div>`).join('');
   $('#libCount').textContent = LIB.length ? `${LIB.length} зүйл` : '';
@@ -113,7 +113,7 @@ function renderMachine(el, m) {
   $('#mBack').addEventListener('click', () => { IN.sel = null; renderMachList(); renderInfoMain(); });
   if (canB) $('#mMake').addEventListener('click', () => {
     S.bucket = bucketPreset(m, +$('#mCap').value, $('#mType').value); save();
-    J.tab = 'kits'; J.bucket = true; BK.edit = null; $$('[data-jtab]').forEach(x => x.classList.toggle('on', x.dataset.jtab === 'kits')); ['jobs', 'kits', 'certs'].forEach(t => $('#jtab-' + t).hidden = t !== 'kits');
+    J.tab = 'kits'; J.bucket = true; BK.edit = null; $$('[data-jtab]').forEach(x => x.classList.toggle('on', x.dataset.jtab === 'kits')); ['jobs', 'kits', 'certs', 'dockets'].forEach(t => $('#jtab-' + t).hidden = t !== 'kits');
     setModule('jobs'); toast('Шанагын эхлэх хэмжээ бэлэн — пин, чихний хэмжээг шалгана уу', 4500);
   });
 }

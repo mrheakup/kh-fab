@@ -84,6 +84,18 @@ ipcMain.handle('save-file', async (e, name, data) => {
   return r.filePath;
 });
 ipcMain.handle('show-in-folder', (e, p) => shell.showItemInFolder(p));
+/* data store: userData/kh-data.json (+ daily backups, 60 kept) */
+const dataFile = () => path.join(app.getPath('userData'), 'kh-data.json');
+const bakDir = () => path.join(app.getPath('userData'), 'backups');
+function writeData(txt) {
+  const f = dataFile(), tmp = f + '.tmp'; fs.writeFileSync(tmp, txt, 'utf8'); fs.renameSync(tmp, f);
+  try { const d = bakDir(); fs.mkdirSync(d, { recursive: true }); const b = path.join(d, `kh-data-${new Date().toISOString().slice(0, 10)}.json`); if (!fs.existsSync(b) || Date.now() - fs.statSync(b).mtimeMs > 3600e3) fs.copyFileSync(f, b);
+    const all = fs.readdirSync(d).filter(x => /^kh-data-\d{4}-\d{2}-\d{2}\.json$/.test(x)).sort(); all.slice(0, Math.max(0, all.length - 60)).forEach(x => { try { fs.unlinkSync(path.join(d, x)); } catch (e) { } }); } catch (e) { }
+}
+ipcMain.on('data-load-sync', e => { try { e.returnValue = fs.existsSync(dataFile()) ? fs.readFileSync(dataFile(), 'utf8') : null; } catch (x) { e.returnValue = null; } });
+ipcMain.handle('data-save', (e, txt) => { try { writeData(String(txt)); return { ok: true }; } catch (x) { return { error: String(x.message || x) }; } });
+ipcMain.on('data-save-sync', (e, txt) => { try { writeData(String(txt)); e.returnValue = true; } catch (x) { e.returnValue = false; } });
+ipcMain.handle('data-dir', () => shell.openPath(app.getPath('userData')));
 ipcMain.handle('list-dir', (e, p) => {
   const out = [], root = String(p || ''), skip = /^(~\$|Thumbs\.db$|desktop\.ini$|\.)/i;
   const walk = (d, rel, depth) => { let ents = []; try { ents = fs.readdirSync(d, { withFileTypes: true }); } catch (x) { return; }

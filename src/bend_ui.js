@@ -10,15 +10,15 @@ function bpal(print) {
 }
 /* module switch */
 const MOD_ALIAS = { dash: 'jobs', quotes: 'jobs', jobs: 'jobs', docs: 'jobs' };
-const JVIEW_T = { dash: ['Хяналтын самбар', 'Үнийн санал → ажил → ашиг'], quotes: ['Үнийн санал', 'Бэлдэх, илгээх, ажил болгох'], jobs: ['Ажил', 'Scope, үйлдвэрлэл, явц, хүлээлгэх'], docs: ['Баримт бичиг', 'Иж бүрдэл, материалын гэрчилгээ'] };
+const JVIEW_T = { dash: ['Хяналтын самбар', 'Үнийн санал → ажил → ашиг'], quotes: ['Үнийн санал', 'Бэлдэх, илгээх, ажил болгох'], jobs: ['Ажил', 'Scope, үйлдвэрлэл, явц, хүлээлгэх'], docs: ['Баримт бичиг', 'Packing list, иж бүрдэл, гэрчилгээ'] };
 function setModule(v) {
   const m = MOD_ALIAS[v] || v;
   $$('.modtabs button').forEach(b => b.classList.toggle('on', b.dataset.mod === v));
   if (m === 'jobs' && typeof J !== 'undefined') {
     document.documentElement.dataset.jview = v;
     J.dash = v === 'dash';
-    if (v === 'docs') { if (!['kits', 'certs'].includes(J.tab)) J.tab = 'kits'; } else J.tab = 'jobs';
-    $$('[data-jtab]').forEach(x => x.classList.toggle('on', x.dataset.jtab === J.tab)); ['jobs', 'kits', 'certs'].forEach(t => { const e = $('#jtab-' + t); if (e) e.hidden = t !== J.tab; });
+    if (v === 'docs') { if (!['kits', 'certs', 'dockets'].includes(J.tab)) J.tab = 'dockets'; } else J.tab = 'jobs';
+    $$('[data-jtab]').forEach(x => x.classList.toggle('on', x.dataset.jtab === J.tab)); ['jobs', 'kits', 'certs', 'dockets'].forEach(t => { const e = $('#jtab-' + t); if (e) e.hidden = t !== J.tab; });
     const f = $('#jFilter'); if (f && (v === 'quotes' || v === 'jobs')) f.value = v;
     if (v === 'quotes' || v === 'jobs') { const cur = findJob(J.sel); if (!cur || (v === 'quotes') !== isQ(cur)) { const first = S.jobs.find(j => (v === 'quotes') === isQ(j)); J.sel = first ? first.id : null; } J.sub = v === 'quotes' ? 'quote' : (J.sub === 'quote' ? 'main' : J.sub); }
     const pt = $('#jobsPT'); if (pt) pt.innerHTML = `${JVIEW_T[v][0]}<small>${JVIEW_T[v][1]}</small>`;

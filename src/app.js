@@ -46,14 +46,29 @@ function sampleParts() {
     mk('Бэхэлгээ 300×120', 'slot', { L: 300, W: 120, R: 10, S: 120, H: 22 }, 6, 10)
   ];
 }
-function load() { try { const t = localStorage.getItem(KEY); if (!t) return null; const o = JSON.parse(t); if (!o || o.v !== 1 || !Array.isArray(o.parts)) return null; return mergeState(o); } catch (e) { return null; } }
+/* storage: desktop app → a JSON file in the user's AppData (no size limit, daily backups); browser → localStorage */
+function loadRaw() {
+  let f = null, l = null;
+  try { if (window.kh && window.kh.dataLoadSync) f = window.kh.dataLoadSync(); } catch (e) { }
+  try { l = localStorage.getItem(KEY); } catch (e) { }
+  if (f && l) { try { const a = JSON.parse(f)._saved || 0, b = JSON.parse(l)._saved || 0; return b > a ? l : f; } catch (e) { return f; } }
+  return f || l;
+}
+function load() { try { const t = loadRaw(); if (!t) return null; const o = JSON.parse(t); if (!o || o.v !== 1 || !Array.isArray(o.parts)) return null; return mergeState(o); } catch (e) { return null; } }
 function mergeState(o) { const d = defaults(); const r = Object.assign(d, o); r.s = Object.assign(defaults().s, o.s || {}); r.cut = Object.assign(defaults().cut, o.cut || {}); if (o.cut && !o.cut.src) r.cut.src = JSON.stringify(o.cut.speeds || []) === JSON.stringify(defaults().cut.speeds) ? 'auto' : 'own'; r.quote = Object.assign(defaults().quote, o.quote || {}); r.laser = Object.assign(laserDefaults(), o.laser || {}); r.laser.gc = Object.assign(laserDefaults().gc, (o.laser || {}).gc || {}); r.mark = Object.assign(defaults().mark, o.mark || {}); r.iso = Object.assign(defaults().iso, o.iso || {}); r.remnants.forEach(x => { if (!x.no) x.no = 'R-' + String(++r.remSeq).padStart(4, '0'); }); return r; }
 let S = load();
 let firstRun = false;
 if (!S) { S = mergeState(defaults()); S.parts = sampleParts(); firstRun = true; }
 function remNo() { return 'R-' + String(++S.remSeq).padStart(4, '0'); }
 let saveT = 0;
-function save() { clearTimeout(saveT); saveT = setTimeout(() => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { } }, 250); }
+let saveWarned = false;
+function saveNow(sync) {
+  clearTimeout(saveT); S._saved = Date.now(); const txt = JSON.stringify(S);
+  if (window.kh && window.kh.dataSave) { try { if (sync && window.kh.dataSaveSync) window.kh.dataSaveSync(txt); else window.kh.dataSave(txt).then(r => { if (r && r.error) toast('⚠ Хадгалж чадсангүй: ' + r.error, 8000); else { try { localStorage.removeItem(KEY); } catch (e) { } } }); } catch (e) { toast('Хадгалж чадсангүй: ' + e.message); } return; }
+  try { localStorage.setItem(KEY, txt); } catch (e) { if (!saveWarned) { saveWarned = true; toast('⚠ Хөтчийн санах ой дүүрсэн — өгөгдөл хадгалагдсангүй! Desktop програм ашиглах эсвэл «Төсөл хадгалах»-аар нөөцлөнө үү.', 9000); } }
+}
+function save() { clearTimeout(saveT); saveT = setTimeout(() => saveNow(false), 250); }
+window.addEventListener('beforeunload', () => { if (saveT) saveNow(true); });
 
 let R = null;            // nesting result
 let V = { g: 0, l: 0, k: 1, px: 0, py: 0, labels: true, hover: null, rtab: 'sheets', edit: false, sel: null, drag: null, path: false };
@@ -1398,9 +1413,16 @@ async function quotePdf() {
 /* ---------- project save / open ---------- */
 $('#btnSaveProj').addEventListener('click', () => saveFile(safeName(S.jobName) + '.khnest.json', JSON.stringify(S), 'application/json'));
 $('#btnOpenProj').addEventListener('click', () => $('#projFile').click());
+{ const b = $('#btnDataDir'); if (b) { if (window.kh && window.kh.openDataDir) b.addEventListener('click', () => window.kh.openDataDir()); else b.hidden = true; } }
 $('#projFile').addEventListener('change', async e => {
   const f = e.target.files[0]; e.target.value = ''; if (!f) return;
-  try { const o = JSON.parse(await f.text()); if (!o || !Array.isArray(o.parts)) throw 0; S = mergeState(o); save(); R = null; renderAll(); toast('Төсөл нээгдлээ'); }
+  try { const o = JSON.parse(await f.text()); if (!o || !Array.isArray(o.parts)) throw 0;
+    // a project file only replaces the nesting work (parts, sheets, settings) — jobs, quotes, customers, tasks… stay
+    const keep = S, P = mergeState(o), PROJ = ['jobName', 'parts', 'std', 'sheetMode', 'fixedIdx', 's', 'quote'];
+    S = Object.assign({}, keep); PROJ.forEach(k => { if (P[k] !== undefined) S[k] = P[k]; });
+    (P.materials || []).forEach(m => { if (!S.materials.some(x => x.name === m.name)) S.materials.push(m); });
+    if (Array.isArray(o.jobs) && o.jobs.length) { let n = 0; o.jobs.forEach(j => { if (!S.jobs.some(x => x.id === j.id)) { S.jobs.push(j); n++; } }); if (n) toast(`Файлаас ${n} ажил нэмэгдлээ`); }
+    save(); R = null; renderAll(); toast('Төсөл нээгдлээ (ажлууд хэвээр)'); }
   catch (err) { toast('Төслийн файл буруу байна'); }
 });
 

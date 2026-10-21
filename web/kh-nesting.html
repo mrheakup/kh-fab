@@ -341,6 +341,11 @@ table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
 #infoSide .tabs{overflow-x:auto;scrollbar-width:thin}#infoSide .tabs button{white-space:nowrap;flex:none;padding-left:10px;padding-right:10px}
 .qbar{gap:8px;align-items:center;flex-wrap:wrap;padding:8px}.pill.qst-draft{border-color:#8a96a3;color:#5b6773}.pill.qst-sent{border-color:#4472c4;color:#4472c4}.pill.qst-lost{border-color:#c0392b;color:#c0392b}
 .sfgrid{max-height:420px;overflow:auto;padding:2px}.sfpath{font-size:12px;word-break:break-all}
+.jstat{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--ink-2)}.jstat select{width:auto;padding:5px 8px}.jno{align-self:center;font-size:12px;padding:0 6px}
+.mktabs{margin-top:-4px}.mktabs button{font-size:13.5px}
+.jset{margin-top:16px;border-top:1px solid var(--line);padding-top:10px}.jset summary{cursor:pointer;color:var(--ink-2);font-size:13px;font-weight:500}
+html[data-jview="jobs"] .grid2:has(#jSearch),html[data-jview="quotes"] .grid2:has(#jSearch){grid-template-columns:1fr}
+.jseg{display:flex;width:100%}.jseg button{flex:1}
 .jfcard.drop{outline:2px dashed var(--accent);outline-offset:-4px}
 .clbox{display:grid;gap:6px}.clist{margin:0;padding-left:22px;display:grid;gap:4px}.clist li{display:flex;gap:4px;align-items:center}.clist li.sub{margin-left:22px;list-style:disc}.clist li .inp{flex:1;min-width:0;padding:4px 6px}
 .cladd{display:flex;gap:6px;flex-wrap:wrap}.cladd select{flex:1 1 200px;min-width:0}.cladd input{flex:1 1 160px;min-width:0}
@@ -357,8 +362,8 @@ tr.rcut td:first-child{box-shadow:inset 3px 0 0 var(--accent)}
 
 /* jobs module views: quotes / jobs / dashboard / documents */
 html[data-jview="docs"] [data-jtab="jobs"]{display:none}
-html:not([data-jview="docs"]) [data-jtab="kits"],html:not([data-jview="docs"]) [data-jtab="certs"]{display:none}
-html[data-jview="quotes"] #jNew,html[data-jview="jobs"] #qNew,html[data-jview="jobs"] #qImp,html[data-jview="dash"] #qImp{display:none}
+html:not([data-jview="docs"]) [data-jtab="kits"],html:not([data-jview="docs"]) [data-jtab="certs"],html:not([data-jview="docs"]) [data-jtab="dockets"]{display:none}
+html[data-jview="quotes"] #jFilter,html[data-jview="jobs"] #jFilter,html[data-jview="quotes"] #jNew,html[data-jview="jobs"] #qNew,html[data-jview="jobs"] #qImp,html[data-jview="dash"] #qImp{display:none}
 /* team & tasks */
 .av{display:inline-grid;place-items:center;border-radius:50%;color:#fff;font-weight:700;flex:none;line-height:1}.av.none{background:var(--surface-2);color:var(--ink-3);box-shadow:inset 0 0 0 1px var(--line);font-size:11px}
 .pdot{display:inline-block;width:8px;height:8px;border-radius:50%;flex:none}.sdot{display:inline-block;width:9px;height:9px;border-radius:50%}
@@ -497,7 +502,7 @@ html[data-skin="modern"][data-var="bento"] .stepper{border-radius:999px;backgrou
       <button data-mod="team" role="tab" title="Даалгавар, хэн юу хийж байна, хүмүүс"><svg class="mico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M7 12l2 2 4-4M14 16h3"/></svg>Даалгавар</button>
       <button data-mod="insp" role="tab" title="Тоног төхөөрөмжийн өдөр тутмын үзлэг, ажлын заавар, ханын самбар"><svg class="mico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v2h6V3M9 12l2 2 4-4M9 17h6"/></svg>Үзлэг · ХАБ</button>
       <span class="mgrp">Баримт бичиг</span>
-      <button data-mod="docs" role="tab" title="Иж бүрдэл (парт жагсаалт), материалын гэрчилгээ"><svg class="mico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7a2 2 0 0 1 2-2h4l2 2h6a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M9 13h6"/></svg>Иж бүрдэл, гэрчилгээ</button>
+      <button data-mod="docs" role="tab" title="Иж бүрдэл (парт жагсаалт), материалын гэрчилгээ"><svg class="mico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7a2 2 0 0 1 2-2h4l2 2h6a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M9 13h6"/></svg>Packing list, баримт</button>
       <button data-mod="info" role="tab" title="Үнийн сан, харилцагч, стандарт, загвар, техник, файлууд"><svg class="mico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h6a3 3 0 0 1 3 3v13a2 2 0 0 0-2-2H4z"/><path d="M20 4h-4a3 3 0 0 0-3 3v13a2 2 0 0 1 2-2h5z"/></svg>Сан</button>
     </nav>
     <span id="updBadge" class="pill rem" hidden></span>
@@ -509,6 +514,7 @@ html[data-skin="modern"][data-var="bento"] .stepper{border-radius:999px;backgrou
       <input id="jobName" class="job" aria-label="Ажлын нэр">
       <button id="btnOpenProj" class="btn ghost sm">Төсөл нээх</button>
       <button id="btnSaveProj" class="btn ghost sm">Төсөл хадгалах</button>
+      <button id="btnDataDir" class="btn ghost sm" title="Бүх өгөгдөл энд хадгалагдана (kh-data.json), өдөр бүрийн нөөц — backups фолдерт">💾 Өгөгдөл, нөөц</button>
       <input type="file" id="projFile" accept=".json,application/json" hidden>
     </div>
   </header>
@@ -587,16 +593,19 @@ html[data-skin="modern"][data-var="bento"] .stepper{border-radius:999px;backgrou
       <button data-jtab="jobs" class="on">Ажлууд <span class="badge" id="cntJobs"></span></button>
       <button data-jtab="kits">Иж бүрдэл <span class="badge" id="cntKits"></span></button>
       <button data-jtab="certs">Гэрчилгээ</button>
+      <button data-jtab="dockets">Packing list</button>
     </nav>
     <div class="panel-body">
       <section id="jtab-jobs">
         <div class="ptools"><button class="btn primary" id="jNew">+ Шинэ ажил</button><button class="btn" id="qNew" title="Зөвхөн үнийн санал — батлагдвал ажил болгоно">+ Үнийн санал</button><button class="btn ghost" id="qImp" title="SQ фолдеруудаас бэлдсэн импорт файл (.json)">⇪ Импорт</button><input type="file" id="qImpIn" accept=".json,application/json" hidden><button class="btn" id="jDash">Самбар</button></div>
         <div class="grid2" style="margin:10px 0">
           <input id="jSearch" class="inp" placeholder="Хайх: дугаар, захиалагч, хүн, үнийн санал…" aria-label="Хайх">
-          <select id="jFilter" class="inp" aria-label="Төлөв"><option value="open">Идэвхтэй (ажил + санал)</option><option value="jobs">Зөвхөн ажил</option><option value="quotes">Зөвхөн үнийн санал</option><option value="all">Бүгд</option><option value="closed">Дууссан / татгалзсан</option></select>
+          <select id="jFilter" class="inp" aria-label="Төлөв"><option value="open">Идэвхтэй (ажил + санал)</option><option value="jobs">Зөвхөн ажил</option><option value="quotes">Зөвхөн үнийн санал</option><option value="all">Бүгд</option><option value="closed">Архив — дууссан, хүлээлгэсэн, татгалзсан</option></select>
         </div>
+        <div class="seg jseg" id="jSeg" style="margin:-2px 0 10px"></div>
         <select id="jOrg" class="inp" aria-label="Байгууллага" style="margin:-4px 0 10px;width:100%"><option value="">Бүх байгууллага</option></select>
         <div id="jList" class="plist"></div>
+        <details class="jset"><summary>⚙ Тохиргоо — ISO маягтын код, операторууд, лого</summary>
         <h3>ISO 9001 маягт</h3>
         <div class="grid2">
           <label class="fld">Ажлын картын маягтын код<input id="iso_formTrace"></label>
@@ -612,11 +621,18 @@ html[data-skin="modern"][data-var="bento"] .stepper{border-radius:999px;backgrou
         <div class="logoset"><span class="logo-wrap"><img class="brand-logo" alt="лого" src=""></span>
           <button class="btn sm" id="logoPick">Лого солих</button><button class="btn sm ghost" id="logoReset">Анхны лого</button><input type="file" id="logoFile" accept="image/png,image/jpeg,image/svg+xml,image/webp" hidden></div>
         <p class="note">Лого програмын толгой болон бүх PDF, хэвлэх баримтад гарна. PNG (тунгалаг фонтой) хамгийн тохиромжтой.</p>
+        </details>
       </section>
       <section id="jtab-kits" hidden>
         <p class="hint">Иж бүрдэл гэдэг нь нэг бүтээгдэхүүний (жишээ нь PC200 шанага) бүх хавтгай эд анги, ширхэгийг хадгалсан загвар. Ажилд «иж бүрдэл × тоо» гэж оруулахад партууд автоматаар үржинэ.</p>
         <div class="ptools"><button class="btn primary" id="kFromParts">Nesting-ийн партуудаас шинэ</button><button class="btn" id="kBucket">Шанага үүсгэгч</button><label class="btn" for="bomKitIn">BOM-оос</label><input type="file" id="bomKitIn" accept=".xlsx,.xls,.csv,.dxf,.svg,.pdf,.ai,.plt" multiple hidden></div>
         <div id="kList" class="plist" style="margin-top:10px"></div>
+      </section>
+      <section id="jtab-dockets" hidden>
+        <p class="hint">Бүх Delivery Docket / Packing list нэг дор — ажлаас гаргасан болон ажил бүртгэлгүй шууд гаргасан. Хайж олоод дахин хэвлэнэ.</p>
+        <div class="ptools"><button class="btn primary" id="dkNew">+ Шинэ Packing list</button></div>
+        <input id="dkSearch" class="inp" placeholder="Хайх: №, захиалагч, PO, бараа…" style="margin:10px 0">
+        <div id="dkList" class="plist"></div>
       </section>
       <section id="jtab-certs" hidden>
         <p class="hint">Ирсэн хавтангийн гэрчилгээ (heat/хайлалтын дугаар). Зүсэлт бүртгэхэд аль хайлалтаас хэрэглэснийг сонгож ISO ул мөрийг хадгална.</p>
@@ -4314,7 +4330,44 @@ const I18N_EN = {
 "Файл уншиж чадсангүй:": "Could not read file:",
 "+ Ажилд хавсаргах": "+ Attach to job",
 "Програмаар нээх": "Open with program",
-"Ажилд хавсаргалаа:": "Attached to job:"
+"Ажилд хавсаргалаа:": "Attached to job:",
+"💾 Өгөгдөл, нөөц": "💾 Data, backups",
+"Бүх өгөгдөл энд хадгалагдана (kh-data.json), өдөр бүрийн нөөц — backups фолдерт": "All data is stored here (kh-data.json), daily backups in the backups folder",
+"⚠ Хадгалж чадсангүй:": "⚠ Could not save:",
+"⚠ Хөтчийн санах ой дүүрсэн — өгөгдөл хадгалагдсангүй! Desktop програм ашиглах эсвэл «Төсөл хадгалах»-аар нөөцлөнө үү.": "⚠ Browser storage is full — data NOT saved! Use the desktop app or back up with «Save project».",
+"Файлаас": "From file",
+"ажил нэмэгдлээ": "jobs added",
+"Төсөл нээгдлээ (ажлууд хэвээр)": "Project opened (jobs kept)",
+"Ажлын явц": "Job progress",
+"Хуваарь, scope": "Schedule, scope",
+"Парт, зүсэлт": "Parts, cutting",
+"Захиалагч, хариуцагч, даалгавар, хавсралт": "Customer, owner, tasks, attachments",
+"Материал, хүч, тоног, ашиг → захиалагчид": "Material, labour, equipment, margin → customer",
+"Хуваарь · парт, зүсэлт · явц, зардал": "Schedule · parts, cutting · progress, cost",
+"Packing list, шошго, хүлээн авалтын акт": "Packing list, tags, acceptance",
+"бөглөөгүй": "not filled",
+"хүлээлгээгүй": "not handed over",
+"акт": "act",
+"захиалагч бөглөөгүй": "no customer",
+"Ажлын төлөв": "Job status",
+"⚙ Тохиргоо — ISO маягтын код, операторууд, лого": "⚙ Settings — ISO form codes, operators, logo",
+"Архив": "Archive",
+"Архив — дууссан, хүлээлгэсэн, татгалзсан": "Archive — done, delivered, declined",
+"Packing list": "Packing list",
+"Packing list, баримт": "Packing list, documents",
+"Packing list, иж бүрдэл, гэрчилгээ": "Packing lists, kits, certificates",
+"Бүх Delivery Docket / Packing list нэг дор — ажлаас гаргасан болон ажил бүртгэлгүй шууд гаргасан. Хайж олоод дахин хэвлэнэ.": "All Delivery Dockets / Packing lists in one place — from jobs or issued directly without a job. Find and reprint.",
+"+ Шинэ Packing list": "+ New packing list",
+"Хайх: №, захиалагч, PO, бараа…": "Search: №, customer, PO, item…",
+"Packing list алга.": "No packing lists.",
+"бие даасан": "stand-alone",
+"Packing list архив": "Packing list archive",
+"баримт": "documents",
+"Хүлээн авагч": "Receiver",
+"Бараа": "Item",
+"Packing list алга. Ажил бүртгэлгүй бол «+ Шинэ Packing list»-ээр шууд гаргана.": "No packing lists. Without a job, use «+ New packing list».",
+"Ажилд бүртгэгдээгүй — бие даасан баримт": "Not linked to a job — stand-alone document",
+"← Жагсаалт": "← List"
 };
 /* ================= KH Fab — language (МН / EN) and theme (Day / Night) =================
    The UI is written in Mongolian. In English mode every Mongolian fragment that reaches the
@@ -5878,14 +5931,29 @@ function sampleParts() {
     mk('Бэхэлгээ 300×120', 'slot', { L: 300, W: 120, R: 10, S: 120, H: 22 }, 6, 10)
   ];
 }
-function load() { try { const t = localStorage.getItem(KEY); if (!t) return null; const o = JSON.parse(t); if (!o || o.v !== 1 || !Array.isArray(o.parts)) return null; return mergeState(o); } catch (e) { return null; } }
+/* storage: desktop app → a JSON file in the user's AppData (no size limit, daily backups); browser → localStorage */
+function loadRaw() {
+  let f = null, l = null;
+  try { if (window.kh && window.kh.dataLoadSync) f = window.kh.dataLoadSync(); } catch (e) { }
+  try { l = localStorage.getItem(KEY); } catch (e) { }
+  if (f && l) { try { const a = JSON.parse(f)._saved || 0, b = JSON.parse(l)._saved || 0; return b > a ? l : f; } catch (e) { return f; } }
+  return f || l;
+}
+function load() { try { const t = loadRaw(); if (!t) return null; const o = JSON.parse(t); if (!o || o.v !== 1 || !Array.isArray(o.parts)) return null; return mergeState(o); } catch (e) { return null; } }
 function mergeState(o) { const d = defaults(); const r = Object.assign(d, o); r.s = Object.assign(defaults().s, o.s || {}); r.cut = Object.assign(defaults().cut, o.cut || {}); if (o.cut && !o.cut.src) r.cut.src = JSON.stringify(o.cut.speeds || []) === JSON.stringify(defaults().cut.speeds) ? 'auto' : 'own'; r.quote = Object.assign(defaults().quote, o.quote || {}); r.laser = Object.assign(laserDefaults(), o.laser || {}); r.laser.gc = Object.assign(laserDefaults().gc, (o.laser || {}).gc || {}); r.mark = Object.assign(defaults().mark, o.mark || {}); r.iso = Object.assign(defaults().iso, o.iso || {}); r.remnants.forEach(x => { if (!x.no) x.no = 'R-' + String(++r.remSeq).padStart(4, '0'); }); return r; }
 let S = load();
 let firstRun = false;
 if (!S) { S = mergeState(defaults()); S.parts = sampleParts(); firstRun = true; }
 function remNo() { return 'R-' + String(++S.remSeq).padStart(4, '0'); }
 let saveT = 0;
-function save() { clearTimeout(saveT); saveT = setTimeout(() => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { } }, 250); }
+let saveWarned = false;
+function saveNow(sync) {
+  clearTimeout(saveT); S._saved = Date.now(); const txt = JSON.stringify(S);
+  if (window.kh && window.kh.dataSave) { try { if (sync && window.kh.dataSaveSync) window.kh.dataSaveSync(txt); else window.kh.dataSave(txt).then(r => { if (r && r.error) toast('⚠ Хадгалж чадсангүй: ' + r.error, 8000); else { try { localStorage.removeItem(KEY); } catch (e) { } } }); } catch (e) { toast('Хадгалж чадсангүй: ' + e.message); } return; }
+  try { localStorage.setItem(KEY, txt); } catch (e) { if (!saveWarned) { saveWarned = true; toast('⚠ Хөтчийн санах ой дүүрсэн — өгөгдөл хадгалагдсангүй! Desktop програм ашиглах эсвэл «Төсөл хадгалах»-аар нөөцлөнө үү.', 9000); } }
+}
+function save() { clearTimeout(saveT); saveT = setTimeout(() => saveNow(false), 250); }
+window.addEventListener('beforeunload', () => { if (saveT) saveNow(true); });
 
 let R = null;            // nesting result
 let V = { g: 0, l: 0, k: 1, px: 0, py: 0, labels: true, hover: null, rtab: 'sheets', edit: false, sel: null, drag: null, path: false };
@@ -7230,9 +7298,16 @@ async function quotePdf() {
 /* ---------- project save / open ---------- */
 $('#btnSaveProj').addEventListener('click', () => saveFile(safeName(S.jobName) + '.khnest.json', JSON.stringify(S), 'application/json'));
 $('#btnOpenProj').addEventListener('click', () => $('#projFile').click());
+{ const b = $('#btnDataDir'); if (b) { if (window.kh && window.kh.openDataDir) b.addEventListener('click', () => window.kh.openDataDir()); else b.hidden = true; } }
 $('#projFile').addEventListener('change', async e => {
   const f = e.target.files[0]; e.target.value = ''; if (!f) return;
-  try { const o = JSON.parse(await f.text()); if (!o || !Array.isArray(o.parts)) throw 0; S = mergeState(o); save(); R = null; renderAll(); toast('Төсөл нээгдлээ'); }
+  try { const o = JSON.parse(await f.text()); if (!o || !Array.isArray(o.parts)) throw 0;
+    // a project file only replaces the nesting work (parts, sheets, settings) — jobs, quotes, customers, tasks… stay
+    const keep = S, P = mergeState(o), PROJ = ['jobName', 'parts', 'std', 'sheetMode', 'fixedIdx', 's', 'quote'];
+    S = Object.assign({}, keep); PROJ.forEach(k => { if (P[k] !== undefined) S[k] = P[k]; });
+    (P.materials || []).forEach(m => { if (!S.materials.some(x => x.name === m.name)) S.materials.push(m); });
+    if (Array.isArray(o.jobs) && o.jobs.length) { let n = 0; o.jobs.forEach(j => { if (!S.jobs.some(x => x.id === j.id)) { S.jobs.push(j); n++; } }); if (n) toast(`Файлаас ${n} ажил нэмэгдлээ`); }
+    save(); R = null; renderAll(); toast('Төсөл нээгдлээ (ажлууд хэвээр)'); }
   catch (err) { toast('Төслийн файл буруу байна'); }
 });
 
@@ -7659,15 +7734,17 @@ function jobMoney(job) {
 const daysLeft = d => d ? Math.round((new Date(d + 'T00:00:00') - new Date(today() + 'T00:00:00')) / 864e5) : null;
 
 /* ---------- side panel ---------- */
-$$('[data-jtab]').forEach(b => b.addEventListener('click', () => { J.tab = b.dataset.jtab; $$('[data-jtab]').forEach(x => x.classList.toggle('on', x === b)); ['jobs', 'kits', 'certs'].forEach(t => $('#jtab-' + t).hidden = t !== J.tab); renderJobs(); }));
-function renderJobs() { renderJList(); renderKList(); renderCertSide(); renderJobMain(); }
+$$('[data-jtab]').forEach(b => b.addEventListener('click', () => { J.tab = b.dataset.jtab; $$('[data-jtab]').forEach(x => x.classList.toggle('on', x === b)); ['jobs', 'kits', 'certs', 'dockets'].forEach(t => $('#jtab-' + t).hidden = t !== J.tab); renderJobs(); }));
+function renderJobs() { renderJList(); renderKList(); renderCertSide(); renderDockSide(); renderJobMain(); }
 function renderJList() {
   $('#cntJobs').textContent = S.jobs.filter(j => isQ(j) ? j.qst !== 'lost' : !['done', 'given'].includes(j.status)).length || '';
+  { const v = document.documentElement.dataset.jview, sg = $('#jSeg'), fv = $('#jFilter').value, opts = v === 'quotes' ? [['quotes', 'Идэвхтэй'], ['closed', 'Татгалзсан'], ['all', 'Бүгд']] : v === 'jobs' ? [['jobs', 'Идэвхтэй'], ['closed', 'Архив'], ['all', 'Бүгд']] : null;
+    if (sg) { sg.hidden = !opts; if (opts) { const arch = S.jobs.filter(j => v === 'quotes' ? isQ(j) && j.qst === 'lost' : !isQ(j) && ['done', 'given'].includes(j.status)).length; sg.innerHTML = opts.map(([k, n]) => `<button data-jf="${k}" class="${fv === k ? 'on' : ''}">${n}${k === 'closed' && arch ? ` <span class="mono">${arch}</span>` : ''}</button>`).join(''); } } }
   const q = ($('#jSearch').value || '').toLowerCase(), f = $('#jFilter').value, os = $('#jOrg'), og = os.value;
   { const O = orgs().slice().sort((a, b) => a.name.localeCompare(b.name)); os.innerHTML = `<option value="">Бүх байгууллага (${O.length})</option>${O.map(o => `<option value="${esc(o.id)}"${o.id === og ? ' selected' : ''}>${esc(o.name)} · ${jobsOfOrg(o).length}</option>`).join('')}`; }
   const org = orgs().find(o => o.id === og), inOrg = org ? new Set(jobsOfOrg(org)) : null;
   const hay = j => { const f2 = (j.quote && j.quote.qf) || {}; return [j.no, j.customer, j.title, j.quote && j.quote.no, f2.person, f2.email, f2.phone, f2.rfqName, f2.rfqNo, j.dock && j.dock.no, j.dock && j.dock.po].join(' ').toLowerCase(); };
-  const fOk = j => f === 'all' ? true : f === 'quotes' ? isQ(j) : f === 'jobs' ? !isQ(j) && !['done', 'given'].includes(j.status) : f === 'closed' ? (isQ(j) ? j.qst === 'lost' : ['done', 'given'].includes(j.status)) : (isQ(j) ? j.qst !== 'lost' : !['done', 'given'].includes(j.status));
+  const fOk = j => f === 'all' ? true : f === 'quotes' ? isQ(j) : f === 'jobs' ? !isQ(j) && !['done', 'given'].includes(j.status) : f === 'closed' ? (document.documentElement.dataset.jview === 'quotes' ? isQ(j) && j.qst === 'lost' : document.documentElement.dataset.jview === 'jobs' ? !isQ(j) && ['done', 'given'].includes(j.status) : (isQ(j) ? j.qst === 'lost' : ['done', 'given'].includes(j.status))) : (isQ(j) ? j.qst !== 'lost' : !['done', 'given'].includes(j.status));
   const list = S.jobs.filter(j => fOk(j) && (!inOrg || inOrg.has(j)) && (!q || hay(j).includes(q)));
   $('#jList').innerHTML = list.length ? list.map(j => {
     const late = j.due && j.due < today() && !['done', 'given'].includes(j.status);
@@ -7684,6 +7761,7 @@ $('#jNew').addEventListener('click', () => { const nj = newJob(); setModule('job
 $('#jSearch').addEventListener('input', renderJList);
 $('#jFilter').addEventListener('change', renderJList);
 $('#jOrg').addEventListener('change', renderJList);
+$('#jSeg').addEventListener('click', e => { const b = e.target.closest('[data-jf]'); if (!b) return; $('#jFilter').value = b.dataset.jf; renderJList(); });
 ['formTrace', 'rev', 'operators', 'formQuote', 'formScope', 'formInstr'].forEach(k => $('#iso_' + k).addEventListener('change', e => { S.iso[k] = e.target.value.trim(); save(); }));
 
 function renderKList() {
@@ -7705,7 +7783,7 @@ function kitFromParts() {
 $('#kFromParts').addEventListener('click', () => { if (kitFromParts()) { renderJobs(); toast('Иж бүрдэл үүслээ — нэрийг нь өгнө үү'); } });
 $('#btnKitFrom').addEventListener('click', () => {
   if (!kitFromParts()) return;
-  J.tab = 'kits'; $$('[data-jtab]').forEach(x => x.classList.toggle('on', x.dataset.jtab === 'kits')); ['jobs', 'kits', 'certs'].forEach(t => $('#jtab-' + t).hidden = t !== 'kits');
+  J.tab = 'kits'; $$('[data-jtab]').forEach(x => x.classList.toggle('on', x.dataset.jtab === 'kits')); ['jobs', 'kits', 'certs', 'dockets'].forEach(t => $('#jtab-' + t).hidden = t !== 'kits');
   setModule('docs'); toast('Иж бүрдэл үүслээ — нэрийг нь өгнө үү');
 });
 
@@ -7725,6 +7803,7 @@ function renderJobMain() {
   const el = $('#jobsMain');
   if (J.tab === 'kits') { if (J.bucket) renderBucketMain(el); else renderKitMain(el); return; }
   if (J.tab === 'certs') { renderCertMain(el); return; }
+  if (J.tab === 'dockets') { renderDocketMain(el); return; }
   if (J.dash && S.jobs.length) { renderDash(el); return; }
   const job = findJob(J.sel) || findJob(S.activeJob) || S.jobs[0];
   if (!job) { el.innerHTML = '<div class="jempty"><b>Ажил алга</b><br>Зүүн талын <b>+ Шинэ ажил</b> товчоор ажлын дугаар үүсгэнэ. Дугаар нь <span class="mono">KH-' + new Date().getFullYear() + '-001</span> хэлбэртэй, жил бүр шинээр эхэлнэ.</div>'; return; }
@@ -7746,7 +7825,7 @@ function renderJobMain() {
       <label class="fld grow">Ажлын нэр<input id="jf_title" value="${esc(job.title)}" placeholder="жишээ: PC200 шанага ×2"></label>
       <label class="fld grow">Захиалагч (байгууллага)<input id="jf_customer" list="dl-org" value="${esc(job.customer)}" placeholder="жагсаалтаас сонгох эсвэл шинээр"></label>
       <label class="fld">Хугацаа<input id="jf_due" type="date" value="${esc(job.due)}"></label>
-      <label class="fld">Төлөв<select id="jf_status">${JST.map(([k, n]) => `<option value="${k}"${k === job.status ? ' selected' : ''}>${n}</option>`).join('')}</select></label>
+      <label class="fld" hidden>Төлөв<select id="jf_status">${JST.map(([k, n]) => `<option value="${k}"${k === job.status ? ' selected' : ''}>${n}</option>`).join('')}</select></label>
       <label class="fld grow">Тайлбар<input id="jf_note" value="${esc(job.note)}"></label>
       <label class="fld">Гэрээний үнэ, ₮<input id="jf_price" type="number" min="0" step="10000" value="${esc(job.price || '')}" class="mono"></label>
     </div>
@@ -7788,7 +7867,7 @@ function renderJobMain() {
     ${jobNextHTML(job)}${jobTasksHTML(job)}${jobFilesHTML(job)}${srcFolderHTML(job)}<div class="jcard" data-v="main"><div class="bcard-h">Түүх</div><div class="jbody"><div class="jlog">${job.log.map(l => `<div><span class="mono">${esc(l.t)}</span>${esc(l.m)}</div>`).join('') || '<span class="note">—</span>'}</div></div></div>
     <datalist id="opList">${ops.map(o => `<option value="${esc(o)}">`).join('')}</datalist>`;
   bindSubBar(el); bindJobFiles(el, job); bindJobTasks(el, job); bindSrcFolder(el, job);
-  { const v = J.sub === 'prod' ? 'prod' : 'main'; el.querySelectorAll('[data-v]').forEach(n => { n.hidden = n.dataset.v !== v; }); el.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => { J.sub = b.dataset.go; renderJobMain(); })); }
+  { const v = J.sub === 'prod' ? 'prod' : 'main'; el.querySelectorAll('[data-v]').forEach(n => { n.hidden = n.dataset.v !== v; }); el.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => { J.sub = b.dataset.go === 'make' ? (J.mk || 'prod') : b.dataset.go; renderJobMain(); })); }
   // field bindings
   ['no', 'title', 'customer', 'due', 'note'].forEach(k => $('#jf_' + k).addEventListener('change', ev => { const v = ev.target.value.trim(); if (k === 'no' && !v) return; if (k === 'no') { job.no = v; job.short = (v.match(/(\d+)\s*$/) || [, v])[1]; } else job[k] = v; if (k === 'customer' && v) { orgLearn({ org: v }); if (job.quote && job.quote.qf && qfFillFromDir(job.quote.qf, v)) toast('Захиалагчийн хаяг, ID үнийн саналд бөглөгдлөө'); } save(); renderJList(); }));
   $('#jf_status').addEventListener('change', ev => { const o = jstName(job.status); job.status = ev.target.value; jobLog(`Төлөв: ${o} → ${jstName(job.status)}`, job); renderJList(); renderJobMain(); });
@@ -8099,8 +8178,19 @@ function jobStepDone(job, k) {
   if (k === 'prog') return !!(sc && sc.stages.length && sc.stages.every(s => +s.pct >= 100));
   if (k === 'acc') return !!((a && a.done) || (job.dock && job.dock.issued));
 }
+const JSTEP = [['main', 'Мэдээлэл', 'Захиалагч, хариуцагч, даалгавар, хавсралт'], ['quote', 'Үнийн санал', 'Материал, хүч, тоног, ашиг → захиалагчид'], ['make', 'Үйлдвэрлэл', 'Хуваарь · парт, зүсэлт · явц, зардал'], ['acc', 'Хүлээлгэх', 'Packing list, шошго, хүлээн авалтын акт']];
+const MAKE = [['scope', 'Хуваарь, scope'], ['prod', 'Парт, зүсэлт'], ['prog', 'Явц, зардал']];
+const stepOf = sub => ['scope', 'prod', 'prog'].includes(sub) ? 'make' : (sub || 'main');
+/* one-line status per step, instead of ambiguous ✓ marks */
+function stepInfo(job, k) {
+  jx(job); const q = job.quote;
+  if (k === 'quote') { if (!jobStepDone(job, 'quote')) return 'бөглөөгүй'; let c = null; try { c = quoteCalc(job); } catch (e) { } return `${q.no ? q.no + ' · ' : ''}${money(c ? c.net : 0)} ₮`; }
+  if (k === 'make') { const P = (() => { try { return progCalc(job); } catch (e) { return null; } })(); return `${jstName(job.status)}${P ? ' · ' + Math.round(P.pct * 100) + '%' : ''}`; }
+  if (k === 'acc') return job.dock && job.dock.issued ? `Docket ${job.dock.no} · ${job.dock.issued}` : (job.acc && job.acc.done ? 'акт ' + job.acc.done : 'хүлээлгээгүй');
+  return job.customer || 'захиалагч бөглөөгүй';
+}
 function jobNextHTML(job) {
-  return `<div class="jcard" data-v="main"><div class="bcard-h">Ажлын алхмууд</div><div class="jbody"><div class="jsteps">${JSUB.slice(1).map(([k, n, d], i) => `<button class="jstep${jobStepDone(job, k) ? ' done' : ''}" data-go="${k}"><span class="sn">${jobStepDone(job, k) ? '✓' : i + 2}</span><span><b>${n}</b><small>${d}</small></span></button>`).join('')}</div></div></div>`;
+  return `<div class="jcard" data-v="main"><div class="bcard-h">Ажлын явц</div><div class="jbody"><div class="jsteps">${JSTEP.slice(1).map(([k, n, d], i) => `<button class="jstep" data-go="${k}"><span class="sn">${i + 2}</span><span><b>${n}</b><small>${esc(stepInfo(job, k))}</small></span></button>`).join('')}</div></div></div>`;
 }
 
 function costDef() { S.costDef = Object.assign({}, COST_DEF, S.costDef || {}); return S.costDef; }
@@ -8186,10 +8276,14 @@ function jobSubBar(job) {
     <select id="qb_owner" class="inp" style="width:auto;max-width:200px" title="Үнийн санал хариуцагч">${peopleOpts(job.owner, '— хариуцагч —')}</select>
     <select id="qb_st" class="inp" style="width:auto">${QST.filter(x => x[0] !== 'won').map(([k, n]) => `<option value="${k}"${(job.qst || 'draft') === k ? ' selected' : ''}>${n}</option>`).join('')}</select>
     ${job.quote.srcFolder ? `<button class="btn ghost" id="qb_dir" title="${esc(job.quote.srcFolder)}">📁 Фолдер</button>` : ''}<button class="btn primary" id="qb_won" title="Захиалагч баталсан — бүх алхам (scope, үйлдвэрлэл, явц, хүлээлгэх) нээгдэнэ">✓ Ажил болгох</button><button class="btn ghost" id="qb_del">Устгах</button></nav>`;
-  return `<nav class="rtabs jsub stepper">${JSUB.map(([k, n, d], i) => `${i ? '<span class="arr">›</span>' : ''}<button data-jsub="${k}" title="${d}" class="${(J.sub || 'main') === k ? 'on' : ''}${jobStepDone(job, k) ? ' done' : ''}"><span class="sn">${jobStepDone(job, k) ? '✓' : i + 1}</span>${n}</button>`).join('')}<span class="sp" style="flex:1"></span><span class="muted mono" style="align-self:center;font-size:12px;padding-right:6px">${esc(job.no)}${job.title ? ' · ' + esc(job.title) : ''}</span></nav>`;
+  const cur = stepOf(J.sub);
+  return `<nav class="rtabs jsub stepper">${JSTEP.map(([k, n, d], i) => `${i ? '<span class="arr">›</span>' : ''}<button data-jsub="${k}" title="${d}" class="${cur === k ? 'on' : ''}"><span class="sn">${i + 1}</span>${n}</button>`).join('')}<span class="sp" style="flex:1"></span>
+    <label class="jstat" title="Ажлын төлөв">Төлөв <select id="sb_status" class="inp">${JST.map(([k, n]) => `<option value="${k}"${k === job.status ? ' selected' : ''}>${n}</option>`).join('')}</select></label><span class="muted mono jno">${esc(job.no)}</span></nav>
+    ${cur === 'make' ? `<nav class="rtabs mktabs">${MAKE.map(([k, n]) => `<button data-jsub="${k}" class="${J.sub === k ? 'on' : ''}">${n}</button>`).join('')}</nav>` : ''}`;
 }
 function bindSubBar(el) {
-  el.querySelectorAll('[data-jsub]').forEach(b => b.addEventListener('click', () => { J.sub = b.dataset.jsub; renderJobMain(); }));
+  el.querySelectorAll('[data-jsub]').forEach(b => b.addEventListener('click', () => { const k = b.dataset.jsub; if (k === 'make') J.sub = J.mk || 'prod'; else { J.sub = k; if (['scope', 'prod', 'prog'].includes(k)) J.mk = k; } renderJobMain(); }));
+  { const ss = el.querySelector('#sb_status'), jb = findJob(J.sel); if (ss && jb) ss.addEventListener('change', () => { const o = jstName(jb.status); jb.status = ss.value; jobLog(`Төлөв: ${o} → ${jstName(jb.status)}`, jb); save(); renderJList(); renderJobMain(); }); }
   const job = findJob(J.sel); if (!job || job.kind !== 'quote') return;
   const qn = el.querySelector('#qb_no'); if (qn) qn.addEventListener('change', () => { const v = qn.value.trim(); if (!v) { qn.value = job.quote.no; return; } if (S.jobs.some(j => j !== job && ((j.quote && j.quote.no) === v || j.no === v))) toast('Анхаар: ' + v + ' дугаар өөр санал/ажилд байна'); job.quote.no = v; job.no = v; save(); renderJList(); });
   const c = el.querySelector('#qb_cust'), t = el.querySelector('#qb_title'), st = el.querySelector('#qb_st');
@@ -9873,7 +9967,7 @@ function dockCardHTML(job) {
     <div class="jgrid">${fldIn('dk_no', 'Docket No', D.no)}${fldIn('dk_date', 'Date', D.date, { type: 'date' })}${fldIn('dk_to', 'Delivery to', D.to, { list: 'dl-org' })}${fldIn('dk_supplied', 'Supplied by', D.supplied)}
       ${fldIn('dk_po', 'Customer PO#', D.po)}${fldIn('dk_orderDate', 'Order Date', D.orderDate, { type: 'date' })}${fldIn('dk_delDate', 'Delivery Date', D.delDate, { type: 'date' })}${fldIn('dk_phone', 'Phone No', D.phone)}
       ${fldIn('dk_contact', 'Хүлээн авах хүн', D.contact, { list: 'dl-person' })}${fldIn('dk_address', 'Хүргэх хаяг', D.address)}${fldIn('dk_delivered', 'Хүлээлгэсэн (нэр)', D.delivered)}${fldIn('dk_received', 'Хүлээн авсан (нэр)', D.received)}</div>
-    ${edTable('dki', DOCK_COLS, D.items, { extra: `<button class="btn sm ghost" data-dfrom="quote">↺ Үнийн саналын мөрөөс</button><button class="btn sm ghost" data-dfrom="parts">↺ Партуудаас</button>` })}
+    ${edTable('dki', DOCK_COLS, D.items, { extra: job._std ? '' : `<button class="btn sm ghost" data-dfrom="quote">↺ Үнийн саналын мөрөөс</button><button class="btn sm ghost" data-dfrom="parts">↺ Партуудаас</button>` })}
     ${fldIn('dk_note', 'Тэмдэглэл (docket дээр)', D.note)}
     <div class="dkph">${(D.photos || []).map((p, i) => `<figure><img src="${p}" alt=""><button class="x" data-dph="${i}" aria-label="Устгах">×</button></figure>`).join('')}<button class="btn sm" id="dkPhoto">+ Бүтээгдэхүүний зураг</button>${(job.files || []).some(f => f.thumb && jfIsImg(f)) ? '<button class="btn sm ghost" id="dkFromFiles">Хавсралтаас</button>' : ''}</div>
   </div></div></div>
@@ -9898,6 +9992,47 @@ function bindDockCard(el, job) {
   el.querySelectorAll('[data-dph]').forEach(b => b.addEventListener('click', () => { D.photos.splice(+b.dataset.dph, 1); save(); re(); }));
   el.querySelector('.qfprevbox').addEventListener('click', async () => { printImgs(await docketImgs(job), false, 'a4', `DD${D.no} - Delivery Docket`); });
   return { refresh, edMap: { dki: { arr: () => D.items, cols: DOCK_COLS, blank: () => ({ desc: '', ordered: 1, shipped: 1, pk: 1, kg: '' }) } } };
+}
+
+/* ---------- Packing list archive (Баримт бичиг → Packing list): job dockets + stand-alone ones ---------- */
+const stdDocks = () => (Array.isArray(S.dockets) ? S.dockets : (S.dockets = []));
+function allDocks() {
+  const a = S.jobs.filter(j => j.dock).map(j => ({ src: j, std: false, D: j.dock, job: j }));
+  return a.concat(stdDocks().map(x => ({ src: x, std: true, D: x.dock, job: null }))).sort((p, q) => String(q.D.date || '').localeCompare(String(p.D.date || '')) || String(q.D.no).localeCompare(String(p.D.no)));
+}
+function newStdDock() {
+  S.docketSeq = (+S.docketSeq || 231) + 1;
+  const x = { id: uid(), _std: 1, no: '', title: '', customer: '', created: today(), log: [], files: [], quote: {}, dock: { no: dockNo(S.docketSeq), date: today(), to: '', supplied: 'Kh International', po: '', orderDate: '', delDate: today(), phone: '', contact: '', address: '', items: [{ desc: '', ordered: 1, shipped: 1, pk: 1, kg: '' }], photos: [], delivered: '', received: '', note: '', tagsPer: 4 } };
+  stdDocks().unshift(x); save(); return x;
+}
+function renderDockSide() {
+  const el = $('#dkList'); if (!el) return; const q = ($('#dkSearch').value || '').toLowerCase();
+  const L = allDocks().filter(o => !q || [o.D.no, o.D.to, o.D.po, o.D.contact, o.job && o.job.no, o.job && o.job.title, ...(o.D.items || []).map(i => i.desc)].join(' ').toLowerCase().includes(q));
+  el.innerHTML = L.length ? L.map(o => `<div class="jitem${J.dsel === o.src.id ? ' on' : ''}" data-dk="${o.src.id}"><span class="no">DD ${esc(o.D.no)}</span><span class="pill ${o.D.issued ? 'st-done' : 'st-new'}">${o.D.issued ? 'гаргасан' : 'ноорог'}</span><span class="t">${esc(o.D.to || '—')}${o.D.po ? ' · PO ' + esc(o.D.po) : ''} · ${o.std ? 'бие даасан' : esc(o.job.no)} · ${esc(o.D.date || '')}</span></div>`).join('') : '<div class="emptyp">Packing list алга.</div>';
+}
+(() => {
+  const n = $('#dkNew'); if (n) n.addEventListener('click', () => { const x = newStdDock(); J.dsel = x.id; renderDockSide(); renderJobMain(); setTimeout(() => { const i = $('#dk_to'); if (i) i.focus(); }, 60); });
+  const s = $('#dkSearch'); if (s) s.addEventListener('input', renderDockSide);
+  const l = $('#dkList'); if (l) l.addEventListener('click', e => { const it = e.target.closest('[data-dk]'); if (!it) return; const j = findJob(it.dataset.dk); if (j) { J.sel = j.id; setModule('jobs'); J.sel = j.id; J.sub = 'acc'; renderJobs(); return; } J.dsel = it.dataset.dk; renderDockSide(); renderJobMain(); });
+})();
+function renderDocketMain(el) {
+  const x = stdDocks().find(o => o.id === J.dsel);
+  if (!x) {
+    const L = allDocks();
+    el.innerHTML = `<div class="dhead"><div><h2>Packing list архив</h2><p class="muted">${L.length} баримт · ${L.filter(o => o.D.issued).length} гаргасан</p></div><span class="sp" style="flex:1"></span><button class="btn primary" id="dkNew2">+ Шинэ Packing list</button></div>
+      <div class="jcard"><div class="tblwrap" style="border:0"><table class="dt"><thead><tr><th>Docket №</th><th>Огноо</th><th>Хүлээн авагч</th><th>PO</th><th>Бараа</th><th class="r">Тоо</th><th>Ажил</th><th>Төлөв</th></tr></thead><tbody>
+      ${L.map(o => `<tr class="jrow" data-dk="${o.src.id}" style="cursor:pointer"><td class="num"><b>${esc(o.D.no)}</b></td><td class="num">${esc(o.D.date || '')}</td><td>${esc(o.D.to || '—')}</td><td class="num">${esc(o.D.po || '')}</td><td>${esc(((o.D.items || [])[0] || {}).desc || '')}${(o.D.items || []).length > 1 ? ` <span class="muted">+${o.D.items.length - 1}</span>` : ''}</td><td class="r num">${(o.D.items || []).reduce((a, i) => a + (+i.shipped || 0), 0)}</td><td class="num">${o.std ? '<span class="muted">бие даасан</span>' : esc(o.job.no)}</td><td><span class="pill ${o.D.issued ? 'st-done' : 'st-new'}">${o.D.issued ? 'гаргасан ' + esc(o.D.issued) : 'ноорог'}</span></td></tr>`).join('') || '<tr><td colspan="8" class="muted">Packing list алга. Ажил бүртгэлгүй бол «+ Шинэ Packing list»-ээр шууд гаргана.</td></tr>'}
+      </tbody></table></div></div>`;
+    el.querySelector('#dkNew2').addEventListener('click', () => $('#dkNew').click());
+    el.querySelectorAll('[data-dk]').forEach(r => r.addEventListener('click', () => { const j = findJob(r.dataset.dk); if (j) { setModule('jobs'); J.sel = j.id; J.sub = 'acc'; renderJobs(); return; } J.dsel = r.dataset.dk; renderDockSide(); renderJobMain(); }));
+    return;
+  }
+  el.innerHTML = `<div class="dhead"><div><h2>Packing list · DD ${esc(x.dock.no)}</h2><p class="muted">Ажилд бүртгэгдээгүй — бие даасан баримт</p></div><span class="sp" style="flex:1"></span><button class="btn ghost" id="dkBack">← Жагсаалт</button><button class="btn ghost" id="dkDel">Устгах</button></div>${dockCardHTML(x)}`;
+  const DK = bindDockCard(el, x); DK.refresh();
+  bindEd(el, DK.edMap, () => { save(); renderDockSide(); renderJobMain(); });
+  el.querySelector('#dkBack').addEventListener('click', () => { J.dsel = null; renderDockSide(); renderJobMain(); });
+  el.querySelector('#dkDel').addEventListener('click', () => { if (!confirm(`DD ${x.dock.no}-г устгах уу?`)) return; S.dockets = stdDocks().filter(o => o !== x); J.dsel = null; save(); renderDockSide(); renderJobMain(); });
+  const t = el.querySelector('#dk_to'); if (t) t.addEventListener('change', () => { x.customer = x.dock.to; renderDockSide(); });
 }
 
 /* ================= KH Bending: flat pattern, tooling, force, sequence ================= */
@@ -10142,15 +10277,15 @@ function bpal(print) {
 }
 /* module switch */
 const MOD_ALIAS = { dash: 'jobs', quotes: 'jobs', jobs: 'jobs', docs: 'jobs' };
-const JVIEW_T = { dash: ['Хяналтын самбар', 'Үнийн санал → ажил → ашиг'], quotes: ['Үнийн санал', 'Бэлдэх, илгээх, ажил болгох'], jobs: ['Ажил', 'Scope, үйлдвэрлэл, явц, хүлээлгэх'], docs: ['Баримт бичиг', 'Иж бүрдэл, материалын гэрчилгээ'] };
+const JVIEW_T = { dash: ['Хяналтын самбар', 'Үнийн санал → ажил → ашиг'], quotes: ['Үнийн санал', 'Бэлдэх, илгээх, ажил болгох'], jobs: ['Ажил', 'Scope, үйлдвэрлэл, явц, хүлээлгэх'], docs: ['Баримт бичиг', 'Packing list, иж бүрдэл, гэрчилгээ'] };
 function setModule(v) {
   const m = MOD_ALIAS[v] || v;
   $$('.modtabs button').forEach(b => b.classList.toggle('on', b.dataset.mod === v));
   if (m === 'jobs' && typeof J !== 'undefined') {
     document.documentElement.dataset.jview = v;
     J.dash = v === 'dash';
-    if (v === 'docs') { if (!['kits', 'certs'].includes(J.tab)) J.tab = 'kits'; } else J.tab = 'jobs';
-    $$('[data-jtab]').forEach(x => x.classList.toggle('on', x.dataset.jtab === J.tab)); ['jobs', 'kits', 'certs'].forEach(t => { const e = $('#jtab-' + t); if (e) e.hidden = t !== J.tab; });
+    if (v === 'docs') { if (!['kits', 'certs', 'dockets'].includes(J.tab)) J.tab = 'dockets'; } else J.tab = 'jobs';
+    $$('[data-jtab]').forEach(x => x.classList.toggle('on', x.dataset.jtab === J.tab)); ['jobs', 'kits', 'certs', 'dockets'].forEach(t => { const e = $('#jtab-' + t); if (e) e.hidden = t !== J.tab; });
     const f = $('#jFilter'); if (f && (v === 'quotes' || v === 'jobs')) f.value = v;
     if (v === 'quotes' || v === 'jobs') { const cur = findJob(J.sel); if (!cur || (v === 'quotes') !== isQ(cur)) { const first = S.jobs.find(j => (v === 'quotes') === isQ(j)); J.sel = first ? first.id : null; } J.sub = v === 'quotes' ? 'quote' : (J.sub === 'quote' ? 'main' : J.sub); }
     const pt = $('#jobsPT'); if (pt) pt.innerHTML = `${JVIEW_T[v][0]}<small>${JVIEW_T[v][1]}</small>`;
@@ -12502,7 +12637,7 @@ function renderTplList() {
   const all = [['bucket', 'Шанага (параметрт)', 'Уурхай'], ...Object.entries(TPL).map(([k, t]) => [k, t.name, t.cat])];
   $('#tplList').innerHTML = all.map(([k, n, c]) => `<div class="jitem${IN.tpl === k ? ' on' : ''}" data-id="${k}"><span class="no">${esc(n)}</span><span class="pill">${esc(c)}</span></div>`).join('');
 }
-$('#tplList').addEventListener('click', e => { const it = e.target.closest('.jitem'); if (!it) return; if (it.dataset.id === 'bucket') { J.tab = 'kits'; J.bucket = true; BK.edit = null; $$('[data-jtab]').forEach(x => x.classList.toggle('on', x.dataset.jtab === 'kits')); ['jobs', 'kits', 'certs'].forEach(t => $('#jtab-' + t).hidden = t !== 'kits'); setModule('jobs'); return; } IN.tpl = it.dataset.id; renderTplList(); renderInfoMain(); });
+$('#tplList').addEventListener('click', e => { const it = e.target.closest('.jitem'); if (!it) return; if (it.dataset.id === 'bucket') { J.tab = 'kits'; J.bucket = true; BK.edit = null; $$('[data-jtab]').forEach(x => x.classList.toggle('on', x.dataset.jtab === 'kits')); ['jobs', 'kits', 'certs', 'dockets'].forEach(t => $('#jtab-' + t).hidden = t !== 'kits'); setModule('jobs'); return; } IN.tpl = it.dataset.id; renderTplList(); renderInfoMain(); });
 function renderLibSide() {
   $('#extLinks').innerHTML = EXTLIBS.map(x => `<div class="jitem"><span class="no"><a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.name)}</a></span><span class="pill">${esc(x.kind)}</span><span class="t">${esc(x.lic)}</span></div>`).join('');
   $('#libCount').textContent = LIB.length ? `${LIB.length} зүйл` : '';
@@ -12559,7 +12694,7 @@ function renderMachine(el, m) {
   $('#mBack').addEventListener('click', () => { IN.sel = null; renderMachList(); renderInfoMain(); });
   if (canB) $('#mMake').addEventListener('click', () => {
     S.bucket = bucketPreset(m, +$('#mCap').value, $('#mType').value); save();
-    J.tab = 'kits'; J.bucket = true; BK.edit = null; $$('[data-jtab]').forEach(x => x.classList.toggle('on', x.dataset.jtab === 'kits')); ['jobs', 'kits', 'certs'].forEach(t => $('#jtab-' + t).hidden = t !== 'kits');
+    J.tab = 'kits'; J.bucket = true; BK.edit = null; $$('[data-jtab]').forEach(x => x.classList.toggle('on', x.dataset.jtab === 'kits')); ['jobs', 'kits', 'certs', 'dockets'].forEach(t => $('#jtab-' + t).hidden = t !== 'kits');
     setModule('jobs'); toast('Шанагын эхлэх хэмжээ бэлэн — пин, чихний хэмжээг шалгана уу', 4500);
   });
 }

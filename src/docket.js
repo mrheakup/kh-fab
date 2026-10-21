@@ -130,7 +130,7 @@ function dockCardHTML(job) {
     <div class="jgrid">${fldIn('dk_no', 'Docket No', D.no)}${fldIn('dk_date', 'Date', D.date, { type: 'date' })}${fldIn('dk_to', 'Delivery to', D.to, { list: 'dl-org' })}${fldIn('dk_supplied', 'Supplied by', D.supplied)}
       ${fldIn('dk_po', 'Customer PO#', D.po)}${fldIn('dk_orderDate', 'Order Date', D.orderDate, { type: 'date' })}${fldIn('dk_delDate', 'Delivery Date', D.delDate, { type: 'date' })}${fldIn('dk_phone', 'Phone No', D.phone)}
       ${fldIn('dk_contact', 'Хүлээн авах хүн', D.contact, { list: 'dl-person' })}${fldIn('dk_address', 'Хүргэх хаяг', D.address)}${fldIn('dk_delivered', 'Хүлээлгэсэн (нэр)', D.delivered)}${fldIn('dk_received', 'Хүлээн авсан (нэр)', D.received)}</div>
-    ${edTable('dki', DOCK_COLS, D.items, { extra: `<button class="btn sm ghost" data-dfrom="quote">↺ Үнийн саналын мөрөөс</button><button class="btn sm ghost" data-dfrom="parts">↺ Партуудаас</button>` })}
+    ${edTable('dki', DOCK_COLS, D.items, { extra: job._std ? '' : `<button class="btn sm ghost" data-dfrom="quote">↺ Үнийн саналын мөрөөс</button><button class="btn sm ghost" data-dfrom="parts">↺ Партуудаас</button>` })}
     ${fldIn('dk_note', 'Тэмдэглэл (docket дээр)', D.note)}
     <div class="dkph">${(D.photos || []).map((p, i) => `<figure><img src="${p}" alt=""><button class="x" data-dph="${i}" aria-label="Устгах">×</button></figure>`).join('')}<button class="btn sm" id="dkPhoto">+ Бүтээгдэхүүний зураг</button>${(job.files || []).some(f => f.thumb && jfIsImg(f)) ? '<button class="btn sm ghost" id="dkFromFiles">Хавсралтаас</button>' : ''}</div>
   </div></div></div>
@@ -155,4 +155,45 @@ function bindDockCard(el, job) {
   el.querySelectorAll('[data-dph]').forEach(b => b.addEventListener('click', () => { D.photos.splice(+b.dataset.dph, 1); save(); re(); }));
   el.querySelector('.qfprevbox').addEventListener('click', async () => { printImgs(await docketImgs(job), false, 'a4', `DD${D.no} - Delivery Docket`); });
   return { refresh, edMap: { dki: { arr: () => D.items, cols: DOCK_COLS, blank: () => ({ desc: '', ordered: 1, shipped: 1, pk: 1, kg: '' }) } } };
+}
+
+/* ---------- Packing list archive (Баримт бичиг → Packing list): job dockets + stand-alone ones ---------- */
+const stdDocks = () => (Array.isArray(S.dockets) ? S.dockets : (S.dockets = []));
+function allDocks() {
+  const a = S.jobs.filter(j => j.dock).map(j => ({ src: j, std: false, D: j.dock, job: j }));
+  return a.concat(stdDocks().map(x => ({ src: x, std: true, D: x.dock, job: null }))).sort((p, q) => String(q.D.date || '').localeCompare(String(p.D.date || '')) || String(q.D.no).localeCompare(String(p.D.no)));
+}
+function newStdDock() {
+  S.docketSeq = (+S.docketSeq || 231) + 1;
+  const x = { id: uid(), _std: 1, no: '', title: '', customer: '', created: today(), log: [], files: [], quote: {}, dock: { no: dockNo(S.docketSeq), date: today(), to: '', supplied: 'Kh International', po: '', orderDate: '', delDate: today(), phone: '', contact: '', address: '', items: [{ desc: '', ordered: 1, shipped: 1, pk: 1, kg: '' }], photos: [], delivered: '', received: '', note: '', tagsPer: 4 } };
+  stdDocks().unshift(x); save(); return x;
+}
+function renderDockSide() {
+  const el = $('#dkList'); if (!el) return; const q = ($('#dkSearch').value || '').toLowerCase();
+  const L = allDocks().filter(o => !q || [o.D.no, o.D.to, o.D.po, o.D.contact, o.job && o.job.no, o.job && o.job.title, ...(o.D.items || []).map(i => i.desc)].join(' ').toLowerCase().includes(q));
+  el.innerHTML = L.length ? L.map(o => `<div class="jitem${J.dsel === o.src.id ? ' on' : ''}" data-dk="${o.src.id}"><span class="no">DD ${esc(o.D.no)}</span><span class="pill ${o.D.issued ? 'st-done' : 'st-new'}">${o.D.issued ? 'гаргасан' : 'ноорог'}</span><span class="t">${esc(o.D.to || '—')}${o.D.po ? ' · PO ' + esc(o.D.po) : ''} · ${o.std ? 'бие даасан' : esc(o.job.no)} · ${esc(o.D.date || '')}</span></div>`).join('') : '<div class="emptyp">Packing list алга.</div>';
+}
+(() => {
+  const n = $('#dkNew'); if (n) n.addEventListener('click', () => { const x = newStdDock(); J.dsel = x.id; renderDockSide(); renderJobMain(); setTimeout(() => { const i = $('#dk_to'); if (i) i.focus(); }, 60); });
+  const s = $('#dkSearch'); if (s) s.addEventListener('input', renderDockSide);
+  const l = $('#dkList'); if (l) l.addEventListener('click', e => { const it = e.target.closest('[data-dk]'); if (!it) return; const j = findJob(it.dataset.dk); if (j) { J.sel = j.id; setModule('jobs'); J.sel = j.id; J.sub = 'acc'; renderJobs(); return; } J.dsel = it.dataset.dk; renderDockSide(); renderJobMain(); });
+})();
+function renderDocketMain(el) {
+  const x = stdDocks().find(o => o.id === J.dsel);
+  if (!x) {
+    const L = allDocks();
+    el.innerHTML = `<div class="dhead"><div><h2>Packing list архив</h2><p class="muted">${L.length} баримт · ${L.filter(o => o.D.issued).length} гаргасан</p></div><span class="sp" style="flex:1"></span><button class="btn primary" id="dkNew2">+ Шинэ Packing list</button></div>
+      <div class="jcard"><div class="tblwrap" style="border:0"><table class="dt"><thead><tr><th>Docket №</th><th>Огноо</th><th>Хүлээн авагч</th><th>PO</th><th>Бараа</th><th class="r">Тоо</th><th>Ажил</th><th>Төлөв</th></tr></thead><tbody>
+      ${L.map(o => `<tr class="jrow" data-dk="${o.src.id}" style="cursor:pointer"><td class="num"><b>${esc(o.D.no)}</b></td><td class="num">${esc(o.D.date || '')}</td><td>${esc(o.D.to || '—')}</td><td class="num">${esc(o.D.po || '')}</td><td>${esc(((o.D.items || [])[0] || {}).desc || '')}${(o.D.items || []).length > 1 ? ` <span class="muted">+${o.D.items.length - 1}</span>` : ''}</td><td class="r num">${(o.D.items || []).reduce((a, i) => a + (+i.shipped || 0), 0)}</td><td class="num">${o.std ? '<span class="muted">бие даасан</span>' : esc(o.job.no)}</td><td><span class="pill ${o.D.issued ? 'st-done' : 'st-new'}">${o.D.issued ? 'гаргасан ' + esc(o.D.issued) : 'ноорог'}</span></td></tr>`).join('') || '<tr><td colspan="8" class="muted">Packing list алга. Ажил бүртгэлгүй бол «+ Шинэ Packing list»-ээр шууд гаргана.</td></tr>'}
+      </tbody></table></div></div>`;
+    el.querySelector('#dkNew2').addEventListener('click', () => $('#dkNew').click());
+    el.querySelectorAll('[data-dk]').forEach(r => r.addEventListener('click', () => { const j = findJob(r.dataset.dk); if (j) { setModule('jobs'); J.sel = j.id; J.sub = 'acc'; renderJobs(); return; } J.dsel = r.dataset.dk; renderDockSide(); renderJobMain(); }));
+    return;
+  }
+  el.innerHTML = `<div class="dhead"><div><h2>Packing list · DD ${esc(x.dock.no)}</h2><p class="muted">Ажилд бүртгэгдээгүй — бие даасан баримт</p></div><span class="sp" style="flex:1"></span><button class="btn ghost" id="dkBack">← Жагсаалт</button><button class="btn ghost" id="dkDel">Устгах</button></div>${dockCardHTML(x)}`;
+  const DK = bindDockCard(el, x); DK.refresh();
+  bindEd(el, DK.edMap, () => { save(); renderDockSide(); renderJobMain(); });
+  el.querySelector('#dkBack').addEventListener('click', () => { J.dsel = null; renderDockSide(); renderJobMain(); });
+  el.querySelector('#dkDel').addEventListener('click', () => { if (!confirm(`DD ${x.dock.no}-г устгах уу?`)) return; S.dockets = stdDocks().filter(o => o !== x); J.dsel = null; save(); renderDockSide(); renderJobMain(); });
+  const t = el.querySelector('#dk_to'); if (t) t.addEventListener('change', () => { x.customer = x.dock.to; renderDockSide(); });
 }

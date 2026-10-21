@@ -113,15 +113,17 @@ function jobMoney(job) {
 const daysLeft = d => d ? Math.round((new Date(d + 'T00:00:00') - new Date(today() + 'T00:00:00')) / 864e5) : null;
 
 /* ---------- side panel ---------- */
-$$('[data-jtab]').forEach(b => b.addEventListener('click', () => { J.tab = b.dataset.jtab; $$('[data-jtab]').forEach(x => x.classList.toggle('on', x === b)); ['jobs', 'kits', 'certs'].forEach(t => $('#jtab-' + t).hidden = t !== J.tab); renderJobs(); }));
-function renderJobs() { renderJList(); renderKList(); renderCertSide(); renderJobMain(); }
+$$('[data-jtab]').forEach(b => b.addEventListener('click', () => { J.tab = b.dataset.jtab; $$('[data-jtab]').forEach(x => x.classList.toggle('on', x === b)); ['jobs', 'kits', 'certs', 'dockets'].forEach(t => $('#jtab-' + t).hidden = t !== J.tab); renderJobs(); }));
+function renderJobs() { renderJList(); renderKList(); renderCertSide(); renderDockSide(); renderJobMain(); }
 function renderJList() {
   $('#cntJobs').textContent = S.jobs.filter(j => isQ(j) ? j.qst !== 'lost' : !['done', 'given'].includes(j.status)).length || '';
+  { const v = document.documentElement.dataset.jview, sg = $('#jSeg'), fv = $('#jFilter').value, opts = v === 'quotes' ? [['quotes', 'Идэвхтэй'], ['closed', 'Татгалзсан'], ['all', 'Бүгд']] : v === 'jobs' ? [['jobs', 'Идэвхтэй'], ['closed', 'Архив'], ['all', 'Бүгд']] : null;
+    if (sg) { sg.hidden = !opts; if (opts) { const arch = S.jobs.filter(j => v === 'quotes' ? isQ(j) && j.qst === 'lost' : !isQ(j) && ['done', 'given'].includes(j.status)).length; sg.innerHTML = opts.map(([k, n]) => `<button data-jf="${k}" class="${fv === k ? 'on' : ''}">${n}${k === 'closed' && arch ? ` <span class="mono">${arch}</span>` : ''}</button>`).join(''); } } }
   const q = ($('#jSearch').value || '').toLowerCase(), f = $('#jFilter').value, os = $('#jOrg'), og = os.value;
   { const O = orgs().slice().sort((a, b) => a.name.localeCompare(b.name)); os.innerHTML = `<option value="">Бүх байгууллага (${O.length})</option>${O.map(o => `<option value="${esc(o.id)}"${o.id === og ? ' selected' : ''}>${esc(o.name)} · ${jobsOfOrg(o).length}</option>`).join('')}`; }
   const org = orgs().find(o => o.id === og), inOrg = org ? new Set(jobsOfOrg(org)) : null;
   const hay = j => { const f2 = (j.quote && j.quote.qf) || {}; return [j.no, j.customer, j.title, j.quote && j.quote.no, f2.person, f2.email, f2.phone, f2.rfqName, f2.rfqNo, j.dock && j.dock.no, j.dock && j.dock.po].join(' ').toLowerCase(); };
-  const fOk = j => f === 'all' ? true : f === 'quotes' ? isQ(j) : f === 'jobs' ? !isQ(j) && !['done', 'given'].includes(j.status) : f === 'closed' ? (isQ(j) ? j.qst === 'lost' : ['done', 'given'].includes(j.status)) : (isQ(j) ? j.qst !== 'lost' : !['done', 'given'].includes(j.status));
+  const fOk = j => f === 'all' ? true : f === 'quotes' ? isQ(j) : f === 'jobs' ? !isQ(j) && !['done', 'given'].includes(j.status) : f === 'closed' ? (document.documentElement.dataset.jview === 'quotes' ? isQ(j) && j.qst === 'lost' : document.documentElement.dataset.jview === 'jobs' ? !isQ(j) && ['done', 'given'].includes(j.status) : (isQ(j) ? j.qst === 'lost' : ['done', 'given'].includes(j.status))) : (isQ(j) ? j.qst !== 'lost' : !['done', 'given'].includes(j.status));
   const list = S.jobs.filter(j => fOk(j) && (!inOrg || inOrg.has(j)) && (!q || hay(j).includes(q)));
   $('#jList').innerHTML = list.length ? list.map(j => {
     const late = j.due && j.due < today() && !['done', 'given'].includes(j.status);
@@ -138,6 +140,7 @@ $('#jNew').addEventListener('click', () => { const nj = newJob(); setModule('job
 $('#jSearch').addEventListener('input', renderJList);
 $('#jFilter').addEventListener('change', renderJList);
 $('#jOrg').addEventListener('change', renderJList);
+$('#jSeg').addEventListener('click', e => { const b = e.target.closest('[data-jf]'); if (!b) return; $('#jFilter').value = b.dataset.jf; renderJList(); });
 ['formTrace', 'rev', 'operators', 'formQuote', 'formScope', 'formInstr'].forEach(k => $('#iso_' + k).addEventListener('change', e => { S.iso[k] = e.target.value.trim(); save(); }));
 
 function renderKList() {
@@ -159,7 +162,7 @@ function kitFromParts() {
 $('#kFromParts').addEventListener('click', () => { if (kitFromParts()) { renderJobs(); toast('Иж бүрдэл үүслээ — нэрийг нь өгнө үү'); } });
 $('#btnKitFrom').addEventListener('click', () => {
   if (!kitFromParts()) return;
-  J.tab = 'kits'; $$('[data-jtab]').forEach(x => x.classList.toggle('on', x.dataset.jtab === 'kits')); ['jobs', 'kits', 'certs'].forEach(t => $('#jtab-' + t).hidden = t !== 'kits');
+  J.tab = 'kits'; $$('[data-jtab]').forEach(x => x.classList.toggle('on', x.dataset.jtab === 'kits')); ['jobs', 'kits', 'certs', 'dockets'].forEach(t => $('#jtab-' + t).hidden = t !== 'kits');
   setModule('docs'); toast('Иж бүрдэл үүслээ — нэрийг нь өгнө үү');
 });
 
@@ -179,6 +182,7 @@ function renderJobMain() {
   const el = $('#jobsMain');
   if (J.tab === 'kits') { if (J.bucket) renderBucketMain(el); else renderKitMain(el); return; }
   if (J.tab === 'certs') { renderCertMain(el); return; }
+  if (J.tab === 'dockets') { renderDocketMain(el); return; }
   if (J.dash && S.jobs.length) { renderDash(el); return; }
   const job = findJob(J.sel) || findJob(S.activeJob) || S.jobs[0];
   if (!job) { el.innerHTML = '<div class="jempty"><b>Ажил алга</b><br>Зүүн талын <b>+ Шинэ ажил</b> товчоор ажлын дугаар үүсгэнэ. Дугаар нь <span class="mono">KH-' + new Date().getFullYear() + '-001</span> хэлбэртэй, жил бүр шинээр эхэлнэ.</div>'; return; }
@@ -200,7 +204,7 @@ function renderJobMain() {
       <label class="fld grow">Ажлын нэр<input id="jf_title" value="${esc(job.title)}" placeholder="жишээ: PC200 шанага ×2"></label>
       <label class="fld grow">Захиалагч (байгууллага)<input id="jf_customer" list="dl-org" value="${esc(job.customer)}" placeholder="жагсаалтаас сонгох эсвэл шинээр"></label>
       <label class="fld">Хугацаа<input id="jf_due" type="date" value="${esc(job.due)}"></label>
-      <label class="fld">Төлөв<select id="jf_status">${JST.map(([k, n]) => `<option value="${k}"${k === job.status ? ' selected' : ''}>${n}</option>`).join('')}</select></label>
+      <label class="fld" hidden>Төлөв<select id="jf_status">${JST.map(([k, n]) => `<option value="${k}"${k === job.status ? ' selected' : ''}>${n}</option>`).join('')}</select></label>
       <label class="fld grow">Тайлбар<input id="jf_note" value="${esc(job.note)}"></label>
       <label class="fld">Гэрээний үнэ, ₮<input id="jf_price" type="number" min="0" step="10000" value="${esc(job.price || '')}" class="mono"></label>
     </div>
@@ -242,7 +246,7 @@ function renderJobMain() {
     ${jobNextHTML(job)}${jobTasksHTML(job)}${jobFilesHTML(job)}${srcFolderHTML(job)}<div class="jcard" data-v="main"><div class="bcard-h">Түүх</div><div class="jbody"><div class="jlog">${job.log.map(l => `<div><span class="mono">${esc(l.t)}</span>${esc(l.m)}</div>`).join('') || '<span class="note">—</span>'}</div></div></div>
     <datalist id="opList">${ops.map(o => `<option value="${esc(o)}">`).join('')}</datalist>`;
   bindSubBar(el); bindJobFiles(el, job); bindJobTasks(el, job); bindSrcFolder(el, job);
-  { const v = J.sub === 'prod' ? 'prod' : 'main'; el.querySelectorAll('[data-v]').forEach(n => { n.hidden = n.dataset.v !== v; }); el.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => { J.sub = b.dataset.go; renderJobMain(); })); }
+  { const v = J.sub === 'prod' ? 'prod' : 'main'; el.querySelectorAll('[data-v]').forEach(n => { n.hidden = n.dataset.v !== v; }); el.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => { J.sub = b.dataset.go === 'make' ? (J.mk || 'prod') : b.dataset.go; renderJobMain(); })); }
   // field bindings
   ['no', 'title', 'customer', 'due', 'note'].forEach(k => $('#jf_' + k).addEventListener('change', ev => { const v = ev.target.value.trim(); if (k === 'no' && !v) return; if (k === 'no') { job.no = v; job.short = (v.match(/(\d+)\s*$/) || [, v])[1]; } else job[k] = v; if (k === 'customer' && v) { orgLearn({ org: v }); if (job.quote && job.quote.qf && qfFillFromDir(job.quote.qf, v)) toast('Захиалагчийн хаяг, ID үнийн саналд бөглөгдлөө'); } save(); renderJList(); }));
   $('#jf_status').addEventListener('change', ev => { const o = jstName(job.status); job.status = ev.target.value; jobLog(`Төлөв: ${o} → ${jstName(job.status)}`, job); renderJList(); renderJobMain(); });
