@@ -27,7 +27,7 @@ async function docketImgs(job, KK) {
   try { await document.fonts.ready; } catch (e) { } await logoImg();
   const D = dockDefaults(job), C = company(), W = 210, H = 297, K = KK || PRINT_K, L0 = 18, R0 = 192;
   const c = document.createElement('canvas'); c.width = W * K; c.height = H * K; const x = c.getContext('2d'); x.scale(K, K); x.fillStyle = '#fff'; x.fillRect(0, 0, W, H);
-  const T = (s, X, Y, o = {}) => { x.font = `${o.b ? 700 : 400} ${(o.s || 3.1) * 1.08}px ${QFS.F}`; x.fillStyle = o.c || '#000'; x.textAlign = o.a || 'left'; x.textBaseline = 'middle'; let v = tr(String(s ?? '')); if (o.w) while (v.length > 1 && x.measureText(v).width > o.w) v = v.slice(0, -2) + '…'; x.fillText(v, X, Y); return x.measureText(v).width; };
+  const T = (s, X, Y, o = {}) => { x.font = `${o.b ? 700 : 400} ${(o.s || 3.1) * 1.08}px ${QFS.F}`; x.fillStyle = o.c || '#000'; x.textAlign = o.a || 'left'; x.textBaseline = 'middle'; let v = trDoc(String(s ?? '')); if (o.w) while (v.length > 1 && x.measureText(v).width > o.w) v = v.slice(0, -2) + '…'; x.fillText(v, X, Y); return x.measureText(v).width; };
   const ln = (a, b, c2, d, w = 0.25, col = '#000') => { x.strokeStyle = col; x.lineWidth = w; x.beginPath(); x.moveTo(a, b); x.lineTo(c2, d); x.stroke(); };
   const KV = (k, v, X, Y, o = {}) => { const w = T(k, X, Y, { b: 1, s: 3.2 }); T(' ' + (v || ''), X + w, Y, { s: 3.2, w: o.w, b: o.vb }); };
   // header
@@ -51,7 +51,7 @@ async function docketImgs(job, KK) {
   // table
   const X = [L0, 30, 132, 152, 172, R0], y0 = 104, h1 = 7, h2 = 6.5;
   x.fillStyle = QFS.fill; x.fillRect(L0, y0, R0 - L0, h1 + h2);
-  const rowsY = y0 + h1 + h2, items = D.items.filter(r => r.desc || +r.ordered), rh = items.map(r => { x.font = `400 ${3.1 * 1.08}px ${QFS.F}`; const words = tr(String(r.desc || '')).split(' '); let l = '', n = 1; words.forEach(wd => { const t = l ? l + ' ' + wd : wd; if (x.measureText(t).width > X[2] - X[1] - 4 && l) { n++; l = wd; } else l = t; }); return Math.max(7, n * 4 + 3); });
+  const rowsY = y0 + h1 + h2, items = D.items.filter(r => r.desc || +r.ordered), rh = items.map(r => { x.font = `400 ${3.1 * 1.08}px ${QFS.F}`; const words = trDoc(String(r.desc || '')).split(' '); let l = '', n = 1; words.forEach(wd => { const t = l ? l + ' ' + wd : wd; if (x.measureText(t).width > X[2] - X[1] - 4 && l) { n++; l = wd; } else l = t; }); return Math.max(7, n * 4 + 3); });
   const yEnd = rowsY + rh.reduce((a, b) => a + b, 0);
   x.strokeStyle = '#000'; x.lineWidth = 0.3; x.strokeRect(L0, y0, R0 - L0, yEnd - y0);
   ln(L0, rowsY, R0, rowsY); ln(X[2], y0 + h1, R0, y0 + h1);
@@ -63,7 +63,7 @@ async function docketImgs(job, KK) {
   items.forEach((r, i) => {
     if (i) ln(L0, y, R0, y);
     const h = rh[i], cy = y + h / 2; T(i + 1, (X[0] + X[1]) / 2, cy, { s: 3.2, a: 'center' });
-    x.font = `400 ${3.1 * 1.08}px ${QFS.F}`; const words = tr(String(r.desc || '')).split(' '), ls = []; let l = ''; words.forEach(wd => { const t = l ? l + ' ' + wd : wd; if (x.measureText(t).width > X[2] - X[1] - 4 && l) { ls.push(l); l = wd; } else l = t; }); ls.push(l);
+    x.font = `400 ${3.1 * 1.08}px ${QFS.F}`; const words = trDoc(String(r.desc || '')).split(' '), ls = []; let l = ''; words.forEach(wd => { const t = l ? l + ' ' + wd : wd; if (x.measureText(t).width > X[2] - X[1] - 4 && l) { ls.push(l); l = wd; } else l = t; }); ls.push(l);
     ls.forEach((t, j) => T(t, X[1] + 2, cy + (j - (ls.length - 1) / 2) * 4, { s: 3.1 }));
     [r.ordered, r.shipped, dockBack(r)].forEach((v, k) => T(n0d(v), (X[2 + k] + X[3 + k]) / 2, cy, { s: 3.2, a: 'center' }));
     y += h;
@@ -99,12 +99,12 @@ async function tagImgs(job) {
       const X = M + (j % cols) * gw, Y = M + Math.floor(j / cols) * gh, w = gw - 4, h = gh - 4, X0 = X + 2, Y0 = Y + 2, sc = per === 8 ? 0.72 : 1;
       x.setLineDash([1.2, 1.2]); x.strokeStyle = '#999'; x.lineWidth = 0.2; x.strokeRect(X, Y, gw, gh); x.setLineDash([]);
       x.strokeStyle = '#000'; x.lineWidth = 0.5; x.strokeRect(X0, Y0, w, h);
-      const T = (v, a, b, o = {}) => { x.font = `${o.b ? 700 : 400} ${(o.s || 3) * sc * 1.08}px ${o.m ? DFM : QFS.F}`; x.fillStyle = o.c || '#000'; x.textAlign = o.a || 'left'; x.textBaseline = 'middle'; let z = tr(String(v ?? '')); if (o.w) while (z.length > 1 && x.measureText(z).width > o.w) z = z.slice(0, -2) + '…'; x.fillText(z, a, b); };
+      const T = (v, a, b, o = {}) => { x.font = `${o.b ? 700 : 400} ${(o.s || 3) * sc * 1.08}px ${o.m ? DFM : QFS.F}`; x.fillStyle = o.c || '#000'; x.textAlign = o.a || 'left'; x.textBaseline = 'middle'; let z = trDoc(String(v ?? '')); if (o.w) while (z.length > 1 && x.measureText(z).width > o.w) z = z.slice(0, -2) + '…'; x.fillText(z, a, b); };
       drawLogo(x, X0 + 3, Y0 + 3, 10 * sc); T(C.name, X0 + w - 3, Y0 + 6 * sc, { b: 1, s: 3.2, a: 'right' }); T(C.phone, X0 + w - 3, Y0 + 10.5 * sc, { s: 2.3, a: 'right', w: w * 0.6 });
       x.fillStyle = QFS.purple; x.fillRect(X0 + 3, Y0 + 15 * sc, w - 6, 0.5);
       x.fillStyle = '#10161c'; x.fillRect(X0 + 3, Y0 + 18 * sc, w - 6, 10 * sc); T(`PACKAGE ${t.k} / ${t.n}`, X0 + 6, Y0 + 23 * sc, { b: 1, s: 4.2, c: '#fff' }); T(`DOCKET ${D.no}`, X0 + w - 6, Y0 + 23 * sc, { b: 1, s: 3.4, c: '#fff', a: 'right' });
       const qr = Math.min(32 * sc, h * 0.3), lw = w - 10 - qr;
-      x.font = `700 ${5 * sc * 1.08}px ${QFS.F}`; const words = tr(String(t.r.desc)).split(' '), ls = []; let l = ''; words.forEach(wd => { const z = l ? l + ' ' + wd : wd; if (x.measureText(z).width > w - 8 && l) { ls.push(l); l = wd; } else l = z; }); ls.push(l);
+      x.font = `700 ${5 * sc * 1.08}px ${QFS.F}`; const words = trDoc(String(t.r.desc)).split(' '), ls = []; let l = ''; words.forEach(wd => { const z = l ? l + ' ' + wd : wd; if (x.measureText(z).width > w - 8 && l) { ls.push(l); l = wd; } else l = z; }); ls.push(l);
       ls.slice(0, 3).forEach((z, q) => T(z, X0 + 4, Y0 + (35 + q * 6.2) * sc, { b: 1, s: 5 }));
       const kv = [['Customer', D.to], ['PO #', D.po], ['Job No', job.no], ['Item', `${t.i + 1}  ·  Qty ${n0d(t.r.shipped)}${t.n > 1 ? ` (${t.n} pkg)` : ''}`], ['Weight', t.r.kg ? `${n0d(+t.r.kg / t.n)} kg` : ''], ['Date', fmtDL(D.delDate)]];
       const ky = Y0 + (35 + Math.min(3, ls.length) * 6.2 + 2) * sc;

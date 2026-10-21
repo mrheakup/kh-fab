@@ -1,5 +1,7 @@
 /* ================= KH Fab — jobs (ажил), kits (иж бүрдэл), material certificates, ISO trace, labels ================= */
-const JST = [['new', 'Шинэ'], ['nest', 'Өрөлт'], ['cut', 'Зүсэгдсэн'], ['weld', 'Угсралт, гагнуур'], ['done', 'Дууссан'], ['given', 'Хүлээлгэсэн']];
+const JST = [['new', 'Шинэ'], ['nest', 'Бэлтгэл'], ['cut', 'Үйлдвэрлэж буй'], ['weld', 'Шалгалт, QC'], ['done', 'Дууссан'], ['given', 'Хүлээлгэсэн']];
+/* what kind of work a job involves — not every job is laser cutting */
+const JOPS = [['laser', 'Лазер зүсэлт'], ['bend', 'Нугалалт'], ['weld', 'Гагнуур, угсралт'], ['mach', 'Токарь, механик'], ['bore', 'Line bore'], ['repair', 'Засвар'], ['blast', 'Элсэн цэвэрлэгээ, будаг'], ['ndt', 'NDT, шалгалт'], ['site', 'Талбайн ажил'], ['buy', 'Худалдан авалт']];
 const jstName = k => (JST.find(s => s[0] === k) || JST[0])[1];
 const J = { tab: 'jobs', sel: null, kit: null, traceForm: false };
 const today = () => { const d = new Date(); return new Date(d - d.getTimezoneOffset() * 6e4).toISOString().slice(0, 10); };
@@ -247,6 +249,7 @@ function renderJobMain() {
     <datalist id="opList">${ops.map(o => `<option value="${esc(o)}">`).join('')}</datalist>`;
   bindSubBar(el); bindJobFiles(el, job); bindJobTasks(el, job); bindSrcFolder(el, job);
   el.querySelectorAll('[data-st]').forEach(b => b.addEventListener('click', () => { if (b.dataset.st === job.status) return; const o = jstName(job.status); job.status = b.dataset.st; jobLog(`Төлөв: ${o} → ${jstName(job.status)}`, job); save(); renderJList(); renderJobMain(); }));
+  el.querySelectorAll('[data-op]').forEach(b => b.addEventListener('click', () => { const o = job.ops = job.ops || [], k = b.dataset.op, i = o.indexOf(k); if (i >= 0) o.splice(i, 1); else o.push(k); save(); renderJobMain(); }));
   { const nd = el.querySelector('#jf_need'); if (nd) nd.addEventListener('change', () => { job.need = nd.value.trim(); if (job.need) jobLog('Тэмдэглэл: ' + job.need, job); save(); renderJList(); }); }
   { const v = J.sub === 'prod' ? 'prod' : 'main'; el.querySelectorAll('[data-v]').forEach(n => { n.hidden = n.dataset.v !== v; }); el.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => { J.sub = b.dataset.go === 'make' ? (J.mk || 'prod') : b.dataset.go; renderJobMain(); })); }
   // field bindings

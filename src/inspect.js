@@ -18,7 +18,7 @@ const conclName = k => (INSP_CONCL.find(c => c[0] === k) || [, '—'])[1];
 const IF = DF;
 function itxt(x, s, X, Y, o = {}) {
   x.font = `${o.b ? 700 : o.sb ? 600 : 400} ${o.s || 2.4}px ${o.m ? DFM : IF}`; x.fillStyle = o.c || IC.ink; x.textAlign = o.a || 'left'; x.textBaseline = 'middle';
-  let t = tr(String(s ?? '')); if (o.w) while (t.length > 1 && x.measureText(t).width > o.w) t = t.slice(0, -2) + '…';
+  let t = trDoc(String(s ?? '')); if (o.w) while (t.length > 1 && x.measureText(t).width > o.w) t = t.slice(0, -2) + '…';
   x.fillText(t, X, Y);
 }
 function icell(x, X, Y, w, h, fill) { if (fill) { x.fillStyle = fill; x.fillRect(X, Y, w, h); } x.strokeStyle = IC.line; x.lineWidth = 0.18; x.strokeRect(X, Y, w, h); }
@@ -71,7 +71,7 @@ function drawSheet(x, m, rec) {
   });
   y += 3;
   const ft = `1. Хариуцаж буй ${m.role} үзлэгийг өдөр бүр заавал хийсэн байх.  2. Үзүүлэлтүүдийг бүрэн бичсэн байх.  3. Солигдох үед дахин бүртгэсэн байх.  4. Ахлахаар хянуулсны дараа ажлыг эхлүүлнэ.`.replace(/^/, '');
-  const ftT = tr(ft);
+  const ftT = trDoc(ft);
   x.font = `400 1.8px ${IF}`; const words = ftT.split(' '), lines = []; let ln = '';
   words.forEach(wd => { if (x.measureText(ln + wd).width > IW - 4) { lines.push(ln); ln = ''; } ln += wd + ' '; }); lines.push(ln);
   const fh = lines.length * 2.3 + 1.6; x.fillStyle = IC.soft; x.fillRect(IL, y, IW, fh); x.strokeStyle = IC.acc; x.lineWidth = 0.2; x.strokeRect(IL, y, IW, fh);

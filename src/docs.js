@@ -47,7 +47,7 @@ async function kdoc(opt) {
   D.need = h => { if (D.y + h > PH - 14) D.page(); };
   D.wrap = (s, w, font) => {
     const x = D.x; x.font = font; const out = [];
-    tr(String(s ?? '')).split('\n').forEach(par => {
+    trDoc(String(s ?? '')).split('\n').forEach(par => {
       const words = par.split(/(\s+)/); let line = '';
       words.forEach(wd => { const t = line + wd; if (x.measureText(t).width > w && line.trim()) { out.push(line.trimEnd()); line = wd.trimStart(); } else line = t; });
       while (x.measureText(line).width > w && line.length > 1) { let k = line.length; while (k > 1 && x.measureText(line.slice(0, k)).width > w) k--; out.push(line.slice(0, k)); line = line.slice(k); }
@@ -76,7 +76,7 @@ async function kdoc(opt) {
       const X = M + (i % ncol) * cw, Y = D.y + Math.floor(i / ncol) * rh;
       x.fillStyle = o.fill || '#f6f7f9'; x.fillRect(X, Y, kw, rh); x.strokeRect(X, Y, cw, rh); x.beginPath(); x.moveTo(X + kw, Y); x.lineTo(X + kw, Y + rh); x.stroke();
       x.textBaseline = 'middle'; x.textAlign = 'left'; x.fillStyle = DC.ink; x.font = `600 2.7px ${DF}`; x.fillText(k, X + 1.5, Y + rh / 2);
-      x.font = `400 2.9px ${DF}`; let s = tr(String(v ?? '')); while (s.length > 2 && x.measureText(s).width > cw - kw - 3) s = s.slice(0, -2) + '…'; x.fillText(s, X + kw + 1.5, Y + rh / 2);
+      x.font = `400 2.9px ${DF}`; let s = trDoc(String(v ?? '')); while (s.length > 2 && x.measureText(s).width > cw - kw - 3) s = s.slice(0, -2) + '…'; x.fillText(s, X + kw + 1.5, Y + rh / 2);
     });
     D.y += rows * rh + (o.after ?? 4); D.x.textBaseline = 'alphabetic';
   };

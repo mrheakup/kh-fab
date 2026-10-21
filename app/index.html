@@ -356,6 +356,7 @@ html[data-jview="jobs"] .grid2:has(#jSearch),html[data-jview="quotes"] .grid2:ha
 .spipe button.past{color:var(--ink-2)}.spipe button.past i{background:#12b76a;color:#fff}.spipe button.now{border-color:var(--accent);background:var(--accent-soft);color:var(--ink);font-weight:600}.spipe button.now i{background:var(--accent);color:var(--accent-ink)}
 .sgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}.sgrid small,.sneed>small{display:block;color:var(--ink-3);font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
 .sown{display:flex;gap:8px;align-items:center}.sown select{flex:1}.sbig{font-size:15px;font-weight:600}.sbig .muted{font-weight:400;font-size:12.5px}
+.sops small{display:block;color:var(--ink-3);font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}.sops .chip{font-size:12.5px;padding:4px 10px}
 .sneed{display:grid;gap:4px;border-top:1px solid var(--line-2);padding-top:10px}.nrow{display:flex;gap:8px;align-items:baseline;font-size:13.5px}.nrow .muted{font-size:12px}.nrow .linkbtn{margin-left:auto}.nrow.bad{color:#b42318;font-weight:600}.nrow.ok{color:#027a48}
 .idst{display:flex;flex-wrap:wrap;border-radius:12px}.idst button{flex:1 1 auto}
 .ikb{grid-template-columns:repeat(7,minmax(170px,1fr))}
@@ -4508,7 +4509,25 @@ const I18N_EN = {
 "Санал гаргасан": "Proposed by",
 "Захирал": "Director",
 "САНАА, САЙЖРУУЛАЛТЫН ЖАГСААЛТ": "IDEAS & IMPROVEMENTS LIST",
-"Хэмнэлт/сар": "Saving/month"
+"Хэмнэлт/сар": "Saving/month",
+"Бэлтгэл": "Preparation",
+"Үйлдвэрлэж буй": "In production",
+"Шалгалт, QC": "Inspection, QC",
+"Гагнуур, угсралт": "Welding, assembly",
+"Токарь, механик": "Turning, machining",
+"Line bore": "Line bore",
+"Засвар": "Repair",
+"Элсэн цэвэрлэгээ, будаг": "Sandblast, paint",
+"NDT, шалгалт": "NDT, inspection",
+"Талбайн ажил": "Site work",
+"Ажлын төрөл": "Work type",
+"Ажлын төрлийг сонгох (доор)": "Choose the work type (below)",
+"Зураг, баримт хавсаргах": "Attach drawings, documents",
+"Зүсэх парт оруулах": "Add parts to cut",
+"Материал, сэлбэг худалдан авах": "Purchase material, parts",
+"NDT / шалгалтын тайлан": "NDT / inspection report",
+"Ажлыг даалгавар болгон хуваарилах (хэн юу хийх)": "Split the job into tasks (who does what)",
+"Токарийн ажил": "Turning work"
 };
 /* ================= KH Fab — language (МН / EN) and theme (Day / Night) =================
    The UI is written in Mongolian. In English mode every Mongolian fragment that reaches the
@@ -4539,6 +4558,8 @@ function trForce(s) {
   });
 }
 const tr = s => LANG === 'en' ? trForce(s) : s;
+/* documents: never print half-translated text (user-typed Mongolian stays as typed) */
+const trDoc = s => { if (LANG !== 'en' || typeof s !== 'string') return s; const v = trForce(s); return v !== s && TR_CYR.test(v) ? s : v; };
 
 /* ---- DOM: translate text nodes and a few attributes; originals are kept so МН can be restored ---- */
 const TR_ORIG = new WeakMap(), TR_OUT = new WeakMap(), TR_ATTRS = ['placeholder', 'title', 'aria-label'];
@@ -4572,7 +4593,7 @@ const trObs = new MutationObserver(list => {
 /* ---- canvas, dialogs, PDFs, saved files ---- */
 (() => {
   const P = CanvasRenderingContext2D.prototype;
-  for (const f of ['fillText', 'strokeText', 'measureText']) { const o = P[f]; P[f] = function (t, ...a) { return o.call(this, typeof t === 'string' ? tr(t) : t, ...a); }; }
+  for (const f of ['fillText', 'strokeText', 'measureText']) { const o = P[f]; P[f] = function (t, ...a) { return o.call(this, typeof t === 'string' ? trDoc(t) : t, ...a); }; }
   for (const f of ['alert', 'confirm', 'prompt']) { const o = window[f]; if (o) window[f] = (m, ...a) => o.call(window, tr(String(m ?? '')), ...a); }
 })();
 function i18nPdf(pdf) {
@@ -7607,7 +7628,7 @@ async function kdoc(opt) {
   D.need = h => { if (D.y + h > PH - 14) D.page(); };
   D.wrap = (s, w, font) => {
     const x = D.x; x.font = font; const out = [];
-    tr(String(s ?? '')).split('\n').forEach(par => {
+    trDoc(String(s ?? '')).split('\n').forEach(par => {
       const words = par.split(/(\s+)/); let line = '';
       words.forEach(wd => { const t = line + wd; if (x.measureText(t).width > w && line.trim()) { out.push(line.trimEnd()); line = wd.trimStart(); } else line = t; });
       while (x.measureText(line).width > w && line.length > 1) { let k = line.length; while (k > 1 && x.measureText(line.slice(0, k)).width > w) k--; out.push(line.slice(0, k)); line = line.slice(k); }
@@ -7636,7 +7657,7 @@ async function kdoc(opt) {
       const X = M + (i % ncol) * cw, Y = D.y + Math.floor(i / ncol) * rh;
       x.fillStyle = o.fill || '#f6f7f9'; x.fillRect(X, Y, kw, rh); x.strokeRect(X, Y, cw, rh); x.beginPath(); x.moveTo(X + kw, Y); x.lineTo(X + kw, Y + rh); x.stroke();
       x.textBaseline = 'middle'; x.textAlign = 'left'; x.fillStyle = DC.ink; x.font = `600 2.7px ${DF}`; x.fillText(k, X + 1.5, Y + rh / 2);
-      x.font = `400 2.9px ${DF}`; let s = tr(String(v ?? '')); while (s.length > 2 && x.measureText(s).width > cw - kw - 3) s = s.slice(0, -2) + '…'; x.fillText(s, X + kw + 1.5, Y + rh / 2);
+      x.font = `400 2.9px ${DF}`; let s = trDoc(String(v ?? '')); while (s.length > 2 && x.measureText(s).width > cw - kw - 3) s = s.slice(0, -2) + '…'; x.fillText(s, X + kw + 1.5, Y + rh / 2);
     });
     D.y += rows * rh + (o.after ?? 4); D.x.textBaseline = 'alphabetic';
   };
@@ -7761,7 +7782,9 @@ const money = v => nf(Math.round(+v || 0));
 })();
 
 /* ================= KH Fab — jobs (ажил), kits (иж бүрдэл), material certificates, ISO trace, labels ================= */
-const JST = [['new', 'Шинэ'], ['nest', 'Өрөлт'], ['cut', 'Зүсэгдсэн'], ['weld', 'Угсралт, гагнуур'], ['done', 'Дууссан'], ['given', 'Хүлээлгэсэн']];
+const JST = [['new', 'Шинэ'], ['nest', 'Бэлтгэл'], ['cut', 'Үйлдвэрлэж буй'], ['weld', 'Шалгалт, QC'], ['done', 'Дууссан'], ['given', 'Хүлээлгэсэн']];
+/* what kind of work a job involves — not every job is laser cutting */
+const JOPS = [['laser', 'Лазер зүсэлт'], ['bend', 'Нугалалт'], ['weld', 'Гагнуур, угсралт'], ['mach', 'Токарь, механик'], ['bore', 'Line bore'], ['repair', 'Засвар'], ['blast', 'Элсэн цэвэрлэгээ, будаг'], ['ndt', 'NDT, шалгалт'], ['site', 'Талбайн ажил'], ['buy', 'Худалдан авалт']];
 const jstName = k => (JST.find(s => s[0] === k) || JST[0])[1];
 const J = { tab: 'jobs', sel: null, kit: null, traceForm: false };
 const today = () => { const d = new Date(); return new Date(d - d.getTimezoneOffset() * 6e4).toISOString().slice(0, 10); };
@@ -8009,6 +8032,7 @@ function renderJobMain() {
     <datalist id="opList">${ops.map(o => `<option value="${esc(o)}">`).join('')}</datalist>`;
   bindSubBar(el); bindJobFiles(el, job); bindJobTasks(el, job); bindSrcFolder(el, job);
   el.querySelectorAll('[data-st]').forEach(b => b.addEventListener('click', () => { if (b.dataset.st === job.status) return; const o = jstName(job.status); job.status = b.dataset.st; jobLog(`Төлөв: ${o} → ${jstName(job.status)}`, job); save(); renderJList(); renderJobMain(); }));
+  el.querySelectorAll('[data-op]').forEach(b => b.addEventListener('click', () => { const o = job.ops = job.ops || [], k = b.dataset.op, i = o.indexOf(k); if (i >= 0) o.splice(i, 1); else o.push(k); save(); renderJobMain(); }));
   { const nd = el.querySelector('#jf_need'); if (nd) nd.addEventListener('change', () => { job.need = nd.value.trim(); if (job.need) jobLog('Тэмдэглэл: ' + job.need, job); save(); renderJList(); }); }
   { const v = J.sub === 'prod' ? 'prod' : 'main'; el.querySelectorAll('[data-v]').forEach(n => { n.hidden = n.dataset.v !== v; }); el.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => { J.sub = b.dataset.go === 'make' ? (J.mk || 'prod') : b.dataset.go; renderJobMain(); })); }
   // field bindings
@@ -8337,9 +8361,15 @@ function jobNeeds(job) {
   const N = [], T = (typeof tasks === 'function' ? tasks() : []).filter(t => t.jobId === job.id && t.status !== 'done'), st = job.status, parts = (() => { try { return jobParts(job).length; } catch (e) { return 0; } })();
   if (!job.owner) N.push(['Хариуцагч сонгох', null]);
   if (!job.due) N.push(['Дуусах хугацаа тогтоох', null]);
-  if (st === 'new' && !parts && !(job.files || []).length) N.push(['Зураг, парт оруулах', 'prod']);
-  if (st === 'new' && parts && !job.est) N.push(['Өрөлт хийх (Зүсэлт)', 'prod']);
-  if (['nest', 'cut'].includes(st) && !(job.trace || []).length) N.push(['Зүсэлтийн бүртгэл хөтлөх', 'prod']);
+  const ops = job.ops || [], laser = ops.includes('laser') || parts > 0;
+  if (!ops.length) N.push(['Ажлын төрлийг сонгох (доор)', null]);
+  if (!(job.files || []).length && !(job.quote && job.quote.srcFolder)) N.push(['Зураг, баримт хавсаргах', null]);
+  if (laser && st === 'new' && !parts) N.push(['Зүсэх парт оруулах', 'prod']);
+  if (laser && parts && !job.est) N.push(['Өрөлт хийх (Зүсэлт)', 'prod']);
+  if (laser && ['nest', 'cut'].includes(st) && job.est && !(job.trace || []).length) N.push(['Зүсэлтийн бүртгэл хөтлөх', 'prod']);
+  if (ops.includes('buy') && st === 'new') N.push(['Материал, сэлбэг худалдан авах', null]);
+  if (ops.includes('ndt') && ['cut', 'weld'].includes(st)) N.push(['NDT / шалгалтын тайлан', null]);
+  if (!T.length && ['new', 'nest', 'cut'].includes(st) && job.owner) N.push(['Ажлыг даалгавар болгон хуваарилах (хэн юу хийх)', null]);
   if (st === 'done' && !(job.dock && job.dock.issued)) N.push(['Packing list гаргах', 'acc']);
   if (st === 'given' && !(job.acc && job.acc.done)) N.push(['Хүлээн авалтын акт', 'acc']);
   const dl = daysLeft(job.due); if (dl != null && dl < 0 && !['done', 'given'].includes(st)) N.unshift([`Хугацаа ${-dl} хоног хэтэрсэн!`, null, 'bad']);
@@ -8355,6 +8385,7 @@ function jobNextHTML(job) {
       <div><small>Дуусах хугацаа</small><div class="sbig ${dl != null && dl < 0 && !['done', 'given'].includes(job.status) ? 'late' : ''}">${job.due ? esc(job.due) + (dl != null ? ` <span class="muted">(${dl >= 0 ? dl + ' хоног үлдсэн' : -dl + ' хоног хэтэрсэн'})</span>` : '') : '<span class="muted">тогтоогоогүй</span>'}</div></div>
       <div><small>Захиалагч</small><div class="sbig">${esc(job.customer || '—')}${job.quote && job.quote.no ? ` <span class="muted mono">· ${esc(job.quote.no)}</span>` : ''}</div></div>
     </div>
+    <div class="sops"><small>Ажлын төрөл</small><div class="chips">${JOPS.map(([k, n]) => `<button class="chip${(job.ops || []).includes(k) ? ' on' : ''}" data-op="${k}">${n}</button>`).join('')}</div></div>
     <div class="sneed"><small>Одоо юу хэрэгтэй вэ</small>
       ${N.map(([t, go, cls]) => `<div class="nrow ${cls || ''}">${cls === 'bad' ? '⚠' : '○'} <span>${esc(t)}</span>${go ? `<button class="linkbtn" data-go="${go === 'prod' ? 'make' : go}">нээх →</button>` : ''}</div>`).join('')}
       ${T.slice(0, 5).map(t => `<div class="nrow">□ <span>${esc(t.title || '(гарчиггүй)')}</span><span class="muted">${esc(typeof pName === 'function' ? pName(t.assignee) || 'хариуцагчгүй' : '')}${t.due ? ' · ' + esc(t.due) : ''}</span></div>`).join('')}
@@ -10051,7 +10082,7 @@ async function docketImgs(job, KK) {
   try { await document.fonts.ready; } catch (e) { } await logoImg();
   const D = dockDefaults(job), C = company(), W = 210, H = 297, K = KK || PRINT_K, L0 = 18, R0 = 192;
   const c = document.createElement('canvas'); c.width = W * K; c.height = H * K; const x = c.getContext('2d'); x.scale(K, K); x.fillStyle = '#fff'; x.fillRect(0, 0, W, H);
-  const T = (s, X, Y, o = {}) => { x.font = `${o.b ? 700 : 400} ${(o.s || 3.1) * 1.08}px ${QFS.F}`; x.fillStyle = o.c || '#000'; x.textAlign = o.a || 'left'; x.textBaseline = 'middle'; let v = tr(String(s ?? '')); if (o.w) while (v.length > 1 && x.measureText(v).width > o.w) v = v.slice(0, -2) + '…'; x.fillText(v, X, Y); return x.measureText(v).width; };
+  const T = (s, X, Y, o = {}) => { x.font = `${o.b ? 700 : 400} ${(o.s || 3.1) * 1.08}px ${QFS.F}`; x.fillStyle = o.c || '#000'; x.textAlign = o.a || 'left'; x.textBaseline = 'middle'; let v = trDoc(String(s ?? '')); if (o.w) while (v.length > 1 && x.measureText(v).width > o.w) v = v.slice(0, -2) + '…'; x.fillText(v, X, Y); return x.measureText(v).width; };
   const ln = (a, b, c2, d, w = 0.25, col = '#000') => { x.strokeStyle = col; x.lineWidth = w; x.beginPath(); x.moveTo(a, b); x.lineTo(c2, d); x.stroke(); };
   const KV = (k, v, X, Y, o = {}) => { const w = T(k, X, Y, { b: 1, s: 3.2 }); T(' ' + (v || ''), X + w, Y, { s: 3.2, w: o.w, b: o.vb }); };
   // header
@@ -10075,7 +10106,7 @@ async function docketImgs(job, KK) {
   // table
   const X = [L0, 30, 132, 152, 172, R0], y0 = 104, h1 = 7, h2 = 6.5;
   x.fillStyle = QFS.fill; x.fillRect(L0, y0, R0 - L0, h1 + h2);
-  const rowsY = y0 + h1 + h2, items = D.items.filter(r => r.desc || +r.ordered), rh = items.map(r => { x.font = `400 ${3.1 * 1.08}px ${QFS.F}`; const words = tr(String(r.desc || '')).split(' '); let l = '', n = 1; words.forEach(wd => { const t = l ? l + ' ' + wd : wd; if (x.measureText(t).width > X[2] - X[1] - 4 && l) { n++; l = wd; } else l = t; }); return Math.max(7, n * 4 + 3); });
+  const rowsY = y0 + h1 + h2, items = D.items.filter(r => r.desc || +r.ordered), rh = items.map(r => { x.font = `400 ${3.1 * 1.08}px ${QFS.F}`; const words = trDoc(String(r.desc || '')).split(' '); let l = '', n = 1; words.forEach(wd => { const t = l ? l + ' ' + wd : wd; if (x.measureText(t).width > X[2] - X[1] - 4 && l) { n++; l = wd; } else l = t; }); return Math.max(7, n * 4 + 3); });
   const yEnd = rowsY + rh.reduce((a, b) => a + b, 0);
   x.strokeStyle = '#000'; x.lineWidth = 0.3; x.strokeRect(L0, y0, R0 - L0, yEnd - y0);
   ln(L0, rowsY, R0, rowsY); ln(X[2], y0 + h1, R0, y0 + h1);
@@ -10087,7 +10118,7 @@ async function docketImgs(job, KK) {
   items.forEach((r, i) => {
     if (i) ln(L0, y, R0, y);
     const h = rh[i], cy = y + h / 2; T(i + 1, (X[0] + X[1]) / 2, cy, { s: 3.2, a: 'center' });
-    x.font = `400 ${3.1 * 1.08}px ${QFS.F}`; const words = tr(String(r.desc || '')).split(' '), ls = []; let l = ''; words.forEach(wd => { const t = l ? l + ' ' + wd : wd; if (x.measureText(t).width > X[2] - X[1] - 4 && l) { ls.push(l); l = wd; } else l = t; }); ls.push(l);
+    x.font = `400 ${3.1 * 1.08}px ${QFS.F}`; const words = trDoc(String(r.desc || '')).split(' '), ls = []; let l = ''; words.forEach(wd => { const t = l ? l + ' ' + wd : wd; if (x.measureText(t).width > X[2] - X[1] - 4 && l) { ls.push(l); l = wd; } else l = t; }); ls.push(l);
     ls.forEach((t, j) => T(t, X[1] + 2, cy + (j - (ls.length - 1) / 2) * 4, { s: 3.1 }));
     [r.ordered, r.shipped, dockBack(r)].forEach((v, k) => T(n0d(v), (X[2 + k] + X[3 + k]) / 2, cy, { s: 3.2, a: 'center' }));
     y += h;
@@ -10123,12 +10154,12 @@ async function tagImgs(job) {
       const X = M + (j % cols) * gw, Y = M + Math.floor(j / cols) * gh, w = gw - 4, h = gh - 4, X0 = X + 2, Y0 = Y + 2, sc = per === 8 ? 0.72 : 1;
       x.setLineDash([1.2, 1.2]); x.strokeStyle = '#999'; x.lineWidth = 0.2; x.strokeRect(X, Y, gw, gh); x.setLineDash([]);
       x.strokeStyle = '#000'; x.lineWidth = 0.5; x.strokeRect(X0, Y0, w, h);
-      const T = (v, a, b, o = {}) => { x.font = `${o.b ? 700 : 400} ${(o.s || 3) * sc * 1.08}px ${o.m ? DFM : QFS.F}`; x.fillStyle = o.c || '#000'; x.textAlign = o.a || 'left'; x.textBaseline = 'middle'; let z = tr(String(v ?? '')); if (o.w) while (z.length > 1 && x.measureText(z).width > o.w) z = z.slice(0, -2) + '…'; x.fillText(z, a, b); };
+      const T = (v, a, b, o = {}) => { x.font = `${o.b ? 700 : 400} ${(o.s || 3) * sc * 1.08}px ${o.m ? DFM : QFS.F}`; x.fillStyle = o.c || '#000'; x.textAlign = o.a || 'left'; x.textBaseline = 'middle'; let z = trDoc(String(v ?? '')); if (o.w) while (z.length > 1 && x.measureText(z).width > o.w) z = z.slice(0, -2) + '…'; x.fillText(z, a, b); };
       drawLogo(x, X0 + 3, Y0 + 3, 10 * sc); T(C.name, X0 + w - 3, Y0 + 6 * sc, { b: 1, s: 3.2, a: 'right' }); T(C.phone, X0 + w - 3, Y0 + 10.5 * sc, { s: 2.3, a: 'right', w: w * 0.6 });
       x.fillStyle = QFS.purple; x.fillRect(X0 + 3, Y0 + 15 * sc, w - 6, 0.5);
       x.fillStyle = '#10161c'; x.fillRect(X0 + 3, Y0 + 18 * sc, w - 6, 10 * sc); T(`PACKAGE ${t.k} / ${t.n}`, X0 + 6, Y0 + 23 * sc, { b: 1, s: 4.2, c: '#fff' }); T(`DOCKET ${D.no}`, X0 + w - 6, Y0 + 23 * sc, { b: 1, s: 3.4, c: '#fff', a: 'right' });
       const qr = Math.min(32 * sc, h * 0.3), lw = w - 10 - qr;
-      x.font = `700 ${5 * sc * 1.08}px ${QFS.F}`; const words = tr(String(t.r.desc)).split(' '), ls = []; let l = ''; words.forEach(wd => { const z = l ? l + ' ' + wd : wd; if (x.measureText(z).width > w - 8 && l) { ls.push(l); l = wd; } else l = z; }); ls.push(l);
+      x.font = `700 ${5 * sc * 1.08}px ${QFS.F}`; const words = trDoc(String(t.r.desc)).split(' '), ls = []; let l = ''; words.forEach(wd => { const z = l ? l + ' ' + wd : wd; if (x.measureText(z).width > w - 8 && l) { ls.push(l); l = wd; } else l = z; }); ls.push(l);
       ls.slice(0, 3).forEach((z, q) => T(z, X0 + 4, Y0 + (35 + q * 6.2) * sc, { b: 1, s: 5 }));
       const kv = [['Customer', D.to], ['PO #', D.po], ['Job No', job.no], ['Item', `${t.i + 1}  ·  Qty ${n0d(t.r.shipped)}${t.n > 1 ? ` (${t.n} pkg)` : ''}`], ['Weight', t.r.kg ? `${n0d(+t.r.kg / t.n)} kg` : ''], ['Date', fmtDL(D.delDate)]];
       const ky = Y0 + (35 + Math.min(3, ls.length) * 6.2 + 2) * sc;
@@ -12258,8 +12289,8 @@ async function posterImg(m, fmt, prev) {
   const photo = await loadImgSrc(m.photo), T = instrOf(m), P = posterOf(m), s = fmt === 'a3' ? 1 : 210 / 297, K = prev ? (fmt === 'a3' ? 3 : 4) : (fmt === 'a3' ? 9 : 12);
   const W = 297, H = 420, M = 12, c = document.createElement('canvas'); c.width = Math.round(W * s * K); c.height = Math.round(H * s * K);
   const x = c.getContext('2d'); x.scale(s * K, s * K); x.fillStyle = '#fff'; x.fillRect(0, 0, W, H);
-  const txt = (t, X, Y, o = {}) => { x.font = `${o.b ? 700 : o.sb ? 600 : 400} ${o.s || 4}px ${DF}`; x.fillStyle = o.c || SG.ink; x.textAlign = o.a || 'left'; x.textBaseline = o.bl || 'alphabetic'; let v = tr(String(t)); if (o.w) while (v.length > 1 && x.measureText(v).width > o.w) v = v.slice(0, -2) + '…'; x.fillText(v, X, Y); };
-  const wrap = (t, w, font) => { x.font = font; const out = []; tr(String(t)).split('\n').forEach(p => { let ln = ''; p.split(' ').forEach(wd => { const tt = ln ? ln + ' ' + wd : wd; if (x.measureText(tt).width > w && ln) { out.push(ln); ln = wd; } else ln = tt; }); out.push(ln); }); return out; };
+  const txt = (t, X, Y, o = {}) => { x.font = `${o.b ? 700 : o.sb ? 600 : 400} ${o.s || 4}px ${DF}`; x.fillStyle = o.c || SG.ink; x.textAlign = o.a || 'left'; x.textBaseline = o.bl || 'alphabetic'; let v = trDoc(String(t)); if (o.w) while (v.length > 1 && x.measureText(v).width > o.w) v = v.slice(0, -2) + '…'; x.fillText(v, X, Y); };
+  const wrap = (t, w, font) => { x.font = font; const out = []; trDoc(String(t)).split('\n').forEach(p => { let ln = ''; p.split(' ').forEach(wd => { const tt = ln ? ln + ' ' + wd : wd; if (x.measureText(tt).width > w && ln) { out.push(ln); ln = wd; } else ln = tt; }); out.push(ln); }); return out; };
   /* list block that shrinks its font until it fits */
   const listBlock = (items, X, Y, w, h, color, opt = {}) => {
     let fs = opt.max || 5.2, lines;
@@ -12357,7 +12388,7 @@ const conclName = k => (INSP_CONCL.find(c => c[0] === k) || [, '—'])[1];
 const IF = DF;
 function itxt(x, s, X, Y, o = {}) {
   x.font = `${o.b ? 700 : o.sb ? 600 : 400} ${o.s || 2.4}px ${o.m ? DFM : IF}`; x.fillStyle = o.c || IC.ink; x.textAlign = o.a || 'left'; x.textBaseline = 'middle';
-  let t = tr(String(s ?? '')); if (o.w) while (t.length > 1 && x.measureText(t).width > o.w) t = t.slice(0, -2) + '…';
+  let t = trDoc(String(s ?? '')); if (o.w) while (t.length > 1 && x.measureText(t).width > o.w) t = t.slice(0, -2) + '…';
   x.fillText(t, X, Y);
 }
 function icell(x, X, Y, w, h, fill) { if (fill) { x.fillStyle = fill; x.fillRect(X, Y, w, h); } x.strokeStyle = IC.line; x.lineWidth = 0.18; x.strokeRect(X, Y, w, h); }
@@ -12410,7 +12441,7 @@ function drawSheet(x, m, rec) {
   });
   y += 3;
   const ft = `1. Хариуцаж буй ${m.role} үзлэгийг өдөр бүр заавал хийсэн байх.  2. Үзүүлэлтүүдийг бүрэн бичсэн байх.  3. Солигдох үед дахин бүртгэсэн байх.  4. Ахлахаар хянуулсны дараа ажлыг эхлүүлнэ.`.replace(/^/, '');
-  const ftT = tr(ft);
+  const ftT = trDoc(ft);
   x.font = `400 1.8px ${IF}`; const words = ftT.split(' '), lines = []; let ln = '';
   words.forEach(wd => { if (x.measureText(ln + wd).width > IW - 4) { lines.push(ln); ln = ''; } ln += wd + ' '; }); lines.push(ln);
   const fh = lines.length * 2.3 + 1.6; x.fillStyle = IC.soft; x.fillRect(IL, y, IW, fh); x.strokeStyle = IC.acc; x.lineWidth = 0.2; x.strokeRect(IL, y, IW, fh);

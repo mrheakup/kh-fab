@@ -61,8 +61,8 @@ async function posterImg(m, fmt, prev) {
   const photo = await loadImgSrc(m.photo), T = instrOf(m), P = posterOf(m), s = fmt === 'a3' ? 1 : 210 / 297, K = prev ? (fmt === 'a3' ? 3 : 4) : (fmt === 'a3' ? 9 : 12);
   const W = 297, H = 420, M = 12, c = document.createElement('canvas'); c.width = Math.round(W * s * K); c.height = Math.round(H * s * K);
   const x = c.getContext('2d'); x.scale(s * K, s * K); x.fillStyle = '#fff'; x.fillRect(0, 0, W, H);
-  const txt = (t, X, Y, o = {}) => { x.font = `${o.b ? 700 : o.sb ? 600 : 400} ${o.s || 4}px ${DF}`; x.fillStyle = o.c || SG.ink; x.textAlign = o.a || 'left'; x.textBaseline = o.bl || 'alphabetic'; let v = tr(String(t)); if (o.w) while (v.length > 1 && x.measureText(v).width > o.w) v = v.slice(0, -2) + '…'; x.fillText(v, X, Y); };
-  const wrap = (t, w, font) => { x.font = font; const out = []; tr(String(t)).split('\n').forEach(p => { let ln = ''; p.split(' ').forEach(wd => { const tt = ln ? ln + ' ' + wd : wd; if (x.measureText(tt).width > w && ln) { out.push(ln); ln = wd; } else ln = tt; }); out.push(ln); }); return out; };
+  const txt = (t, X, Y, o = {}) => { x.font = `${o.b ? 700 : o.sb ? 600 : 400} ${o.s || 4}px ${DF}`; x.fillStyle = o.c || SG.ink; x.textAlign = o.a || 'left'; x.textBaseline = o.bl || 'alphabetic'; let v = trDoc(String(t)); if (o.w) while (v.length > 1 && x.measureText(v).width > o.w) v = v.slice(0, -2) + '…'; x.fillText(v, X, Y); };
+  const wrap = (t, w, font) => { x.font = font; const out = []; trDoc(String(t)).split('\n').forEach(p => { let ln = ''; p.split(' ').forEach(wd => { const tt = ln ? ln + ' ' + wd : wd; if (x.measureText(tt).width > w && ln) { out.push(ln); ln = wd; } else ln = tt; }); out.push(ln); }); return out; };
   /* list block that shrinks its font until it fits */
   const listBlock = (items, X, Y, w, h, color, opt = {}) => {
     let fs = opt.max || 5.2, lines;

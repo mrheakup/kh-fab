@@ -33,9 +33,15 @@ function jobNeeds(job) {
   const N = [], T = (typeof tasks === 'function' ? tasks() : []).filter(t => t.jobId === job.id && t.status !== 'done'), st = job.status, parts = (() => { try { return jobParts(job).length; } catch (e) { return 0; } })();
   if (!job.owner) N.push(['Хариуцагч сонгох', null]);
   if (!job.due) N.push(['Дуусах хугацаа тогтоох', null]);
-  if (st === 'new' && !parts && !(job.files || []).length) N.push(['Зураг, парт оруулах', 'prod']);
-  if (st === 'new' && parts && !job.est) N.push(['Өрөлт хийх (Зүсэлт)', 'prod']);
-  if (['nest', 'cut'].includes(st) && !(job.trace || []).length) N.push(['Зүсэлтийн бүртгэл хөтлөх', 'prod']);
+  const ops = job.ops || [], laser = ops.includes('laser') || parts > 0;
+  if (!ops.length) N.push(['Ажлын төрлийг сонгох (доор)', null]);
+  if (!(job.files || []).length && !(job.quote && job.quote.srcFolder)) N.push(['Зураг, баримт хавсаргах', null]);
+  if (laser && st === 'new' && !parts) N.push(['Зүсэх парт оруулах', 'prod']);
+  if (laser && parts && !job.est) N.push(['Өрөлт хийх (Зүсэлт)', 'prod']);
+  if (laser && ['nest', 'cut'].includes(st) && job.est && !(job.trace || []).length) N.push(['Зүсэлтийн бүртгэл хөтлөх', 'prod']);
+  if (ops.includes('buy') && st === 'new') N.push(['Материал, сэлбэг худалдан авах', null]);
+  if (ops.includes('ndt') && ['cut', 'weld'].includes(st)) N.push(['NDT / шалгалтын тайлан', null]);
+  if (!T.length && ['new', 'nest', 'cut'].includes(st) && job.owner) N.push(['Ажлыг даалгавар болгон хуваарилах (хэн юу хийх)', null]);
   if (st === 'done' && !(job.dock && job.dock.issued)) N.push(['Packing list гаргах', 'acc']);
   if (st === 'given' && !(job.acc && job.acc.done)) N.push(['Хүлээн авалтын акт', 'acc']);
   const dl = daysLeft(job.due); if (dl != null && dl < 0 && !['done', 'given'].includes(st)) N.unshift([`Хугацаа ${-dl} хоног хэтэрсэн!`, null, 'bad']);
@@ -51,6 +57,7 @@ function jobNextHTML(job) {
       <div><small>Дуусах хугацаа</small><div class="sbig ${dl != null && dl < 0 && !['done', 'given'].includes(job.status) ? 'late' : ''}">${job.due ? esc(job.due) + (dl != null ? ` <span class="muted">(${dl >= 0 ? dl + ' хоног үлдсэн' : -dl + ' хоног хэтэрсэн'})</span>` : '') : '<span class="muted">тогтоогоогүй</span>'}</div></div>
       <div><small>Захиалагч</small><div class="sbig">${esc(job.customer || '—')}${job.quote && job.quote.no ? ` <span class="muted mono">· ${esc(job.quote.no)}</span>` : ''}</div></div>
     </div>
+    <div class="sops"><small>Ажлын төрөл</small><div class="chips">${JOPS.map(([k, n]) => `<button class="chip${(job.ops || []).includes(k) ? ' on' : ''}" data-op="${k}">${n}</button>`).join('')}</div></div>
     <div class="sneed"><small>Одоо юу хэрэгтэй вэ</small>
       ${N.map(([t, go, cls]) => `<div class="nrow ${cls || ''}">${cls === 'bad' ? '⚠' : '○'} <span>${esc(t)}</span>${go ? `<button class="linkbtn" data-go="${go === 'prod' ? 'make' : go}">нээх →</button>` : ''}</div>`).join('')}
       ${T.slice(0, 5).map(t => `<div class="nrow">□ <span>${esc(t.title || '(гарчиггүй)')}</span><span class="muted">${esc(typeof pName === 'function' ? pName(t.assignee) || 'хариуцагчгүй' : '')}${t.due ? ' · ' + esc(t.due) : ''}</span></div>`).join('')}
