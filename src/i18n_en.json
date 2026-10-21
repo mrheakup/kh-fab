@@ -2928,5 +2928,11 @@
 "Packing list, маягт, иж бүрдэл, гэрчилгээ": "Packing lists, forms, kits, certificates",
 "Маягт алга": "No forms",
 "Хэсгээр": "By section",
-"Excel-ийн мөрүүд": "Excel lines"
+"Excel-ийн мөрүүд": "Excel lines",
+"⇪ Excel маягт оруулах": "⇪ Import Excel forms",
+"Маягтын хэл": "Form language",
+"Kh-ийн Excel үнийн саналын маягтууд (… - Form.xlsx, SQ… - Quotation….xlsx) — олныг зэрэг сонгож болно": "Kh Excel quotation forms (… - Form.xlsx, SQ… - Quotation….xlsx) — several can be picked at once",
+"Компанийн мэдээлэл (загварын толгой, банк, регистр, боловсруулсан / хянасан)": "Company details (header, bank, registration, prepared / approved by)",
+"Боловсруулсан (МН)": "Prepared by (MN)",
+"Хянаж, зөвшөөрсөн (МН)": "Reviewed and approved by (MN)"
 }

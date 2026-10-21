@@ -62,7 +62,7 @@ const trObs = new MutationObserver(list => {
 /* ---- canvas, dialogs, PDFs, saved files ---- */
 (() => {
   const P = CanvasRenderingContext2D.prototype;
-  for (const f of ['fillText', 'strokeText', 'measureText']) { const o = P[f]; P[f] = function (t, ...a) { return o.call(this, typeof t === 'string' ? trDoc(t) : t, ...a); }; }
+  for (const f of ['fillText', 'strokeText', 'measureText']) { const o = P[f]; P[f] = function (t, ...a) { return o.call(this, typeof t === 'string' && !window.__noTr ? trDoc(t) : t, ...a); }; }
   for (const f of ['alert', 'confirm', 'prompt']) { const o = window[f]; if (o) window[f] = (m, ...a) => o.call(window, tr(String(m ?? '')), ...a); }
 })();
 function i18nPdf(pdf) {

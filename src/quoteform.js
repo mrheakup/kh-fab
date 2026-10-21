@@ -2,7 +2,13 @@
    Reproduces «SQ… - Quotation» (Excel → PDF, US Letter): logo + tagline, company address, purple rule,
    customer box, QUOTATION box, address row, items table, special note, included / excluded,
    terms + totals block, thank-you band. Coordinates measured from the original (mm). */
-const CO_DEF = { name: 'Kh International LLC', tag: 'Know us, know the quality', a1: 'Ulaanbaatar Mongolia,', a2: 'Songino Khairkhan District, 20th Khoroo', a3: 'Sonsgolon Street, 18131, 67th Unit', bank: 'KHAS 5004206842', reg: '6215572', currency: 'MNT', phone: '(976) 8801 2130, (976) 8992 8989', mail: 'info@khinternational.mn' };
+const CO_DEF = { name: 'Kh International LLC', tag: 'Know us, know the quality', a1: 'Ulaanbaatar Mongolia,', a2: 'Songino Khairkhan District, 20th Khoroo', a3: 'Sonsgolon Street, 18131, 67th Unit', bank: 'KHAS 5004206842', reg: '6215572', currency: 'MNT', phone: '(976) 8801 2130, (976) 8992 8989', mail: 'info@khinternational.mn', prep: 'Х. Очирбат / Ochirbat.Kh', appr: 'Munkhjargal.S', prepMn: 'Х. Очирбат', apprMn: 'С. Мөнхжаргал' };
+/* Mongolian-language quotation (some customers get the form in Mongolian) */
+const QF_NOTE_MN = 'Энэхүү үнийн санал нь ажлын цар хүрээ өөрчлөгдөх, тухайлбал нэмэлт инженерийн зураг, эсвэл боловсруулалтын үйлчилгээ зэрэг өөрчлөлтүүд гарсан тохиолдолд дахин хянагдаж, шинэчлэгдэх боломжтой.';
+const QF_MN = { "Customer's name": 'Харилцагч', 'RFQ name': 'Ажлын нэр', 'RFQ number': 'Ажлын дугаар', 'Name/Position': 'Холбогдох хүн', 'Email': 'Email', 'Phone number': 'Утасны дугаар', 'QUOTATION': 'ҮНИЙН САНАЛ', 'Date': 'Огноо', 'Valid Until': 'Хүртэл хүчинтэй', 'Quote #': 'Үнийн саналын №', 'Customer ID': 'Харилцагч ID', 'Lead time': 'Гүйцэтгэх хугацаа',
+  "Customer's address:": 'Харилцагчийн хаяг:', '№': '№', 'Description': 'Ажлын тайлбар', 'UOM': 'Нэгж', 'QTY': 'Тоо', 'Unit price': 'Үнэ MNT', 'Total excluded\nVAT': 'Нийт\n/НӨАТ ороогүй/', 'Special Note :': 'Тусгай тэмдэглэл:', 'Quote included:': 'Үнийн саналд багтсан:', 'Quote excluded:': 'Үнийн саналд багтаагүй:',
+  'Payment Term': 'Төлбөрийн нөхцөл', 'Delivery Term': 'Хүргэлтийн нөхцөл', 'Bank account': 'Банкны мэдээлэл', 'Currency': 'Валют', 'Registration of Company': 'Компанийн регистр', 'Total excluded VAT': 'НӨАТ ороогүй үнэ', 'Discount': 'Хөнгөлөлт', 'VAT rate': 'НӨАТ-ын хувь', 'VAT': 'НӨАТ', 'Total included VAT': 'НӨАТ орсон нийт', 'THANK YOU FOR YOUR COOPERATION!': 'ХАМТРАН АЖИЛЛАСАНД БАЯРЛАЛАА!' };
+const CO_MN = { prepLbl: 'Боловсруулсан:', apprLbl: 'Хянаж, зөвшөөрсөн:', name: 'Кэй Эйч Интернэшнл ХХК', a1: 'Монгол улс, Улаанбаатар хот,', a2: 'Сонгино Хайрхан дүүрэг, 20-р хороо,', a3: 'Сонсголон 18131, 67-р хаалга' };
 const QF_NOTE = 'This quotation may be subject to revision in the event of any variation or modification to the scope of work, including but not limited to additional engineering drawings or fabrication services.';
 /* standard «Quote included / excluded» clauses. A line starting with "- " is a sub-item. */
 const QF_CLAUSES = {
@@ -37,7 +43,9 @@ function qfLines(job) {
 }
 async function quoteFormImgs(job, KK) {
   try { await document.fonts.ready; } catch (e) { } await logoImg();
-  const q = job.quote, f = qfDefaults(job), C = company(), lines = qfLines(job), vatR = +q.vat || 0;
+  const q = job.quote, f = qfDefaults(job), MN = f.lang === 'mn', C = MN ? Object.assign({}, company(), CO_MN) : company(), lines = qfLines(job), vatR = +q.vat || 0, Lb = t => MN ? (QF_MN[t] || t) : t;
+  window.__noTr = MN;
+  try {
   const excl = lines.reduce((a, l) => a + Math.round(l.p) * l.q, 0), disc = +f.discount || 0, vat = Math.round((excl - disc) * vatR / 100), total = excl - disc + vat;
   const W = 215.9, H = 279.4, K = KK || PRINT_K, L0 = 23.9, R0 = 198.0, pages = [];
   let x, y;
@@ -53,20 +61,20 @@ async function quoteFormImgs(job, KK) {
     [C.a1, C.a2, C.a3].forEach((a, i) => T(a, R0 - 0.3, 33.9 + i * 4.05, { s: 2.55, a: 'right' }));
     x.strokeStyle = QFS.purple; x.lineWidth = 0.35; x.beginPath(); x.moveTo(L0, 46.1); x.lineTo(R0, 46.1); x.stroke();
   };
-  const itemHead = Y => { const cols = [[L0, 29.8, '№'], [29.8, 128.9, 'Description'], [128.9, 143.7, 'UOM'], [143.7, 157.1, 'QTY'], [157.1, 176.4, 'Unit price'], [176.4, R0, 'Total excluded\nVAT']]; cols.forEach(([a, b, t]) => { box(a, Y, b - a, 6.8, QFS.fill); const ls = t.split('\n'); ls.forEach((l, i) => T(l, (a + b) / 2, Y + 3.4 + (i - (ls.length - 1) / 2) * 2.6, { b: 1, s: 2.55, a: 'center' })); }); return Y + 6.8; };
+  const itemHead = Y => { const cols = [[L0, 29.8, '№'], [29.8, 128.9, Lb('Description')], [128.9, 143.7, Lb('UOM')], [143.7, 157.1, Lb('QTY')], [157.1, 176.4, Lb('Unit price')], [176.4, R0, Lb('Total excluded\nVAT')]]; cols.forEach(([a, b, t]) => { box(a, Y, b - a, 6.8, QFS.fill); const ls = t.split('\n'); ls.forEach((l, i) => T(l, (a + b) / 2, Y + 3.4 + (i - (ls.length - 1) / 2) * 2.6, { b: 1, s: 2.55, a: 'center' })); }); return Y + 6.8; };
   newPage(); header();
   // customer box
-  const cb = [52.5, 128.9], rows = [['RFQ name', f.rfqName, 1], ['RFQ number', f.rfqNo], ['Name/Position', f.person], ['Email', f.email, 0, 1], ['Phone number', f.phone, 0, 1]];
+  const cb = [52.5, 128.9], rows = [[Lb('RFQ name'), f.rfqName, 1], [Lb('RFQ number'), f.rfqNo], [Lb('Name/Position'), f.person], ['Email', f.email, 0, 1], [Lb('Phone number'), f.phone, 0, 1]];
   box(L0, 52.5, cb[1] - L0, 78.6 - 52.5); box(L0, 52.5, cb[1] - L0, 5.5, QFS.fill); ln(55.7, 52.5, 55.7, 78.6);
-  T("Customer's name", (L0 + 55.7) / 2, 55.25, { b: 1, s: 2.55, a: 'center' }); T(job.customer || '', 59.1, 55.25, { b: 1, s: 2.6, w: 68 });
+  T(Lb("Customer's name"), (L0 + 55.7) / 2, 55.25, { b: 1, s: 2.55, a: 'center' }); T(job.customer || '', 59.1, 55.25, { b: 1, s: 2.6, w: 68 });
   rows.forEach(([k, v, b, u], i) => { const Y = 60.2 + i * 4.08; T(k, 50.0, Y, { s: 2.5, a: 'right' }); T(v || '', 59.1, Y, { b, s: b ? 2.6 : 2.5, c: u && v ? QFS.link : '#000', u: u && v, w: 68 }); });
   // QUOTATION box
-  box(137.3, 52.5, R0 - 137.3, 78.6 - 52.5); box(137.3, 52.5, R0 - 137.3, 5.5, QFS.fill); ln(156.8, 58.0, 156.8, 78.6);
-  T('QUOTATION', (137.3 + R0) / 2, 55.25, { b: 1, s: 2.6, a: 'center' });
+  const qd = MN ? 163.5 : 156.8; box(137.3, 52.5, R0 - 137.3, 78.6 - 52.5); box(137.3, 52.5, R0 - 137.3, 5.5, QFS.fill); ln(qd, 58.0, qd, 78.6);
+  T(Lb('QUOTATION'), (137.3 + R0) / 2, 55.25, { b: 1, s: 2.6, a: 'center' });
   const until = q.date ? addDays(q.date, +q.valid || 0) : '';
-  [['Date', fmtD(q.date || today())], ['Valid Until', fmtD(until)], ['Quote #', q.no || job.no], ['Customer ID', f.custId], ['Lead time', f.lead || q.delivery || '']].forEach(([k, v], i) => { const Y = 60.2 + i * 4.08; T(k, 153.9, Y, { s: 2.5, a: 'right' }); T(v, 160.2, Y, { s: 2.5, w: 37 }); });
+  [[Lb('Date'), fmtD(q.date || today())], [Lb('Valid Until'), fmtD(until)], [Lb('Quote #'), q.no || job.no], [Lb('Customer ID'), f.custId], [Lb('Lead time'), f.lead || q.delivery || '']].forEach(([k, v], i) => { const Y = 60.2 + i * 4.08; T(k, qd - 2.9, Y, { s: MN ? 2.35 : 2.5, a: 'right' }); T(v, qd + 3.4, Y, { s: 2.5, w: R0 - qd - 4 }); });
   // address
-  box(L0, 82.7, 55.7 - L0, 6.2, QFS.fill); box(55.7, 82.7, R0 - 55.7, 6.2); T("Customer's address:", (L0 + 55.7) / 2, 85.8, { b: 1, s: 2.55, a: 'center' }); T(f.address, 59.1, 85.8, { s: 2.5, w: R0 - 61 });
+  box(L0, 82.7, 55.7 - L0, 6.2, QFS.fill); box(55.7, 82.7, R0 - 55.7, 6.2); T(Lb("Customer's address:"), (L0 + 55.7) / 2, 85.8, { b: 1, s: 2.55, a: 'center' }); T(f.address, 59.1, 85.8, { s: 2.5, w: R0 - 61 });
   // items
   y = itemHead(93.4);
   const rowFont = `700 ${2.55 * 1.08}px ${QFS.F}`;
@@ -81,29 +89,34 @@ async function quoteFormImgs(job, KK) {
     y += rh;
   });
   // notes block (left 23.9–157.1), right columns continue down
-  const noteF = `400 ${2.3 * 1.08}px ${QFS.F}`, nl = wrap('Special Note : ' + (f.note || ''), 157.1 - L0 - 8, noteF), inc = f.incl.split('\n').filter(Boolean), exc = f.excl.split('\n').filter(Boolean);
+  const noteF = `400 ${2.3 * 1.08}px ${QFS.F}`, SN = Lb('Special Note :'), nl = wrap(SN + ' ' + (f.note || ''), 157.1 - L0 - 8, noteF), inc = f.incl.split('\n').filter(Boolean), exc = f.excl.split('\n').filter(Boolean);
   const nh = nl.length * 2.75 + 2.6, blockH = 4.1 + nh + 6 + inc.length * 4.1 + 4.6 + exc.length * 4.1 + 1.5;
   if (y + blockH + 28 > H - 12) { newPage(); header(); y = 52.5; }
   const y0 = y; box(L0, y, 157.1 - L0, 4.1); y += 4.1;
   box(L0, y, 157.1 - L0, nh, QFS.fill);
-  nl.forEach((l, i) => { const Y = y + 1.3 + 2.75 * (i + 0.5); if (i === 0) { x.font = `700 ${2.3 * 1.08}px ${QFS.F}`; const lw = x.measureText('Special Note :').width, rest = l.slice('Special Note :'.length); x.font = noteF; const tw = lw + x.measureText(rest).width, X0 = (L0 + 157.1) / 2 - tw / 2; T('Special Note :', X0, Y, { b: 1, s: 2.3 }); T(rest, X0 + lw, Y, { s: 2.3 }); } else T(l, (L0 + 157.1) / 2, Y, { s: 2.3, a: 'center' }); });
+  nl.forEach((l, i) => { const Y = y + 1.3 + 2.75 * (i + 0.5); if (i === 0) { x.font = `700 ${2.3 * 1.08}px ${QFS.F}`; const lw = x.measureText(SN).width, rest = l.slice(SN.length); x.font = noteF; const tw = lw + x.measureText(rest).width, X0 = (L0 + 157.1) / 2 - tw / 2; T(SN, X0, Y, { b: 1, s: 2.3 }); T(rest, X0 + lw, Y, { s: 2.3 }); } else T(l, (L0 + 157.1) / 2, Y, { s: 2.3, a: 'center' }); });
   y += nh;
-  T('Quote included:', 27.0, y + 3.2, { b: 1, s: 2.45 }); y += 6.2;
+  T(Lb('Quote included:'), 27.0, y + 3.2, { b: 1, s: 2.45 }); y += 6.2;
   const clause = (arr, dy) => { let n = 0; arr.forEach(t => { const sub = /^\s*[-–•]\s*/.test(t), v = t.replace(/^\s*[-–•]\s*/, ''); if (sub) T('• ' + v, 41.0, y + dy, { s: 2.2, w: 157.1 - 43 }); else T(`${++n}. ${v}`, 34.8, y + dy, { s: 2.3, w: 157.1 - 37 }); y += sub ? 3.5 : 4.1; }); };
   clause(inc, 0);
-  T('Quote excluded:', 27.0, y + 1.2, { b: 1, s: 2.45 }); y += 3.4;
+  T(Lb('Quote excluded:'), 27.0, y + 1.2, { b: 1, s: 2.45 }); y += 3.4;
   clause(exc, 1.2);
   y += 1.5;
   ln(L0, y0 + 4.1, L0, y); ln(157.1, y0, 157.1, y); ln(176.4, y0, 176.4, y); ln(R0, y0, R0, y);
   // terms + totals
-  const tY = y, rh = 4.1, terms = [['Payment Term', f.pay], ['Delivery Term', f.delivery], ['Bank account', C.bank], ['Currency', C.currency], ['Registration of Company', C.reg]];
-  const tots = [['Total excluded VAT', n0(excl)], ['Discount', disc ? n0(disc) : '-'], ['VAT rate', vatR + '%'], ['VAT', n0(vat)], ['Total included VAT', n0(total)]];
+  const tY = y, rh = 4.1, terms = [[Lb('Payment Term'), f.pay], [Lb('Delivery Term'), f.delivery], [Lb('Bank account'), C.bank], [Lb('Currency'), C.currency], [Lb('Registration of Company'), C.reg]];
+  const tots = [[Lb('Total excluded VAT'), n0(excl)], [Lb('Discount'), disc ? n0(disc) : '-'], [Lb('VAT rate'), vatR + '%'], [Lb('VAT'), n0(vat)], [Lb('Total included VAT'), n0(total)]];
   box(L0, tY, R0 - L0, rh * 5); ln(55.7, tY, 55.7, tY + rh * 5); ln(128.9, tY, 128.9, tY + rh * 5); ln(157.1, tY, 157.1, tY + rh * 5);
   terms.forEach(([k, v], i) => { const Y = tY + rh * (i + 0.5); T(k, L0 + 0.5, Y, { b: 1, s: 2.4, w: 31 }); T(v, 61.8, Y, { s: 2.5, w: 66 }); });
   tots.forEach(([k, v], i) => { const Y = tY + rh * (i + 0.5); T(k, 129.3, Y, { b: 1, s: 2.45, w: 27.5 }); T(v, R0 - 0.4, Y, { b: 1, s: 2.5, a: 'right' }); });
-  y = tY + rh * 5; box(L0, y, R0 - L0, 8.1, QFS.fill); T('THANK YOU FOR YOUR COOPERATION!', (L0 + R0) / 2, y + 4.05, { b: 1, s: 3.35, a: 'center' });
+  y = tY + rh * 5; box(L0, y, R0 - L0, 8.1, QFS.fill); T(Lb('THANK YOU FOR YOUR COOPERATION!'), (L0 + R0) / 2, y + 4.05, { b: 1, s: 3.35, a: 'center' });
+  // prepared / reviewed & approved
+  { y += 8.1 + 7; if (y + 14 > H - 8) { newPage(); header(); y = 56; }
+    const pr = MN ? (C.prepMn || C.prep) : C.prep, ap = MN ? (C.apprMn || C.appr) : C.appr, cols = [[L0, MN ? 'Боловсруулсан:' : 'Prepared by:', pr], [118, MN ? 'Хянаж, зөвшөөрсөн:' : 'Reviewed and approved by:', ap]];
+    cols.forEach(([X, k, v]) => { if (!v) return; T(k, X, y, { b: 1, s: 2.5 }); x.font = `700 ${2.5 * 1.08}px ${QFS.F}`; const lw = x.measureText(k).width + 3; ln(X + lw, y + 1.2, X + lw + 32, y + 1.2, 0.18); T(v, X + lw + 34, y, { s: 2.5, w: R0 - X - lw - 34 }); }); }
   if (pages.length > 1) pages.forEach((c, i) => { const g = c.getContext('2d'); g.font = `400 2.3px ${QFS.F}`; g.fillStyle = '#555'; g.textAlign = 'right'; g.textBaseline = 'alphabetic'; g.fillText(`Page ${i + 1} of ${pages.length}`, R0, H - 8); });
   return pages.map((c, i) => ({ url: c.toDataURL('image/jpeg', 0.95), alias: 'qf' + i }));
+  } finally { window.__noTr = false; }
 }
 async function quoteFormOut(job, mode) {
   try { const imgs = await quoteFormImgs(job), f = qfDefaults(job), name = `${job.quote.no || job.no} - ${job.customer || 'Customer'} - Quotation for ${f.title || job.title || ''}`.trim();
@@ -118,10 +131,11 @@ function qfCardHTML(job) {
     <div class="qfsec"><div class="qfsec-t">Ажил · RFQ</div><div class="jgrid">${fldIn('qf_title', 'Ажлын нэр (Description)', f.title)}${fldIn('qf_rfqName', 'RFQ name', f.rfqName)}${fldIn('qf_rfqNo', 'RFQ number', f.rfqNo)}</div></div>
     <div class="qfsec"><div class="qfsec-t">Захиалагч</div><div class="jgrid">${fldIn('qf_custId', 'Customer ID', f.custId)}${fldIn('qf_person', 'Name / Position', f.person, { list: 'dl-person', ph: 'Нэр (албан тушаал)' })}${fldIn('qf_email', 'Email', f.email)}${fldIn('qf_phone', 'Phone number', f.phone)}${fldIn('qf_address', "Customer's address", f.address)}</div></div>
     <div class="qfsec"><div class="qfsec-t">Нөхцөл</div><div class="jgrid">${fldIn('qf_lead', 'Lead time', f.lead, { ph: '5 business days' })}${fldIn('qf_pay', 'Payment term', f.pay)}${fldIn('qf_delivery', 'Delivery term', f.delivery)}${fldIn('qf_discount', 'Discount, ₮', f.discount || '', { num: 1 })}
+      <label class="fld">Маягтын хэл<select id="qf_lang"><option value="">English</option><option value="mn"${f.lang === 'mn' ? ' selected' : ''}>Монгол</option></select></label>
       <label class="fld">Мөрийн хэлбэр<select id="qf_mode"><option value="single"${f.mode === 'single' ? ' selected' : ''}>Нэг мөр (set × 1)</option><option value="sections"${f.mode === 'sections' ? ' selected' : ''}>Хэсгээр (материал, хүч, тоног…)</option><option value="detail"${f.mode === 'detail' ? ' selected' : ''}>Дэлгэрэнгүй (мөр бүр)</option>${Array.isArray(job.quote && job.quote.lines) && job.quote.lines.length ? `<option value="fixed"${f.mode === 'fixed' ? ' selected' : ''}>Excel-ээс оруулсан мөрүүд (${job.quote.lines.length})</option>` : ''}</select></label></div></div>
     <div class="qfsec"><div class="qfsec-t">Агуулга</div>${fldIn('qf_note', 'Special note', f.note, { area: 1, rows: 2 })}
     <div class="jgrid qfcl"><div class="fld"><span class="flab">Quote included — үнэд багтсан</span><div class="clbox" data-ck="incl"></div></div><div class="fld"><span class="flab">Quote excluded — үнэд ороогүй</span><div class="clbox" data-ck="excl"></div></div></div></div>
-    <details><summary class="note" style="cursor:pointer">Компанийн мэдээлэл (загварын толгой, банк, регистр)</summary><div class="jgrid" style="margin-top:8px">${[['name', 'Компанийн нэр'], ['tag', 'Уриа'], ['a1', 'Хаяг 1'], ['a2', 'Хаяг 2'], ['a3', 'Хаяг 3'], ['bank', 'Bank account'], ['reg', 'Registration'], ['currency', 'Currency']].map(([k, n]) => fldIn('co_' + k, n, C[k])).join('')}</div></details>
+    <details><summary class="note" style="cursor:pointer">Компанийн мэдээлэл (загварын толгой, банк, регистр, боловсруулсан / хянасан)</summary><div class="jgrid" style="margin-top:8px">${[['name', 'Компанийн нэр'], ['tag', 'Уриа'], ['a1', 'Хаяг 1'], ['a2', 'Хаяг 2'], ['a3', 'Хаяг 3'], ['bank', 'Bank account'], ['reg', 'Registration'], ['currency', 'Currency'], ['prep', 'Prepared by (EN)'], ['appr', 'Reviewed and approved by (EN)'], ['prepMn', 'Боловсруулсан (МН)'], ['apprMn', 'Хянаж, зөвшөөрсөн (МН)']].map(([k, n]) => fldIn('co_' + k, n, C[k])).join('')}</div></details>
   </div></div></div>`;
 }
 function bindQfCard(el, job) {
@@ -132,6 +146,7 @@ function bindQfCard(el, job) {
   ['person', 'email', 'phone', 'address', 'custId'].forEach(k => { const i = el.querySelector('#qf_' + k); if (i) i.addEventListener('change', () => { if (k === 'person' && qfFillFromDir(f, orgName())) ['email', 'phone', 'address', 'custId'].forEach(z => { const e = el.querySelector('#qf_' + z); if (e) e.value = f[z] || ''; }); learn(); }); });
   const d = el.querySelector('#qf_discount'); if (d) d.addEventListener('change', () => { f.discount = Math.max(0, +d.value || 0); save(); });
   const m = el.querySelector('#qf_mode'); if (m) m.addEventListener('change', () => { f.mode = m.value; save(); });
+  const lg = el.querySelector('#qf_lang'); if (lg) lg.addEventListener('change', () => { f.lang = lg.value; if (f.lang === 'mn' && f.note === QF_NOTE) { f.note = QF_NOTE_MN; const n = el.querySelector('#qf_note'); if (n) n.value = f.note; } else if (!f.lang && f.note === QF_NOTE_MN) { f.note = QF_NOTE; const n = el.querySelector('#qf_note'); if (n) n.value = f.note; } save(); });
   Object.keys(CO_DEF).forEach(k => { const i = el.querySelector('#co_' + k); if (i) i.addEventListener('change', () => { C[k] = i.value; S.company = C; save(); }); });
   el.querySelectorAll('[data-qf]').forEach(b => b.addEventListener('click', () => quoteFormOut(job, b.dataset.qf)));
   bindQfFormBar(el, job, f, orgName(), () => { if (job._nest) renderTable(); else renderJobMain(); });

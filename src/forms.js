@@ -2,7 +2,7 @@
    Баримт бичиг → «Маягт»: each organisation's ready quotation form (terms, included / excluded, special note,
    contact, line style). A quote picks its organisation's form automatically (★ default) or by hand; edits made
    on a linked quote are written back to the form and logged, so the form register stays current. */
-const FORM_K = ['lead', 'delivery', 'pay', 'mode', 'note', 'incl', 'excl', 'custId', 'address', 'person', 'email', 'phone', 'discount'];
+const FORM_K = ['lang', 'lead', 'delivery', 'pay', 'mode', 'note', 'incl', 'excl', 'custId', 'address', 'person', 'email', 'phone', 'discount'];
 const FORM_SYNC = FORM_K.filter(k => k !== 'discount');           // one-off discount stays on the quote
 const forms = () => (S.forms = Array.isArray(S.forms) ? S.forms : []);
 const formOrgKey = n => { const o = orgFind(n); return lc(o ? o.name : n); };
@@ -19,7 +19,7 @@ function formNew(org, from, name) {
 const formLog = (f, m) => { f.log = f.log || []; const last = f.log[f.log.length - 1]; if (last && last.t === today() && last.m === m) return; f.log.push({ t: today(), m }); if (f.log.length > 60) f.log.splice(0, f.log.length - 60); };
 /* copy a form into a quote form (qf) */
 function formApply(qf, f) {
-  FORM_K.forEach(k => { const v = f.d[k]; if (k === 'discount') { if (+v) qf.discount = +v; return; } if (v !== '' && v != null) qf[k] = v; });
+  FORM_K.forEach(k => { const v = f.d[k]; if (k === 'discount') { if (+v) qf.discount = +v; return; } if (k === 'lang') { qf.lang = v || ''; return; } if (v !== '' && v != null) qf[k] = v; });
   qf.formId = f.id; f.uses = (f.uses || 0) + 1; save();
 }
 /* a new quote form for an organisation that has a ★ form starts from it */
@@ -34,12 +34,12 @@ function formSync(qf, org, quoteNo) {
     toast(`📄 «${(orgFind(org) || {}).name || org}» байгууллагын маягт Баримт бичигт бүртгэгдлээ (${f.no})`, 5000); return;
   }
   if (!f) return;
-  const ch = FORM_SYNC.filter(k => String(f.d[k] ?? '') !== String(qf[k] ?? '') && !(qf[k] === '' || qf[k] == null));
+  const ch = FORM_SYNC.filter(k => String(f.d[k] ?? '') !== String(qf[k] ?? '') && (k === 'lang' || !(qf[k] === '' || qf[k] == null)));
   if (!ch.length) return;
   ch.forEach(k => f.d[k] = qf[k]); f.updated = today(); formLog(f, `Шинэчилсэн (${quoteNo || 'үнийн санал'}): ` + ch.map(formKName).join(', ')); save();
   if (!FORM_TOLD.has(f.id)) { FORM_TOLD.add(f.id); toast(`📄 Маягт ${f.no} «${f.name}» шинэчлэгдлээ — Баримт бичиг → Маягт`, 4000); }
 }
-const FORM_KN = { lead: 'Lead time', delivery: 'Delivery term', pay: 'Payment term', mode: 'Мөрийн хэлбэр', note: 'Special note', incl: 'Included', excl: 'Excluded', custId: 'Customer ID', address: 'Хаяг', person: 'Холбоо барих хүн', email: 'Email', phone: 'Утас', discount: 'Хөнгөлөлт' };
+const FORM_KN = { lang: 'Хэл', lead: 'Lead time', delivery: 'Delivery term', pay: 'Payment term', mode: 'Мөрийн хэлбэр', note: 'Special note', incl: 'Included', excl: 'Excluded', custId: 'Customer ID', address: 'Хаяг', person: 'Холбоо барих хүн', email: 'Email', phone: 'Утас', discount: 'Хөнгөлөлт' };
 const formKName = k => FORM_KN[k] || k;
 
 /* bar on the quote card: which form, pick / save / detach */
@@ -98,6 +98,7 @@ function renderFormMain(el) {
       <div class="qfsec"><div class="qfsec-t">Маягт</div><div class="jgrid">${fldIn('fm_org', 'Байгууллага', f.org, { list: 'dl-org' })}${fldIn('fm_name', 'Маягтын нэр', f.name)}<label class="fld">Үндсэн (★)<select id="fm_def"><option value="1"${f.def ? ' selected' : ''}>Тийм — шинэ саналд автоматаар орно</option><option value=""${f.def ? '' : ' selected'}>Үгүй — гараар сонгоно</option></select></label></div></div>
       <div class="qfsec"><div class="qfsec-t">Захиалагч</div><div class="jgrid">${fldIn('fd_custId', 'Customer ID', d.custId)}${fldIn('fd_address', "Customer's address", d.address)}${fldIn('fd_person', 'Name / Position', d.person, { list: 'dl-person' })}${fldIn('fd_email', 'Email', d.email)}${fldIn('fd_phone', 'Phone number', d.phone)}</div></div>
       <div class="qfsec"><div class="qfsec-t">Нөхцөл</div><div class="jgrid">${fldIn('fd_lead', 'Lead time', d.lead, { ph: '5 business days' })}${fldIn('fd_pay', 'Payment term', d.pay)}${fldIn('fd_delivery', 'Delivery term', d.delivery)}${fldIn('fd_discount', 'Discount, ₮', d.discount || '', { num: 1 })}
+        <label class="fld">Маягтын хэл<select id="fd_lang"><option value="">English</option><option value="mn"${d.lang === 'mn' ? ' selected' : ''}>Монгол</option></select></label>
         <label class="fld">Мөрийн хэлбэр<select id="fd_mode">${[['single', 'Нэг мөр (set × 1)'], ['sections', 'Хэсгээр'], ['detail', 'Дэлгэрэнгүй (мөр бүр)'], ['fixed', 'Excel-ийн мөрүүд']].map(([v, n]) => `<option value="${v}"${d.mode === v ? ' selected' : ''}>${n}</option>`).join('')}</select></label></div></div>
       <div class="qfsec"><div class="qfsec-t">Агуулга</div>${fldIn('fd_note', 'Special note', d.note, { area: 1, rows: 2 })}
       <div class="jgrid qfcl"><div class="fld"><span class="flab">Quote included — үнэд багтсан</span><div class="clbox" data-ck="incl"></div></div><div class="fld"><span class="flab">Quote excluded — үнэд ороогүй</span><div class="clbox" data-ck="excl"></div></div></div></div>
@@ -122,3 +123,75 @@ function renderFormMain(el) {
   el.querySelectorAll('[data-fj]').forEach(a => a.addEventListener('click', ev => { ev.preventDefault(); const j = findJob(a.dataset.fj); if (!j) return; setModule(isQ(j) ? 'quotes' : 'jobs'); J.sel = j.id; renderJobs(); }));
   refresh();
 }
+
+/* ---------- import the company's Excel quotation forms («<Org> - Form.xlsx», «SQ… - Quotation….xlsx») ----------
+   Every sheet that has «Customer's name» is one quote to one contact person. Only rows visible in Excel are
+   taken (hidden clause rows are the ones not used). One form per organisation (from its newest sheet);
+   every contact person goes to the organisation's directory. */
+const FX_SUB = /^(visual inspection|magnetic particle|ultrasonic|dye penetrant|liquid penetrant|radiograph|material certificates?|weld traceability|welding procedures?|welder|q\d{3}|s\d{3}|rock wool|galvani[sz]ed|.*\bsquare tube\b)/i;
+const FX_LAB = [[/^(customer'?s?\s*name|харилцагч)$/i, 'org'], [/^(rfq\s*name|ажлын нэр)$/i, 'rfqName'], [/^(rfq\s*(number|no)|ажлын дугаар)$/i, 'rfqNo'], [/^(contact|position|name\s*\/\s*position|name|х[оа][лг]богдох хүн)$/i, 'person'], [/^(e-?mail|и-?мэйл)$/i, 'email'], [/^(phone|утас)/i, 'phone'],
+  [/^(customer\s*id|харилцагч id)$/i, 'custId'], [/^(lead\s*time|гүйцэтгэх хугацаа)$/i, 'lead'], [/^(customer'?s?\s*address|харилцагчийн хаяг)/i, 'address'], [/^registration$/i, 'reg'], [/^(payment\s*term|төлбөрийн нөхцөл)/i, 'pay'], [/^(delivery\s*term|хүргэлтийн нөхцөл)/i, 'delivery'], [/^(quote\s*#|үнийн саналын №)/i, 'quoteNo'], [/^(date|огноо)$/i, 'date'], [/^(currency|валют)$/i, 'currency']];
+const FX_TPL = ['engineering drawing', 'finite element ana', 'material (fiber las', 'destructive test', 'steel fabrication', 'fabrication welding', 'internal non-destu', 'visual inspection', 'magnetic particle', 'proof load test', 'sandblasting is in', 'painting', 'manufacturers data', 'material certifica', 'weld traceability', 'welding procedure', 'welder', 'delivery to ot ub', 'machining work'];
+const FX_MN = /^(харилцагч|ажлын нэр|огноо|төлбөрийн нөхцөл)$/i;
+function fxParseSheet(ws, X) {
+  const R = X.utils.sheet_to_json(ws, { header: 1, raw: true, defval: '', blankrows: true }), r0 = ws['!ref'] ? X.utils.decode_range(ws['!ref']).s.r : 0, hid = new Set(); (ws['!rows'] || []).forEach((r, i) => { if (r && r.hidden) hid.add(i - r0); });
+  const str = v => String(v ?? '').replace(/\s+/g, ' ').trim();
+  let maxC = -1; R.forEach(r => r.forEach((c, j) => { if (/^(total\s*excluded\s*vat|нийт ?\/?нөат ороогүй|нөат ороогүй)/i.test(str(c))) maxC = Math.max(maxC, j); })); if (maxC < 0) maxC = 9;
+  const d = {}, cl = { incl: [], excl: [] }; let sec = '', note = '', had = 0, mn = 0;
+  R.forEach((row, i) => {
+    const cells = row.slice(0, maxC + 1).map(str), first = cells.findIndex(Boolean); if (first < 0) return; const t0 = cells[first];
+    if (/^(quote\s*excluded|үнийн саналд багтаагүй)/i.test(t0)) { sec = 'excl'; return; }
+    if (/^(quote\s*included|үнийн саналд багтсан)/i.test(t0)) { sec = had ? 'excl' : 'incl'; had = 1; return; }   // a 2nd «included» header in some files is the excluded list
+    if (/^(special\s*note|тусгай тэмдэглэл)/i.test(t0)) { note = t0.replace(/^(special\s*note|тусгай тэмдэглэл)\s*:?\s*/i, ''); sec = ''; return; }
+    if (/^(payment\s*term|төлбөрийн нөхцөл|thank you|хамтран ажилласанд)/i.test(t0)) sec = '';
+    if (sec) { if (hid.has(i)) return; const txt = cells.slice(first).find(c => c && !/^\d+\.?$/.test(c)); if (!txt) return;
+      const raw = String(row.slice(0, maxC + 1).find(c => str(c) === txt) ?? txt), parts = raw.split(/\n+/).map(t => t.replace(/^\s*\d+[.)]\s*/, '').replace(/\s+/g, ' ').trim()).filter(Boolean);
+      parts.forEach((p, k) => cl[sec].push((k > 0 || FX_SUB.test(p)) && cl[sec].length ? '- ' + p : p)); return; }
+    const lab = c => c.replace(/\s*:\s*$/, '');
+    for (let j = 0; j < cells.length; j++) { const c = lab(cells[j]); if (FX_MN.test(c)) mn = 1; const L = FX_LAB.find(([re]) => re.test(c)); if (!L || d[L[1]]) continue; const v = cells.slice(j + 1).find(Boolean); if (v && !FX_LAB.some(([re]) => re.test(lab(v))) && !/^(n\/?a|-|—)$/i.test(v)) d[L[1]] = v; }
+  });
+  if (!d.org) return null;
+  if (/^\d{5}(\.\d+)?$/.test(d.date || '')) { const t = new Date(Math.round((+d.date - 25569) * 864e5)); d.date = t.toISOString().slice(0, 10); }
+  // the Excel template carries the full standard clause list; a list that is only that list was never filled in
+  const key = t => t.replace(/^- /, '').toLowerCase().replace(/\s+/g, ' ').slice(0, 18), isT = t => FX_TPL.some(k => key(t).startsWith(k.slice(0, Math.min(18, k.length))));
+  const mains = a => a.filter(t => !/^- /.test(t)), unfilled = a => mains(a).length >= 8 && mains(a).every(isT), inK = new Set(cl.incl.map(key));
+  const incl = unfilled(cl.incl) ? [] : cl.incl;
+  let excl = [], drop = false; cl.excl.forEach(t => { const sub = /^- /.test(t); if (!sub) drop = !!incl.length && inK.has(key(t)); if (sub ? drop || !excl.length : drop) return; excl.push(t); }); if (unfilled(cl.excl)) excl = [];
+  return { ...d, lang: mn ? 'mn' : '', note: note && !/^this quotation may be subject|^энэхүү үнийн санал нь ажлын цар/i.test(note) ? note : (mn ? QF_NOTE_MN : QF_NOTE), incl: incl.join('\n'), excl: excl.join('\n') };
+}
+function fxParseBook(buf, X) {
+  const wb = X.read(buf, { type: 'array', cellStyles: true }), out = [];
+  wb.SheetNames.forEach((n, i) => { if (((wb.Workbook || {}).Sheets || [])[i] && wb.Workbook.Sheets[i].Hidden) return; const r = fxParseSheet(wb.Sheets[n], X); if (r) out.push({ ...r, sheet: n }); });
+  return out;
+}
+/* sheets → organisations + persons + one ★ form per organisation (existing forms are updated, not duplicated) */
+function fxImport(list) {
+  const G = {}; list.forEach(s => { const k = lc(s.org); (G[k] = G[k] || []).push(s); });
+  let nf = 0, nu = 0, np = 0;
+  Object.values(G).forEach(L => {
+    L.sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')));
+    const top = L[0], before = (orgFind(top.org) || { persons: [] }).persons.length;
+    L.forEach(s => orgLearn({ org: s.org, custId: s.custId, address: s.address, person: s.person, email: s.email, phone: s.phone }, true));
+    const o = orgFind(top.org); if (o && top.reg && !o.reg) o.reg = top.reg; np += ((o || { persons: [] }).persons.length - before);
+    const fd = { lang: top.lang || '', lead: top.lead || '', delivery: top.delivery || '', pay: top.pay || '', mode: 'single', note: top.note, incl: top.incl || '', excl: top.excl || '', custId: top.custId || '', address: top.address || '', person: top.person || '', email: top.email || '', phone: top.phone || '', discount: '' };
+    const ex = formsOf(top.org).find(f => f.src === 'excel');
+    if (ex) { Object.assign(ex.d, fd); ex.updated = today(); formLog(ex, `Excel-ээс шинэчилсэн (${top.quoteNo || top.sheet})`); nu++; }
+    else { const f = formNew(top.org, fd, 'Үндсэн маягт'); f.src = 'excel'; f.log = [{ t: today(), m: `Excel маягтаас оруулсан (${top.quoteNo || top.sheet}, ${L.length} хуудас)` }]; nf++; }
+  });
+  save(); contactLists();
+  return { orgs: Object.keys(G).length, nf, nu, np };
+}
+async function fxImportFiles(files) {
+  if (!window.XLSX) await loadScript(XLSX_URL);
+  const all = [], bad = [];
+  for (const f of files) { try { const r = fxParseBook(await f.arrayBuffer(), XLSX); if (r.length) all.push(...r); else bad.push(f.name); } catch (e) { bad.push(f.name); } }
+  if (!all.length) { toast('Маягт олдсонгүй — «Customer\'s name» мөртэй Excel сонгоно уу'); return; }
+  const r = fxImport(all);
+  toast(`📄 ${r.orgs} байгууллага: ${r.nf} шинэ маягт, ${r.nu} шинэчилсэн, ${r.np} холбоо барих хүн нэмэгдлээ${bad.length ? ' · уншаагүй: ' + bad.join(', ') : ''}`, 8000);
+  renderFormSide(); renderJobMain();
+}
+(() => {
+  const b = $('#fmImp'), i = $('#fmImpIn'); if (!b || !i) return;
+  b.addEventListener('click', () => i.click());
+  i.addEventListener('change', async () => { const F = [...i.files]; i.value = ''; if (F.length) await fxImportFiles(F); });
+})();
