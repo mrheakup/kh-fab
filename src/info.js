@@ -36,8 +36,8 @@ function bucketPreset(m, V, type) {
 $$('[data-itab]').forEach(b => b.addEventListener('click', () => { IN.tab = b.dataset.itab; renderInfo(); }));
 function renderInfo() {
   $$('[data-itab]').forEach(x => x.classList.toggle('on', x.dataset.itab === IN.tab));
-  ['mach', 'bt', 'tpl', 'lib', 'std', 'cat'].forEach(t => $('#itab-' + t).hidden = t !== IN.tab);
-  if (IN.tab === 'mach') renderMachList(); else if (IN.tab === 'bt') renderBtList(); else if (IN.tab === 'tpl') renderTplList(); else if (IN.tab === 'std') { renderStdSide(); renderInfoMain(); } else if (IN.tab === 'cat') { renderCatSide(); renderInfoMain(); } else renderLibSide();
+  ['mach', 'bt', 'tpl', 'lib', 'std', 'cat', 'org'].forEach(t => $('#itab-' + t).hidden = t !== IN.tab);
+  if (IN.tab === 'mach') renderMachList(); else if (IN.tab === 'bt') renderBtList(); else if (IN.tab === 'tpl') renderTplList(); else if (IN.tab === 'std') { renderStdSide(); renderInfoMain(); } else if (IN.tab === 'cat') { renderCatSide(); renderInfoMain(); } else if (IN.tab === 'org') { renderOrgSide(); } else renderLibSide();
   renderInfoMain();
 }
 function renderMachList() {
@@ -70,6 +70,7 @@ function renderInfoMain() {
   if (IN.tab === 'tpl') return renderTemplate(el);
   if (IN.tab === 'std') return renderStdMain(el);
   if (IN.tab === 'cat') return renderCatMain(el);
+  if (IN.tab === 'org') return renderOrgMain(el);
   return renderLib(el);
 }
 function renderMachOverview(el) {

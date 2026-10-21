@@ -7,7 +7,7 @@ const DEF_EQUIP = [['Fiber Laser 15kW', 'Үндсэн', 1, 'ш', 'Цех', 'Аж
 const DEF_CHECKS = [['Хэмжээс зурагтай тохирч байгаа эсэх', 'Зураг дээрхтэй тохирно'], ['Гагнуурын чанар (визуал)', 'Crack, porosity байхгүй'], ['NDT / Ultrasonic шалгалт', 'Тайлан бэлэн байна'], ['Гадаргуугийн чанар (будаг)', 'Spec-д нийцсэн'], ['Материалын үлдэгдэл буцаасан', 'Бүрэн буцаасан'], ['Ажлын талбай цэвэрлэсэн', 'Цэвэрхэн болсон'], ['Баримт бичгүүд бүрдсэн', 'Зураг, тайлан бэлэн']];
 const XCATS = [['mat', 'Материал'], ['cons', 'Consumable'], ['labor', 'Ажиллах хүч'], ['equip', 'Тоног, үйлчилгээ'], ['trans', 'Тээвэр'], ['other', 'Бусад']];
 const xcat = k => (XCATS.find(c => c[0] === k) || XCATS[5])[1];
-const JSUB = [['main', 'Мэдээлэл', 'Захиалагч, хугацаа, төлөв'], ['scope', 'Хамрах хүрээ', 'Ажлын тайлбар, үе шат, хуваарь, эрсдэл, халаалт'], ['quote', 'Үнийн санал', 'Материал, хүч, тоног, ашиг → захиалагчид PDF'], ['prod', 'Үйлдвэрлэл', 'Парт, өрөлт, зүсэлтийн бүртгэл, шошго, ажлын карт'], ['prog', 'Явц, зардал', 'Гүйцэтгэл %, зарлага, төсөв ба бодит'], ['acc', 'Хүлээлгэх', 'Хүлээн авалтын акт, өөрчлөлт']];
+const JSUB = [['main', 'Мэдээлэл', 'Захиалагч, хугацаа, төлөв'], ['scope', 'Хамрах хүрээ', 'Ажлын тайлбар, үе шат, хуваарь, эрсдэл, халаалт'], ['quote', 'Үнийн санал', 'Материал, хүч, тоног, ашиг → захиалагчид PDF'], ['prod', 'Үйлдвэрлэл', 'Парт, өрөлт, зүсэлтийн бүртгэл, шошго, ажлын карт'], ['prog', 'Явц, зардал', 'Гүйцэтгэл %, зарлага, төсөв ба бодит'], ['acc', 'Хүлээлгэх', 'Delivery docket, шошго, хүлээн авалтын акт']];
 function jobStepDone(job, k) {
   const q = job.quote, a = job.acc, sc = job.scope;
   if (k === 'main') return !!(job.title && job.customer);
@@ -15,7 +15,7 @@ function jobStepDone(job, k) {
   if (k === 'quote') return !!(+job.price || (q && (q.mats.length || +q.fixedNet)));
   if (k === 'prod') return !!(job.est || (job.trace && job.trace.length));
   if (k === 'prog') return !!(sc && sc.stages.length && sc.stages.every(s => +s.pct >= 100));
-  if (k === 'acc') return !!(a && a.done);
+  if (k === 'acc') return !!((a && a.done) || (job.dock && job.dock.issued));
 }
 function jobNextHTML(job) {
   return `<div class="jcard" data-v="main"><div class="bcard-h">Ажлын алхмууд</div><div class="jbody"><div class="jsteps">${JSUB.slice(1).map(([k, n, d], i) => `<button class="jstep${jobStepDone(job, k) ? ' done' : ''}" data-go="${k}"><span class="sn">${jobStepDone(job, k) ? '✓' : i + 2}</span><span><b>${n}</b><small>${d}</small></span></button>`).join('')}</div></div></div>`;
@@ -91,7 +91,7 @@ function bindEd(root, map, after, hook) {
     if (a && M[a.dataset.eadd]) { M[a.dataset.eadd].arr().push(M[a.dataset.eadd].blank()); save(); root._edAfter(a.dataset.eadd); }
   });
 }
-const fldIn = (id, label, v, o = {}) => `<label class="fld${o.cls ? ' ' + o.cls : ''}">${label}${o.area ? `<textarea id="${id}" rows="${o.rows || 3}" class="inp">${esc(v ?? '')}</textarea>` : `<input id="${id}"${o.type ? ` type="${o.type}"` : ''}${o.num ? ' type="number" step="any" class="mono"' : ''} value="${esc(v ?? '')}"${o.ph ? ` placeholder="${esc(o.ph)}"` : ''}>`}</label>`;
+const fldIn = (id, label, v, o = {}) => `<label class="fld${o.cls ? ' ' + o.cls : ''}">${label}${o.area ? `<textarea id="${id}" rows="${o.rows || 3}" class="inp">${esc(v ?? '')}</textarea>` : `<input id="${id}"${o.type ? ` type="${o.type}"` : ''}${o.num ? ' type="number" step="any" class="mono"' : ''} value="${esc(v ?? '')}"${o.ph ? ` placeholder="${esc(o.ph)}"` : ''}${o.list ? ` list="${o.list}"` : ''}>`}</label>`;
 function bindFields(root, obj, keys, after) {
   keys.forEach(([id, k, num]) => { const el = root.querySelector('#' + id); if (el) el.addEventListener('change', () => { obj[k] = num ? (+el.value || 0) : el.value; save(); after && after(k); }); });
 }
@@ -154,10 +154,21 @@ function renderScope(el, job) {
 const MAT_COLS = [{ k: 'name', t: 'Нэр (сангаас сонгох эсвэл шинээр шивэх)', list: 'dl-mat' }, { k: 'qty', t: 'Тоо', num: 1, w: 80 }, { k: 'unit', t: 'Нэгж', w: 64 }, { k: 'kgu', t: 'кг / нэгж', num: 1, w: 80 }, { k: 'kg', t: 'Жин, кг', calc: r => r.kgu ? nf((+r.qty || 0) * r.kgu, 1) : '—' }, { k: 'price', t: 'Нэгж үнэ, ₮', num: 1, w: 110 }, { k: 'pk', t: '₮ / кг', calc: (r, i) => r.kgu ? money(r.price / r.kgu) + (r.unit !== 'кг' ? ` <button class="linkbtn" data-kgc="${i}" title="Энэ мөрийг кг-аар бодох">→ кг</button>` : '') : '—' }, { k: 'sum', t: 'Нийт, ₮', calc: r => money((+r.qty || 0) * (+r.price || 0)) }, { k: 'note', t: 'Нийлүүлэгч / тайлбар' }];
 const toKg = r => { if (!r.kgu || r.unit === 'кг') return; r.qty = Math.round((+r.qty || 0) * r.kgu * 10) / 10; r.price = Math.round(r.price / r.kgu); r.note = [r.note, `${r.unit} → кг (${r.kgu} кг/${r.unit})`].filter(Boolean).join(' · '); r.unit = 'кг'; r.kgu = 1; };
 const LINE_COLS = [{ k: 'name', t: 'Нэр', list: 'dl-any' }, { k: 'qty', t: 'Тоо', num: 1, w: 80 }, { k: 'unit', t: 'Нэгж', w: 70 }, { k: 'price', t: 'Нэгж үнэ, ₮', num: 1, w: 110 }, { k: 'sum', t: 'Нийт, ₮', calc: r => money((+r.qty || 0) * (+r.price || 0)) }, { k: 'note', t: 'Нийлүүлэгч / тайлбар' }];
+const CONS_COLS = [{ k: 'grp', t: 'Бүлэг (код)', w: 150, list: 'dl-cgrp' }, { k: 'name', t: 'Consumable (сангаас сонгох эсвэл шивэх)', list: 'dl-cons' }, { k: 'qty', t: 'Тоо', num: 1, w: 80 }, { k: 'unit', t: 'Нэгж', w: 64 }, { k: 'price', t: 'Нэгж үнэ, ₮ (засна)', num: 1, w: 120 }, { k: 'sum', t: 'Нийт, ₮', calc: r => money((+r.qty || 0) * (+r.price || 0)) }, { k: 'note', t: 'Нийлүүлэгч / тайлбар' }];
+const consGroups = () => { const m = new Map(); CAT().filter(c => c.cat === 'cons').forEach(c => { const g = c.grp || 'Consumable'; if (!m.has(g)) m.set(g, []); m.get(g).push(c); }); return [...m.entries()].sort((a, b) => a[0].localeCompare(b[0])); };
+function consPickHTML(q) {
+  const G = consGroups(), have = new Set(q.cons.map(r => String(r.name || '').toLowerCase()));
+  const by = {}; q.cons.forEach(r => { const g = r.grp || '—'; by[g] = (by[g] || 0) + (+r.qty || 0) * (+r.price || 0); });
+  return `<select id="qConsPre" class="inp" style="width:auto;max-width:340px"><option value="">+ Сангаас нэмэх…</option>${G.map(([g, a]) => `<optgroup label="${esc(g)}">${a.map(c => `<option value="${esc(c.id)}"${have.has(c.name.toLowerCase()) ? ' disabled' : ''}>${esc(c.name)} — ${money(c.price)} ₮/${esc(c.unit)}</option>`).join('')}</optgroup>`).join('')}</select>
+    <select id="qConsGrp" class="inp" style="width:auto"><option value="">+ Бүлгээр бүгдийг…</option>${G.map(([g, a]) => `<option value="${esc(g)}">${esc(g)} (${a.length})</option>`).join('')}</select>
+    <button class="btn sm ghost" id="qConsZero" title="Тоо нь 0 мөрүүдийг хасах">0-тэйг хасах</button>
+    <span class="note" style="margin:0">Үнийг мөрөн дээр засахад сан дахь үнэ шинэчлэгдэнэ.</span>
+    ${Object.keys(by).length > 1 || (Object.keys(by)[0] && Object.keys(by)[0] !== '—') ? `<div class="chips" style="width:100%;margin-top:6px">${Object.entries(by).sort().map(([g, v]) => `<span class="chip">${esc(g)}: <b class="mono">${money(v)}</b> ₮</span>`).join('')}</div>` : ''}`;
+}
 const CONS_PRESET = [['Гагнуурын утас ER70S-6 Ø1.2', 'кг', 9500], ['CO₂ / хольц хий', 'баллон', 85000], ['Зүсэх диск 125мм', 'ш', 3500], ['Өнгөлөх диск 125мм', 'ш', 4500], ['Будаг (грунт + өнгөлгөө)', 'л', 28000], ['Уусгагч', 'л', 9000], ['Лазерын хий (N₂ / O₂)', 'баллон', 95000], ['Электрод E7018 Ø3.2', 'кг', 12000]];
 function renderJQuote(el, job) {
   const q = job.quote, c = quoteCalc(job), sc = job.scope;
-  const sumRow = (label, v) => `<tr class="tot"><td></td><td colspan="4">${label}</td><td class="r num">${money(v)}</td><td colspan="2"></td></tr>`;
+  const sumRow = (label, v, ex = 0) => `<tr class="tot"><td></td><td colspan="${4 + ex}">${label}</td><td class="r num">${money(v)}</td><td colspan="2"></td></tr>`;
   el.innerHTML = `${jobSubBar(job)}
     <div class="exports">${outBtns('quote', 'Дэлгэрэнгүй задаргаа')}${outBtns('cost', 'Дотоод тооцоо')}<span class="sp" style="flex:1"></span><button class="btn" id="qFromNest"${job.est ? '' : ' disabled title="Ажлыг өрөлтөд ачаалж өрнө үү"'}>Өрөлтөөс материал, зүсэлт</button></div>
     <div class="summary">${[['Материал + consumable', money(c.matTotal)], ['Ажиллах хүч', money(c.laborTotal), `${nf(c.laborH, 0)} цаг × ${money(c.rate)}`], ['Тоног, үйлчилгээ', money(c.equip)], ['Өртөг', money(c.cost)], ['Ашиг', money(c.profit), c.net ? nf(c.profit / c.net * 100, 1) + '%' : ''], ['Санал (НӨАТ-гүй)', money(c.net)], ['Нийт (НӨАТ-тай)', money(c.total)]].map(s => `<div class="stat"><div class="k">${s[0]}</div><div class="v">${s[1]}<small>₮</small></div><div class="s">${s[2] || ''}</div></div>`).join('')}</div>
@@ -173,7 +184,7 @@ function renderJQuote(el, job) {
       <div class="jgrid">${fldIn('q_trans', 'Тээвэр / хүргэлт, ₮', q.trans, { num: 1 })}${fldIn('q_scrap', 'Хаягдал нөөц, %', q.scrapPct, { num: 1 })}<div class="fld">Хаягдал нөөц, ₮<div class="mono" style="padding:7px 0">${money(c.scrap)}</div></div></div>
     </div></div>
     <div class="jcard"><div class="bcard-h">B. Consumable (гагнуурын утас, хий, диск, будаг…)</div><div class="jbody">
-      ${edTable('qc', LINE_COLS, q.cons, { foot: sumRow('Consumable дүн', c.cons), extra: `<select id="qConsPre" class="inp" style="width:auto"><option value="">+ Жагсаалтаас…</option>${CONS_PRESET.map((p, i) => `<option value="${i}">${esc(p[0])}</option>`).join('')}</select>` })}
+      ${edTable('qc', CONS_COLS, q.cons, { foot: sumRow('Consumable дүн', c.cons, 1), extra: consPickHTML(q) })}
     </div></div>
     <div class="jcard"><div class="bcard-h">C. Ажиллах хүч <span class="sp"></span><span class="muted" style="font-weight:400;font-size:12px">Үе шат, хүн, цагийг «Scope · хуваарь»-аас авна</span></div><div class="jbody">
       <div class="jgrid">${fldIn('q_rate', 'Цагийн хөлс, ₮', q.rate, { num: 1 })}${fldIn('q_rateK', 'Нэмэгдэл коэффициент (НДШ, ХАОАТ…)', q.rateK, { num: 1 })}<div class="fld">Тооцох хөлс, ₮/цаг<div class="mono" style="padding:7px 0">${money(c.rate)}</div></div></div>
@@ -211,8 +222,11 @@ function renderJQuote(el, job) {
   el.querySelectorAll('[data-kgc]').forEach(b => b.addEventListener('click', () => { toKg(q.mats[+b.dataset.kgc]); save(); re(); }));
   el.querySelector('#qAllKg').addEventListener('click', () => { q.mats.forEach(toKg); save(); re(); });
   const L = () => ({ name: '', qty: 1, unit: 'ш', price: 0, note: '' });
-  bindEd(el, { qm: { arr: () => q.mats, cols: MAT_COLS, blank: L }, qc: { arr: () => q.cons, cols: LINE_COLS, blank: L }, qe: { arr: () => q.equipRows, cols: LINE_COLS, blank: L }, qo: { arr: () => q.other, cols: LINE_COLS, blank: L } }, re, (id, row, key) => quoteLineHook(job, id, row, key));
-  el.querySelector('#qConsPre').addEventListener('change', e => { const p = CONS_PRESET[+e.target.value]; if (!p) return; q.cons.push({ name: p[0], qty: 1, unit: p[1], price: p[2], note: '' }); save(); re(); });
+  bindEd(el, { qm: { arr: () => q.mats, cols: MAT_COLS, blank: L }, qc: { arr: () => q.cons, cols: CONS_COLS, blank: () => ({ grp: '', name: '', qty: 1, unit: 'ш', price: '', note: '' }) }, qe: { arr: () => q.equipRows, cols: LINE_COLS, blank: L }, qo: { arr: () => q.other, cols: LINE_COLS, blank: L } }, re, (id, row, key) => quoteLineHook(job, id, row, key));
+  const consRow = c => { const r = { grp: c.grp || '', name: c.name, qty: 1, unit: c.unit, price: netPrice(c, q), note: '' }; quoteLineHook(job, 'qc', r, 'name'); return r; };
+  el.querySelector('#qConsPre').addEventListener('change', e => { const c = CAT().find(x => x.id === e.target.value); if (!c) return; q.cons.push(consRow(c)); save(); re(); });
+  el.querySelector('#qConsGrp').addEventListener('change', e => { const g = consGroups().find(([k]) => k === e.target.value); if (!g) return; const have = new Set(q.cons.map(r => String(r.name).toLowerCase())); let n = 0; g[1].forEach(c => { if (have.has(c.name.toLowerCase())) return; const r = consRow(c); r.qty = 0; q.cons.push(r); n++; }); save(); re(); toast(`${g[0]}: ${n} мөр нэмэгдлээ — тоог бөглөнө үү`); });
+  el.querySelector('#qConsZero').addEventListener('click', () => { const n = q.cons.length; q.cons = q.cons.filter(r => +r.qty > 0); save(); re(); toast(`${n - q.cons.length} мөр хасагдлаа`); });
   el.querySelector('#qToPrice').addEventListener('click', () => { job.price = Math.round(c.net); jobLog(`Гэрээний үнэ саналаас: ${money(job.price)} ₮`, job); re(); toast('Гэрээний үнэ шинэчлэгдлээ'); });
   el.querySelector('#qFromNest').addEventListener('click', () => {
     const e = job.est; if (!e) return;
@@ -267,19 +281,21 @@ const CHG_COLS = [{ k: 'date', t: 'Огноо', date: 1, w: 130 }, { k: 'desc', 
 function renderAcc(el, job) {
   const A = job.acc, tot = A.changes.reduce((a, c) => a + (+c.cost || 0), 0), ok = A.changes.filter(c => c.ok).reduce((a, c) => a + (+c.cost || 0), 0);
   el.innerHTML = `${jobSubBar(job)}
-    <div class="exports">${outBtns('acc', 'Акт')}</div>
-    <div class="jcard"><div class="bcard-h">A. Ажил хүлээн авалтын акт (sign-off)</div><div class="jbody">
+    ${dockCardHTML(job)}
+    <div class="exports">${outBtns('acc', 'Хүлээн авалтын акт')}</div>
+    <div class="jcard"><div class="bcard-h">C. Ажил хүлээн авалтын акт (sign-off)</div><div class="jbody">
       <div class="jgrid">${fldIn('a_done', 'Дуусгасан огноо', A.done, { type: 'date' })}${fldIn('a_n0', 'Гүйцэтгэгч (нэр)', A.names[0])}${fldIn('a_n1', 'Захиалагч (нэр)', A.names[1])}${fldIn('a_n2', 'Хяналт (нэр)', A.names[2])}</div>
       ${edTable('ck', CHK_COLS, A.checks)}
     </div></div>
-    <div class="jcard"><div class="bcard-h">B. Өөрчлөлтийн бүртгэл (change order) <span class="sp"></span><span class="muted mono" style="font-weight:400;font-size:12px">нийт ${money(tot)} ₮ · зөвшөөрсөн ${money(ok)} ₮</span></div><div class="jbody">
+    <div class="jcard"><div class="bcard-h">D. Өөрчлөлтийн бүртгэл (change order) <span class="sp"></span><span class="muted mono" style="font-weight:400;font-size:12px">нийт ${money(tot)} ₮ · зөвшөөрсөн ${money(ok)} ₮</span></div><div class="jbody">
       ${edTable('cg', CHG_COLS, A.changes)}
       <p class="note">Зөвшөөрсөн өөрчлөлтийн зардал гэрээний үнэд нэмэгдэж, «Явц · зардал»-ын таамаг ашигт тусна.</p>
     </div></div>`;
   const re = () => renderJobMain();
   bindFields(el, A, [['a_done', 'done']]);
   [0, 1, 2].forEach(i => el.querySelector('#a_n' + i).addEventListener('change', e => { A.names[i] = e.target.value; save(); }));
-  bindEd(el, { ck: { arr: () => A.checks, cols: CHK_COLS, blank: () => ({ item: '', req: '', res: '', note: '' }) }, cg: { arr: () => A.changes, cols: CHG_COLS, blank: () => ({ date: today(), desc: '', reason: '', impact: '', cost: '', ok: false, note: '' }) } }, re);
+  const DK = bindDockCard(el, job); DK.refresh();
+  bindEd(el, { ...DK.edMap, ck: { arr: () => A.checks, cols: CHK_COLS, blank: () => ({ item: '', req: '', res: '', note: '' }) }, cg: { arr: () => A.changes, cols: CHG_COLS, blank: () => ({ date: today(), desc: '', reason: '', impact: '', cost: '', ok: false, note: '' }) } }, id => { if (id === 'dki') { DK.refresh(); renderJobMain(); } else re(); });
 }
 
 /* ================= printable documents ================= */

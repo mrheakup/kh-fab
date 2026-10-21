@@ -1342,7 +1342,7 @@ function quoteData() {
 const QF = [['customer', 'Захиалагч', 'text'], ['no', 'Саналын дугаар', 'text'], ['valid', 'Хүчинтэй хугацаа, хоног', 'number'], ['markup', 'Ашгийн хувь, %', 'number'], ['setup', 'Бэлтгэл ажлын төлбөр, ₮', 'number'], ['by', 'Бэлтгэсэн', 'text'], ['contact', 'Холбоо барих (утас, и-мэйл)', 'text']];
 function renderQuote(el) {
   const q = S.quote, d = quoteData();
-  el.innerHTML = `<div class="qgrid">${QF.map(([k, l, t]) => `<label class="fld">${l}<input id="q_${k}" type="${t}" value="${esc(q[k])}"></label>`).join('')}
+  el.innerHTML = `<div class="qgrid">${QF.map(([k, l, t]) => `<label class="fld">${l}<input id="q_${k}" type="${t}" value="${esc(q[k])}"${k === 'customer' ? ' list="dl-org"' : ''}></label>`).join('')}
       <label class="check" style="align-self:end"><input type="checkbox" id="q_vat" ${q.vat ? 'checked' : ''}><span>НӨАТ 10% нэмэх</span></label></div>
     <label class="fld" style="margin-bottom:12px">Тайлбар<input id="q_note" value="${esc(q.note)}"></label>
     <div class="tblwrap"><table class="dt"><thead><tr><th>#</th><th>Нэр</th><th>Материал</th><th class="r">Хэмжээ, мм</th><th class="r">Тоо</th><th class="r">Өртөг 1ш</th><th class="r">Нэгж үнэ, ₮</th><th class="r">Дүн, ₮</th></tr></thead><tbody>
@@ -1352,7 +1352,7 @@ function renderQuote(el) {
     <div class="qtot"><div><span>Дүн</span><span>${nf(d.sub)} ₮</span></div>${S.quote.vat ? `<div><span>НӨАТ 10%</span><span>${nf(d.vat)} ₮</span></div>` : ''}<div class="big"><span>Нийт</span><span>${nf(d.total)} ₮</span></div><div class="muted" style="font-size:12px"><span>Өртөг</span><span>${nf(d.cost)} ₮</span></div></div>
     <div id="qfNest"></div>
     <div class="addrow"><button class="btn" id="qPdf">Задаргаа PDF (дотоод)</button><span class="note">Материалын өртгийг партын талбайгаар, зүсэлтийн өртгийг зүсэх уртаар хуваарилж, ашгийн хувийг нэмсэн.</span></div>`;
-  [...QF.map(f => f[0]), 'note'].forEach(k => $('#q_' + k).addEventListener('change', e => { S.quote[k] = e.target.type === 'number' ? Math.max(0, +e.target.value || 0) : e.target.value; save(); renderQuote(el); }));
+  [...QF.map(f => f[0]), 'note'].forEach(k => $('#q_' + k).addEventListener('change', e => { S.quote[k] = e.target.type === 'number' ? Math.max(0, +e.target.value || 0) : e.target.value; if (k === 'customer' && e.target.value.trim() && typeof orgLearn === 'function') { orgLearn({ org: e.target.value }); if (S.quote.qf) qfFillFromDir(S.quote.qf, e.target.value); } save(); renderQuote(el); }));
   $('#q_vat').addEventListener('change', e => { S.quote.vat = e.target.checked; save(); renderQuote(el); });
   $('#qPdf').addEventListener('click', quotePdf);
   { const box = $('#qfNest'), J0 = nestQuoteJob(); box.innerHTML = qfCardHTML(J0); bindQfCard(box, J0); }

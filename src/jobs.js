@@ -73,11 +73,14 @@ $$('[data-jtab]').forEach(b => b.addEventListener('click', () => { J.tab = b.dat
 function renderJobs() { renderJList(); renderKList(); renderCertSide(); renderJobMain(); }
 function renderJList() {
   $('#cntJobs').textContent = S.jobs.filter(j => !['done', 'given'].includes(j.status)).length || '';
-  const q = ($('#jSearch').value || '').toLowerCase(), f = $('#jFilter').value;
-  const list = S.jobs.filter(j => (f === 'all' || (f === 'open' ? !['done', 'given'].includes(j.status) : ['done', 'given'].includes(j.status))) && (!q || [j.no, j.customer, j.title].join(' ').toLowerCase().includes(q)));
+  const q = ($('#jSearch').value || '').toLowerCase(), f = $('#jFilter').value, os = $('#jOrg'), og = os.value;
+  { const O = orgs().slice().sort((a, b) => a.name.localeCompare(b.name)); os.innerHTML = `<option value="">Бүх байгууллага (${O.length})</option>${O.map(o => `<option value="${esc(o.id)}"${o.id === og ? ' selected' : ''}>${esc(o.name)} · ${jobsOfOrg(o).length}</option>`).join('')}`; }
+  const org = orgs().find(o => o.id === og), inOrg = org ? new Set(jobsOfOrg(org)) : null;
+  const hay = j => { const f2 = (j.quote && j.quote.qf) || {}; return [j.no, j.customer, j.title, j.quote && j.quote.no, f2.person, f2.email, f2.phone, f2.rfqName, f2.rfqNo, j.dock && j.dock.no, j.dock && j.dock.po].join(' ').toLowerCase(); };
+  const list = S.jobs.filter(j => (f === 'all' || (f === 'open' ? !['done', 'given'].includes(j.status) : ['done', 'given'].includes(j.status))) && (!inOrg || inOrg.has(j)) && (!q || hay(j).includes(q)));
   $('#jList').innerHTML = list.length ? list.map(j => {
     const late = j.due && j.due < today() && !['done', 'given'].includes(j.status);
-    return `<div class="jitem${J.sel === j.id && J.tab === 'jobs' ? ' on' : ''}" data-id="${j.id}"><span class="no">${esc(j.no)}${S.activeJob === j.id ? ' <span class="pill rem">өрөлтөд</span>' : ''}</span><span class="pill st-${j.status}">${jstName(j.status)}</span><span class="t">${esc(j.title || '—')}${j.customer ? ' · ' + esc(j.customer) : ''}${j.due ? ` · <span class="${late ? 'late' : ''}">${esc(j.due)}</span>` : ''}</span></div>`;
+    return `<div class="jitem${J.sel === j.id && J.tab === 'jobs' ? ' on' : ''}" data-id="${j.id}"><span class="no">${esc(j.no)}${S.activeJob === j.id ? ' <span class="pill rem">өрөлтөд</span>' : ''}</span><span class="pill st-${j.status}">${jstName(j.status)}</span><span class="t">${esc(j.title || '—')}${j.customer ? ' · ' + esc(j.customer) : ''}${j.quote && j.quote.qf && j.quote.qf.person ? ' · ' + esc(personSplit(j.quote.qf.person).name) : ''}${j.due ? ` · <span class="${late ? 'late' : ''}">${esc(j.due)}</span>` : ''}</span></div>`;
   }).join('') : `<div class="emptyp">${S.jobs.length ? 'Хайлтад тохирох ажил алга.' : 'Ажил алга. <b>+ Шинэ ажил</b> товчоор эхэлнэ.'}</div>`;
   ['formTrace', 'rev', 'operators', 'formQuote', 'formScope', 'formInstr'].forEach(k => $('#iso_' + k).value = S.iso[k] || '');
 }
@@ -86,6 +89,7 @@ $('#jList').addEventListener('click', e => { const it = e.target.closest('.jitem
 $('#jNew').addEventListener('click', () => { J.dash = false; newJob(); renderJobs(); setTimeout(() => { const el = $('#jf_title'); if (el) el.focus(); }, 50); });
 $('#jSearch').addEventListener('input', renderJList);
 $('#jFilter').addEventListener('change', renderJList);
+$('#jOrg').addEventListener('change', renderJList);
 ['formTrace', 'rev', 'operators', 'formQuote', 'formScope', 'formInstr'].forEach(k => $('#iso_' + k).addEventListener('change', e => { S.iso[k] = e.target.value.trim(); save(); }));
 
 function renderKList() {
@@ -145,7 +149,7 @@ function renderJobMain() {
     <div class="bhead" data-v="main">
       <label class="fld sm" style="width:150px">Ажлын дугаар<input id="jf_no" class="mono" value="${esc(job.no)}"></label>
       <label class="fld grow">Ажлын нэр<input id="jf_title" value="${esc(job.title)}" placeholder="жишээ: PC200 шанага ×2"></label>
-      <label class="fld grow">Захиалагч<input id="jf_customer" value="${esc(job.customer)}"></label>
+      <label class="fld grow">Захиалагч (байгууллага)<input id="jf_customer" list="dl-org" value="${esc(job.customer)}" placeholder="жагсаалтаас сонгох эсвэл шинээр"></label>
       <label class="fld">Хугацаа<input id="jf_due" type="date" value="${esc(job.due)}"></label>
       <label class="fld">Төлөв<select id="jf_status">${JST.map(([k, n]) => `<option value="${k}"${k === job.status ? ' selected' : ''}>${n}</option>`).join('')}</select></label>
       <label class="fld grow">Тайлбар<input id="jf_note" value="${esc(job.note)}"></label>
@@ -186,12 +190,12 @@ function renderJobMain() {
       <div id="jTraceForm"></div>
       ${job.trace.length ? `<div class="tblwrap"><table class="dt"><thead><tr><th>Огноо</th><th>Лист</th><th>Хэмжээ</th><th>Материал</th><th class="r">Тоо</th><th>Хайлалт №</th><th>Гэрчилгээ №</th><th>Оператор</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>` : '<p class="note">Зүссэн лист бүрийн хавтангийн хайлалтын дугаар, операторыг энд бүртгэнэ. ISO аудитад бүтээгдэхүүнээс материалын гэрчилгээ хүртэл мөрдөх боломжтой болно.</p>'}
     </div></div>
-    ${jobNextHTML(job)}<div class="jcard" data-v="main"><div class="bcard-h">Түүх</div><div class="jbody"><div class="jlog">${job.log.map(l => `<div><span class="mono">${esc(l.t)}</span>${esc(l.m)}</div>`).join('') || '<span class="note">—</span>'}</div></div></div>
+    ${jobNextHTML(job)}${jobFilesHTML(job)}<div class="jcard" data-v="main"><div class="bcard-h">Түүх</div><div class="jbody"><div class="jlog">${job.log.map(l => `<div><span class="mono">${esc(l.t)}</span>${esc(l.m)}</div>`).join('') || '<span class="note">—</span>'}</div></div></div>
     <datalist id="opList">${ops.map(o => `<option value="${esc(o)}">`).join('')}</datalist>`;
-  bindSubBar(el);
+  bindSubBar(el); bindJobFiles(el, job);
   { const v = J.sub === 'prod' ? 'prod' : 'main'; el.querySelectorAll('[data-v]').forEach(n => { n.hidden = n.dataset.v !== v; }); el.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => { J.sub = b.dataset.go; renderJobMain(); })); }
   // field bindings
-  ['no', 'title', 'customer', 'due', 'note'].forEach(k => $('#jf_' + k).addEventListener('change', ev => { const v = ev.target.value.trim(); if (k === 'no' && !v) return; if (k === 'no') { job.no = v; job.short = (v.match(/(\d+)\s*$/) || [, v])[1]; } else job[k] = v; save(); renderJList(); }));
+  ['no', 'title', 'customer', 'due', 'note'].forEach(k => $('#jf_' + k).addEventListener('change', ev => { const v = ev.target.value.trim(); if (k === 'no' && !v) return; if (k === 'no') { job.no = v; job.short = (v.match(/(\d+)\s*$/) || [, v])[1]; } else job[k] = v; if (k === 'customer' && v) { orgLearn({ org: v }); if (job.quote && job.quote.qf && qfFillFromDir(job.quote.qf, v)) toast('Захиалагчийн хаяг, ID үнийн саналд бөглөгдлөө'); } save(); renderJList(); }));
   $('#jf_status').addEventListener('change', ev => { const o = jstName(job.status); job.status = ev.target.value; jobLog(`Төлөв: ${o} → ${jstName(job.status)}`, job); renderJList(); renderJobMain(); });
   ['hours', 'kg', 'other'].forEach(k => $('#ja_' + k).addEventListener('change', ev => { job.act[k] = ev.target.value; save(); renderJobMain(); }));
   $('#jf_price').addEventListener('change', ev => { job.price = Math.max(0, +ev.target.value || 0); save(); renderJobMain(); });

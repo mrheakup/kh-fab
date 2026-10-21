@@ -331,6 +331,19 @@ table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
   .prev{width:100%;height:200px}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+.jfgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.jf{position:relative;margin:0;border:1px solid var(--line);border-radius:8px;background:var(--surface);cursor:pointer;overflow:hidden;display:flex;flex-direction:column}
+.jf:hover{border-color:var(--accent)}.jf .th{height:110px;background:var(--surface-2);display:flex;align-items:center;justify-content:center}.jf .th img{max-width:100%;max-height:110px;object-fit:contain}
+.jf .ext{font:700 20px var(--mono,monospace);color:var(--muted,#6a7684);border:2px solid currentColor;border-radius:6px;padding:8px 10px}
+.jf figcaption{padding:6px 8px;font-size:12px;display:grid;gap:2px;min-width:0}.jf figcaption b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.jf figcaption small{color:var(--muted,#6a7684)}
+.jf .x{position:absolute;top:4px;right:4px;background:var(--surface)}.jf .jfsplit{margin:0 8px 8px}.jf.geo.on{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}.jf.geo canvas{width:160px;height:110px}
+.pvmodal .jf figcaption{color:var(--ink);text-align:left;opacity:1}.pvmodal .jf{width:auto}
+#infoSide .tabs{overflow-x:auto;scrollbar-width:thin}#infoSide .tabs button{white-space:nowrap;flex:none;padding-left:10px;padding-right:10px}
+.jfcard.drop{outline:2px dashed var(--accent);outline-offset:-4px}
+.clbox{display:grid;gap:6px}.clist{margin:0;padding-left:22px;display:grid;gap:4px}.clist li{display:flex;gap:4px;align-items:center}.clist li.sub{margin-left:22px;list-style:disc}.clist li .inp{flex:1;min-width:0;padding:4px 6px}
+.cladd{display:flex;gap:6px;flex-wrap:wrap}.cladd select{flex:1 1 200px;min-width:0}.cladd input{flex:1 1 160px;min-width:0}
+.dkph{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px}.dkph figure{position:relative;margin:0}.dkph img{height:80px;border:1px solid var(--line);border-radius:4px;display:block}.dkph .x{position:absolute;top:2px;right:2px;background:var(--surface)}
+tr.rcut td:first-child{box-shadow:inset 3px 0 0 var(--accent)}
 </style>
 
 <div class="app" id="app">
@@ -370,6 +383,7 @@ table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
   <aside class="side" id="infoSide" hidden>
     <nav class="tabs" role="tablist">
       <button data-itab="cat" class="on">Үнийн сан</button>
+      <button data-itab="org">Харилцагч</button>
       <button data-itab="std">Стандарт</button>
       <button data-itab="tpl">Загвар</button>
       <button data-itab="mach">Техник</button>
@@ -394,6 +408,10 @@ table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
         <p class="note">Материал, consumable, үйлчилгээний үнийн сан. Үнийн саналын мөрөнд нэр шивэхэд эндээс санал болгож, үнэ, нэгж, кг-ыг автоматаар бөглөнө. Санд байхгүй материалыг үнэ, нийлүүлэгчтэй нь шивбэл энд автоматаар нэмэгдэнэ.</p>
         <div id="catSups" class="plist"></div>
       </section>
+      <section id="itab-org" hidden>
+        <input id="orgSearch" class="inp" placeholder="Хайх: байгууллага, хүн, email, утас…" aria-label="Хайх">
+        <div id="orgList" class="plist" style="margin-top:10px"></div>
+      </section>
       <section id="itab-std" hidden>
         <p class="note">Гагнуурын урьдчилан халаалтын тооцоолуур (AWS D1.1, SSAB) болон компанийн стандарт, каталогийн архив. Файл зөвхөн энэ компьютерт хадгалагдана.</p>
         <div class="ptools"><button class="btn primary" id="stdAdd">+ Стандарт / каталог хавсаргах</button><input type="file" id="stdFile" accept=".pdf,.png,.jpg,.jpeg,.xlsx,.docx" multiple hidden></div>
@@ -416,9 +434,10 @@ table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
       <section id="jtab-jobs">
         <div class="ptools"><button class="btn primary" id="jNew">+ Шинэ ажил</button><button class="btn" id="jDash">Самбар</button></div>
         <div class="grid2" style="margin:10px 0">
-          <input id="jSearch" class="inp" placeholder="Хайх: дугаар, захиалагч…" aria-label="Хайх">
+          <input id="jSearch" class="inp" placeholder="Хайх: дугаар, захиалагч, хүн, үнийн санал…" aria-label="Хайх">
           <select id="jFilter" class="inp" aria-label="Төлөв"><option value="open">Идэвхтэй</option><option value="all">Бүгд</option><option value="closed">Дууссан</option></select>
         </div>
+        <select id="jOrg" class="inp" aria-label="Байгууллага" style="margin:-4px 0 10px;width:100%"><option value="">Бүх байгууллага</option></select>
         <div id="jList" class="plist"></div>
         <h3>ISO 9001 маягт</h3>
         <div class="grid2">

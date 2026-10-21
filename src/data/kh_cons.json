@@ -1,0 +1,426 @@
+[
+{
+"grp": "Gas",
+"name": "Ar 75%+ CO2 Mixture / Холимог хий",
+"unit": "pcs",
+"price": 242000,
+"qty": 0,
+"code": "M01"
+},
+{
+"grp": "Gas",
+"name": "CO2/ Нүүрс төрөгч",
+"unit": "pcs",
+"price": 93500,
+"qty": 5,
+"code": "M01"
+},
+{
+"grp": "Gas",
+"name": "OXY / Хүчилтөрөгч",
+"unit": "pcs",
+"price": 22000,
+"qty": 1,
+"code": "M01"
+},
+{
+"grp": "Gas",
+"name": "ACYT / Ацетлин",
+"unit": "pcs",
+"price": 165000,
+"qty": 0,
+"code": "M01"
+},
+{
+"grp": "Gas",
+"name": "Propane gas / Парпан",
+"unit": "pcs",
+"price": 151250,
+"qty": 0.3,
+"code": "M01"
+},
+{
+"grp": "Gas",
+"name": "Argon 100%",
+"unit": "pcs",
+"price": 140000,
+"qty": 0,
+"code": "M01"
+},
+{
+"grp": "Gas",
+"name": "Nitrogen ( Azot )",
+"unit": "Pcs",
+"price": 66000,
+"qty": 0,
+"code": "M01"
+},
+{
+"grp": "Paint and Sandblast",
+"name": "Sand blast consumable",
+"unit": "Kg",
+"price": 4000,
+"qty": 0,
+"code": "M02"
+},
+{
+"grp": "Paint and Sandblast",
+"name": "Epoxy Paint",
+"unit": "L",
+"price": 45000,
+"qty": 4,
+"code": "M02"
+},
+{
+"grp": "Paint and Sandblast",
+"name": "Epoxy Primer Gray ( Saaral )",
+"unit": "L",
+"price": 45000,
+"qty": 2,
+"code": "M02"
+},
+{
+"grp": "Paint and Sandblast",
+"name": "Epoxy Primer White ( Tsagaan )",
+"unit": "L",
+"price": 45000,
+"qty": 0,
+"code": "M02"
+},
+{
+"grp": "Paint and Sandblast",
+"name": "Epoxy Thinner",
+"unit": "L",
+"price": 40000,
+"qty": 2,
+"code": "M02"
+},
+{
+"grp": "Paint and Sandblast",
+"name": "Nitra Paint / Будаг (Хурдан хатдаг)",
+"unit": "L",
+"price": 33000,
+"qty": 0,
+"code": "M02"
+},
+{
+"grp": "Paint and Sandblast",
+"name": "Nitra Thinner",
+"unit": "L",
+"price": 10000,
+"qty": 0,
+"code": "M02"
+},
+{
+"grp": "Paint and Sandblast",
+"name": "Nitra Groont / Суурь будаг",
+"unit": "L",
+"price": 11764,
+"qty": 0,
+"code": "M02"
+},
+{
+"grp": "Paint and Sandblast",
+"name": "Car primer",
+"unit": "L",
+"price": 50000,
+"qty": 0,
+"code": "M02"
+},
+{
+"grp": "Paint and Sandblast",
+"name": "Car paint",
+"unit": "L",
+"price": 80000,
+"qty": 0,
+"code": "M02"
+},
+{
+"grp": "Paint and Sandblast",
+"name": "Paint brush,roller",
+"unit": "pcs",
+"price": 5000,
+"qty": 0,
+"code": "M02"
+},
+{
+"grp": "Paint and Sandblast",
+"name": "Paint gun / Будгийн буу 150",
+"unit": "pcs",
+"price": 27500,
+"qty": 0,
+"code": "M02"
+},
+{
+"grp": "Welding Electrod and Consumably",
+"name": "Hyundai 71MC Ф1.6",
+"unit": "kg",
+"price": 22330,
+"qty": 75,
+"code": "M03"
+},
+{
+"grp": "Welding Electrod and Consumably",
+"name": "SF 71",
+"unit": "kg",
+"price": 22330,
+"qty": 0,
+"code": "M03"
+},
+{
+"grp": "Welding Electrod and Consumably",
+"name": "Lincoln / Линколн Ф1,2",
+"unit": "kg",
+"price": 10000,
+"qty": 0,
+"code": "M03"
+},
+{
+"grp": "Welding Electrod and Consumably",
+"name": "Lincoln / Линколн Ф1,6",
+"unit": "kg",
+"price": 10000,
+"qty": 0,
+"code": "M03"
+},
+{
+"grp": "Welding Electrod and Consumably",
+"name": "Gauge / Гауж элэктрод 8мм",
+"unit": "pcs",
+"price": 115500,
+"qty": 0,
+"code": "M03"
+},
+{
+"grp": "Welding Electrod and Consumably",
+"name": "70 S6 Ф0.8",
+"unit": "kg",
+"price": 14500,
+"qty": 0,
+"code": "M03"
+},
+{
+"grp": "Welding Electrod and Consumably",
+"name": "70 S6 Ф1.2",
+"unit": "kg",
+"price": 14500,
+"qty": 0,
+"code": "M03"
+},
+{
+"grp": "Welding Electrod and Consumably",
+"name": "Argon electrode",
+"unit": "kg",
+"price": 50000,
+"qty": 0,
+"code": "M03"
+},
+{
+"grp": "Welding Electrod and Consumably",
+"name": "lincoln 7018-2.4mm",
+"unit": "kg",
+"price": 14400,
+"qty": 0,
+"code": "M03"
+},
+{
+"grp": "Welding Electrod and Consumably",
+"name": "Stanless wire 70 18-3.2",
+"unit": "kg",
+"price": 15000,
+"qty": 0,
+"code": "M03"
+},
+{
+"grp": "Grinding Discs",
+"name": "Grindering disk Ф125 / 5мм /",
+"unit": "pcs",
+"price": 4500,
+"qty": 5,
+"code": "M04"
+},
+{
+"grp": "Grinding Discs",
+"name": "Grindering disk Ф150 / 2.5мм /",
+"unit": "pcs",
+"price": 5000,
+"qty": 5,
+"code": "M04"
+},
+{
+"grp": "Grinding Discs",
+"name": "Grindering disk Ф150 / 5мм /",
+"unit": "pcs",
+"price": 5500,
+"qty": 5,
+"code": "M04"
+},
+{
+"grp": "Grinding Discs",
+"name": "Grindering disk Ф180",
+"unit": "pcs",
+"price": 6000,
+"qty": 3,
+"code": "M04"
+},
+{
+"grp": "Grinding Discs",
+"name": "Cutting disk Ф105 / 1мм /",
+"unit": "pcs",
+"price": 1000,
+"qty": 0,
+"code": "M04"
+},
+{
+"grp": "Grinding Discs",
+"name": "Cutting disk Ф125 / 1мм /",
+"unit": "pcs",
+"price": 1500,
+"qty": 0,
+"code": "M04"
+},
+{
+"grp": "Grinding Discs",
+"name": "Cutting disk Ф150 / 1.6мм /",
+"unit": "pcs",
+"price": 1800,
+"qty": 10,
+"code": "M04"
+},
+{
+"grp": "Grinding Discs",
+"name": "Cutting disk Ф150 / 2мм /",
+"unit": "pcs",
+"price": 3500,
+"qty": 0,
+"code": "M04"
+},
+{
+"grp": "Grinding Discs",
+"name": "Cutting disk Ф180 / 1.6мм /",
+"unit": "pcs",
+"price": 3500,
+"qty": 5,
+"code": "M04"
+},
+{
+"grp": "Grinding Discs",
+"name": "Cutting disk Ф180 / 2мм /",
+"unit": "pcs",
+"price": 4000,
+"qty": 0,
+"code": "M04"
+},
+{
+"grp": "Grinding Discs",
+"name": "Cup disk ( Trosson zulguur )",
+"unit": "pcs",
+"price": 3200,
+"qty": 2,
+"code": "M04"
+},
+{
+"grp": "Grinding Discs",
+"name": "Flap disk 125",
+"unit": "pcs",
+"price": 3200,
+"qty": 0,
+"code": "M04"
+},
+{
+"grp": "Grinding Discs",
+"name": "Flap disk 150",
+"unit": "pcs",
+"price": 3500,
+"qty": 4,
+"code": "M04"
+},
+{
+"grp": "Grinding Discs",
+"name": "Air grindr blade",
+"unit": "pcs",
+"price": 16500,
+"qty": 0,
+"code": "M04"
+},
+{
+"grp": "Packing material",
+"name": "Wooden Plate standart old 1000x1200 mm",
+"unit": "pcs",
+"price": 30000,
+"qty": 0,
+"code": "M05"
+},
+{
+"grp": "Packing material",
+"name": "Wooden Plate 1200x1200 mm",
+"unit": "pcs",
+"price": 35000,
+"qty": 0,
+"code": "M05"
+},
+{
+"grp": "Packing material",
+"name": "Wooden Plate 1400x1400 mm",
+"unit": "pcs",
+"price": 40000,
+"qty": 2,
+"code": "M05"
+},
+{
+"grp": "Packing material",
+"name": "Wooden Plate 1700x1700 mm",
+"unit": "pcs",
+"price": 50000,
+"qty": 0,
+"code": "M05"
+},
+{
+"grp": "Packing material",
+"name": "Film 7kg",
+"unit": "pcs",
+"price": 60000,
+"qty": 0,
+"code": "M05"
+},
+{
+"grp": "Packing material",
+"name": "Square wood",
+"unit": "pcs",
+"price": 100000,
+"qty": 0.2,
+"code": "M05"
+},
+{
+"grp": "Special Drill bits",
+"name": "Drill bit",
+"unit": "pcs",
+"price": 15000,
+"qty": 1,
+"code": "M06"
+},
+{
+"grp": "Special Drill bits",
+"name": "Thread maker",
+"unit": "pcs",
+"price": 18000,
+"qty": 0,
+"code": "M06"
+},
+{
+"grp": "NDT Consumable",
+"name": "White spray",
+"unit": "pcs",
+"price": 58000,
+"qty": 1,
+"code": "M07"
+},
+{
+"grp": "NDT Consumable",
+"name": "Black spray",
+"unit": "pcs",
+"price": 58000,
+"qty": 1,
+"code": "M07"
+}
+]

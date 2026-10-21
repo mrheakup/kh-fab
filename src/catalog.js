@@ -2,7 +2,7 @@
    Items: {id, name, grp, cat, unit, price, kgu (kg per unit), sup (supplier), spec (requirement / grade), vat (price incl. VAT), date}
    TT_2026_05 = Түмэн Төмөрт Групп price list (May 2026, VAT included), injected by build.py.
    Weights: geometry (pipes, hollow sections, sheets, bars) and the Maiak-M catalogue tables (MAIAK_PROFILES). */
-const TT_SUP = 'Түмэн Төмөрт Групп';
+const TT_SUP = 'Түмэн Төмөрт Групп', KH_SUP = 'Kh — дотоод үнэ';
 const RHO = { st: 7.85, ss: 7.93, al: 2.70 };
 const GOST8239 = { 10: 9.46, 12: 11.5, 14: 13.7, 16: 15.9, 18: 18.4, 20: 21.0, 22: 24.0, 24: 27.3, 27: 31.5, 30: 36.5, 33: 42.2, 36: 48.6, 40: 57.0, 45: 66.5 };
 const JIS_H = { '100×100': 17.2, '150×150': 31.5, '200×200': 49.9, '244×175': 44.1, '250×250': 72.4, '300×300': 94.0, '350×175': 49.6, '400×200': 66.0, '450×200': 76.0 };
@@ -37,6 +37,11 @@ function CAT() {
     CONS_PRESET.forEach(([name, unit, price]) => { if (!S.catalog.some(c => c.name === name)) S.catalog.push({ id: uid(), name, grp: 'Consumable', cat: 'cons', unit, price, kgu: unit === 'кг' ? 1 : 0, sup: '', spec: '', vat: true, date: '' }); });
     S.catalogTT = 1; save();
   }
+  if (!S.catalogKH) { // Kh International consumable library (Sandvik estimation form, 2025-08): groups M01…M07
+    const have = new Map(S.catalog.map(c => [c.name.toLowerCase(), c]));
+    KH_CONS.forEach(it => { const grp = `${it.code} · ${it.grp}`; if (have.has(it.name.toLowerCase())) return; S.catalog.push({ id: 'kh-' + it.name, name: it.name, grp, code: it.code, cat: 'cons', unit: it.unit, price: it.price, kgu: /^kg$/i.test(it.unit) ? 1 : 0, sup: KH_SUP, spec: '', vat: false, date: '2025-08', src: 'kh' }); });
+    S.catalogKH = 1; save();
+  }
   return S.catalog;
 }
 const catFindExact = name => { const n = String(name || '').trim().toLowerCase(); return n ? CAT().find(c => c.name.toLowerCase() === n) : null; };
@@ -58,7 +63,7 @@ function quoteLineHook(job, id, row, key) {
     if (!c && row.name && !(+row.price > 0)) { c = catFindFuzzy(row.name, cat === 'mat' ? 'mat' : null); fz = !!c; }
     if (c) {
       if (fz) row.name = c.name;
-      row.unit = c.unit; row.price = netPrice(c, q); row.kgu = c.kgu || ''; row.sup = c.sup || ''; row.catId = c.id;
+      row.unit = c.unit; row.price = netPrice(c, q); if (c.cat === 'cons') row.grp = c.grp || ''; row.kgu = c.kgu || ''; row.sup = c.sup || ''; row.catId = c.id;
       row.note = [c.sup, c.vat && q.netIn !== false ? 'НӨАТ-гүй үнэ' : '', fz ? 'сангаас автоматаар' : ''].filter(Boolean).join(' · ');
       if (fz) toast('Сангаас сонгогдлоо: ' + c.name);
       return;
@@ -68,36 +73,38 @@ function quoteLineHook(job, id, row, key) {
   if (row.name && !+row.kgu && row.unit === 'кг') row.kgu = 1;
   if (!row.name || !(+row.price > 0)) return;
   const ex = catFindExact(row.name);
-  if (ex) { if (['price', 'unit', 'kgu'].includes(key) && ex.src !== 'tt') { ex.price = row.note && /НӨАТ-гүй/.test(row.note) && ex.vat ? Math.round(row.price * (1 + (+q.vat || 10) / 100)) : +row.price; ex.unit = row.unit; if (row.kgu) ex.kgu = +row.kgu; ex.date = today(); } return; }
-  CAT().push({ id: uid(), name: row.name.trim(), grp: 'Миний оруулсан', cat, unit: row.unit || 'ш', price: +row.price, kgu: +row.kgu || (row.unit === 'кг' ? 1 : 0), sup: (row.note || '').split('·')[0].trim(), spec: '', vat: false, date: today(), src: 'user' });
+  if (ex) { if (['price', 'unit', 'kgu'].includes(key) && ex.src !== 'tt') { ex.price = row.note && /НӨАТ-гүй/.test(row.note) && ex.vat ? Math.round(row.price * (1 + (+q.vat || 10) / 100)) : +row.price; ex.unit = row.unit; if (row.kgu) ex.kgu = +row.kgu; ex.date = today(); if (key === 'price') toast('Сан дахь үнэ шинэчлэгдлээ: ' + ex.name); } return; }
+  CAT().push({ id: uid(), name: row.name.trim(), grp: (cat === 'cons' && row.grp) || 'Миний оруулсан', cat, unit: row.unit || 'ш', price: +row.price, kgu: +row.kgu || (row.unit === 'кг' ? 1 : 0), sup: (row.note || '').split('·')[0].trim(), spec: '', vat: false, date: today(), src: 'user' });
   toast('Шинэ материал санд нэмэгдлээ: ' + row.name);
 }
 function catDatalists() {
   const C = CAT(), opt = c => `<option value="${esc(c.name)}">${esc(`${money(c.price)} ₮/${c.unit}${c.kgu && c.unit !== 'кг' ? ' · ' + money(c.price / c.kgu) + ' ₮/кг' : ''} · ${c.sup || ''}`)}</option>`;
-  return `<datalist id="dl-mat">${C.filter(c => c.cat === 'mat').map(opt).join('')}</datalist><datalist id="dl-any">${C.filter(c => c.cat !== 'mat').map(opt).join('')}</datalist>`;
+  return `<datalist id="dl-mat">${C.filter(c => c.cat === 'mat').map(opt).join('')}</datalist><datalist id="dl-any">${C.filter(c => c.cat !== 'mat').map(opt).join('')}</datalist><datalist id="dl-cons">${C.filter(c => c.cat === 'cons').map(opt).join('')}</datalist><datalist id="dl-cgrp">${[...new Set(C.filter(c => c.cat === 'cons').map(c => c.grp).filter(Boolean))].sort().map(g => `<option value="${esc(g)}">`).join('')}</datalist>`;
 }
 
 /* ---------- catalogue management (Jobs → «Үнийн сан») ---------- */
-const CV = { q: '', grp: '', sup: '', lim: 120 };
+const CV = { q: '', grp: '', sup: '', cat: '', lim: 120 };
 const CAT_COLS = [{ k: 'name', t: 'Нэр', w: 300 }, { k: 'grp', t: 'Бүлэг', w: 150 }, { k: 'cat', t: 'Ангилал', sel: [['mat', 'Материал'], ['cons', 'Consumable'], ['equip', 'Тоног, үйлчилгээ'], ['other', 'Бусад']], w: 120 }, { k: 'unit', t: 'Нэгж', w: 64 }, { k: 'price', t: 'Үнэ, ₮', num: 1, w: 105 }, { k: 'kgu', t: 'кг/нэгж', num: 1, w: 80 }, { k: 'pk', t: '₮/кг', calc: r => r.kgu ? money(r.price / r.kgu) : '—' }, { k: 'vat', t: 'НӨАТ орсон', chk: 1, w: 70 }, { k: 'sup', t: 'Нийлүүлэгч', w: 150 }, { k: 'spec', t: 'Шаардлага / стандарт / тэмдэглэл' }, { k: 'date', t: 'Огноо', w: 90 }];
 function renderCatMain(el) {
   const C = CAT(), q = CV.q.toLowerCase();
-  const list = C.filter(c => (!CV.grp || c.grp === CV.grp) && (!CV.sup || c.sup === CV.sup) && (!q || (c.name + ' ' + c.spec + ' ' + c.sup).toLowerCase().includes(q)));
-  const grps = [...new Set(C.map(c => c.grp).filter(Boolean))].sort(), sups = [...new Set(C.map(c => c.sup).filter(Boolean))].sort();
+  const list = C.filter(c => (!CV.cat || c.cat === CV.cat) && (!CV.grp || c.grp === CV.grp) && (!CV.sup || c.sup === CV.sup) && (!q || (c.name + ' ' + c.spec + ' ' + c.sup).toLowerCase().includes(q)));
+  const grps = [...new Set(C.filter(c => !CV.cat || c.cat === CV.cat).map(c => c.grp).filter(Boolean))].sort(), sups = [...new Set(C.map(c => c.sup).filter(Boolean))].sort();
   const shown = list.slice(0, CV.lim);
   el.innerHTML = `<div class="bhead">
       <label class="fld grow">Хайх<input id="cv_q" value="${esc(CV.q)}" placeholder="жишээ: труба 159, лист 10, Q345…"></label>
       <label class="fld">Бүлэг<select id="cv_grp"><option value="">Бүгд</option>${grps.map(g => `<option${g === CV.grp ? ' selected' : ''}>${esc(g)}</option>`).join('')}</select></label>
+      <label class="fld">Ангилал<select id="cv_cat">${[['', 'Бүгд'], ['mat', 'Материал'], ['cons', 'Consumable'], ['equip', 'Тоног, үйлчилгээ'], ['other', 'Бусад']].map(([k, n]) => `<option value="${k}"${k === CV.cat ? ' selected' : ''}>${n}</option>`).join('')}</select></label>
       <label class="fld">Нийлүүлэгч<select id="cv_sup"><option value="">Бүгд</option>${sups.map(g => `<option${g === CV.sup ? ' selected' : ''}>${esc(g)}</option>`).join('')}</select></label>
     </div>
-    <div class="exports"><button class="btn" id="cvImport">Excel / CSV үнийн хуудас импортлох</button><button class="btn ghost" id="cvTT">Түмэн Төмөрт 2026-05 дахин ачаалах</button><input type="file" id="cvFile" accept=".xlsx,.xls,.csv,.txt" hidden><span class="note">${list.length} / ${C.length} бараа${list.length > shown.length ? ` · эхний ${shown.length}-г харуулж байна` : ''}. Үнийн саналд шинээр шивсэн материал энд автоматаар нэмэгдэнэ.</span></div>
+    <div class="exports"><button class="btn" id="cvImport">Excel / CSV үнийн хуудас импортлох</button><button class="btn ghost" id="cvTT">Түмэн Төмөрт 2026-05 дахин ачаалах</button><button class="btn ghost" id="cvKH">Kh consumable сан (M01–M07) сэргээх</button><input type="file" id="cvFile" accept=".xlsx,.xls,.csv,.txt" hidden><span class="note">${list.length} / ${C.length} бараа${list.length > shown.length ? ` · эхний ${shown.length}-г харуулж байна` : ''}. Үнийн саналд шинээр шивсэн материал энд автоматаар нэмэгдэнэ.</span></div>
     <div class="jcard"><div class="jbody">${edTable('cv', CAT_COLS, shown)}${list.length > shown.length ? '<button class="btn sm" id="cvMore">Цааш харуулах</button>' : ''}</div></div>
     <p class="note">Excel/CSV багана: нэр, нэгж, үнэ, кг/нэгж, нийлүүлэгч, шаардлага (эхний мөр гарчиг). Ижил нэртэй бараа байвал үнэ нь шинэчлэгдэнэ. Түмэн Төмөрт Группийн үнэд НӨАТ орсон; үнийн саналд НӨАТ-гүй үнээр орно.</p>`;
   const re = () => renderCatMain(el);
-  [['cv_q', 'q'], ['cv_grp', 'grp'], ['cv_sup', 'sup']].forEach(([id, k]) => el.querySelector('#' + id).addEventListener('change', e => { CV[k] = e.target.value; CV.lim = 120; re(); }));
-  bindEd(el, { cv: { arr: () => { const o = { length: shown.length, splice: i => { const k = C.indexOf(shown[i]); if (k >= 0) C.splice(k, 1); }, push: v => C.unshift(v) }; shown.forEach((r, i) => o[i] = r); return o; }, cols: CAT_COLS, blank: () => ({ id: uid(), name: 'Шинэ бараа', grp: CV.grp || 'Миний оруулсан', cat: 'mat', unit: 'ш', price: 0, kgu: 0, sup: CV.sup || '', spec: '', vat: false, date: today(), src: 'user' }) } }, re);
+  [['cv_q', 'q'], ['cv_grp', 'grp'], ['cv_sup', 'sup'], ['cv_cat', 'cat']].forEach(([id, k]) => el.querySelector('#' + id).addEventListener('change', e => { CV[k] = e.target.value; CV.lim = 120; re(); }));
+  bindEd(el, { cv: { arr: () => { const o = { length: shown.length, splice: i => { const k = C.indexOf(shown[i]); if (k >= 0) C.splice(k, 1); }, push: v => C.unshift(v) }; shown.forEach((r, i) => o[i] = r); return o; }, cols: CAT_COLS, blank: () => ({ id: uid(), name: 'Шинэ бараа', grp: CV.grp || 'Миний оруулсан', cat: CV.cat || 'mat', unit: 'ш', price: 0, kgu: 0, sup: CV.sup || '', spec: '', vat: false, date: today(), src: 'user' }) } }, re);
   const mo = el.querySelector('#cvMore'); if (mo) mo.addEventListener('click', () => { CV.lim += 300; re(); });
   el.querySelector('#cvTT').addEventListener('click', () => { S.catalogTT = 0; CAT(); re(); toast('Түмэн Төмөрт Группийн үнэ шинэчлэгдлээ'); });
+  el.querySelector('#cvKH').addEventListener('click', () => { S.catalogKH = 0; CAT(); CV.cat = 'cons'; re(); toast('Kh consumable сан нэмэгдлээ (байсан барааны үнэ хэвээр)'); });
   el.querySelector('#cvImport').addEventListener('click', () => el.querySelector('#cvFile').click());
   el.querySelector('#cvFile').addEventListener('change', async e => {
     const f = e.target.files[0]; e.target.value = ''; if (!f) return;
