@@ -2556,5 +2556,11 @@
 "Энд засахад «Хамрах хүрээ»-ний хуваарь мөн шинэчлэгдэнэ": "Editing here also updates the «Scope» schedule",
 "Үнийн саналын дугаар — өөрөө оруулна": "Quotation number — enter your own",
 "Анхаар:": "Warning:",
-"дугаар өөр санал/ажилд байна": "is already used by another quote/job"
+"дугаар өөр санал/ажилд байна": "is already used by another quote/job",
+"Загвар: Корпорац": "Style: Corporate",
+"Загвар: Цэвэр": "Style: Clean",
+"Загвар: Цех": "Style: Workshop",
+"Загвар: Том (touch)": "Style: Large (touch)",
+"Загвар: Хуучин": "Style: Classic",
+"Програмын загвар": "App style"
 }
