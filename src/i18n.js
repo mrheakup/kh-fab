@@ -90,8 +90,9 @@ function i18nButtons() {
 }
 (() => {
   try { const t = localStorage.getItem(THEME_KEY); if (t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t); } catch (e) { }
-  { let k = 'modern'; try { k = localStorage.getItem('kh-skin') || 'modern'; if (!localStorage.getItem('kh-skin2')) { k = 'modern'; localStorage.setItem('kh-skin', k); localStorage.setItem('kh-skin2', '1'); } } catch (e) { } document.documentElement.setAttribute('data-skin', k);
-    const sel = document.getElementById('skinSel'); if (sel) { sel.value = k; sel.addEventListener('change', () => { document.documentElement.setAttribute('data-skin', sel.value); try { localStorage.setItem('kh-skin', sel.value); } catch (e) { } }); } }
+  { const V = ['modern', 'calm', 'dark', 'fintech', 'bento'], apply = k => { const h = document.documentElement; h.setAttribute('data-skin', 'modern'); if (k === 'modern') h.removeAttribute('data-var'); else h.setAttribute('data-var', k); if (k === 'dark') h.setAttribute('data-theme', 'dark'); else if (h.dataset.forcedDark) h.setAttribute('data-theme', 'light'); h.dataset.forcedDark = k === 'dark' ? '1' : ''; if (typeof i18nButtons === 'function') i18nButtons(); };
+    let k = 'modern'; try { k = localStorage.getItem('kh-skin') || 'modern'; } catch (e) { } if (!V.includes(k)) k = 'modern'; apply(k);
+    const sel = document.getElementById('skinSel'); if (sel) { sel.value = k; sel.addEventListener('change', () => { apply(sel.value); try { localStorage.setItem('kh-skin', sel.value); } catch (e) { } }); } }
   document.documentElement.lang = LANG === 'en' ? 'en' : 'mn';
   trObs.observe(document.documentElement, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: TR_ATTRS });
   if (LANG === 'en') trWalk(document.body);

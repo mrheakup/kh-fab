@@ -2569,5 +2569,9 @@
 "Үнэ, харилцагч, стандарт, файл": "Prices, customers, standards, files",
 "Үнийн санал, захиалга, хүлээлгэх": "Quotations, orders, handover",
 "Лист өрөлт, лазер, G-code": "Sheet nesting, laser, G-code",
-"Пресс, галзуу, багаж": "Press brake, rolls, tooling"
+"Пресс, галзуу, багаж": "Press brake, rolls, tooling",
+"Загвар: Тайван (Linear)": "Style: Calm (Linear)",
+"Загвар: Харанхуй (Supabase)": "Style: Dark (Supabase)",
+"Загвар: Fintech (Stripe)": "Style: Fintech (Stripe)",
+"Загвар: Bento (улбар шар)": "Style: Bento (orange)"
 }
