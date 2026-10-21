@@ -15,7 +15,8 @@ function setModule(m) {
   $('#bendSide').hidden = $('#bendMain').hidden = m !== 'bend'; if ($('#rollMain')) $('#rollMain').hidden = true;
   $('#jobsSide').hidden = $('#jobsMain').hidden = m !== 'jobs';
   if ($('#infoSide')) $('#infoSide').hidden = $('#infoMain').hidden = m !== 'info';
-  if (m === 'info') { if (typeof renderInfo === 'function') renderInfo(); } else if (m === 'bend') { renderBend(); if (typeof showBendTab === 'function') showBendTab(RT.tab); } else if (m === 'jobs') renderJobs(); else drawView();
+  if ($('#inspSide')) $('#inspSide').hidden = $('#inspMain').hidden = m !== 'insp';
+  if (m === 'info') { if (typeof renderInfo === 'function') renderInfo(); } else if (m === 'insp') { if (typeof renderInsp === 'function') renderInsp(); } else if (m === 'bend') { renderBend(); if (typeof showBendTab === 'function') showBendTab(RT.tab); } else if (m === 'jobs') renderJobs(); else drawView();
   try { localStorage.setItem(KEY + ':mod', m); } catch (e) { }
 }
 $$('.modtabs button').forEach(b => b.addEventListener('click', () => setModule(b.dataset.mod)));
@@ -158,12 +159,12 @@ function sendPartToBend(id) {
 async function bendPdf() {
   const p = curProf(); if (!p) return;
   if (!window.jspdf) { toast('PDF сан ачаалагдсангүй'); return; }
-  try { await document.fonts.ready; } catch (e) { }
+  try { await document.fonts.ready; } catch (e) { } await logoImg();
   const c = bendCalc(p), plan = planSequence(p, c), PW = 210, PH = 297, K = 6, F = '"IBM Plex Sans", Arial, sans-serif', FM = '"IBM Plex Mono", Consolas, monospace', pages = [];
   const page = () => { const cv = document.createElement('canvas'); cv.width = PW * K; cv.height = PH * K; const x = cv.getContext('2d'); x.scale(K, K); x.fillStyle = '#fff'; x.fillRect(0, 0, PW, PH); pages.push(cv); return x; };
   const sub = (x, X0, Y0, w, h) => { const cv = document.createElement('canvas'); cv.width = w * K; cv.height = h * K; cv.style.width = w + 'px'; const cx = cv.getContext('2d'); cx.scale(K, K); return { cv, ctx: { x: cx, w, h } }; };
   let x = page(); const pal = bpal(true);
-  x.fillStyle = '#10161c'; x.font = `700 5.5px ${F}`; x.textBaseline = 'alphabetic'; x.fillText('Нугалах операторын хуудас', 15, 20);
+  x.fillStyle = '#10161c'; x.font = `700 5.5px ${F}`; x.textBaseline = 'alphabetic'; x.fillText('Нугалах операторын хуудас', 15, 20); drawLogo(x, PW - 15, 12, 9, 'right'); x.textBaseline = 'alphabetic'; x.textAlign = 'left';
   x.font = `400 3.2px ${F}`; x.fillStyle = '#4f5b68'; x.fillText(`Kh International · ISO 9001 · ${new Date().toLocaleDateString('mn-MN')} · ${S.bend.machine.name} (${S.bend.machine.ton} т)`, 15, 26);
   x.strokeStyle = '#cf4a0c'; x.lineWidth = 0.5; x.beginPath(); x.moveTo(15, 30); x.lineTo(PW - 15, 30); x.stroke();
   x.fillStyle = '#10161c'; x.font = `600 4.5px ${F}`; x.fillText(p.name, 15, 38);

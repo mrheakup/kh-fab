@@ -235,12 +235,12 @@ $('#remDxf').addEventListener('change', async e => {
     const outer = loops[0].v, fo = flattenLoop(outer, 0.1);
     const holes = loops.slice(1).filter(l => { const p = flattenLoop(l.v, 0.5)[0]; return pointInPoly(p[0], p[1], fo); }).map(l => l.v);
     const n = normalizePart(outer, holes), inf = partInfo({ outer: n.outer, holes: n.holes });
-    S.remnants.push({ id: uid(), no: remNo(), loc: $('#remLoc').value.trim(), date: new Date().toISOString().slice(0, 10), src: '', mat: $('#remMat').value, thk: t, L: Math.round(inf.w * 10) / 10, W: Math.round(inf.h * 10) / 10, qty: q, shape: { outer: n.outer, holes: n.holes } });
+    S.remnants.push({ id: uid(), no: remNo(), loc: $('#remLoc').value.trim(), date: today(), src: '', mat: $('#remMat').value, thk: t, L: Math.round(inf.w * 10) / 10, W: Math.round(inf.h * 10) / 10, qty: q, shape: { outer: n.outer, holes: n.holes } });
     save(); renderStock(); toast(`Хэлбэртэй үлдэгдэл нэмэгдлээ · ${nf(inf.w)}×${nf(inf.h)} мм, ${holes.length} гэмтэлтэй хэсэг`);
   } catch (err) { toast(err && err.message ? err.message : 'Файлаас хаалттай контур олдсонгүй', 7000); }
 });
 $('#remList').addEventListener('click', e => { if (!e.target.matches('.x')) return; const id = e.target.closest('.srow').dataset.id; S.remnants = S.remnants.filter(r => r.id !== id); save(); renderStock(); });
-$('#remAdd').addEventListener('click', () => { const L = +$('#remL').value, W = +$('#remW').value, q = Math.max(1, Math.round(+$('#remQ').value || 1)), t = +$('#remThk').value; if (!(L > 0 && W > 0 && t > 0)) { toast('Үлдэгдлийн хэмжээ, зузааныг оруулна уу'); return; } S.remnants.push({ id: uid(), no: remNo(), loc: $('#remLoc').value.trim(), date: new Date().toISOString().slice(0, 10), src: '', mat: $('#remMat').value, thk: t, L: Math.max(L, W), W: Math.min(L, W), qty: q }); $('#remL').value = $('#remW').value = ''; save(); renderStock(); });
+$('#remAdd').addEventListener('click', () => { const L = +$('#remL').value, W = +$('#remW').value, q = Math.max(1, Math.round(+$('#remQ').value || 1)), t = +$('#remThk').value; if (!(L > 0 && W > 0 && t > 0)) { toast('Үлдэгдлийн хэмжээ, зузааныг оруулна уу'); return; } S.remnants.push({ id: uid(), no: remNo(), loc: $('#remLoc').value.trim(), date: today(), src: '', mat: $('#remMat').value, thk: t, L: Math.max(L, W), W: Math.min(L, W), qty: q }); $('#remL').value = $('#remW').value = ''; save(); renderStock(); });
 
 /* ---------- settings tab ---------- */
 const SET = [['s_gap', 'gap', 'n'], ['s_margin', 'margin', 'n'], ['s_rot', 'rot', 'n'], ['s_prec', 'prec', 's'], ['s_opt', 'opt', 'n'], ['s_sag', 'sag', 'n'], ['s_keep', 'keep', 'b'], ['s_pip', 'pip', 'b'], ['s_mir', 'mir', 'b'], ['s_cl', 'cl', 'b'], ['s_lead', 'leadIn', 'n'], ['s_rapid', 'rapid', 'n'], ['s_trim', 'trim', 'b'], ['s_trimScope', 'trimScope', 's'], ['s_trimStep', 'trimStep', 'n'], ['s_minRem', 'minRem', 'n'], ['s_dxfSheet', 'dxfSheet', 'n'], ['s_dxfBend', 'dxfBend', 'n']];
@@ -776,7 +776,7 @@ function renderTable() {
     const b = $('#remApply'); if (b) b.addEventListener('click', () => {
       for (const [id, n] of Object.entries(used)) { const r = S.remnants.find(x => x.id === id); if (r) r.qty = Math.max(0, r.qty - n); }
       S.remnants = S.remnants.filter(r => r.qty > 0);
-      nw.forEach(s => S.remnants.push({ id: uid(), no: remNo(), loc: '', date: new Date().toISOString().slice(0, 10), src: S.jobName, mat: g.mat, thk: g.thk, L: Math.max(s.left, s.W), W: Math.min(s.left, s.W), qty: 1 }));
+      nw.forEach(s => S.remnants.push({ id: uid(), no: remNo(), loc: '', date: today(), src: S.jobName, mat: g.mat, thk: g.thk, L: Math.max(s.left, s.W), W: Math.min(s.left, s.W), qty: 1 }));
       if (typeof jobLog === 'function') jobLog(`Үлдэгдэл: ${Object.values(used).reduce((a, n) => a + n, 0)} ашигласан, ${nw.length} шинээр бүртгэсэн`);
       save(); renderStock(); b.disabled = true; b.textContent = 'Бүртгэлд тусгасан'; toast('Үлдэгдлийн бүртгэл шинэчлэгдлээ');
     });
@@ -1244,7 +1244,7 @@ function reportPages() {
     const c = document.createElement('canvas'); c.width = PW * K; c.height = PH * K;
     const x = c.getContext('2d'); x.scale(K, K); x.fillStyle = '#fff'; x.fillRect(0, 0, PW, PH);
     x.fillStyle = '#10161c'; x.font = `600 4.2px ${F}`; x.textBaseline = 'alphabetic'; x.textAlign = 'left';
-    x.fillText('Kh International · Зүсэлтийн өрөлтийн тайлан', 12, 13);
+    const lw = drawLogo(x, 12, 6.2, 8); x.textAlign = 'left'; x.textBaseline = 'alphabetic'; x.fillStyle = '#10161c'; x.font = `600 4.2px ${F}`; x.fillText('Зүсэлтийн өрөлтийн тайлан', 12 + lw + 4, 13);
     x.textAlign = 'right'; x.font = `400 3.2px ${F}`; x.fillStyle = '#4f5b68';
     x.fillText(`${S.jobName} · ${dateStr} · хуудас ${pages.length + 1}`, PW - 12, 13);
     x.strokeStyle = '#cf4a0c'; x.lineWidth = 0.5; x.beginPath(); x.moveTo(12, 16); x.lineTo(PW - 12, 16); x.stroke();
@@ -1315,7 +1315,7 @@ $('#xPdf').addEventListener('click', async () => {
   if (!R) { toast('Эхлээд өрөлт хийнэ үү'); return; }
   if (!window.jspdf) { toast('PDF сан ачаалагдсангүй — интернэт холболтоо шалгана уу'); return; }
   toast('PDF бэлтгэж байна…');
-  try { await document.fonts.ready; } catch (e) { }
+  try { await document.fonts.ready; } catch (e) { } await logoImg();
   const pages = reportPages();
   const pdf = i18nPdf(new window.jspdf.jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4', compress: true }));
   pages.forEach((c, i) => { if (i) pdf.addPage(); pdf.addImage(c.toDataURL('image/jpeg', 0.9), 'JPEG', 0, 0, 297, 210); });
@@ -1357,12 +1357,12 @@ function renderQuote(el) {
 function wrapText(x, text, maxW) { const words = String(text).split(/\s+/), lines = []; let cur = ''; for (const w of words) { const t = cur ? cur + ' ' + w : w; if (x.measureText(t).width > maxW && cur) { lines.push(cur); cur = w; } else cur = t; } if (cur) lines.push(cur); return lines; }
 async function quotePdf() {
   if (!window.jspdf) { toast('PDF сан ачаалагдсангүй — интернэт холболтоо шалгана уу'); return; }
-  try { await document.fonts.ready; } catch (e) { }
+  try { await document.fonts.ready; } catch (e) { } await logoImg();
   const q = S.quote, d = quoteData(), PW = 210, PH = 297, K = 6, F = '"IBM Plex Sans", Arial, sans-serif', FM = '"IBM Plex Mono", Consolas, monospace', pages = [];
   const today = new Date(), until = new Date(today.getTime() + (+q.valid || 0) * 864e5), ds = t => t.toLocaleDateString('mn-MN');
   const page = () => { const c = document.createElement('canvas'); c.width = PW * K; c.height = PH * K; const x = c.getContext('2d'); x.scale(K, K); x.fillStyle = '#fff'; x.fillRect(0, 0, PW, PH); pages.push(c); return x; };
   let x = page();
-  x.fillStyle = '#10161c'; x.font = `700 6px ${F}`; x.textAlign = 'left'; x.textBaseline = 'alphabetic'; x.fillText('Kh International', 15, 22);
+  x.fillStyle = '#10161c'; x.font = `700 6px ${F}`; x.textAlign = 'left'; x.textBaseline = 'alphabetic'; drawLogo(x, 15, 11, 12.5); x.textBaseline = 'alphabetic';
   x.font = `400 3.2px ${F}`; x.fillStyle = '#4f5b68'; x.fillText('ISO 9001 гэрчилгээтэй · Ган хийц, металл боловсруулалт, лазер зүсэлт', 15, 28); if (q.contact) x.fillText(q.contact, 15, 33);
   x.textAlign = 'right'; x.fillStyle = '#cf4a0c'; x.font = `700 8px ${F}`; x.fillText('ҮНИЙН САНАЛ', PW - 15, 22);
   x.fillStyle = '#10161c'; x.font = `400 3.3px ${F}`; x.fillText(`№ ${q.no}  ·  ${ds(today)}`, PW - 15, 28); x.fillText(`Хүчинтэй: ${ds(until)} хүртэл`, PW - 15, 33);

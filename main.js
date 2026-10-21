@@ -26,7 +26,7 @@ function createWindow() {
   const cfg = readCfg();
   win = new BrowserWindow({
     width: cfg.w || 1440, height: cfg.h || 900, minWidth: 1000, minHeight: 640, show: false,
-    title: 'KH Fab', icon: path.join(__dirname, 'build', 'icon.png'), autoHideMenuBar: false,
+    title: 'Kh International', icon: path.join(__dirname, 'build', 'icon.png'), autoHideMenuBar: false,
     webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true, nodeIntegration: false, sandbox: false }
   });
   if (cfg.max) win.maximize();

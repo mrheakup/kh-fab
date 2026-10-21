@@ -1,7 +1,7 @@
 {
   "name": "kh-fab",
   "productName": "KH Fab",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "Kh International — nesting ба bending програм",
   "author": "Kh International",
   "main": "main.js",
@@ -63,12 +63,13 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "KH Fab",
+      "shortcutName": "Kh International",
       "artifactName": "KH-Fab-Setup-${version}.${ext}",
       "installerLanguages": [
         "en_US"
       ],
-      "deleteAppDataOnUninstall": false
+      "deleteAppDataOnUninstall": false,
+      "uninstallDisplayName": "Kh International"
     },
     "publish": [
       {

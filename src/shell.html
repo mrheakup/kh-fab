@@ -1,4 +1,4 @@
-<title>KH Nesting</title>
+<title>Kh International</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -162,6 +162,22 @@ label.fld{display:grid;gap:3px;font-size:12px;color:var(--ink-2)}
 .qtot{display:grid;justify-content:end;gap:4px;margin-top:10px;font-family:var(--f-mono)}
 .qtot div{display:flex;gap:24px;justify-content:space-between}
 .qtot .big{font-size:17px;font-weight:600}
+.logo-wrap{display:inline-flex;align-items:center;background:#fff;border-radius:6px;padding:3px 6px}
+.logoset{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.logoset .brand-logo{height:26px}
+.brand-logo{height:30px;width:auto;display:block}
+.outb{display:inline-flex;gap:0}.outb .btn:first-child{border-top-right-radius:0;border-bottom-right-radius:0}.outb .btn:last-child{border-top-left-radius:0;border-bottom-left-radius:0;margin-left:-1px}
+.jsub{background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
+.dt.ed td{padding:4px 6px}.dt.ed input,.dt.ed select{min-width:60px}
+.sgantt .grow{grid-template-columns:200px minmax(0,1fr) 175px;cursor:default}
+.igrp{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);margin:6px 2px 0}
+.ibulk{display:flex;gap:8px;align-items:end;flex-wrap:wrap;margin:10px 0}.ibulk .fld{width:150px}
+.iprev{width:100%;height:auto;border:1px solid var(--line);border-radius:4px;background:#fff}
+.irt td{white-space:normal}.irt tr.bad td{background:color-mix(in srgb,var(--bad) 12%,transparent)}.irt input[type=radio]{width:18px;height:18px;accent-color:var(--accent)}
+.igrid{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}.igrid textarea{width:100%;font:inherit;line-height:1.5}
+.ical{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;max-width:460px}.ical b{font-size:11px;color:var(--ink-3);text-align:center;font-weight:500}
+.ical span{border:1px solid var(--line-2);border-radius:4px;text-align:center;padding:6px 0;font-family:var(--f-mono);font-size:12px}
+.ical span.has{cursor:pointer}.ical .c-ok{background:color-mix(in srgb,var(--ok) 25%,transparent)}.ical .c-fix{background:color-mix(in srgb,var(--warn) 30%,transparent)}.ical .c-stop{background:color-mix(in srgb,var(--bad) 35%,transparent)}
+@media (max-width:760px){.brand-logo{height:24px}}
 .modtabs{display:flex;gap:2px;background:var(--surface-2);border:1px solid var(--line);border-radius:999px;padding:3px}
 .modtabs button{border:0;background:transparent;border-radius:999px;padding:6px 14px;cursor:pointer;font-weight:500;color:var(--ink-2)}
 .seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:2px;background:var(--surface-2)}
@@ -301,14 +317,12 @@ table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
 
 <div class="app" id="app">
   <header class="top">
-    <div class="brand">
-      <svg class="mark" viewBox="0 0 26 26" aria-hidden="true"><rect x="1" y="4" width="24" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="8" cy="11" r="3.4" fill="var(--accent)"/><path d="M13 8h7v6h-7z" fill="var(--accent)" opacity=".75"/><path d="M5 17h9l-3 3H5z" fill="var(--accent)" opacity=".5"/></svg>
-      <b>KH Fab</b>
-    </div>
+    <div class="brand"><span class="logo-wrap"><img class="brand-logo" alt="Kh International" src=""></span></div>
     <nav class="modtabs" role="tablist">
       <button data-mod="jobs" role="tab">Ажил · захиалга</button>
       <button data-mod="nest" class="on" role="tab">Nesting · өрөлт</button>
       <button data-mod="bend" role="tab">Bending · нугалалт</button>
+      <button data-mod="insp" role="tab">Үзлэг · заавар</button>
       <button data-mod="info" role="tab">Мэдээлэл · сан</button>
     </nav>
     <span id="updBadge" class="pill rem" hidden></span>
@@ -322,6 +336,15 @@ table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
     </div>
   </header>
 
+  <aside class="side" id="inspSide" hidden>
+    <div class="panel-body">
+      <div class="ptools"><button class="btn primary" id="iAdd">+ Тоног нэмэх</button><button class="btn" id="iInstrAll">Бүх заавар PDF</button></div>
+      <div class="ibulk"><label class="fld">Сарын багцад өдрийн хуудас<input id="iDaily" type="number" min="1" max="40" class="mono"></label><button class="btn" id="iAllPdf">Бүх тоногийн багц PDF</button><button class="btn ghost" id="iAllPrint" title="Шууд хэвлэх">🖨</button></div>
+      <p class="note">Өдөр тутмын үзлэгийн хуудас, засвар / жолооны бүртгэл, ажлын байрны заавар. Хуудсыг хэвлэж бөглөх эсвэл «Цахим үзлэг»-ээр бөглөж хадгална.</p>
+      <div id="iList" class="plist"></div>
+    </div>
+  </aside>
+  <main class="main" id="inspMain" hidden></main>
   <aside class="side" id="infoSide" hidden>
     <nav class="tabs" role="tablist">
       <button data-itab="mach" class="on">Техник</button>
@@ -369,7 +392,16 @@ table.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
           <label class="fld">Ажлын картын маягтын код<input id="iso_formTrace"></label>
           <label class="fld">Хувилбар<input id="iso_rev"></label>
         </div>
+        <div class="grid2" style="margin-top:8px">
+          <label class="fld">Үнийн саналын маягт<input id="iso_formQuote"></label>
+          <label class="fld">Scope маягт<input id="iso_formScope"></label>
+          <label class="fld">Ажлын зааврын маягт<input id="iso_formInstr"></label>
+        </div>
         <label class="fld" style="margin-top:8px">Операторууд (таслалаар)<input id="iso_operators" placeholder="Б. Бат, Д. Дорж"></label>
+        <h3>Компанийн лого</h3>
+        <div class="logoset"><span class="logo-wrap"><img class="brand-logo" alt="лого" src=""></span>
+          <button class="btn sm" id="logoPick">Лого солих</button><button class="btn sm ghost" id="logoReset">Анхны лого</button><input type="file" id="logoFile" accept="image/png,image/jpeg,image/svg+xml,image/webp" hidden></div>
+        <p class="note">Лого програмын толгой болон бүх PDF, хэвлэх баримтад гарна. PNG (тунгалаг фонтой) хамгийн тохиромжтой.</p>
       </section>
       <section id="jtab-kits" hidden>
         <p class="hint">Иж бүрдэл гэдэг нь нэг бүтээгдэхүүний (жишээ нь PC200 шанага) бүх хавтгай эд анги, ширхэгийг хадгалсан загвар. Ажилд «иж бүрдэл × тоо» гэж оруулахад партууд автоматаар үржинэ.</p>

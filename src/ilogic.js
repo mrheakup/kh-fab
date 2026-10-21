@@ -22,7 +22,7 @@ function ilogicRule(id, params, title) {
   }).join('\n');
   return `' ============================================================================
 ' Kh International · KH Fab — iLogic параметрт загвар: ${title}
-' Үүсгэсэн: ${new Date().toISOString().slice(0, 10)}
+' Үүсгэсэн: ${today()}
 '
 ' ХЭРЭГЛЭХ:
 '  1. Inventor-т шинэ Assembly (.iam) нээгээд ХАДГАЛНА (эд ангиуд энэ хавтсанд үүснэ),
