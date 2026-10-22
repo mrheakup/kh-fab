@@ -2934,5 +2934,12 @@
 "Kh-ийн Excel үнийн саналын маягтууд (… - Form.xlsx, SQ… - Quotation….xlsx) — олныг зэрэг сонгож болно": "Kh Excel quotation forms (… - Form.xlsx, SQ… - Quotation….xlsx) — several can be picked at once",
 "Компанийн мэдээлэл (загварын толгой, банк, регистр, боловсруулсан / хянасан)": "Company details (header, bank, registration, prepared / approved by)",
 "Боловсруулсан (МН)": "Prepared by (MN)",
-"Хянаж, зөвшөөрсөн (МН)": "Reviewed and approved by (MN)"
+"Хянаж, зөвшөөрсөн (МН)": "Reviewed and approved by (MN)",
+"⧉ Хуулбар": "⧉ Duplicate",
+"💾 Хадгалах": "💾 Save",
+"Хадгалах (Ctrl+S)": "Save (Ctrl+S)",
+"Бүх өгөгдлийг одоо хадгалах (Ctrl+S). Програм өөрөө ч автоматаар хадгалдаг.": "Save everything now (Ctrl+S). The app also saves automatically.",
+"Энэ үнийн саналыг хуулж шинэ SQ дугаартай санал үүсгэнэ": "Copy this quotation as a new SQ number",
+"Энэ ажлыг хуулж шинэ дугаартай ажил үүсгэнэ (зураг хавсралт, бүртгэл, нэхэмжлэл хуулагдахгүй)": "Copy this job under a new number (attachments, log and invoices are not copied)",
+"Энэ нэхэмжлэлийг хуулж шинэ дугаартай нэхэмжлэл үүсгэнэ": "Copy this invoice under a new number"
 }

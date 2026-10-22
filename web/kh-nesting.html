@@ -518,6 +518,8 @@ label.fld,.fld>.flab{font-size:11.5px;font-weight:600;color:var(--ink-3);letter-
 .clist li.sub{list-style:none;margin-left:26px;position:relative}.clist li.sub::before{content:"–";position:absolute;left:-14px;color:var(--ink-3)}
 .clist li.sub>.inp{font-weight:400;font-size:12.5px;color:var(--ink-2);border-style:dashed}
 .bitem.fmi{grid-template-columns:1fr;display:block}.fld textarea{font-family:inherit;line-height:1.45}
+.invt input.cell[type="number"]{min-width:120px}.invt input.cell[type="date"]{min-width:128px}.invt td:last-child{white-space:nowrap;display:flex;gap:4px;align-items:center}
+.savebtn.ok{background:#16a34a!important;color:#fff!important;border-color:#16a34a!important}
 .fmorg{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);margin:12px 2px 4px}
 .fmlog{margin:0;padding-left:18px;display:grid;gap:3px;font-size:12.5px;max-height:260px;overflow:auto}
 </style>
@@ -547,6 +549,7 @@ label.fld,.fld>.flab{font-size:11.5px;font-weight:600;color:var(--ink-3);letter-
       <div class="mco"><b>Kh International</b><small>ISO 9001 · Know us, know the quality</small></div>
       <div class="seg notr" id="langSeg" role="group" aria-label="Language"><button data-lang="mn" title="Монгол">МН</button><button data-lang="en" title="English">EN</button></div>
       <select id="skinSel" class="inp sm" aria-label="Загвар" title="Програмын загвар" style="width:auto;padding:5px 8px"><option value="modern">Загвар: Орчин үеийн</option><option value="calm">Загвар: Тайван (Linear)</option><option value="dark">Загвар: Харанхуй (Supabase)</option><option value="fintech">Загвар: Fintech (Stripe)</option><option value="bento">Загвар: Bento (улбар шар)</option></select>
+      <button class="btn sm savebtn" type="button" title="Бүх өгөгдлийг одоо хадгалах (Ctrl+S). Програм өөрөө ч автоматаар хадгалдаг.">💾 Хадгалах</button>
       <button id="btnTheme" class="btn ghost sm notr" type="button">☾ Night</button>
       <input id="jobName" class="job" aria-label="Ажлын нэр">
       <button id="btnOpenProj" class="btn ghost sm">Төсөл нээх</button>
@@ -4633,7 +4636,14 @@ const I18N_EN = {
 "Kh-ийн Excel үнийн саналын маягтууд (… - Form.xlsx, SQ… - Quotation….xlsx) — олныг зэрэг сонгож болно": "Kh Excel quotation forms (… - Form.xlsx, SQ… - Quotation….xlsx) — several can be picked at once",
 "Компанийн мэдээлэл (загварын толгой, банк, регистр, боловсруулсан / хянасан)": "Company details (header, bank, registration, prepared / approved by)",
 "Боловсруулсан (МН)": "Prepared by (MN)",
-"Хянаж, зөвшөөрсөн (МН)": "Reviewed and approved by (MN)"
+"Хянаж, зөвшөөрсөн (МН)": "Reviewed and approved by (MN)",
+"⧉ Хуулбар": "⧉ Duplicate",
+"💾 Хадгалах": "💾 Save",
+"Хадгалах (Ctrl+S)": "Save (Ctrl+S)",
+"Бүх өгөгдлийг одоо хадгалах (Ctrl+S). Програм өөрөө ч автоматаар хадгалдаг.": "Save everything now (Ctrl+S). The app also saves automatically.",
+"Энэ үнийн саналыг хуулж шинэ SQ дугаартай санал үүсгэнэ": "Copy this quotation as a new SQ number",
+"Энэ ажлыг хуулж шинэ дугаартай ажил үүсгэнэ (зураг хавсралт, бүртгэл, нэхэмжлэл хуулагдахгүй)": "Copy this job under a new number (attachments, log and invoices are not copied)",
+"Энэ нэхэмжлэлийг хуулж шинэ дугаартай нэхэмжлэл үүсгэнэ": "Copy this invoice under a new number"
 };
 /* ================= KH Fab — language (МН / EN) and theme (Day / Night) =================
    The UI is written in Mongolian. In English mode every Mongolian fragment that reaches the
@@ -6218,10 +6228,19 @@ let saveT = 0;
 let saveWarned = false;
 function saveNow(sync) {
   clearTimeout(saveT); saveT = 0; S._saved = Date.now(); const txt = JSON.stringify(S);
-  if (window.kh && window.kh.dataSave) { try { if (sync && window.kh.dataSaveSync) window.kh.dataSaveSync(txt); else window.kh.dataSave(txt).then(r => { if (r && r.error) toast('⚠ Хадгалж чадсангүй: ' + r.error, 8000); else { try { localStorage.removeItem(KEY); } catch (e) { } } }); } catch (e) { toast('Хадгалж чадсангүй: ' + e.message); } return; }
-  try { localStorage.setItem(KEY, txt); } catch (e) { if (!saveWarned) { saveWarned = true; toast('⚠ Хөтчийн санах ой дүүрсэн — өгөгдөл хадгалагдсангүй! Desktop програм ашиглах эсвэл «Төсөл хадгалах»-аар нөөцлөнө үү.', 9000); } }
+  if (window.kh && window.kh.dataSave) { try { if (sync && window.kh.dataSaveSync) { window.kh.dataSaveSync(txt); return Promise.resolve({ ok: true }); } return window.kh.dataSave(txt).then(r => { if (r && r.error) toast('⚠ Хадгалж чадсангүй: ' + r.error, 8000); else { try { localStorage.removeItem(KEY); } catch (e) { } } return r || { ok: true }; }); } catch (e) { toast('Хадгалж чадсангүй: ' + e.message); return Promise.resolve({ error: e.message }); } }
+  try { localStorage.setItem(KEY, txt); } catch (e) { if (!saveWarned) { saveWarned = true; toast('⚠ Хөтчийн санах ой дүүрсэн — өгөгдөл хадгалагдсангүй! Desktop програм ашиглах эсвэл «Төсөл хадгалах»-аар нөөцлөнө үү.', 9000); } return { error: 'quota' }; }
+  return { ok: true };
 }
 /* saves are batched: typing / clicking never waits for the whole state to be serialised */
+/* «💾 Хадгалах» / Ctrl+S: commit the field being typed in, then write to disk now */
+async function saveManual() {
+  const a = document.activeElement; if (a && a.matches && a.matches('input,select,textarea')) { a.dispatchEvent(new Event('change', { bubbles: true })); }
+  const r = await (saveNow(false) || Promise.resolve({ ok: true }));
+  if (!(r && r.error)) { const t = new Date(); toast(`💾 Хадгалагдлаа · ${String(t.getHours()).padStart(2, '0')}:${String(t.getMinutes()).padStart(2, '0')}`); document.querySelectorAll('.savebtn').forEach(b => { b.classList.add('ok'); setTimeout(() => b.classList.remove('ok'), 1500); }); }
+}
+document.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey && (e.key === 's' || e.key === 'S' || e.code === 'KeyS')) { e.preventDefault(); saveManual(); } });
+document.addEventListener('click', e => { const b = e.target.closest && e.target.closest('.savebtn'); if (b) saveManual(); });
 function save() { clearTimeout(saveT); saveT = setTimeout(() => { if (window.requestIdleCallback) requestIdleCallback(() => saveNow(false), { timeout: 2000 }); else saveNow(false); }, 1200); }
 window.addEventListener('beforeunload', () => { if (saveT) saveNow(true); });
 document.addEventListener('visibilitychange', () => { if (document.hidden && saveT) saveNow(false); });
@@ -7950,6 +7969,17 @@ function quoteToJob(job) {
   if (!+job.price) { try { job.price = Math.round(quoteCalc(job).net); } catch (e) { } }
   jobLog(`Үнийн санал ${job.quote.no} батлагдаж ажил болсон`, job); J.sub = 'main'; save();
 }
+/* duplicate a quote or job: same content, new number, fresh status; history, files, invoices, docket and records are not copied */
+function dupJob(src) {
+  const c = JSON.parse(JSON.stringify(src)); c.id = uid(); c.created = today(); c.log = []; c.trace = []; c.inv = []; c.files = []; delete c.dock; c.due = ''; c.act = { hours: '', kg: '', other: '' }; c.need = '';
+  Object.keys(c).forEach(k => { if (k[0] === '_') delete c[k]; });
+  if (c.scope && Array.isArray(c.scope.stages)) c.scope.stages.forEach(st => { st.pct = 0; });
+  if (isQ(src)) { const no = nextSQ(); c.no = no; c.short = no.replace(/^\D+/, ''); c.qst = 'draft'; if (c.quote) { c.quote.no = no; c.quote.date = today(); c.quote.srcFiles = []; } }
+  else { const y = new Date().getFullYear(); if (S.jobYear !== y) { S.jobYear = y; S.jobSeq = 0; } const n = ++S.jobSeq, short = String(n).padStart(3, '0'); c.no = `KH-${y}-${short}`; c.short = short; c.status = 'new'; if (c.quote) { c.quote.no = ''; c.quote.date = today(); } }
+  if (c.title) c.title = c.title.replace(/\s*\(хуулбар\)$/, '');
+  S.jobs.splice(Math.max(0, S.jobs.indexOf(src)), 0, c);
+  jobLog(`${isQ(src) ? 'Үнийн санал' : 'Ажил'} ${isQ(src) ? (src.quote && src.quote.no) || src.no : src.no}-ээс хуулж үүсгэсэн`, c); save(); return c;
+}
 function newJob() {
   const y = new Date().getFullYear();
   if (S.jobYear !== y) { S.jobYear = y; S.jobSeq = 0; }
@@ -8606,15 +8636,16 @@ function jobSubBar(job) {
     <input id="qb_title" class="inp" placeholder="Ажлын нэр" value="${esc(job.title)}" style="flex:1 1 200px;min-width:0">
     <select id="qb_owner" class="inp" style="width:auto;max-width:200px" title="Үнийн санал хариуцагч">${peopleOpts(job.owner, '— хариуцагч —')}</select>
     <select id="qb_st" class="inp" style="width:auto">${QST.filter(x => x[0] !== 'won').map(([k, n]) => `<option value="${k}"${(job.qst || 'draft') === k ? ' selected' : ''}>${n}</option>`).join('')}</select>
-    ${job.quote.srcFolder ? `<button class="btn ghost" id="qb_dir" title="${esc(job.quote.srcFolder)}">📁 Фолдер</button>` : ''}<button class="btn primary" id="qb_won" title="Захиалагч баталсан — бүх алхам (scope, үйлдвэрлэл, явц, хүлээлгэх) нээгдэнэ">✓ Ажил болгох</button><button class="btn ghost" id="qb_del">Устгах</button></nav>`;
+    ${job.quote.srcFolder ? `<button class="btn ghost" id="qb_dir" title="${esc(job.quote.srcFolder)}">📁 Фолдер</button>` : ''}<button class="btn ghost" id="qb_dup" title="Энэ үнийн саналыг хуулж шинэ SQ дугаартай санал үүсгэнэ">⧉ Хуулбар</button><button class="btn ghost savebtn" title="Хадгалах (Ctrl+S)">💾</button><button class="btn primary" id="qb_won" title="Захиалагч баталсан — бүх алхам (scope, үйлдвэрлэл, явц, хүлээлгэх) нээгдэнэ">✓ Ажил болгох</button><button class="btn ghost" id="qb_del">Устгах</button></nav>`;
   const cur = stepOf(J.sub);
   return `<nav class="rtabs jsub stepper">${JSTEP.map(([k, n, d], i) => `${i ? '<span class="arr">›</span>' : ''}<button data-jsub="${k}" title="${d}" class="${cur === k ? 'on' : ''}"><span class="sn">${i + 1}</span>${n}</button>`).join('')}<span class="sp" style="flex:1"></span>
-    ${cur === 'main' ? '' : `<label class="jstat" title="Ажлын төлөв">Төлөв <select id="sb_status" class="inp">${JST.map(([k, n]) => `<option value="${k}"${k === job.status ? ' selected' : ''}>${n}</option>`).join('')}</select></label>`}<span class="muted mono jno">${esc(job.no)}</span></nav>
+    ${cur === 'main' ? '' : `<label class="jstat" title="Ажлын төлөв">Төлөв <select id="sb_status" class="inp">${JST.map(([k, n]) => `<option value="${k}"${k === job.status ? ' selected' : ''}>${n}</option>`).join('')}</select></label>`}<button class="btn sm ghost" id="jb_dup" title="Энэ ажлыг хуулж шинэ дугаартай ажил үүсгэнэ (зураг хавсралт, бүртгэл, нэхэмжлэл хуулагдахгүй)">⧉ Хуулбар</button><button class="btn sm ghost savebtn" title="Хадгалах (Ctrl+S)">💾 Хадгалах</button><span class="muted mono jno">${esc(job.no)}</span></nav>
     ${cur === 'make' ? `<nav class="rtabs mktabs">${MAKE.map(([k, n]) => `<button data-jsub="${k}" class="${J.sub === k ? 'on' : ''}">${n}</button>`).join('')}</nav>` : ''}`;
 }
 function bindSubBar(el) {
   el.querySelectorAll('[data-jsub]').forEach(b => b.addEventListener('click', () => { const k = b.dataset.jsub; if (k === 'make') J.sub = J.mk || 'prod'; else { J.sub = k; if (['scope', 'prod', 'prog'].includes(k)) J.mk = k; } renderJobMain(); }));
   { const ss = el.querySelector('#sb_status'), jb = findJob(J.sel); if (ss && jb) ss.addEventListener('change', () => { const o = jstName(jb.status); jb.status = ss.value; jobLog(`Төлөв: ${o} → ${jstName(jb.status)}`, jb); save(); renderJList(); renderJobMain(); }); }
+  { const jb = findJob(J.sel); el.querySelectorAll('#qb_dup,#jb_dup').forEach(b => b.addEventListener('click', () => { if (!jb) return; const c = dupJob(jb); if (isQ(c)) setModule('quotes'); J.sel = c.id; renderJobs(); toast(`⧉ Хуулбар үүслээ: ${isQ(c) ? c.quote.no : c.no}`); })); }
   const job = findJob(J.sel); if (!job || job.kind !== 'quote') return;
   const qn = el.querySelector('#qb_no'); if (qn) qn.addEventListener('change', () => { const v = qn.value.trim(); if (!v) { qn.value = job.quote.no; return; } if (S.jobs.some(j => j !== job && ((j.quote && j.quote.no) === v || j.no === v))) toast('Анхаар: ' + v + ' дугаар өөр санал/ажилд байна'); job.quote.no = v; job.no = v; save(); renderJList(); });
   const c = el.querySelector('#qb_cust'), t = el.querySelector('#qb_title'), st = el.querySelector('#qb_st');
@@ -13361,8 +13392,8 @@ function jobInvHTML(job) {
   const contract = (+job.price || (c ? c.net : 0)) * (1 + ((job.quote && +job.quote.vat) || 0) / 100);
   return `<div class="jcard" data-v="main"><div class="bcard-h">Нэхэмжлэл, төлбөр <span class="pill ${s.late ? 'qst-lost' : s.inv && !s.due ? 'st-done' : s.inv ? 'qst-sent' : ''}">${s.late ? 'хугацаа хэтэрсэн' : s.inv && !s.due ? 'бүрэн төлсөн' : s.inv ? 'авлагатай' : 'нэхэмжлээгүй'}</span><span class="sp"></span><button class="btn sm" id="invAdd">+ Нэхэмжлэл</button></div><div class="jbody">
     <div class="summary">${[['Гэрээ (НӨАТ-тай)', money(contract)], ['Нэхэмжилсэн', money(s.inv)], ['Төлөгдсөн', money(s.paid)], ['Авлага', money(s.due), s.late ? 'late' : '']].map(([k, v, cl]) => `<div class="stat"><div class="k">${k}</div><div class="v ${cl || ''}">${v}<small>₮</small></div></div>`).join('')}</div>
-    ${I.length ? `<div class="tblwrap"><table class="dt"><thead><tr><th>Нэхэмжлэл №</th><th>Огноо</th><th>Төлөх хугацаа</th><th class="r">Дүн, ₮</th><th class="r">Төлсөн, ₮</th><th>Төлөв</th><th></th></tr></thead><tbody>
-      ${I.map((i, k) => { const [st, sn] = invState(i); return `<tr><td><input class="inp cell" data-iv="${k}" data-ik="no" value="${esc(i.no)}"></td><td><input class="inp cell" type="date" data-iv="${k}" data-ik="date" value="${esc(i.date)}"></td><td><input class="inp cell" type="date" data-iv="${k}" data-ik="due" value="${esc(i.due)}"></td><td class="r"><input class="inp cell mono" type="number" style="text-align:right" data-iv="${k}" data-ik="amount" value="${esc(i.amount)}"></td><td class="r num">${money(invPaid(i))}<div class="muted" style="font-size:11px">${(i.pays || []).map(p => `${esc(p.date)} · ${money(p.amount)}`).join('<br>')}</div></td><td><span class="pill ${st === 'paid' ? 'st-done' : st === 'late' ? 'qst-lost' : st === 'part' ? 'st-nest' : 'qst-sent'}">${sn}</span></td><td style="white-space:nowrap"><button class="btn sm" data-pay="${k}">+ Төлбөр</button><button class="x" data-idel="${k}">×</button></td></tr>`; }).join('')}
+    ${I.length ? `<div class="tblwrap"><table class="dt invt"><thead><tr><th>Нэхэмжлэл №</th><th>Огноо</th><th>Төлөх хугацаа</th><th class="r">Дүн, ₮</th><th class="r">Төлсөн, ₮</th><th>Төлөв</th><th></th></tr></thead><tbody>
+      ${I.map((i, k) => { const [st, sn] = invState(i); return `<tr><td><input class="inp cell" data-iv="${k}" data-ik="no" value="${esc(i.no)}"></td><td><input class="inp cell" type="date" data-iv="${k}" data-ik="date" value="${esc(i.date)}"></td><td><input class="inp cell" type="date" data-iv="${k}" data-ik="due" value="${esc(i.due)}"></td><td class="r"><input class="inp cell mono" type="number" style="text-align:right" data-iv="${k}" data-ik="amount" value="${esc(i.amount)}"></td><td class="r num">${money(invPaid(i))}<div class="muted" style="font-size:11px">${(i.pays || []).map(p => `${esc(p.date)} · ${money(p.amount)}`).join('<br>')}</div></td><td><span class="pill ${st === 'paid' ? 'st-done' : st === 'late' ? 'qst-lost' : st === 'part' ? 'st-nest' : 'qst-sent'}">${sn}</span></td><td style="white-space:nowrap"><button class="btn sm" data-pay="${k}">+ Төлбөр</button><button class="btn sm ghost" data-idup="${k}" title="Энэ нэхэмжлэлийг хуулж шинэ дугаартай нэхэмжлэл үүсгэнэ">⧉</button><button class="x" data-idel="${k}">×</button></td></tr>`; }).join('')}
     </tbody></table></div>` : '<p class="note">Нэхэмжлэл үүсгээгүй. «+ Нэхэмжлэл» дарахад гэрээний үлдэгдэл дүнгээр бөглөгдөнө (урьдчилгаа бол дүнг засна).</p>'}
   </div></div>`;
 }
@@ -13371,6 +13402,7 @@ function bindJobInv(el, job) {
   const a = el.querySelector('#invAdd'); if (a) a.addEventListener('click', () => { let c = null; try { c = quoteCalc(job); } catch (e) { } const contract = Math.round((+job.price || (c ? c.net : 0)) * (1 + ((job.quote && +job.quote.vat) || 0) / 100)), s = jobInvSum(job); S.invSeq = (+S.invSeq || 0) + 1; invs(job).push({ no: 'INV-' + String(S.invSeq).padStart(4, '0'), date: today(), due: addDays(today(), 30), amount: Math.max(0, contract - s.inv), pays: [] }); jobLog('Нэхэмжлэл үүсгэсэн', job); re(); });
   el.querySelectorAll('[data-iv]').forEach(f => f.addEventListener('change', () => { const i = invs(job)[+f.dataset.iv]; i[f.dataset.ik] = f.dataset.ik === 'amount' ? +f.value || 0 : f.value; re(); }));
   el.querySelectorAll('[data-pay]').forEach(b => b.addEventListener('click', () => { const i = invs(job)[+b.dataset.pay], left = (+i.amount || 0) - invPaid(i); const v = prompt(`Төлбөрийн дүн, ₮ (үлдэгдэл ${money(left)}):`, String(Math.max(0, left))); if (v == null) return; const amt = +String(v).replace(/[^\d.]/g, ''); if (!amt) return; const d = prompt('Төлсөн огноо (YYYY-MM-DD):', today()) || today(); (i.pays = i.pays || []).push({ date: d, amount: amt }); jobLog(`Төлбөр орсон: ${money(amt)} ₮ (${i.no})`, job); re(); }));
+  el.querySelectorAll('[data-idup]').forEach(b => b.addEventListener('click', () => { const o = invs(job)[+b.dataset.idup]; S.invSeq = (+S.invSeq || 0) + 1; const n = { ...JSON.parse(JSON.stringify(o)), no: 'INV-' + String(S.invSeq).padStart(4, '0'), date: today(), due: o.due && o.date ? addDays(today(), Math.max(0, Math.round((new Date(o.due) - new Date(o.date)) / 864e5))) : '', pays: [] }; invs(job).splice(+b.dataset.idup + 1, 0, n); jobLog(`Нэхэмжлэл ${o.no}-ээс ${n.no} хуулсан`, job); toast('⧉ ' + n.no + ' үүслээ'); re(); }));
   el.querySelectorAll('[data-idel]').forEach(b => b.addEventListener('click', () => { if (!confirm('Нэхэмжлэлийг устгах уу?')) return; invs(job).splice(+b.dataset.idel, 1); re(); }));
 }
 function receivables() {

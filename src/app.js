@@ -64,10 +64,19 @@ let saveT = 0;
 let saveWarned = false;
 function saveNow(sync) {
   clearTimeout(saveT); saveT = 0; S._saved = Date.now(); const txt = JSON.stringify(S);
-  if (window.kh && window.kh.dataSave) { try { if (sync && window.kh.dataSaveSync) window.kh.dataSaveSync(txt); else window.kh.dataSave(txt).then(r => { if (r && r.error) toast('⚠ Хадгалж чадсангүй: ' + r.error, 8000); else { try { localStorage.removeItem(KEY); } catch (e) { } } }); } catch (e) { toast('Хадгалж чадсангүй: ' + e.message); } return; }
-  try { localStorage.setItem(KEY, txt); } catch (e) { if (!saveWarned) { saveWarned = true; toast('⚠ Хөтчийн санах ой дүүрсэн — өгөгдөл хадгалагдсангүй! Desktop програм ашиглах эсвэл «Төсөл хадгалах»-аар нөөцлөнө үү.', 9000); } }
+  if (window.kh && window.kh.dataSave) { try { if (sync && window.kh.dataSaveSync) { window.kh.dataSaveSync(txt); return Promise.resolve({ ok: true }); } return window.kh.dataSave(txt).then(r => { if (r && r.error) toast('⚠ Хадгалж чадсангүй: ' + r.error, 8000); else { try { localStorage.removeItem(KEY); } catch (e) { } } return r || { ok: true }; }); } catch (e) { toast('Хадгалж чадсангүй: ' + e.message); return Promise.resolve({ error: e.message }); } }
+  try { localStorage.setItem(KEY, txt); } catch (e) { if (!saveWarned) { saveWarned = true; toast('⚠ Хөтчийн санах ой дүүрсэн — өгөгдөл хадгалагдсангүй! Desktop програм ашиглах эсвэл «Төсөл хадгалах»-аар нөөцлөнө үү.', 9000); } return { error: 'quota' }; }
+  return { ok: true };
 }
 /* saves are batched: typing / clicking never waits for the whole state to be serialised */
+/* «💾 Хадгалах» / Ctrl+S: commit the field being typed in, then write to disk now */
+async function saveManual() {
+  const a = document.activeElement; if (a && a.matches && a.matches('input,select,textarea')) { a.dispatchEvent(new Event('change', { bubbles: true })); }
+  const r = await (saveNow(false) || Promise.resolve({ ok: true }));
+  if (!(r && r.error)) { const t = new Date(); toast(`💾 Хадгалагдлаа · ${String(t.getHours()).padStart(2, '0')}:${String(t.getMinutes()).padStart(2, '0')}`); document.querySelectorAll('.savebtn').forEach(b => { b.classList.add('ok'); setTimeout(() => b.classList.remove('ok'), 1500); }); }
+}
+document.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey && (e.key === 's' || e.key === 'S' || e.code === 'KeyS')) { e.preventDefault(); saveManual(); } });
+document.addEventListener('click', e => { const b = e.target.closest && e.target.closest('.savebtn'); if (b) saveManual(); });
 function save() { clearTimeout(saveT); saveT = setTimeout(() => { if (window.requestIdleCallback) requestIdleCallback(() => saveNow(false), { timeout: 2000 }); else saveNow(false); }, 1200); }
 window.addEventListener('beforeunload', () => { if (saveT) saveNow(true); });
 document.addEventListener('visibilitychange', () => { if (document.hidden && saveT) saveNow(false); });

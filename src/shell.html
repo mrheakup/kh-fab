@@ -518,6 +518,8 @@ label.fld,.fld>.flab{font-size:11.5px;font-weight:600;color:var(--ink-3);letter-
 .clist li.sub{list-style:none;margin-left:26px;position:relative}.clist li.sub::before{content:"–";position:absolute;left:-14px;color:var(--ink-3)}
 .clist li.sub>.inp{font-weight:400;font-size:12.5px;color:var(--ink-2);border-style:dashed}
 .bitem.fmi{grid-template-columns:1fr;display:block}.fld textarea{font-family:inherit;line-height:1.45}
+.invt input.cell[type="number"]{min-width:120px}.invt input.cell[type="date"]{min-width:128px}.invt td:last-child{white-space:nowrap;display:flex;gap:4px;align-items:center}
+.savebtn.ok{background:#16a34a!important;color:#fff!important;border-color:#16a34a!important}
 .fmorg{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);margin:12px 2px 4px}
 .fmlog{margin:0;padding-left:18px;display:grid;gap:3px;font-size:12.5px;max-height:260px;overflow:auto}
 </style>
@@ -547,6 +549,7 @@ label.fld,.fld>.flab{font-size:11.5px;font-weight:600;color:var(--ink-3);letter-
       <div class="mco"><b>Kh International</b><small>ISO 9001 · Know us, know the quality</small></div>
       <div class="seg notr" id="langSeg" role="group" aria-label="Language"><button data-lang="mn" title="Монгол">МН</button><button data-lang="en" title="English">EN</button></div>
       <select id="skinSel" class="inp sm" aria-label="Загвар" title="Програмын загвар" style="width:auto;padding:5px 8px"><option value="modern">Загвар: Орчин үеийн</option><option value="calm">Загвар: Тайван (Linear)</option><option value="dark">Загвар: Харанхуй (Supabase)</option><option value="fintech">Загвар: Fintech (Stripe)</option><option value="bento">Загвар: Bento (улбар шар)</option></select>
+      <button class="btn sm savebtn" type="button" title="Бүх өгөгдлийг одоо хадгалах (Ctrl+S). Програм өөрөө ч автоматаар хадгалдаг.">💾 Хадгалах</button>
       <button id="btnTheme" class="btn ghost sm notr" type="button">☾ Night</button>
       <input id="jobName" class="job" aria-label="Ажлын нэр">
       <button id="btnOpenProj" class="btn ghost sm">Төсөл нээх</button>

@@ -58,6 +58,17 @@ function quoteToJob(job) {
   if (!+job.price) { try { job.price = Math.round(quoteCalc(job).net); } catch (e) { } }
   jobLog(`Үнийн санал ${job.quote.no} батлагдаж ажил болсон`, job); J.sub = 'main'; save();
 }
+/* duplicate a quote or job: same content, new number, fresh status; history, files, invoices, docket and records are not copied */
+function dupJob(src) {
+  const c = JSON.parse(JSON.stringify(src)); c.id = uid(); c.created = today(); c.log = []; c.trace = []; c.inv = []; c.files = []; delete c.dock; c.due = ''; c.act = { hours: '', kg: '', other: '' }; c.need = '';
+  Object.keys(c).forEach(k => { if (k[0] === '_') delete c[k]; });
+  if (c.scope && Array.isArray(c.scope.stages)) c.scope.stages.forEach(st => { st.pct = 0; });
+  if (isQ(src)) { const no = nextSQ(); c.no = no; c.short = no.replace(/^\D+/, ''); c.qst = 'draft'; if (c.quote) { c.quote.no = no; c.quote.date = today(); c.quote.srcFiles = []; } }
+  else { const y = new Date().getFullYear(); if (S.jobYear !== y) { S.jobYear = y; S.jobSeq = 0; } const n = ++S.jobSeq, short = String(n).padStart(3, '0'); c.no = `KH-${y}-${short}`; c.short = short; c.status = 'new'; if (c.quote) { c.quote.no = ''; c.quote.date = today(); } }
+  if (c.title) c.title = c.title.replace(/\s*\(хуулбар\)$/, '');
+  S.jobs.splice(Math.max(0, S.jobs.indexOf(src)), 0, c);
+  jobLog(`${isQ(src) ? 'Үнийн санал' : 'Ажил'} ${isQ(src) ? (src.quote && src.quote.no) || src.no : src.no}-ээс хуулж үүсгэсэн`, c); save(); return c;
+}
 function newJob() {
   const y = new Date().getFullYear();
   if (S.jobYear !== y) { S.jobYear = y; S.jobSeq = 0; }
