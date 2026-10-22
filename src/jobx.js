@@ -81,6 +81,18 @@ function jobMoneyHTML(job) {
   </div></div></div>`;
 }
 
+/* labour types with their own hourly rate (engineer hour ≠ lathe hour ≠ welder hour) */
+const LAB_TYPES = [['gen', 'Ерөнхий ажилчин', 'General labour'], ['eng', 'Инженер (зураг, тооцоо)', 'Engineer'], ['weld', 'Гагнуурчин', 'Welder'], ['fit', 'Слесарь / угсрагч', 'Fitter'], ['lathe', 'Токарьчин', 'Lathe operator'], ['mill', 'Фрезерчин', 'Milling operator'], ['paint', 'Будагчин / элсэн цацагч', 'Painter / blaster'], ['qc', 'Чанарын хяналт, NDT', 'QC / NDT inspector'], ['op', 'Машин оператор (лазер, нугалалт)', 'Machine operator']];
+/* standard works to pick (MN / EN), with the labour type and starting hours */
+const WORK_LIB = [
+  ['Инженерчлэл', [['Инженерийн зураг', 'Engineering drawing', 'eng', 8], ['3D загварчлал', '3D modeling', 'eng', 8], ['Бат бэхийн тооцоо (FEA)', 'Finite Element Analysis (FEA)', 'eng', 8], ['Цехийн зураг (shop drawing)', 'Shop drawing', 'eng', 4], ['Хэмжилт, газар дээрх үзлэг', 'Site measurement / inspection', 'eng', 4]]],
+  ['Механик боловсруулалт (machining)', [['Токарийн ажил', 'Machining — lathe (turning)', 'lathe', 8], ['Фрезерийн ажил', 'Machining — milling', 'mill', 8], ['Цооног уйтлах (line boring)', 'Line boring', 'lathe', 8], ['Өрөмдлөг, резьба', 'Drilling & tapping', 'mill', 4], ['Голын засвар, наплавка', 'Shaft repair / build-up', 'lathe', 8]]],
+  ['Үйлдвэрлэл', [['Хийцлэл, угсралт', 'Fabrication & fit-up', 'fit', 8], ['Гагнуур', 'Welding', 'weld', 8], ['Цэвэрлэгээ, зүлгэлт', 'Grinding & cleaning', 'gen', 4], ['Лазер зүсэлт', 'Laser cutting', 'op', 2], ['Нугалалт', 'Press brake bending', 'op', 2], ['Савлагаа, ачилт', 'Packing & loading', 'gen', 2]]],
+  ['Гадаргуу, чанар', [['Элсэн цацал', 'Sandblasting', 'paint', 4], ['Будаг', 'Painting', 'paint', 4], ['Чанарын хяналт, NDT', 'QC inspection / NDT', 'qc', 2], ['Proof load test', 'Proof load test', 'qc', 2], ['MDR баримт бүрдүүлэлт', 'Manufacturers Data Record (MDR)', 'eng', 4]]]];
+const labTypeName = id => { const t = LAB_TYPES.find(x => x[0] === id); return t ? t[1] : 'Үндсэн хөлс'; };
+/* margin categories — the % is margin on the selling price, so the total margin shown equals the % set */
+const MCATS = [['mat', 'Материал (хаягдал, тээвэр орсон)'], ['cons', 'Consumable'], ['labor', 'Ажиллах хүч'], ['equip', 'Тоног төхөөрөмж, үйлчилгээ'], ['other', 'Бусад зардал']];
+const mFac = m => 1 / (1 - Math.min(95, Math.max(-500, +m || 0)) / 100);
 function costDef() { S.costDef = Object.assign({}, COST_DEF, S.costDef || {}); return S.costDef; }
 function jx(job) {
   const cd = costDef();
@@ -88,8 +100,11 @@ function jx(job) {
     stages: DEF_STAGES.map(([name, start, dur, people, hours]) => ({ name, start, dur, people, hours, pct: 0 })),
     risks: DEF_RISKS.map(([d, cause, p, i, prev, owner]) => ({ d, cause, p, i, prev, owner, note: '' })),
     equip: DEF_EQUIP.map(([name, cat, qty, unit, loc, st, stage]) => ({ name, cat, qty, unit, loc, st, stage, note: '' })) };
-  if (!job.quote) job.quote = { no: '', date: today(), valid: 14, rate: cd.rate, rateK: cd.rateK, equipPct: cd.equipPct, scrapPct: cd.scrapPct, vat: cd.vat, margin: cd.margin, fixedNet: 0, trans: 0,
+  if (!job.quote) job.quote = { no: '', date: today(), valid: 14, rate: cd.rate, rateK: cd.rateK, equipPct: cd.equipPct, scrapPct: cd.scrapPct, vat: cd.vat, margin: cd.margin, _new: 1, fixedNet: 0, trans: 0,
     mats: [], cons: [], equipRows: [], other: [], spread: true, pay: 'Урьдчилгаа 50%, ажил хүлээлгэж өгөхөд 50%', delivery: '', note: '', contact: '' };
+  { const q = job.quote;
+    if (!q.rates) { q.rates = {}; const g = S.labRates || {}; LAB_TYPES.forEach(([id]) => { q.rates[id] = +g[id] || 0; }); }
+    if (!q.mc) { const m = +q.margin || 0, mm = q._new ? m : (m > -100 ? m / (1 + m / 100) : 0); q.mc = {}; MCATS.forEach(([k]) => q.mc[k] = mm); q.margin = mm; delete q._new; } }
   if (!job.prog) job.prog = { exp: [] };
   if (!job.acc) job.acc = { done: '', names: ['', '', ''], checks: DEF_CHECKS.map(([item, req]) => ({ item, req, res: '', note: '' })), changes: [] };
   return job;
@@ -99,15 +114,20 @@ function quoteCalc(job) {
   jx(job); const q = job.quote, sc = job.scope, rate = (+q.rate || 0) * (+q.rateK || 1);
   const matKg = (q.mats || []).reduce((a, r) => a + (+r.qty || 0) * (+r.kgu || 0), 0), mat = qline(q.mats), scrap = mat * (+q.scrapPct || 0) / 100, trans = +q.trans || 0, cons = qline(q.cons);
   const matTotal = mat + scrap + trans + cons;
-  const labor = sc.stages.map(s => ({ name: s.name, people: +s.people || 0, hours: +s.hours || 0, h: (+s.people || 0) * (+s.hours || 0), cost: (+s.people || 0) * (+s.hours || 0) * rate }));
+  const rateOf = s => (s.rt && q.rates && +q.rates[s.rt] ? +q.rates[s.rt] : +q.rate || 0) * (+q.rateK || 1);
+  const labor = sc.stages.map(s => { const r = rateOf(s), h = (+s.people || 0) * (+s.hours || 0); return { name: s.name, en: s.en || '', rt: s.rt || '', people: +s.people || 0, hours: +s.hours || 0, h, rate: r, cost: h * r }; });
   const laborTotal = labor.reduce((a, l) => a + l.cost, 0), laborH = labor.reduce((a, l) => a + l.h, 0);
   const equipRows = qline(q.equipRows), equipPctV = matTotal * (+q.equipPct || 0) / 100, equip = equipRows + equipPctV, other = qline(q.other);
   const cost = matTotal + laborTotal + equip + other;
-  const net = +q.fixedNet > 0 ? +q.fixedNet : cost * (1 + (+q.margin || 0) / 100), profit = net - cost;
-  const vat = net * (+q.vat || 0) / 100, total = net + vat, k = cost > 0 ? net / cost : 1;
+  const cat = { mat: mat + scrap + trans, cons, labor: laborTotal, equip, other }, mc = q.mc || {}, kc = {}, price = {};
+  Object.keys(cat).forEach(k => { kc[k] = mFac(mc[k] ?? q.margin); price[k] = cat[k] * kc[k]; });
+  const byCat = Object.values(price).reduce((a, b) => a + b, 0);
+  const net = +q.fixedNet > 0 ? +q.fixedNet : byCat, profit = net - cost;
+  if (+q.fixedNet > 0) Object.keys(kc).forEach(k => kc[k] = cost > 0 ? net / cost : 1);
+  const vat = net * (+q.vat || 0) / 100, total = net + vat, k = cost > 0 ? net / cost : 1, marginPct = net ? profit / net * 100 : 0;
   const chg = (job.acc ? job.acc.changes : []).filter(c => c.ok).reduce((a, c) => a + (+c.cost || 0), 0);
   const budget = { mat: mat + scrap, cons, labor: laborTotal, equip, trans, other };
-  return { rate, matKg, mat, scrap, trans, cons, matTotal, labor, laborTotal, laborH, equipRows, equipPctV, equip, other, cost, net, profit, vat, total, k, chg, budget };
+  return { rate, matKg, mat, scrap, trans, cons, matTotal, labor, laborTotal, laborH, equipRows, equipPctV, equip, other, cost, net, profit, vat, total, k, kc, cat, price, marginPct, chg, budget };
 }
 function progCalc(job) {
   jx(job); const sc = job.scope, c = quoteCalc(job), exp = job.prog.exp;
@@ -270,8 +290,11 @@ function renderJQuote(el, job) {
       ${edTable('qc', CONS_COLS, q.cons, { foot: sumRow('Consumable дүн', c.cons, 1), extra: consPickHTML(q) })}
     </div></div>
     <div class="jcard"><div class="bcard-h">C. Ажиллах хүч <span class="sp"></span><span class="muted" style="font-weight:400;font-size:12px">Энд засахад «Хамрах хүрээ»-ний хуваарь мөн шинэчлэгдэнэ</span></div><div class="jbody">
-      <div class="jgrid">${fldIn('q_rate', 'Цагийн хөлс, ₮', q.rate, { num: 1 })}${fldIn('q_rateK', 'Нэмэгдэл коэффициент (НДШ, ХАОАТ…)', q.rateK, { num: 1 })}<div class="fld">Тооцох хөлс, ₮/цаг<div class="mono" style="padding:7px 0">${money(c.rate)}</div></div></div>
-      ${edTable('ql', [{ k: 'name', t: 'Ажил / үе шат (гагнуурчин, слесарь, будаг…)' }, { k: 'people', t: 'Хүн', num: 1, w: 70 }, { k: 'hours', t: 'Нэг хүний цаг', num: 1, w: 90 }, { k: 'th', t: 'Нийт цаг', calc: (r, i) => nf(c.labor[i] ? c.labor[i].h : 0, 1) }, { k: 'tc', t: 'Нийт цалин, ₮', calc: (r, i) => money(c.labor[i] ? c.labor[i].cost : 0) }], sc.stages, { foot: `<tr class="tot"><td></td><td colspan="3">Хүчний нийт дүн</td><td class="r num">${nf(c.laborH, 1)}</td><td class="r num">${money(c.laborTotal)}</td><td></td></tr>` })}
+      <div class="jgrid">${fldIn('q_rate', 'Үндсэн цагийн хөлс, ₮', q.rate, { num: 1 })}${fldIn('q_rateK', 'Нэмэгдэл коэффициент (НДШ, ХАОАТ…)', q.rateK, { num: 1 })}<div class="fld">Үндсэн тооцох хөлс, ₮/цаг<div class="mono" style="padding:7px 0">${money(c.rate)}</div></div></div>
+      <details class="lrates"${J.lrOpen ?? !Object.values(q.rates || {}).some(v => +v) ? ' open' : ''}><summary>Цагийн хөлс ажилтны төрлөөр (инженер, токарьчин, гагнуурчин…) — хоосон бол үндсэн хөлсөөр</summary>
+        <div class="lrgrid">${LAB_TYPES.map(([id, mn, en]) => `<label class="fld">${esc(mn)} <small class="muted">${esc(en)}</small><input type="number" step="any" class="mono" data-lr="${id}" value="${+(q.rates || {})[id] || ''}" placeholder="${money(q.rate)}"></label>`).join('')}</div></details>
+      <div class="addrow" style="margin:8px 0"><select id="qWork" class="inp" style="width:auto;max-width:380px"><option value="">+ Ажил сонгож нэмэх (Engineering drawing, токар, фрезер…)</option>${WORK_LIB.map(([g, a], gi) => `<optgroup label="${esc(g)}">${a.map(([mn, en], wi) => `<option value="${gi}|${wi}">${esc(mn)} — ${esc(en)}</option>`).join('')}</optgroup>`).join('')}</select></div>
+      ${edTable('ql', [{ k: 'name', t: 'Ажил (монгол)', w: 200 }, { k: 'en', t: 'Work (English)', ph: 'санал англиар бол', w: 200 }, { k: 'rt', t: 'Ажилтан / хөлс', sel: [['', 'Үндсэн хөлс']].concat(LAB_TYPES.map(([id, mn]) => [id, mn])), w: 170 }, { k: 'people', t: 'Хүн', num: 1, w: 60 }, { k: 'hours', t: 'Нэг хүний цаг', num: 1, w: 80 }, { k: 'th', t: 'Нийт цаг', calc: (r, i) => nf(c.labor[i] ? c.labor[i].h : 0, 1) }, { k: 'tr', t: '₮/цаг', calc: (r, i) => money(c.labor[i] ? c.labor[i].rate : 0) }, { k: 'tc', t: 'Нийт, ₮', calc: (r, i) => money(c.labor[i] ? c.labor[i].cost : 0) }], sc.stages, { foot: `<tr class="tot"><td></td><td colspan="5">Хүчний нийт дүн</td><td class="r num">${nf(c.laborH, 1)}</td><td></td><td class="r num">${money(c.laborTotal)}</td><td></td></tr>` })}
     </div></div>
     <div class="jcard"><div class="bcard-h">D. Тоног төхөөрөмж, үйлчилгээ (лазер зүсэлт, нугалалт, NDT, кран…)</div><div class="jbody">
       ${edTable('qe', LINE_COLS, q.equipRows, { foot: sumRow('Тоног, үйлчилгээний мөрүүд', c.equipRows) })}
@@ -279,31 +302,36 @@ function renderJQuote(el, job) {
     </div></div>
     <div class="jcard"><div class="bcard-h">E. Бусад зардал</div><div class="jbody">${edTable('qo', LINE_COLS, q.other, { foot: sumRow('Бусад зардлын дүн', c.other) })}</div></div>
     <div class="jcard"><div class="bcard-h">Нийт зардлын дүгнэлт</div><div class="jbody">
-      <div class="jgrid">${fldIn('q_margin', 'Ашгийн хувь, %', q.margin, { num: 1 })}${fldIn('q_fixed', 'Эсвэл саналын дүнг шууд оруулах (НӨАТ-гүй), ₮', q.fixedNet || '', { num: 1, ph: '0 = ашгийн хувиар' })}${fldIn('q_vat', 'НӨАТ, %', q.vat, { num: 1 })}
+      <div class="jgrid">${fldIn('q_mall', 'Бүх ангилалд нэг margin, %', (() => { const v = MCATS.map(([k]) => +(q.mc || {})[k] || 0); return v.every(x => Math.abs(x - v[0]) < 1e-9) ? +v[0].toFixed(2) : ''; })(), { num: 1, ph: 'ангилал бүрт өөр' })}${fldIn('q_fixed', 'Эсвэл саналын дүнг шууд оруулах (НӨАТ-гүй), ₮', q.fixedNet || '', { num: 1, ph: '0 = margin-аар' })}${fldIn('q_vat', 'НӨАТ, %', q.vat, { num: 1 })}
       <label class="check" style="align-self:end"><input type="checkbox" id="q_spread"${q.spread ? ' checked' : ''}><span>Ашгийг мөр бүрийн үнэд шингээх (захиалагчид өртөг харагдахгүй)</span></label></div>
-      <div class="tblwrap"><table class="dt"><tbody>
-        ${[['1. Материалын нийт зардал (хаягдал, тээвэр, consumable орсон)', c.matTotal], ['2. Ажиллах хүчний зардал', c.laborTotal], ['3. Тоног төхөөрөмж, үйлчилгээний зардал', c.equip], ['4. Бусад зардал', c.other]].map(([k, v]) => `<tr><td>${k}</td><td class="r num">${money(v)}</td></tr>`).join('')}
-        <tr class="tot"><td>Өртөг (татваргүй)</td><td class="r num">${money(c.cost)}</td></tr>
-        <tr><td>Ашиг (${c.net ? nf(c.profit / c.net * 100, 1) : 0}% саналаас, ${c.cost ? nf(c.profit / c.cost * 100, 1) : 0}% өртгөөс)</td><td class="r num ${c.profit < 0 ? 'late' : ''}">${money(c.profit)}</td></tr>
-        <tr class="tot"><td>Үнийн саналын дүн (НӨАТ-гүй)</td><td class="r num">${money(c.net)}</td></tr>
-        <tr><td>НӨАТ (${q.vat}%)</td><td class="r num">${money(c.vat)}</td></tr>
-        <tr class="tot"><td>НИЙТ ДҮН (НӨАТ-тай)</td><td class="r num">${money(c.total)}</td></tr>
+      <p class="note">Margin = ашиг ÷ үнийн санал. 20% тавибал саналын 20% нь ашиг болно (өртөг ÷ 0.8).</p>
+      <div class="tblwrap"><table class="dt mtab"><thead><tr><th>Зардлын ангилал</th><th class="r">Өртөг, ₮</th><th class="r">Margin, %</th><th class="r">Үнэ (НӨАТ-гүй), ₮</th><th class="r">Ашиг, ₮</th></tr></thead><tbody>
+        ${MCATS.map(([k, n], i) => `<tr><td>${i + 1}. ${n}</td><td class="r num">${money(c.cat[k])}</td><td class="r"><input type="number" step="any" class="inp mono mcin" data-mc="${k}" value="${+(+(q.mc || {})[k] || 0).toFixed(2)}"${+q.fixedNet > 0 ? ' disabled title="Саналын дүнг шууд оруулсан"' : ''}></td><td class="r num">${money(c.cat[k] * c.kc[k])}</td><td class="r num">${money(c.cat[k] * (c.kc[k] - 1))}</td></tr>`).join('')}
+        <tr class="tot"><td>Нийт</td><td class="r num">${money(c.cost)}</td><td class="r num ${c.profit < 0 ? 'late' : ''}"><b>${nf(c.marginPct, 1)}%</b></td><td class="r num">${money(c.net)}</td><td class="r num ${c.profit < 0 ? 'late' : ''}">${money(c.profit)}</td></tr>
+        <tr><td colspan="3" class="muted">Нийт margin ${nf(c.marginPct, 1)}% · өртөг дээр нэмсэн хувь (markup) ${c.cost ? nf(c.profit / c.cost * 100, 1) : 0}%</td><td></td><td></td></tr>
+        <tr><td>НӨАТ (${q.vat}%)</td><td></td><td></td><td class="r num">${money(c.vat)}</td><td></td></tr>
+        <tr class="tot"><td>НИЙТ ДҮН (НӨАТ-тай)</td><td></td><td></td><td class="r num">${money(c.total)}</td><td></td></tr>
       </tbody></table></div>
       ${fldIn('q_note', 'Нэмэлт нөхцөл, тайлбар (санал дээр хэвлэгдэнэ)', q.note, { area: 1, rows: 3 })}
       <div class="exports"><button class="btn" id="qToPrice">Санал (НӨАТ-гүй)-ийг ажлын гэрээний үнэ болгох</button><span class="note">Одоогийн гэрээний үнэ: ${job.price ? money(job.price) + ' ₮' : '—'}</span></div>
     </div></div>`;
   const re = () => renderJobMain();
-  bindFields(el, q, [['q_no', 'no'], ['q_date', 'date'], ['q_valid', 'valid', 1], ['q_delivery', 'delivery'], ['q_pay', 'pay'], ['q_contact', 'contact'], ['q_trans', 'trans', 1], ['q_scrap', 'scrapPct', 1], ['q_rate', 'rate', 1], ['q_rateK', 'rateK', 1], ['q_equipPct', 'equipPct', 1], ['q_margin', 'margin', 1], ['q_fixed', 'fixedNet', 1], ['q_vat', 'vat', 1], ['q_note', 'note']], k => {
+  bindFields(el, q, [['q_no', 'no'], ['q_date', 'date'], ['q_valid', 'valid', 1], ['q_delivery', 'delivery'], ['q_pay', 'pay'], ['q_contact', 'contact'], ['q_trans', 'trans', 1], ['q_scrap', 'scrapPct', 1], ['q_rate', 'rate', 1], ['q_rateK', 'rateK', 1], ['q_equipPct', 'equipPct', 1], ['q_fixed', 'fixedNet', 1], ['q_vat', 'vat', 1], ['q_note', 'note']], k => {
     if (['rate', 'rateK', 'equipPct', 'scrapPct', 'vat', 'margin'].includes(k)) Object.assign(costDef(), { [k]: q[k] });
     if (!['no', 'date', 'delivery', 'pay', 'contact', 'note'].includes(k)) re();
   });
   el.querySelector('#q_spread').addEventListener('change', e => { q.spread = e.target.checked; save(); });
+  { const ma = el.querySelector('#q_mall'); if (ma) ma.addEventListener('change', () => { if (ma.value === '') return; const v = +ma.value || 0; q.mc = q.mc || {}; MCATS.forEach(([k]) => q.mc[k] = v); q.margin = v; Object.assign(costDef(), { margin: v }); save(); re(); }); }
+  el.querySelectorAll('[data-mc]').forEach(i => i.addEventListener('change', () => { q.mc = q.mc || {}; q.mc[i.dataset.mc] = +i.value || 0; save(); re(); }));
+  { const d = el.querySelector('.lrates'); if (d) d.addEventListener('toggle', () => { J.lrOpen = d.open; }); }
+  el.querySelectorAll('[data-lr]').forEach(i => i.addEventListener('change', () => { q.rates = q.rates || {}; q.rates[i.dataset.lr] = +i.value || 0; S.labRates = Object.assign({}, S.labRates || {}, { [i.dataset.lr]: +i.value || 0 }); save(); re(); }));
+  { const w = el.querySelector('#qWork'); if (w) w.addEventListener('change', () => { if (!w.value) return; const [gi, wi] = w.value.split('|').map(Number), [mn, en, rt, h] = WORK_LIB[gi][1][wi]; sc.stages.push({ name: mn, en, rt, start: 1, dur: 1, people: 1, hours: h, pct: 0 }); let inc = ''; { const f = qfDefaults(job), t = f.lang === 'mn' ? mn : en, L = String(f.incl || '').split('\n'); if (!L.some(x => x.replace(/^\s*[-–•]\s*/, '').trim().toLowerCase() === t.toLowerCase())) { f.incl = L.filter(x => x.trim()).concat(t).join('\n'); inc = ' · «Quote included»-д нэмсэн'; } } save(); re(); toast(`${mn} нэмэгдлээ — цагаа засна уу${inc}`); }); }
   bindQfCard(el, job); bindSrcFolder(el, job);
   el.querySelector('#q_netIn').addEventListener('change', e => { q.netIn = e.target.checked; save(); });
   el.querySelectorAll('[data-kgc]').forEach(b => b.addEventListener('click', () => { toKg(q.mats[+b.dataset.kgc]); save(); re(); }));
   el.querySelector('#qAllKg').addEventListener('click', () => { q.mats.forEach(toKg); save(); re(); });
   const L = () => ({ name: '', qty: 1, unit: 'ш', price: 0, note: '' });
-  bindEd(el, { qm: { arr: () => q.mats, cols: MAT_COLS, blank: L }, ql: { arr: () => sc.stages, cols: [{ k: 'name' }, { k: 'people', num: 1 }, { k: 'hours', num: 1 }], blank: () => ({ name: '', start: 1, dur: 1, people: 1, hours: 8, pct: 0 }) }, qc: { arr: () => q.cons, cols: CONS_COLS, blank: () => ({ grp: '', name: '', qty: 1, unit: 'ш', price: '', note: '' }) }, qe: { arr: () => q.equipRows, cols: LINE_COLS, blank: L }, qo: { arr: () => q.other, cols: LINE_COLS, blank: L } }, re, (id, row, key) => quoteLineHook(job, id, row, key));
+  bindEd(el, { qm: { arr: () => q.mats, cols: MAT_COLS, blank: L }, ql: { arr: () => sc.stages, cols: [{ k: 'name' }, { k: 'en' }, { k: 'rt' }, { k: 'people', num: 1 }, { k: 'hours', num: 1 }], blank: () => ({ name: '', start: 1, dur: 1, people: 1, hours: 8, pct: 0 }) }, qc: { arr: () => q.cons, cols: CONS_COLS, blank: () => ({ grp: '', name: '', qty: 1, unit: 'ш', price: '', note: '' }) }, qe: { arr: () => q.equipRows, cols: LINE_COLS, blank: L }, qo: { arr: () => q.other, cols: LINE_COLS, blank: L } }, re, (id, row, key) => quoteLineHook(job, id, row, key));
   const consRow = c => { const r = { grp: c.grp || '', name: c.name, qty: 1, unit: c.unit, price: netPrice(c, q), note: '' }; quoteLineHook(job, 'qc', r, 'name'); return r; };
   el.querySelector('#qConsPre').addEventListener('change', e => { const c = CAT().find(x => x.id === e.target.value); if (!c) return; q.cons.push(consRow(c)); save(); re(); });
   el.querySelector('#qConsGrp').addEventListener('change', e => { const g = consGroups().find(([k]) => k === e.target.value); if (!g) return; const have = new Set(q.cons.map(r => String(r.name).toLowerCase())); let n = 0; g[1].forEach(c => { if (have.has(c.name.toLowerCase())) return; const r = consRow(c); r.qty = 0; q.cons.push(r); n++; }); save(); re(); toast(`${g[0]}: ${n} мөр нэмэгдлээ — тоог бөглөнө үү`); });
@@ -422,7 +450,7 @@ async function scopeDoc(job) {
 }
 /* customer quotation — detailed: materials, consumables, labour, equipment */
 async function quoteDoc(job) {
-  jx(job); const q = job.quote, c = quoteCalc(job), sc = job.scope, k = q.spread ? c.k : 1, P = progCalc(job);
+  jx(job); const q = job.quote, c = quoteCalc(job), sc = job.scope, K = cat => q.spread ? c.kc[cat] : 1, P = progCalc(job); let k = K('mat');
   const D = await kdoc({ title: 'ҮНИЙН САНАЛ', sub: `№ ${q.no || job.no} · ${q.date || today()}`, code: S.iso.formQuote || '' });
   const until = q.date ? addDays(q.date, +q.valid || 0) : '';
   D.kv([['Захиалагч', job.customer || '—'], ['Саналын дугаар', q.no || job.no], ['Ажлын нэр', job.title || '—'], ['Огноо', q.date || today()], ['Гүйцэтгэгч', 'Kh International · ISO 9001'], ['Хүчинтэй', until ? `${until} хүртэл (${q.valid} хоног)` : '—'], ['Хийж дуусгах хугацаа', q.delivery || `${P.end} хоног`], ['Холбоо барих', q.contact || '—']], 2, { kw: 34 });
@@ -440,15 +468,15 @@ async function quoteDoc(job) {
       D.table(mc, rr2.concat([{ bold: 1, fill: DC.soft, cells: ['', 'Материалын дүн', '', '', nf(c.matKg, 1), '', money((c.mat + c.scrap + c.trans) * k)] }])); }
     else D.table(lineCols, mrows.concat([tot('Материалын дүн', c.mat + c.scrap + c.trans)]));
   }
-  if (q.cons.length) { D.h2(sec('Consumable')); D.table(lineCols, lineRows(q.cons).concat([tot('Consumable дүн', c.cons)])); }
-  if (c.laborTotal) {
+  k = K('cons'); if (q.cons.length) { D.h2(sec('Consumable')); D.table(lineCols, lineRows(q.cons).concat([tot('Consumable дүн', c.cons)])); }
+  k = K('labor'); if (c.laborTotal) {
     D.h2(sec('Ажиллах хүч'));
     D.table([{ t: '№', w: 8, m: 1 }, { t: 'Үе шат' }, { t: 'Хүн', w: 14, a: 'r', m: 1 }, { t: 'Нийт цаг', w: 20, a: 'r', m: 1 }, { t: 'Ц/х, ₮', w: 24, a: 'r', m: 1 }, { t: 'Дүн, ₮', w: 28, a: 'r', m: 1 }],
-      c.labor.filter(l => l.cost).map((l, i) => [i + 1, l.name, l.people, nf(l.h, 1), money(c.rate * k), money(l.cost * k)]).concat([{ bold: 1, fill: DC.soft, cells: ['', 'Ажиллах хүчний дүн', '', nf(c.laborH, 1), '', money(c.laborTotal * k)] }]));
+      c.labor.filter(l => l.cost).map((l, i) => [i + 1, l.name, l.people, nf(l.h, 1), money(l.rate * k), money(l.cost * k)]).concat([{ bold: 1, fill: DC.soft, cells: ['', 'Ажиллах хүчний дүн', '', nf(c.laborH, 1), '', money(c.laborTotal * k)] }]));
   }
-  const erows = lineRows(q.equipRows); if (c.equipPctV) erows.push(['', `Тоног төхөөрөмжийн элэгдэл (${q.equipPct}%)`, '', '', '', money(c.equipPctV * k)]);
+  k = K('equip'); const erows = lineRows(q.equipRows); if (c.equipPctV) erows.push(['', `Тоног төхөөрөмжийн элэгдэл (${q.equipPct}%)`, '', '', '', money(c.equipPctV * k)]);
   if (erows.length) { D.h2(sec('Тоног төхөөрөмж, үйлчилгээ')); D.table(lineCols, erows.concat([tot('Тоног, үйлчилгээний дүн', c.equip)])); }
-  if (q.other.length) { D.h2(sec('Бусад')); D.table(lineCols, lineRows(q.other).concat([tot('Бусад дүн', c.other)])); }
+  k = K('other'); if (q.other.length) { D.h2(sec('Бусад')); D.table(lineCols, lineRows(q.other).concat([tot('Бусад дүн', c.other)])); }
   D.h2('Нийт дүн');
   const lines = [];
   if (!q.spread) { lines.push(['Өртөг', money(c.cost)]); lines.push(['Удирдлага, ашиг', money(c.profit)]); }
@@ -470,11 +498,14 @@ async function costDoc(job) {
   D.h2('A. Материал & худалдан авалт');
   D.table(cols, rows(q.mats).concat([T('Материалын дүн', c.mat), ['', '+ Тээвэр / хүргэлт', '', '', '', money(c.trans), ''], ['', `+ Хаягдал нөөц (${q.scrapPct}%)`, '', '', '', money(c.scrap), ''], ['', '+ Consumable', '', '', '', money(c.cons), ''], T('Материалын нийт дүн', c.matTotal)]));
   if (q.cons.length) { D.h2('Consumable задаргаа'); D.table(cols, rows(q.cons).concat([T('Consumable дүн', c.cons)])); }
-  D.h2('B. Ажиллах хүчний тооцоолол', `цагийн хөлс ${money(q.rate)} × ${q.rateK} = ${money(c.rate)} ₮`);
+  D.h2('B. Ажиллах хүчний тооцоолол', `үндсэн цагийн хөлс ${money(q.rate)} × ${q.rateK} = ${money(c.rate)} ₮ · төрөл бүрийн хөлс мөр бүрт`);
   D.table([{ t: '№', w: 8, m: 1 }, { t: 'Үе шатны нэр' }, { t: 'Хүн', w: 14, a: 'r', m: 1 }, { t: 'Нэг хүний цаг', w: 22, a: 'r', m: 1 }, { t: 'Нийт цаг', w: 18, a: 'r', m: 1 }, { t: 'Ц/х, ₮', w: 22, a: 'r', m: 1 }, { t: 'Нийт цалин, ₮', w: 28, a: 'r', m: 1 }],
-    c.labor.map((l, i) => [i + 1, l.name, l.people, l.hours, nf(l.h, 1), money(c.rate), money(l.cost)]).concat([{ bold: 1, fill: DC.soft, cells: ['', 'Хүчний нийт дүн', '', '', nf(c.laborH, 1), '', money(c.laborTotal)] }]));
+    c.labor.map((l, i) => [i + 1, l.name + (l.rt ? ' · ' + labTypeName(l.rt) : ''), l.people, l.hours, nf(l.h, 1), money(l.rate), money(l.cost)]).concat([{ bold: 1, fill: DC.soft, cells: ['', 'Хүчний нийт дүн', '', '', nf(c.laborH, 1), '', money(c.laborTotal)] }]));
   if (q.equipRows.length || c.equipPctV) { D.h2('Тоног төхөөрөмж, үйлчилгээ'); D.table(cols, rows(q.equipRows).concat([['', `Элэгдэл (${q.equipPct}% материалаас)`, '', '', '', money(c.equipPctV), ''], T('Тоног, үйлчилгээний дүн', c.equip)])); }
   if (q.other.length) { D.h2('Бусад зардал'); D.table(cols, rows(q.other).concat([T('Бусад дүн', c.other)])); }
+  D.h2('Margin ангиллаар');
+  D.table([{ t: 'Ангилал' }, { t: 'Өртөг, ₮', w: 30, a: 'r', m: 1 }, { t: 'Margin, %', w: 22, a: 'r', m: 1 }, { t: 'Үнэ, ₮', w: 30, a: 'r', m: 1 }, { t: 'Ашиг, ₮', w: 28, a: 'r', m: 1 }],
+    MCATS.map(([k, n]) => [n, money(c.cat[k]), nf((1 - 1 / c.kc[k]) * 100, 1), money(c.cat[k] * c.kc[k]), money(c.cat[k] * (c.kc[k] - 1))]).concat([{ bold: 1, fill: DC.soft, cells: ['Нийт', money(c.cost), nf(c.marginPct, 1), money(c.net), money(c.profit)] }]));
   D.h2('C. Нийт зардлын дүгнэлт');
   D.totals([['1. Материалын нийт зардал', money(c.matTotal)], ['2. Ажиллах хүчний зардал', money(c.laborTotal)], ['3. Тоног төхөөрөмжийн зардал', money(c.equip)], ['4. Бусад зардал', money(c.other)], ['ӨРТӨГ (татваргүй)', money(c.cost), true], [`НӨАТ (${q.vat}%) өртгөөс`, money(c.cost * q.vat / 100)], ['Өртөг (татвартай)', money(c.cost * (1 + q.vat / 100))], ['ҮНИЙН САНАЛ (татвартай)', money(c.total), true], ['АШИГ', money(c.profit), true, c.profit < 0 ? '#fde7e7' : '#e6f4ea'], ['АШГИЙН ХУВЬ (саналаас)', c.net ? nf(c.profit / c.net * 100, 1) + '%' : '—']], { w: 120 });
   D.sigs(['Бэлтгэсэн', 'Хянасан (санхүү)', 'Батласан']);

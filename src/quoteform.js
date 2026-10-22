@@ -31,14 +31,14 @@ function qfDefaults(job) {
 /* line items for the form, net of VAT, margin spread so the sum = offer */
 function qfLines(job) {
   if (job._linesFn) return job._linesFn();
-  const q = job.quote, c = quoteCalc(job), f = qfDefaults(job), k = c.k;
+  const q = job.quote, c = quoteCalc(job), f = qfDefaults(job), kc = c.kc || {}, K = cat => kc[cat] || c.k, MN = f.lang === 'mn';
   if (f.mode === 'fixed' && Array.isArray(q.lines) && q.lines.length) return q.lines.map(l => ({ d: l.d, u: l.u || 'ea', q: +l.q || 1, p: +l.p || 0 }));
   if (f.mode === 'single') return [{ d: f.title || job.title || 'Fabrication work', u: 'set', q: 1, p: c.net, b: 1 }];
-  if (f.mode === 'sections') return [['Materials and purchasing (incl. scrap allowance, transport)', c.matTotal - c.cons], ['Consumables', c.cons], ['Labour', c.laborTotal], ['Equipment and services', c.equip], ['Other', c.other]].filter(r => r[1] > 0).map(([d, v]) => ({ d, u: 'lot', q: 1, p: v * k }));
-  const L = []; const add = (arr) => arr.filter(r => r.name && +r.qty).forEach(r => L.push({ d: r.name, u: r.unit || 'pcs', q: +r.qty, p: (+r.price || 0) * k }));
-  add(q.mats); if (c.scrap) L.push({ d: `Scrap allowance (${q.scrapPct}%)`, u: 'lot', q: 1, p: c.scrap * k }); if (c.trans) L.push({ d: 'Transport / delivery', u: 'lot', q: 1, p: c.trans * k });
-  add(q.cons); c.labor.filter(l => l.cost).forEach(l => L.push({ d: `Labour — ${l.name}`, u: 'h', q: l.h, p: c.rate * k }));
-  add(q.equipRows); if (c.equipPctV) L.push({ d: 'Equipment wear', u: 'lot', q: 1, p: c.equipPctV * k }); add(q.other);
+  if (f.mode === 'sections') return [[MN ? 'Материал, худалдан авалт (хаягдал, тээвэр орсон)' : 'Materials and purchasing (incl. scrap allowance, transport)', c.matTotal - c.cons, 'mat'], [MN ? 'Туслах материал (consumable)' : 'Consumables', c.cons, 'cons'], [MN ? 'Ажиллах хүч' : 'Labour', c.laborTotal, 'labor'], [MN ? 'Тоног төхөөрөмж, үйлчилгээ' : 'Equipment and services', c.equip, 'equip'], [MN ? 'Бусад' : 'Other', c.other, 'other']].filter(r => r[1] > 0).map(([d, v, cat]) => ({ d, u: 'lot', q: 1, p: v * K(cat) }));
+  const L = []; const add = (arr, cat) => arr.filter(r => r.name && +r.qty).forEach(r => L.push({ d: r.name, u: r.unit || 'pcs', q: +r.qty, p: (+r.price || 0) * K(cat) }));
+  add(q.mats, 'mat'); if (c.scrap) L.push({ d: MN ? `Хаягдал нөөц (${q.scrapPct}%)` : `Scrap allowance (${q.scrapPct}%)`, u: 'lot', q: 1, p: c.scrap * K('mat') }); if (c.trans) L.push({ d: MN ? 'Тээвэр, хүргэлт' : 'Transport / delivery', u: 'lot', q: 1, p: c.trans * K('mat') });
+  add(q.cons, 'cons'); c.labor.filter(l => l.cost).forEach(l => L.push({ d: MN ? l.name : (l.en || `Labour — ${l.name}`), u: 'h', q: l.h, p: l.rate * K('labor') }));
+  add(q.equipRows, 'equip'); if (c.equipPctV) L.push({ d: MN ? 'Тоног төхөөрөмжийн элэгдэл' : 'Equipment wear', u: 'lot', q: 1, p: c.equipPctV * K('equip') }); add(q.other, 'other');
   return L;
 }
 async function quoteFormImgs(job, KK) {
@@ -112,8 +112,21 @@ async function quoteFormImgs(job, KK) {
   y = tY + rh * 5; box(L0, y, R0 - L0, 8.1, QFS.fill); T(Lb('THANK YOU FOR YOUR COOPERATION!'), (L0 + R0) / 2, y + 4.05, { b: 1, s: 3.35, a: 'center' });
   // prepared / reviewed & approved
   { y += 8.1 + 7; if (y + 14 > H - 8) { newPage(); header(); y = 56; }
-    const pr = MN ? (C.prepMn || C.prep) : C.prep, ap = MN ? (C.apprMn || C.appr) : C.appr, cols = [[L0, MN ? 'Боловсруулсан:' : 'Prepared by:', pr], [118, MN ? 'Хянаж, зөвшөөрсөн:' : 'Reviewed and approved by:', ap]];
-    cols.forEach(([X, k, v]) => { if (!v) return; T(k, X, y, { b: 1, s: 2.5 }); x.font = `700 ${2.5 * 1.08}px ${QFS.F}`; const lw = x.measureText(k).width + 3; ln(X + lw, y + 1.2, X + lw + 32, y + 1.2, 0.18); T(v, X + lw + 34, y, { s: 2.5, w: R0 - X - lw - 34 }); }); }
+    const pr = MN ? (C.prepMn || C.prep) : C.prep, ap = MN ? (C.apprMn || C.appr) : C.appr, cols = [[L0, MN ? 'Боловсруулсан:' : 'Prepared by:', pr], [110, MN ? 'Хянаж, зөвшөөрсөн:' : 'Reviewed and approved by:', ap]];
+    cols.forEach(([X, k, v]) => { if (!v) return; T(k, X, y, { b: 1, s: 2.5 }); x.font = `700 ${2.5 * 1.08}px ${QFS.F}`; const lw = x.measureText(k).width + 3; const sl = X > 100 ? 20 : 28; ln(X + lw, y + 1.2, X + lw + sl, y + 1.2, 0.18); T(v, X + lw + sl + 2, y, { s: 2.5, w: R0 - X - lw - sl - 2 }); }); }
+  // photos (product / drawing / reference) under the quotation, or on their own page
+  { const P = (await Promise.all((f.photos || []).slice(0, 4).map(async p => ({ im: await imgLoad(p.src), cap: p.cap || '' })))).filter(p => p.im);
+    if (P.length) {
+      const n = P.length, cols = n === 1 ? 1 : 2, rows = Math.ceil(n / cols), gw = (R0 - L0 - (cols - 1) * 4) / cols, capH = P.some(p => p.cap) ? 4.5 : 0;
+      const room = H - 14 - (y + 12), cellH = Math.min(n === 1 ? 110 : 75, (f.phPos === 'page' ? 999 : room) / rows - capH - 4);
+      if (f.phPos === 'page' || cellH < 38) { newPage(); header(); y = 52.5; } else y += 8;
+      const ch = Math.min(n === 1 ? 150 : 95, (H - 16 - y - 8) / rows - capH - 4);
+      box(L0, y, R0 - L0, 6.2, QFS.fill); T(MN ? 'Зураг' : 'Illustrations', (L0 + R0) / 2, y + 3.1, { b: 1, s: 2.6, a: 'center' }); y += 9;
+      P.forEach((p, i) => { const cx = L0 + (i % cols) * (gw + 4), cy = y + Math.floor(i / cols) * (ch + capH + 4), r = Math.min(gw / p.im.naturalWidth, ch / p.im.naturalHeight), w = p.im.naturalWidth * r, h = p.im.naturalHeight * r;
+        x.drawImage(p.im, cx + (gw - w) / 2, cy + (ch - h) / 2, w, h); x.strokeStyle = '#c8c8c8'; x.lineWidth = 0.15; x.strokeRect(cx, cy, gw, ch);
+        if (p.cap) T(p.cap, cx + gw / 2, cy + ch + 2.6, { s: 2.35, a: 'center', w: gw - 2 }); });
+      y += rows * (ch + capH + 4);
+    } }
   if (pages.length > 1) pages.forEach((c, i) => { const g = c.getContext('2d'); g.font = `400 2.3px ${QFS.F}`; g.fillStyle = '#555'; g.textAlign = 'right'; g.textBaseline = 'alphabetic'; g.fillText(`Page ${i + 1} of ${pages.length}`, R0, H - 8); });
   return pages.map((c, i) => ({ url: c.toDataURL('image/jpeg', 0.95), alias: 'qf' + i }));
   } finally { window.__noTr = false; }
@@ -136,6 +149,9 @@ function qfCardHTML(job) {
       <label class="fld">Мөрийн хэлбэр<select id="qf_mode"><option value="single"${f.mode === 'single' ? ' selected' : ''}>Нэг мөр (set × 1)</option><option value="sections"${f.mode === 'sections' ? ' selected' : ''}>Хэсгээр (материал, хүч, тоног…)</option><option value="detail"${f.mode === 'detail' ? ' selected' : ''}>Дэлгэрэнгүй (мөр бүр)</option>${Array.isArray(job.quote && job.quote.lines) && job.quote.lines.length ? `<option value="fixed"${f.mode === 'fixed' ? ' selected' : ''}>Excel-ээс оруулсан мөрүүд (${job.quote.lines.length})</option>` : ''}</select></label></div></div>
     <div class="qfsec"><div class="qfsec-t">Агуулга</div>${fldIn('qf_note', 'Special note', f.note, { area: 1, rows: 2 })}
     <div class="jgrid qfcl"><div class="fld"><span class="flab">Quote included — үнэд багтсан</span><div class="clbox" data-ck="incl"></div></div><div class="fld"><span class="flab">Quote excluded — үнэд ороогүй</span><div class="clbox" data-ck="excl"></div></div></div></div>
+    <div class="qfsec"><div class="qfsec-t">Зураг — санал дээр харуулах (4 хүртэл)</div><div class="qfph">${(f.photos || []).map((p, i) => `<figure><img src="${p.src}" alt=""><input class="inp" data-qpc="${i}" value="${esc(p.cap || '')}" placeholder="Тайлбар (заавал биш)"><button class="x" data-qpx="${i}" aria-label="Устгах">×</button></figure>`).join('')}
+      ${(f.photos || []).length < 4 ? `<button class="btn sm" id="qfPhAdd" type="button">+ Зураг нэмэх</button>${!job._nest && (job.files || []).some(x => jfIsImg(x)) ? '<button class="btn sm ghost" id="qfPhFiles" type="button">Хавсралтаас</button>' : ''}` : ''}</div>
+      ${(f.photos || []).length ? `<label class="fld" style="max-width:260px">Байрлал<select id="qfPhPos"><option value="">Үнийн саналын доор (нэг хуудсанд багтвал)</option><option value="page"${f.phPos === 'page' ? ' selected' : ''}>Тусдаа хуудсанд (Хавсралт)</option></select></label>` : '<p class="note">Бүтээгдэхүүн, зураг төсөл, жишээ ажлын зураг — PDF болон хэвлэхэд саналын доор гарна.</p>'}</div>
     <details><summary class="note" style="cursor:pointer">Компанийн мэдээлэл (загварын толгой, банк, регистр, боловсруулсан / хянасан)</summary><div class="jgrid" style="margin-top:8px">${[['name', 'Компанийн нэр'], ['tag', 'Уриа'], ['a1', 'Хаяг 1'], ['a2', 'Хаяг 2'], ['a3', 'Хаяг 3'], ['bank', 'Bank account'], ['reg', 'Registration'], ['currency', 'Currency'], ['prep', 'Prepared by (EN)'], ['appr', 'Reviewed and approved by (EN)'], ['prepMn', 'Боловсруулсан (МН)'], ['apprMn', 'Хянаж, зөвшөөрсөн (МН)']].map(([k, n]) => fldIn('co_' + k, n, C[k])).join('')}</div></details>
   </div></div></div>`;
 }
@@ -161,6 +177,13 @@ function bindQfCard(el, job) {
     quoteFormImgs(job, PREV_K).then(im => { QF_PV.set(pid, { k, url: im[0].url }); if (img.isConnected) { img.src = im[0].url; img._imgs = im; } }).catch(() => { }); }, 300); };
   el.querySelector('.qffields').addEventListener('change', refresh);
   el.querySelectorAll('.clbox').forEach(b => clauseBox(b, f, b.dataset.ck, refresh)); refresh();
+  { const reCard = () => { if (job._nest) renderTable(); else renderJobMain(); };
+    const addPh = async blobs => { f.photos = f.photos || []; for (const b of blobs) { if (f.photos.length >= 4) break; f.photos.push({ src: await imgThumb(b, 1400), cap: '' }); } save(); reCard(); };
+    const a = el.querySelector('#qfPhAdd'); if (a) a.addEventListener('click', () => { const i = document.createElement('input'); i.type = 'file'; i.accept = 'image/*'; i.multiple = true; i.onchange = () => addPh([...i.files]); i.click(); });
+    const ff = el.querySelector('#qfPhFiles'); if (ff) ff.addEventListener('click', async () => { const L = (job.files || []).filter(x => jfIsImg(x)); const pick = L.length === 1 ? L[0] : L[(+prompt(L.map((x, i) => `${i + 1}. ${x.name}`).join('\n') + '\n\nДугаар:', '1') || 1) - 1]; if (!pick) return; const d = await docGet(pick.id); if (d) addPh([d.blob]); });
+    el.querySelectorAll('[data-qpx]').forEach(b => b.addEventListener('click', () => { f.photos.splice(+b.dataset.qpx, 1); save(); reCard(); }));
+    el.querySelectorAll('[data-qpc]').forEach(i => i.addEventListener('change', e => { e.stopPropagation(); f.photos[+i.dataset.qpc].cap = i.value; save(); refresh(); }));
+    const ps = el.querySelector('#qfPhPos'); if (ps) ps.addEventListener('change', () => { f.phPos = ps.value; save(); }); }
   el.querySelector('.qfprevbox').addEventListener('click', async () => { printImgs(await quoteFormImgs(job), false, 'letter', `${job.quote.no || job.no} - Quotation`, true); });
 }
 /* included / excluded editor: pick from the standard + own list, or type a new clause (it is remembered) */
