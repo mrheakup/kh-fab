@@ -7370,7 +7370,7 @@ async function saveFile(name, data, mime) {
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click();
   setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 4000);
 }
-const safeName = s => String(s).replace(/[\\/:*?"<>|]+/g, '-').replace(/\s+/g, '_');
+const safeName = s => String(s).replace(/[\\/:*?"<>|]+/g, '-').replace(/\s+/g, ' ').trim();
 
 /* ---------- DXF export ---------- */
 function layoutDXF(l) {
