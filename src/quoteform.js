@@ -110,10 +110,7 @@ async function quoteFormImgs(job, KK) {
   terms.forEach(([k, v], i) => { const Y = tY + rh * (i + 0.5); T(k, L0 + 0.5, Y, { b: 1, s: 2.4, w: 31 }); T(v, 61.8, Y, { s: 2.5, w: 66 }); });
   tots.forEach(([k, v], i) => { const Y = tY + rh * (i + 0.5); T(k, 129.3, Y, { b: 1, s: 2.45, w: 27.5 }); T(v, R0 - 0.4, Y, { b: 1, s: 2.5, a: 'right' }); });
   y = tY + rh * 5; box(L0, y, R0 - L0, 8.1, QFS.fill); T(Lb('THANK YOU FOR YOUR COOPERATION!'), (L0 + R0) / 2, y + 4.05, { b: 1, s: 3.35, a: 'center' });
-  // prepared / reviewed & approved
-  { y += 8.1 + 7; if (y + 14 > H - 8) { newPage(); header(); y = 56; }
-    const pr = MN ? (C.prepMn || C.prep) : C.prep, ap = MN ? (C.apprMn || C.appr) : C.appr, cols = [[L0, MN ? 'Боловсруулсан:' : 'Prepared by:', pr], [110, MN ? 'Хянаж, зөвшөөрсөн:' : 'Reviewed and approved by:', ap]];
-    cols.forEach(([X, k, v]) => { if (!v) return; T(k, X, y, { b: 1, s: 2.5 }); x.font = `700 ${2.5 * 1.08}px ${QFS.F}`; const lw = x.measureText(k).width + 3; const sl = X > 100 ? 20 : 28; ln(X + lw, y + 1.2, X + lw + sl, y + 1.2, 0.18); T(v, X + lw + sl + 2, y, { s: 2.5, w: R0 - X - lw - sl - 2 }); }); }
+  y += 8.1;
   // photos (product / drawing / reference) under the quotation, or on their own page
   { const P = (await Promise.all((f.photos || []).slice(0, 4).map(async p => ({ im: await imgLoad(p.src), cap: p.cap || '' })))).filter(p => p.im);
     if (P.length) {
@@ -152,7 +149,7 @@ function qfCardHTML(job) {
     <div class="qfsec"><div class="qfsec-t">Зураг — санал дээр харуулах (4 хүртэл)</div><div class="qfph">${(f.photos || []).map((p, i) => `<figure><img src="${p.src}" alt=""><input class="inp" data-qpc="${i}" value="${esc(p.cap || '')}" placeholder="Тайлбар (заавал биш)"><button class="x" data-qpx="${i}" aria-label="Устгах">×</button></figure>`).join('')}
       ${(f.photos || []).length < 4 ? `<button class="btn sm" id="qfPhAdd" type="button">+ Зураг нэмэх</button>${!job._nest && (job.files || []).some(x => jfIsImg(x)) ? '<button class="btn sm ghost" id="qfPhFiles" type="button">Хавсралтаас</button>' : ''}` : ''}</div>
       ${(f.photos || []).length ? `<label class="fld" style="max-width:260px">Байрлал<select id="qfPhPos"><option value="">Үнийн саналын доор (нэг хуудсанд багтвал)</option><option value="page"${f.phPos === 'page' ? ' selected' : ''}>Тусдаа хуудсанд (Хавсралт)</option></select></label>` : '<p class="note">Бүтээгдэхүүн, зураг төсөл, жишээ ажлын зураг — PDF болон хэвлэхэд саналын доор гарна.</p>'}</div>
-    <details><summary class="note" style="cursor:pointer">Компанийн мэдээлэл (загварын толгой, банк, регистр, боловсруулсан / хянасан)</summary><div class="jgrid" style="margin-top:8px">${[['name', 'Компанийн нэр'], ['tag', 'Уриа'], ['a1', 'Хаяг 1'], ['a2', 'Хаяг 2'], ['a3', 'Хаяг 3'], ['bank', 'Bank account'], ['reg', 'Registration'], ['currency', 'Currency'], ['prep', 'Prepared by (EN)'], ['appr', 'Reviewed and approved by (EN)'], ['prepMn', 'Боловсруулсан (МН)'], ['apprMn', 'Хянаж, зөвшөөрсөн (МН)']].map(([k, n]) => fldIn('co_' + k, n, C[k])).join('')}</div></details>
+    <details><summary class="note" style="cursor:pointer">Компанийн мэдээлэл (загварын толгой, банк, регистр)</summary><div class="jgrid" style="margin-top:8px">${[['name', 'Компанийн нэр'], ['tag', 'Уриа'], ['a1', 'Хаяг 1'], ['a2', 'Хаяг 2'], ['a3', 'Хаяг 3'], ['bank', 'Bank account'], ['reg', 'Registration'], ['currency', 'Currency']].map(([k, n]) => fldIn('co_' + k, n, C[k])).join('')}</div></details>
   </div></div></div>`;
 }
 function bindQfCard(el, job) {

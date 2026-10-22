@@ -484,7 +484,6 @@ async function quoteDoc(job) {
   D.totals(lines, { w: 100 });
   const cond = [sc.incl ? 'Үнэд орсон: ' + sc.incl : '', sc.excl ? 'Үнэд ороогүй: ' + sc.excl : '', q.pay ? 'Төлбөрийн нөхцөл: ' + q.pay : '', `Санал ${until ? until + ' хүртэл' : q.valid + ' хоног'} хүчинтэй.`, q.note].filter(Boolean);
   D.box('НӨХЦӨЛ', cond);
-  D.sigs(['Бэлтгэсэн (Kh International)', 'Хянасан', 'Захиалагч зөвшөөрсөн']);
   return D;
 }
 /* internal costing — the «Зардал & хүчин» sheet */
