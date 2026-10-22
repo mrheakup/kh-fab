@@ -527,6 +527,7 @@ label.fld,.fld>.flab{font-size:11.5px;font-weight:600;color:var(--ink-3);letter-
 .lrates{border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin:10px 0}.lrates summary{cursor:pointer;font-weight:600;font-size:13px}.lrgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;margin-top:8px}.lrgrid small{font-weight:400}
 .mtab .mcin{width:90px;text-align:right;margin-left:auto}
 .qfph{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-start}.qfph figure{position:relative;margin:0;width:150px;display:grid;gap:4px}.qfph img{width:150px;height:110px;object-fit:cover;border-radius:8px;border:1px solid var(--line)}.qfph .x{position:absolute;top:4px;right:4px}.qfph .inp{padding:4px 6px;font-size:12px}
+.bdwrap{margin-top:8px}.bdt input{width:100%}.bdt td:nth-child(2){width:160px}
 .savebtn.ok{background:#16a34a!important;color:#fff!important;border-color:#16a34a!important}
 .fmorg{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);margin:12px 2px 4px}
 .fmlog{margin:0;padding-left:18px;display:grid;gap:3px;font-size:12.5px;max-height:260px;overflow:auto}
@@ -4671,7 +4672,12 @@ const I18N_EN = {
 "Тайлбар (заавал биш)": "Caption (optional)",
 "Үнийн саналын доор (нэг хуудсанд багтвал)": "Under the quotation (if it fits)",
 "Тусдаа хуудсанд (Хавсралт)": "On a separate page (attachment)",
-"Бүтээгдэхүүн, зураг төсөл, жишээ ажлын зураг — PDF болон хэвлэхэд саналын доор гарна.": "Product, drawing or reference photos — printed under the quotation in the PDF."
+"Бүтээгдэхүүн, зураг төсөл, жишээ ажлын зураг — PDF болон хэвлэхэд саналын доор гарна.": "Product, drawing or reference photos — printed under the quotation in the PDF.",
+"Үндсэн мөрийн доор задаргаа харуулах": "Show a breakdown under the main line",
+"Задаргааны мөр": "Breakdown line",
+"Тооцооноос бөглөх": "Fill from costing",
+"Цэвэрлэх (автомат руу)": "Clear (back to automatic)",
+"+ Мөр": "+ Row"
 };
 /* ================= KH Fab — language (МН / EN) and theme (Day / Night) =================
    The UI is written in Mongolian. In English mode every Mongolian fragment that reaches the
@@ -9789,20 +9795,29 @@ function qfDefaults(job) {
   return q.qf;
 }
 /* line items for the form, net of VAT, margin spread so the sum = offer */
-function qfLines(job) {
-  if (job._linesFn) return job._linesFn();
+/* Engineering drawing / FEA (engineer rows) + Material / Consumable / Labour / Machining / Equipment / Other — margin included */
+function qfBreakdown(job) {
   const q = job.quote, c = quoteCalc(job), f = qfDefaults(job), kc = c.kc || {}, K = cat => kc[cat] || c.k, MN = f.lang === 'mn';
-  if (f.mode === 'fixed' && Array.isArray(q.lines) && q.lines.length) return q.lines.map(l => ({ d: l.d, u: l.u || 'ea', q: +l.q || 1, p: +l.p || 0 }));
-  if (f.mode === 'single') return [{ d: f.title || job.title || 'Fabrication work', u: 'set', q: 1, p: c.net, b: 1 }];
-  if (f.mode === 'sections') return [[MN ? 'Материал, худалдан авалт (хаягдал, тээвэр орсон)' : 'Materials and purchasing (incl. scrap allowance, transport)', c.matTotal - c.cons, 'mat'], [MN ? 'Туслах материал (consumable)' : 'Consumables', c.cons, 'cons'], [MN ? 'Ажиллах хүч' : 'Labour', c.laborTotal, 'labor'], [MN ? 'Тоног төхөөрөмж, үйлчилгээ' : 'Equipment and services', c.equip, 'equip'], [MN ? 'Бусад' : 'Other', c.other, 'other']].filter(r => r[1] > 0).map(([d, v, cat]) => ({ d, u: 'lot', q: 1, p: v * K(cat) }));
-  if (f.mode === 'breakdown') {   // Engineering drawing, FEA … each on its own line, then Material / Consumable / Labour …
     const B = [], kl = K('labor');
     c.labor.filter(l => l.cost && l.rt === 'eng').forEach(l => B.push({ d: MN ? l.name : (l.en || l.name), u: 'lot', q: 1, p: l.cost * kl }));
     const mach = c.labor.filter(l => l.cost && (l.rt === 'lathe' || l.rt === 'mill')).reduce((a, l) => a + l.cost, 0), lab = c.labor.filter(l => l.cost && !['eng', 'lathe', 'mill'].includes(l.rt)).reduce((a, l) => a + l.cost, 0);
     [[MN ? 'Материал' : 'Material', c.mat + c.scrap + c.trans, 'mat'], [MN ? 'Туслах материал (consumable)' : 'Consumable', c.cons, 'cons'], [MN ? 'Ажиллах хүч' : 'Labour cost', lab, 'labor'], [MN ? 'Механик боловсруулалт (токар, фрезер)' : 'Machining cost', mach, 'labor'], [MN ? 'Тоног төхөөрөмж, үйлчилгээ' : 'Equipment and services', c.equip, 'equip'], [MN ? 'Бусад' : 'Other', c.other, 'other']]
       .forEach(([d, v, cat]) => { if (v > 0) B.push({ d, u: 'lot', q: 1, p: v * K(cat) }); });
     return B;
-  }
+}
+/* sub-rows printed under the main line(s): own list if typed, otherwise from the costing */
+function qfSubRows(job) {
+  const f = qfDefaults(job); if (!f.showBd || f.mode === 'breakdown' || f.mode === 'detail' || f.mode === 'sections') return [];
+  if (Array.isArray(f.bd) && f.bd.some(r => r.d)) return f.bd.filter(r => r.d).map(r => ({ d: r.d, p: +r.p || 0 }));
+  try { return qfBreakdown(job).map(l => ({ d: l.d, p: l.p })); } catch (e) { return []; }
+}
+function qfLines(job) {
+  if (job._linesFn) return job._linesFn();
+  const q = job.quote, c = quoteCalc(job), f = qfDefaults(job), kc = c.kc || {}, K = cat => kc[cat] || c.k, MN = f.lang === 'mn';
+  if (f.mode === 'fixed' && Array.isArray(q.lines) && q.lines.length) return q.lines.map(l => ({ d: l.d, u: l.u || 'ea', q: +l.q || 1, p: +l.p || 0 }));
+  if (f.mode === 'single') return [{ d: f.title || job.title || 'Fabrication work', u: 'set', q: 1, p: c.net, b: 1 }];
+  if (f.mode === 'sections') return [[MN ? 'Материал, худалдан авалт (хаягдал, тээвэр орсон)' : 'Materials and purchasing (incl. scrap allowance, transport)', c.matTotal - c.cons, 'mat'], [MN ? 'Туслах материал (consumable)' : 'Consumables', c.cons, 'cons'], [MN ? 'Ажиллах хүч' : 'Labour', c.laborTotal, 'labor'], [MN ? 'Тоног төхөөрөмж, үйлчилгээ' : 'Equipment and services', c.equip, 'equip'], [MN ? 'Бусад' : 'Other', c.other, 'other']].filter(r => r[1] > 0).map(([d, v, cat]) => ({ d, u: 'lot', q: 1, p: v * K(cat) }));
+  if (f.mode === 'breakdown') return qfBreakdown(job);
   const L = []; const add = (arr, cat) => arr.filter(r => r.name && +r.qty).forEach(r => L.push({ d: r.name, u: r.unit || 'pcs', q: +r.qty, p: (+r.price || 0) * K(cat) }));
   add(q.mats, 'mat'); if (c.scrap) L.push({ d: MN ? `Хаягдал нөөц (${q.scrapPct}%)` : `Scrap allowance (${q.scrapPct}%)`, u: 'lot', q: 1, p: c.scrap * K('mat') }); if (c.trans) L.push({ d: MN ? 'Тээвэр, хүргэлт' : 'Transport / delivery', u: 'lot', q: 1, p: c.trans * K('mat') });
   add(q.cons, 'cons'); c.labor.filter(l => l.cost).forEach(l => L.push({ d: MN ? l.name : (l.en || `Labour — ${l.name}`), u: 'h', q: l.h, p: l.rate * K('labor') }));
@@ -9854,6 +9869,12 @@ async function quoteFormImgs(job, KK) {
     ds.forEach((d, j) => T(d, 31.2, y + 0.5 + 3.1 * (j + 0.5) + (rh - 1 - ds.length * 3.1) / 2, { b: 1, s: 2.55 }));
     T(l.u, (128.9 + 143.7) / 2, cy, { b: 1, s: 2.55, a: 'center' }); T(n0(Math.round(l.q * 100) / 100), (143.7 + 157.1) / 2, cy, { b: 1, s: 2.55, a: 'center' });
     T(n0(l.p), 175.9, cy, { b: 1, s: 2.55, a: 'right' }); T(n0(Math.round(l.p) * l.q), R0 - 0.4, cy, { b: 1, s: 2.55, a: 'right' });
+    y += rh;
+  });
+  qfSubRows(job).forEach(r => {
+    const rh = 3.8; if (y + rh > H - 20) { newPage(); header(); y = itemHead(52.5); }
+    [[L0, 29.8], [29.8, 128.9], [128.9, 143.7], [143.7, 157.1], [157.1, 176.4], [176.4, R0]].forEach(([a, b]) => box(a, y, b - a, rh));
+    const cy = y + rh / 2; T('– ' + r.d, 34.5, cy, { s: 2.35, c: '#333', w: 128.9 - 36 }); T(n0(r.p), 175.9, cy, { s: 2.35, c: '#333', a: 'right' });
     y += rh;
   });
   // notes block (left 23.9–157.1), right columns continue down
@@ -9912,6 +9933,11 @@ function qfCardHTML(job) {
     <div class="qfsec"><div class="qfsec-t">Нөхцөл</div><div class="jgrid">${fldIn('qf_lead', 'Lead time', f.lead, { ph: '5 business days' })}${fldIn('qf_pay', 'Payment term', f.pay)}${fldIn('qf_delivery', 'Delivery term', f.delivery)}${fldIn('qf_discount', 'Discount, ₮', f.discount || '', { num: 1 })}
       <label class="fld">Маягтын хэл<select id="qf_lang"><option value="">English</option><option value="mn"${f.lang === 'mn' ? ' selected' : ''}>Монгол</option></select></label>
       <label class="fld">Мөрийн хэлбэр<select id="qf_mode"><option value="single"${f.mode === 'single' ? ' selected' : ''}>Нэг мөр (set × 1)</option><option value="sections"${f.mode === 'sections' ? ' selected' : ''}>Хэсгээр (материал, хүч, тоног…)</option><option value="breakdown"${f.mode === 'breakdown' ? ' selected' : ''}>Задаргаа (Engineering drawing, FEA, Material, Consumable, Labour…)</option><option value="detail"${f.mode === 'detail' ? ' selected' : ''}>Дэлгэрэнгүй (мөр бүр)</option>${Array.isArray(job.quote && job.quote.lines) && job.quote.lines.length ? `<option value="fixed"${f.mode === 'fixed' ? ' selected' : ''}>Excel-ээс оруулсан мөрүүд (${job.quote.lines.length})</option>` : ''}</select></label></div></div>
+    ${['single', 'fixed', ''].includes(f.mode || '') ? `<div class="qfsec"><label class="check"><input type="checkbox" id="qf_showBd"${f.showBd ? ' checked' : ''}><span><b>Үндсэн мөрийн доор задаргаа харуулах</b> (Engineering drawing, FEA, Material, Consumable, Labour… — дүн нь нийт үнэд нэмэгдэхгүй, зөвхөн тайлбар)</span></label>
+      ${f.showBd ? (() => { const auto = (() => { try { return qfBreakdown(job); } catch (e) { return []; } })(), R = Array.isArray(f.bd) ? f.bd : [], tot = qfLines(job).reduce((a, l) => a + Math.round(l.p) * l.q, 0), sub = qfSubRows(job).reduce((a, r) => a + (+r.p || 0), 0);
+        return `<div class="bdwrap">${R.length ? `<table class="dt bdt"><thead><tr><th>Задаргааны мөр</th><th class="r">Дүн, ₮</th><th></th></tr></thead><tbody>${R.map((r, i) => `<tr><td><input class="inp" data-bd="${i}" data-bk="d" value="${esc(r.d || '')}" list="dl-bd"></td><td><input class="inp mono" type="number" step="any" data-bd="${i}" data-bk="p" value="${r.p ?? ''}" style="text-align:right"></td><td><button class="x" data-bdx="${i}" type="button">×</button></td></tr>`).join('')}</tbody></table>` : `<p class="note">${auto.length ? 'Тооцооноос автоматаар: ' + auto.map(l => esc(l.d)).join(', ') : 'Зардлын тооцоо хоосон — мөрүүдийг гараар нэмнэ үү.'}</p>`}
+          <div class="addrow"><button class="btn sm" id="bdAdd" type="button">+ Мөр</button><button class="btn sm ghost" id="bdFill" type="button" ${auto.length ? '' : 'disabled'}>Тооцооноос бөглөх</button>${R.length ? '<button class="btn sm ghost" id="bdClr" type="button">Цэвэрлэх (автомат руу)</button>' : ''}<span class="note ${Math.abs(sub - tot) > 1 && sub ? 'late' : ''}">Задаргааны нийлбэр ${n0(sub)} ₮ · саналын дүн ${n0(tot)} ₮</span></div>
+          <datalist id="dl-bd">${['Engineering drawing', 'Finite Element Analysis (FEA)', 'Drawing and FEA', 'Material', 'Consumable', 'Labour cost', 'Machining cost', 'Linebore', '3rd Party NDT', 'Freight', 'QA/QC', 'Painting', 'Sandblasting'].map(t => `<option value="${t}">`).join('')}</datalist></div>`; })() : ''}</div>` : ''}
     <div class="qfsec"><div class="qfsec-t">Агуулга</div>${fldIn('qf_note', 'Special note', f.note, { area: 1, rows: 2 })}
     <div class="jgrid qfcl"><div class="fld"><span class="flab">Quote included — үнэд багтсан</span><div class="clbox" data-ck="incl"></div></div><div class="fld"><span class="flab">Quote excluded — үнэд ороогүй</span><div class="clbox" data-ck="excl"></div></div></div></div>
     <div class="qfsec"><div class="qfsec-t">Зураг — санал дээр харуулах (4 хүртэл)</div><div class="qfph">${(f.photos || []).map((p, i) => `<figure><img src="${p.src}" alt=""><input class="inp" data-qpc="${i}" value="${esc(p.cap || '')}" placeholder="Тайлбар (заавал биш)"><button class="x" data-qpx="${i}" aria-label="Устгах">×</button></figure>`).join('')}
@@ -9927,7 +9953,14 @@ function bindQfCard(el, job) {
   const learn = () => orgLearn({ org: orgName(), ...f });
   ['person', 'email', 'phone', 'address', 'custId'].forEach(k => { const i = el.querySelector('#qf_' + k); if (i) i.addEventListener('change', () => { if (k === 'person' && qfFillFromDir(f, orgName())) ['email', 'phone', 'address', 'custId'].forEach(z => { const e = el.querySelector('#qf_' + z); if (e) e.value = f[z] || ''; }); learn(); }); });
   const d = el.querySelector('#qf_discount'); if (d) d.addEventListener('change', () => { f.discount = Math.max(0, +d.value || 0); save(); });
-  const m = el.querySelector('#qf_mode'); if (m) m.addEventListener('change', () => { f.mode = m.value; save(); });
+  const m = el.querySelector('#qf_mode'); if (m) m.addEventListener('change', () => { f.mode = m.value; save(); setTimeout(() => { if (job._nest) renderTable(); else renderJobMain(); }, 0); });
+  { const reCard = () => { if (job._nest) renderTable(); else renderJobMain(); };
+    const sb = el.querySelector('#qf_showBd'); if (sb) sb.addEventListener('change', e => { e.stopPropagation(); f.showBd = sb.checked; save(); reCard(); });
+    el.querySelectorAll('[data-bd]').forEach(i => i.addEventListener('change', e => { e.stopPropagation(); const r = f.bd[+i.dataset.bd]; r[i.dataset.bk] = i.dataset.bk === 'p' ? +i.value || 0 : i.value; save(); reCard(); }));
+    el.querySelectorAll('[data-bdx]').forEach(b => b.addEventListener('click', () => { f.bd.splice(+b.dataset.bdx, 1); save(); reCard(); }));
+    const ba = el.querySelector('#bdAdd'); if (ba) ba.addEventListener('click', () => { f.bd = Array.isArray(f.bd) ? f.bd : []; f.bd.push({ d: '', p: '' }); save(); reCard(); });
+    const bf = el.querySelector('#bdFill'); if (bf) bf.addEventListener('click', () => { f.bd = qfBreakdown(job).map(l => ({ d: l.d, p: Math.round(l.p) })); save(); reCard(); });
+    const bc = el.querySelector('#bdClr'); if (bc) bc.addEventListener('click', () => { f.bd = []; save(); reCard(); }); }
   const lg = el.querySelector('#qf_lang'); if (lg) lg.addEventListener('change', () => { f.lang = lg.value; if (f.lang === 'mn' && f.note === QF_NOTE) { f.note = QF_NOTE_MN; const n = el.querySelector('#qf_note'); if (n) n.value = f.note; } else if (!f.lang && f.note === QF_NOTE_MN) { f.note = QF_NOTE; const n = el.querySelector('#qf_note'); if (n) n.value = f.note; } save(); });
   Object.keys(CO_DEF).forEach(k => { const i = el.querySelector('#co_' + k); if (i) i.addEventListener('change', () => { C[k] = i.value; S.company = C; save(); }); });
   el.querySelectorAll('[data-qf]').forEach(b => b.addEventListener('click', () => quoteFormOut(job, b.dataset.qf)));

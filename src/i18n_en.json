@@ -2961,5 +2961,10 @@
 "Тайлбар (заавал биш)": "Caption (optional)",
 "Үнийн саналын доор (нэг хуудсанд багтвал)": "Under the quotation (if it fits)",
 "Тусдаа хуудсанд (Хавсралт)": "On a separate page (attachment)",
-"Бүтээгдэхүүн, зураг төсөл, жишээ ажлын зураг — PDF болон хэвлэхэд саналын доор гарна.": "Product, drawing or reference photos — printed under the quotation in the PDF."
+"Бүтээгдэхүүн, зураг төсөл, жишээ ажлын зураг — PDF болон хэвлэхэд саналын доор гарна.": "Product, drawing or reference photos — printed under the quotation in the PDF.",
+"Үндсэн мөрийн доор задаргаа харуулах": "Show a breakdown under the main line",
+"Задаргааны мөр": "Breakdown line",
+"Тооцооноос бөглөх": "Fill from costing",
+"Цэвэрлэх (автомат руу)": "Clear (back to automatic)",
+"+ Мөр": "+ Row"
 }
