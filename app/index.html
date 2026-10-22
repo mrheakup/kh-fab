@@ -4741,6 +4741,8 @@ const trObs = new MutationObserver(list => {
   }
 });
 
+/* Electron has no window.prompt — use the desktop dialog */
+if (window.kh && window.kh.promptSync) window.prompt = (m, d) => window.kh.promptSync(m, d);
 /* ---- canvas, dialogs, PDFs, saved files ---- */
 (() => {
   const P = CanvasRenderingContext2D.prototype;
@@ -13018,6 +13020,12 @@ function renderInspSide() {
   el.innerHTML = grp.map(([k, n]) => { const ms = I.machines.filter(m => (m.kind === 'vehicle') === (k === 'vehicle')); return ms.length ? `<div class="igrp">${n}</div>` + ms.map(m => { const r = recsOf(m.id)[0], done = r && r.date === t; return `<div class="jitem${m.id === IN2.sel ? ' on' : ''}" data-id="${m.id}"><span class="no">${esc(m.no)} · ${esc(m.name)}</span><span class="pill ${done ? (r.concl === 'ok' && !r.res.includes('bad') ? 'st-done' : 'st-weld') : ''}">${done ? 'өнөөдөр ✓' : r ? esc(r.date.slice(5)) : 'үзлэггүй'}</span><span class="t">${esc(m.model)}${m.added ? ' · нэмсэн загвар' : ''}</span></div>`; }).join('') : ''; }).join('');
 }
 const ITABS = [['today', 'Өнөөдрийн үзлэг'], ['hist', 'Түүх, сарын хяналт'], ['sheet', 'Хэвлэх хуудас'], ['instr', 'Заавар, ханын самбар'], ['log', 'Засвар / жолооны бүртгэл']];
+/* inspector / supervisor picked from the team list (Баг → хүмүүс); a new name can be added right here */
+function inspPersonSel(id, label, val, kind) {
+  const P = people().filter(p => p.active !== false), pref = P.filter(p => p.insp === kind || (kind === 'chk' ? /ахлах|мастер|инженер|хяналт|supervisor/i.test(p.role || '') : true));
+  const names = [...new Set(pref.concat(P).map(p => p.name).filter(Boolean))]; if (val && !names.includes(val)) names.unshift(val);
+  return `<label class="fld">${label}<select id="${id}" data-ipp="${kind}" data-last="${esc(val || '')}"><option value="">— сонгох —</option>${names.map(n => `<option value="${esc(n)}"${n === val ? ' selected' : ''}>${esc(n)}</option>`).join('')}<option value="__new">＋ Шинэ нэр нэмэх…</option></select></label>`;
+}
 function renderInspMain() {
   const I = IS(), el = $('#inspMain'); if (!el) return;
   const m = imach(IN2.sel) || I.machines[0]; if (!m) { el.innerHTML = '<div class="jempty">Тоног төхөөрөмж алга</div>'; return; }
@@ -13043,7 +13051,7 @@ function renderInspMain() {
     const rec = I.recs.find(r => r.id === IN2.recId) || { id: '', mid: m.id, date: today(), shift: new Date().getHours() < 14 ? 'am' : 'pm', res: m.items.map(() => ''), notes: m.items.map(() => ''), concl: '', by: '', chk: '', note: '' };
     IN2.draft = rec;
     body = `<div class="jcard"><div class="bcard-h">${rec.id ? 'Үзлэг засах' : 'Шинэ үзлэг'} <span class="sp"></span><button class="btn sm" id="irAllOk">Бүгд хэвийн</button></div><div class="jbody">
-      <div class="jgrid">${fldIn('ir_date', 'Огноо', rec.date, { type: 'date' })}<label class="fld">Ээлж<select id="ir_shift"><option value="am"${rec.shift !== 'pm' ? ' selected' : ''}>Өглөө</option><option value="pm"${rec.shift === 'pm' ? ' selected' : ''}>Үдэш</option></select></label>${fldIn('ir_by', `Үзлэг хийсэн ${m.role}`, rec.by)}${fldIn('ir_chk', 'Хянасан ахлах', rec.chk)}</div>
+      <div class="jgrid">${fldIn('ir_date', 'Огноо', rec.date, { type: 'date' })}<label class="fld">Ээлж<select id="ir_shift"><option value="am"${rec.shift !== 'pm' ? ' selected' : ''}>Өглөө</option><option value="pm"${rec.shift === 'pm' ? ' selected' : ''}>Үдэш</option></select></label>${inspPersonSel('ir_by', `Үзлэг хийсэн ${m.role}`, rec.by, 'by')}${inspPersonSel('ir_chk', 'Хянасан ахлах', rec.chk, 'chk')}</div>
       <div class="tblwrap"><table class="dt irt"><thead><tr><th>№</th><th>Шалгах хэсэг</th><th>Шалгах зүйл</th><th class="r">Хэвийн</th><th class="r">Асуудалтай</th><th>Тайлбар / заалт</th></tr></thead><tbody>
       ${m.items.map(([sec, it], i) => `<tr data-i="${i}" class="${rec.res[i] === 'bad' ? 'bad' : ''}"><td class="num muted">${i + 1}</td><td><b>${esc(sec)}</b></td><td style="white-space:normal">${esc(it)}</td><td class="r"><input type="radio" name="ir${i}" value="ok"${rec.res[i] === 'ok' ? ' checked' : ''}></td><td class="r"><input type="radio" name="ir${i}" value="bad"${rec.res[i] === 'bad' ? ' checked' : ''}></td><td><input data-note="${i}" value="${esc(rec.notes[i] || '')}"></td></tr>`).join('')}
       </tbody></table></div>
@@ -13095,6 +13103,14 @@ function renderInspMain() {
     el.querySelector('#imDel').addEventListener('click', ev => { const b = ev.currentTarget; if (!b.dataset.arm) { b.dataset.arm = 1; b.textContent = 'Дахин дарж баталгаажуулна'; setTimeout(() => { delete b.dataset.arm; b.textContent = 'Энэ тоногийг жагсаалтаас хасах'; }, 3000); return; } I.machines = I.machines.filter(q => q !== m); IN2.sel = null; save(); renderInsp(); });
   }
   if (IN2.tab === 'today') {
+    el.querySelectorAll('select[data-ipp]').forEach(sel => sel.addEventListener('change', () => {
+      if (sel.value !== '__new') { sel.dataset.last = sel.value; return; }
+      const n = (prompt(sel.dataset.ipp === 'chk' ? 'Хянасан ахлахын нэр (жишээ: Б. Бат)' : 'Үзлэг хийсэн ажилтны нэр (жишээ: Д. Дорж)', '') || '').trim();
+      if (!n) { sel.value = sel.dataset.last || ''; return; }
+      const P = people(); if (!P.some(p => lc(p.name) === lc(n))) P.push({ id: uid(), name: n, role: sel.dataset.ipp === 'chk' ? 'Ахлах (хяналт)' : 'Ажилтан (үзлэг)', phone: '', active: true, insp: sel.dataset.ipp });
+      else { const p = P.find(p => lc(p.name) === lc(n)); p.insp = p.insp || sel.dataset.ipp; }
+      save(); const o = document.createElement('option'); o.value = n; o.textContent = n; sel.insertBefore(o, sel.querySelector('option[value="__new"]')); sel.value = n; sel.dataset.last = n; sel.dispatchEvent(new Event('change', { bubbles: true })); toast(`«${n}» нэр нэмэгдлээ (Баг → хүмүүс)`);
+    }));
     const rec = IN2.draft, tb = el.querySelector('.irt tbody');
     const read = () => { rec.date = el.querySelector('#ir_date').value || today(); rec.shift = el.querySelector('#ir_shift').value; rec.by = el.querySelector('#ir_by').value; rec.chk = el.querySelector('#ir_chk').value; rec.concl = el.querySelector('#ir_concl').value; rec.note = el.querySelector('#ir_note').value; m.items.forEach((_, i) => { const r = el.querySelector(`input[name="ir${i}"]:checked`); rec.res[i] = r ? r.value : ''; rec.notes[i] = el.querySelector(`[data-note="${i}"]`).value; }); };
     tb.addEventListener('change', ev => { const tr = ev.target.closest('tr'); if (ev.target.type === 'radio') tr.classList.toggle('bad', ev.target.value === 'bad'); read(); const s = rec.res.includes('bad') ? (rec.concl === 'stop' ? 'stop' : 'fix') : rec.res.every(v => v === 'ok') ? (rec.concl || 'ok') : rec.concl; if (s !== rec.concl || !el.querySelector('#ir_concl').value) { el.querySelector('#ir_concl').value = s || ''; rec.concl = s || ''; } });

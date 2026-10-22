@@ -92,6 +92,21 @@ function writeData(txt) {
   try { const d = bakDir(); fs.mkdirSync(d, { recursive: true }); const b = path.join(d, `kh-data-${new Date().toISOString().slice(0, 10)}.json`); if (!fs.existsSync(b) || Date.now() - fs.statSync(b).mtimeMs > 3600e3) fs.copyFileSync(f, b);
     const all = fs.readdirSync(d).filter(x => /^kh-data-\d{4}-\d{2}-\d{2}\.json$/.test(x)).sort(); all.slice(0, Math.max(0, all.length - 60)).forEach(x => { try { fs.unlinkSync(path.join(d, x)); } catch (e) { } }); } catch (e) { }
 }
+/* window.prompt() is not available in Electron — a small modal asks instead (renderer waits on sendSync) */
+ipcMain.on('prompt-sync', (e, msg, def) => {
+  const parent = BrowserWindow.fromWebContents(e.sender) || win; let done = false;
+  const esc = t => String(t ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const html = `<!doctype html><meta charset="utf-8"><title>…</title><style>body{font:14px Segoe UI,system-ui,sans-serif;margin:0;padding:16px;background:#fff;color:#111}p{margin:0 0 10px;white-space:pre-wrap;max-height:220px;overflow:auto}input{width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid #bbb;border-radius:8px;font:inherit}div{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}button{padding:7px 16px;border-radius:8px;border:1px solid #bbb;background:#f4f4f5;font:inherit;cursor:pointer}button.p{background:#2563eb;border-color:#2563eb;color:#fff}</style>
+<p>${esc(msg)}</p><input id="v" value="${esc(def)}" autofocus><div><button onclick="document.title='C:'">Болих</button><button class="p" onclick="document.title='O:'+document.getElementById('v').value">OK</button></div>
+<script>const v=document.getElementById('v');v.select();v.addEventListener('keydown',e=>{if(e.key==='Enter')document.title='O:'+v.value;if(e.key==='Escape')document.title='C:';});</script>`;
+  const lines = Math.min(12, String(msg || '').split('\n').length);
+  const d = new BrowserWindow({ parent, modal: true, width: 440, height: 170 + lines * 18, resizable: false, minimizable: false, maximizable: false, autoHideMenuBar: true, title: 'Kh International', show: false, webPreferences: { contextIsolation: true, nodeIntegration: false, sandbox: true } });
+  const finish = v => { if (done) return; done = true; e.returnValue = v; if (!d.isDestroyed()) d.destroy(); };
+  d.on('page-title-updated', (ev, t) => { ev.preventDefault(); if (t.startsWith('O:')) finish(t.slice(2)); else if (t.startsWith('C:')) finish(null); });
+  d.on('closed', () => finish(null));
+  d.once('ready-to-show', () => d.show());
+  d.loadURL('data:text/html;charset=utf-8,' + encodeURIComponent(html));
+});
 ipcMain.on('data-load-sync', e => { try { e.returnValue = fs.existsSync(dataFile()) ? fs.readFileSync(dataFile(), 'utf8') : null; } catch (x) { e.returnValue = null; } });
 /* async, coalesced writes: the main process never blocks the window while saving */
 let wPend = null, wBusy = false, wWait = [];

@@ -60,6 +60,8 @@ const trObs = new MutationObserver(list => {
   }
 });
 
+/* Electron has no window.prompt — use the desktop dialog */
+if (window.kh && window.kh.promptSync) window.prompt = (m, d) => window.kh.promptSync(m, d);
 /* ---- canvas, dialogs, PDFs, saved files ---- */
 (() => {
   const P = CanvasRenderingContext2D.prototype;

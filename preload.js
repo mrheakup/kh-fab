@@ -4,6 +4,7 @@ contextBridge.exposeInMainWorld('kh', {
   showInFolder: p => ipcRenderer.invoke('show-in-folder', p),
   openPath: p => ipcRenderer.invoke('open-path', p),
   dataLoadSync: () => ipcRenderer.sendSync('data-load-sync'),
+  promptSync: (m, d) => ipcRenderer.sendSync('prompt-sync', String(m ?? ''), String(d ?? '')),
   dataSave: txt => ipcRenderer.invoke('data-save', txt),
   dataSaveSync: txt => ipcRenderer.sendSync('data-save-sync', txt),
   openDataDir: () => ipcRenderer.invoke('data-dir'),
