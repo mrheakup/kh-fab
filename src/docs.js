@@ -3,6 +3,25 @@ const PRINT_K = 12, PREV_K = 3;
 /* ================= Kh International — logo + printable document engine =================
    KH_LOGO_DEFAULT is injected by build.py from src/logo.png. Every document is drawn on
    canvases (so Cyrillic fonts render exactly), then saved as PDF or sent straight to the printer. */
+/* ---------- form library: every printable form, with its own style (text size, logo place/size, title, footer) ---------- */
+const DOC_KINDS = [
+  { k: 'quote', n: 'Үнийн санал — Kh загвар (захиалагчид)' },
+  { k: 'docket', n: 'Delivery Docket / Packing list' },
+  { k: 'qdetail', n: 'Үнийн санал — дэлгэрэнгүй задаргаа', title: 'ҮНИЙН САНАЛ' },
+  { k: 'scope', n: 'Ажлын scope, хуваарь', title: 'АЖЛЫН SCOPE — МЭДЭЭЛЭЛ & ХУВААРЬ' },
+  { k: 'cost', n: 'Зардал, ажиллах хүчний тооцоо', title: 'ЗАРДАЛ & АЖИЛЛАХ ХҮЧНИЙ ТООЦООЛОЛ' },
+  { k: 'prog', n: 'Ажлын явц, зардлын тайлан', title: 'АЖЛЫН ЯВЦ & ЗАРДЛЫН ТАЙЛАН' },
+  { k: 'acc', n: 'Хүлээн авалтын акт', title: 'ХҮЛЭЭН АВАЛТЫН АКТ & ӨӨРЧЛӨЛТИЙН БҮРТГЭЛ' },
+  { k: 'instr', n: 'Ажлын байрны заавар', title: 'АЖЛЫН БАЙРНЫ ЗААВАР' },
+  { k: 'insp', n: 'Өдөр тутмын үзлэгийн хуудас' },
+  { k: 'idea', n: 'Санал — үйлдвэрийн сайжруулалт', title: 'САНАЛ — ҮЙЛДВЭРИЙН САЙЖРУУЛАЛТ' }];
+const DOC_STYLE_DEF = { fs: 100, logo: 'left', logoH: 100, title: '', foot: '' };
+function docStyle(k) { const A = (S.docStyle = S.docStyle || {}); return Object.assign({}, DOC_STYLE_DEF, A._all || {}, A[k] || {}); }
+const docFs = k => Math.min(1.3, Math.max(0.8, (+docStyle(k).fs || 100) / 100));
+const docLogoK = k => Math.min(1.6, Math.max(0.5, (+docStyle(k).logoH || 100) / 100));
+/* a document canvas carries its text scale: every «font = … Npx» on it is scaled */
+(() => { const P = CanvasRenderingContext2D.prototype, d = Object.getOwnPropertyDescriptor(P, 'font'); if (!d || !d.set) return;
+  Object.defineProperty(P, 'font', { configurable: true, get() { return d.get.call(this); }, set(v) { const k = this.canvas && this.canvas.__fs; if (k && k !== 1 && typeof v === 'string') v = v.replace(/(\d*\.?\d+)px/, (m, n) => (+n * k).toFixed(3) + 'px'); d.set.call(this, v); } }); })();
 const LOGO_KEY = 'kh-logo';
 function logoSrc() { try { return localStorage.getItem(LOGO_KEY) || KH_LOGO_DEFAULT; } catch (e) { return KH_LOGO_DEFAULT; } }
 let LOGO_IMG = null;
@@ -29,16 +48,18 @@ async function kdoc(opt) {
   if (!window.jspdf && !opt.noPdfLib) { /* printing still works without jsPDF */ }
   try { await document.fonts.ready; } catch (e) { }
   await logoImg();
-  const land = !!opt.landscape, PW = land ? 297 : 210, PH = land ? 210 : 297, K = opt.K || PRINT_K, M = opt.margin || 14, pages = [];
+  const kind = (DOC_KINDS.find(d => d.title && d.title === opt.title) || {}).k || opt.kind || '', ST = docStyle(kind);
+  const land = !!opt.landscape, PW = land ? 297 : 210, PH = land ? 210 : 297, K = opt.K || window.__docK || PRINT_K, M = opt.margin || 14, pages = [];
   const D = { PW, PH, M, W: PW - 2 * M, pages, x: null, y: 0, land };
-  D.foot = opt.foot || `Kh International · ISO 9001 чанарын удирдлагын тогтолцоо${S.iso && S.iso.rev ? ' · Хувилбар ' + S.iso.rev : ''}`;
+  D.foot = ST.foot || opt.foot || `Kh International · ISO 9001 чанарын удирдлагын тогтолцоо${S.iso && S.iso.rev ? ' · Хувилбар ' + S.iso.rev : ''}`;
   D.page = () => {
     const c = document.createElement('canvas'); c.width = PW * K; c.height = PH * K; const x = c.getContext('2d'); x.scale(K, K); x.fillStyle = '#fff'; x.fillRect(0, 0, PW, PH);
-    D.x = x; pages.push(c);
+    c.__fs = docFs(kind); D.x = x; pages.push(c);
     if (opt.bare) { D.y = M; return x; }
-    drawLogo(x, M, 8, 10);
-    x.textBaseline = 'alphabetic'; x.textAlign = 'right'; x.fillStyle = DC.ink; x.font = `700 4.6px ${DF}`; x.fillText(opt.title || '', PW - M, 13.5);
-    x.font = `400 2.9px ${DF}`; x.fillStyle = DC.mute; x.fillText([opt.sub, `хуудас ${pages.length}`].filter(Boolean).join(' · '), PW - M, 18.5);
+    const lh = Math.min(12.5, 10 * docLogoK(kind)), R = ST.logo === 'right', tx = R ? M : PW - M;
+    if (ST.logo !== 'none') drawLogo(x, R ? PW - M : M, Math.max(4, 18 - lh), lh, R ? 'right' : 'left');
+    x.textBaseline = 'alphabetic'; x.textAlign = R ? 'left' : 'right'; x.fillStyle = DC.ink; x.font = `700 4.6px ${DF}`; x.fillText(ST.title || opt.title || '', tx, 13.5);
+    x.font = `400 2.9px ${DF}`; x.fillStyle = DC.mute; x.fillText([opt.sub, `хуудас ${pages.length}`].filter(Boolean).join(' · '), tx, 18.5);
     x.strokeStyle = DC.acc; x.lineWidth = 0.5; x.beginPath(); x.moveTo(M, 21.5); x.lineTo(PW - M, 21.5); x.stroke();
     x.textAlign = 'left'; x.font = `400 2.5px ${DF}`; x.fillStyle = DC.mute; x.fillText(D.foot, M, PH - 6);
     x.textAlign = 'right'; x.fillText(opt.code || '', PW - M, PH - 6); x.textAlign = 'left';
@@ -171,7 +192,7 @@ const docImgs = D => D.pages.map((c, i) => ({ url: c.toDataURL('image/jpeg', 0.9
 function docPdf(D, name) { pdfImgs(docImgs(D), D.land, name); }
 function docPrint(D, name) { printImgs(docImgs(D), D.land, 'a4', name); }
 /* draw one page on a fresh canvas and return it as an image */
-async function pageImg(land, draw, K = PRINT_K) {
+async function pageImg(land, draw, K = window.__docK || PRINT_K) {
   const PW = land ? 297 : 210, PH = land ? 210 : 297, c = document.createElement('canvas'); c.width = PW * K; c.height = PH * K;
   const x = c.getContext('2d'); x.scale(K, K); x.fillStyle = '#fff'; x.fillRect(0, 0, PW, PH); draw(x, PW, PH);
   return c.toDataURL('image/jpeg', 0.95);

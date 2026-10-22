@@ -25,8 +25,9 @@ function icell(x, X, Y, w, h, fill) { if (fill) { x.fillStyle = fill; x.fillRect
 const IL = 12.4, IW = 128;
 function ititle(x, t) { x.fillStyle = IC.dark; x.fillRect(IL, 8.9, IW, 5.8); itxt(x, t, IL + IW / 2, 11.8, { b: 1, s: 3.1, c: '#fff', a: 'center', w: IW - 4 }); }
 function drawCover(x, m) {
-  drawLogo(x, IL, 9, 12.4);
-  itxt(x, 'Kh International', IL + IW, 15.8, { b: 1, s: 2.6, a: 'right' }); itxt(x, 'ISO 9001 чанарын удирдлагын тогтолцоо', IL + IW, 19.2, { s: 2, c: IC.mute, a: 'right' });
+  x.canvas.__fs = docFs('insp'); const ST = docStyle('insp'), R = ST.logo === 'right', lh = Math.min(15, 12.4 * docLogoK('insp'));
+  if (ST.logo !== 'none') drawLogo(x, R ? IL + IW : IL, 21.4 - lh, lh, R ? 'right' : 'left');
+  itxt(x, 'Kh International', R ? IL : IL + IW, 15.8, { b: 1, s: 2.6, a: R ? 'left' : 'right' }); itxt(x, 'ISO 9001 чанарын удирдлагын тогтолцоо', R ? IL : IL + IW, 19.2, { s: 2, c: IC.mute, a: R ? 'left' : 'right' });
   x.strokeStyle = IC.acc; x.lineWidth = 0.35; x.beginPath(); x.moveTo(IL, 25.6); x.lineTo(IL + IW, 25.6); x.stroke();
   x.fillStyle = IC.acc; x.fillRect(IL, 30, 2.6, 14);
   itxt(x, 'ӨДӨР ТУТМЫН ҮЗЛЭГИЙН ХУУДАС', IL + 5.5, 34.6, { b: 1, s: 4.3 }); itxt(x, m.name, IL + 5.5, 40.4, { b: 1, s: 3.1, c: IC.acc, w: IW - 8 });
@@ -36,7 +37,7 @@ function drawCover(x, m) {
   const J0 = 94.4, jh = 6 + INSP_JURAM.length * 2.8; icell(x, IL, J0, IW, jh, '#f7f7f7'); x.fillStyle = IC.acc; x.fillRect(IL, J0, 0.5, jh);
   itxt(x, 'ЖУРАМ:', IL + 2.4, J0 + 3, { b: 1, s: 2.4, c: IC.acc }); INSP_JURAM.forEach((t, i) => itxt(x, `${i + 1}. ${t}`, IL + 2.4, J0 + 6.2 + i * 2.8, { s: 1.95, c: '#333', w: IW - 5 }));
 }
-function drawSheet(x, m, rec) {
+function drawSheet(x, m, rec) { x.canvas.__fs = docFs('insp');
   ititle(x, m.title || (m.name.toUpperCase() + ' ӨДӨР ТУТМЫН ҮЗЛЭГИЙН ХУУДАС'));
   const cw = [32, 32, 32, 32]; let X = IL;
   const shift = rec ? (rec.shift === 'pm' ? 'Өглөө☐  Үдэш☑' : 'Өглөө☑  Үдэш☐') : 'Өглөө☐  Үдэш☐';
@@ -80,7 +81,7 @@ function drawSheet(x, m, rec) {
 }
 const LOGCOLS = { vehicle: [['№', 4.6], ['Явсан огноо, цаг', 20.7], ['Ирсэн огноо, цаг', 20.7], ['Жолооч', 20.2], ['Чиглэл / Зорчсон газар', 26.4], ['Гүйлт (км)', 13.7], ['Гарын үсэг', 21.7]],
   machine: [['№', 5], ['Засварын огноо', 20.3], ['Дараагийн засвар', 20.2], ['Тайлбар / Орлуулсан сэлбэг, тоо', 37.3], ['Засварласан ажилтан', 26.4], ['Гарын үсэг', 18.8]] };
-function drawLog(x, m, rows, start = 0) {
+function drawLog(x, m, rows, start = 0) { x.canvas.__fs = docFs('insp');
   const veh = m.kind === 'vehicle', cols = LOGCOLS[veh ? 'vehicle' : 'machine'], n = veh ? 16 : 18, rh = veh ? 6.5 : 6.2;
   ititle(x, veh ? 'ЖОЛООНЫ БҮРТГЭЛ' : 'ЗАСВАР ҮЙЛЧИЛГЭЭНИЙ БҮРТГЭЛ');
   icell(x, IL, 18.3, IW / 2, 4.4, IC.key); icell(x, IL + IW / 2, 18.3, IW / 2, 4.4, IC.key);

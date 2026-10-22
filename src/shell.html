@@ -523,6 +523,7 @@ label.fld,.fld>.flab{font-size:11.5px;font-weight:600;color:var(--ink-3);letter-
 .mtab .mcin{width:90px;text-align:right;margin-left:auto}
 .qfph{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-start}.qfph figure{position:relative;margin:0;width:150px;display:grid;gap:4px}.qfph img{width:150px;height:110px;object-fit:cover;border-radius:8px;border:1px solid var(--line)}.qfph .x{position:absolute;top:4px;right:4px}.qfph .inp{padding:4px 6px;font-size:12px}
 .bdwrap{margin-top:8px}.bdt input{width:100%}.bdt td:nth-child(2){width:160px}
+.dlset{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}.dlset input[type=range]{width:100%}.dlwrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,440px);gap:16px;align-items:start}.dlprev{border:1px solid var(--line);border-radius:10px;background:#fff;padding:6px;cursor:zoom-in}.dlprev img{width:100%;display:block}@media(max-width:1100px){.dlwrap{grid-template-columns:1fr}}
 .savebtn.ok{background:#16a34a!important;color:#fff!important;border-color:#16a34a!important}
 .fmorg{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);margin:12px 2px 4px}
 .fmlog{margin:0;padding-left:18px;display:grid;gap:3px;font-size:12.5px;max-height:260px;overflow:auto}
@@ -695,10 +696,17 @@ label.fld,.fld>.flab{font-size:11.5px;font-weight:600;color:var(--ink-3);letter-
         <div id="dkList" class="plist"></div>
       </section>
       <section id="jtab-forms" hidden>
+        <div class="seg" id="fmSeg" style="margin-bottom:10px"><button data-fmv="lib" class="on">Бүх маягт (загвар)</button><button data-fmv="org">Байгууллагын үнийн санал</button></div>
+        <div id="fmOrgBox" hidden>
         <p class="hint">Байгууллага тус бүрийн үнийн саналын маягт — нөхцөл, үнэд багтсан/ороогүй, тэмдэглэл. Үнийн санал дээр захиалагч сонгоход ★ маягт автоматаар орно; санал дээр нөхцөлөө засахад энд бүртгэгдэнэ.</p>
         <div class="ptools"><button class="btn primary" id="fmNew">+ Шинэ маягт</button><button class="btn" id="fmImp" title="Kh-ийн Excel үнийн саналын маягтууд (… - Form.xlsx, SQ… - Quotation….xlsx) — олныг зэрэг сонгож болно">⇪ Excel маягт оруулах</button><input type="file" id="fmImpIn" accept=".xlsx,.xlsm,.xls" multiple hidden></div>
         <input id="fmSearch" class="inp" placeholder="Хайх: байгууллага, маягт…" style="margin:10px 0">
         <div id="fmList" class="plist"></div>
+        </div>
+        <div id="fmLibBox">
+        <p class="hint">Програмын бүх хэвлэх маягт нэг дор — үсгийн хэмжээ, логоны байршил, хэмжээ, гарчиг, хөлийн бичгийг эндээс засна. Өөрчлөлт тухайн маягтаар гаргах бүх PDF, хэвлэлд үйлчилнэ.</p>
+        <div id="dlList" class="plist"></div>
+        </div>
       </section>
       <section id="jtab-certs" hidden>
         <p class="hint">Ирсэн хавтангийн гэрчилгээ (heat/хайлалтын дугаар). Зүсэлт бүртгэхэд аль хайлалтаас хэрэглэснийг сонгож ISO ул мөрийг хадгална.</p>

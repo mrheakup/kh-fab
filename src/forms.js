@@ -64,8 +64,10 @@ function bindQfFormBar(el, job, qf, org, rerender) {
 }
 
 /* ---------- Баримт бичиг → Маягт (side list + editor) ---------- */
-const FM = { sel: null, q: '' };
+const FM = { sel: null, q: '', view: 'lib', dk: '_all' };
 function renderFormSide() {
+  { const o = $('#fmOrgBox'), l = $('#fmLibBox'); if (o) o.hidden = FM.view !== 'org'; if (l) l.hidden = FM.view !== 'lib'; document.querySelectorAll('[data-fmv]').forEach(b => b.classList.toggle('on', b.dataset.fmv === FM.view)); }
+  { const L = $('#dlList'); if (L) L.innerHTML = [{ k: '_all', n: 'Бүх маягтад нийтлэг (компани, үндсэн хэв маяг)' }].concat(DOC_KINDS).map(d => { const st = d.k === '_all' ? null : (S.docStyle || {})[d.k]; return `<div class="bitem fmi${FM.dk === d.k && J.tab === 'forms' && FM.view === 'lib' ? ' on' : ''}" data-dk="${d.k}"><div style="min-width:0"><div class="t">${esc(d.n)}</div><div class="m">${d.k === '_all' ? 'лого, компанийн мэдээлэл' : st && Object.keys(st).length ? 'тусгай тохиргоотой' : 'нийтлэг тохиргоогоор'}</div></div></div>`; }).join(''); }
   const box = $('#fmList'); if (!box) return; const q = lc(FM.q);
   const L = forms().filter(f => !q || lc([f.org, f.name, f.no].join(' ')).includes(q));
   const G = {}; L.forEach(f => { const k = (orgFind(f.org) || {}).name || f.org || '— Байгууллагагүй —'; (G[k] = G[k] || []).push(f); });
@@ -74,6 +76,8 @@ function renderFormSide() {
 (() => {
   const n = $('#fmNew'); if (n) n.addEventListener('click', () => { const org = prompt('Байгууллагын нэр', ''); if (org == null) return; const f = formNew(org.trim(), null, 'Үндсэн маягт'); orgLearn({ org: f.org }); FM.sel = f.id; renderFormSide(); renderJobMain(); });
   const s = $('#fmSearch'); if (s) s.addEventListener('input', () => { FM.q = s.value; renderFormSide(); });
+  document.querySelectorAll('[data-fmv]').forEach(b => b.addEventListener('click', () => { FM.view = b.dataset.fmv; renderFormSide(); renderJobMain(); }));
+  const dl = $('#dlList'); if (dl) dl.addEventListener('click', e => { const it = e.target.closest('[data-dk]'); if (!it) return; FM.dk = it.dataset.dk; renderFormSide(); renderJobMain(); });
   const l = $('#fmList'); if (l) l.addEventListener('click', e => { const it = e.target.closest('[data-fm]'); if (!it) return; FM.sel = it.dataset.fm; renderFormSide(); renderJobMain(); });
 })();
 function formPreviewJob(f) {
@@ -81,6 +85,7 @@ function formPreviewJob(f) {
   return { _nest: 1, no: 'SQ-0000', title: 'Sample work description', customer: (orgFind(f.org) || {}).name || f.org, quote: { no: 'SQ-0000', date: today(), valid: 14, vat: 10, qf }, _linesFn: () => [{ d: qf.title, u: 'set', q: 1, p: 1000000 }] };
 }
 function renderFormMain(el) {
+  if (FM.view === 'lib') return renderDocLib(el);
   const f = formById(FM.sel);
   if (!f) {
     const L = forms();
@@ -195,3 +200,61 @@ async function fxImportFiles(files) {
   b.addEventListener('click', () => i.click());
   i.addEventListener('change', async () => { const F = [...i.files]; i.value = ''; if (F.length) await fxImportFiles(F); });
 })();
+
+/* ---------- form library: style editor with a live sample ---------- */
+function docSampleJob() {
+  const j = { id: 'sample', no: 'KH-2026-000', short: '000', title: 'Жишээ ажил — AXLE STAND', customer: 'Sample LLC', due: '', status: 'new', note: '', items: [], extra: [], est: null, act: { hours: '', kg: '', other: '' }, trace: [], log: [], created: today() };
+  jx(j); const q = j.quote; q.no = 'SQ0000'; q.mats = [{ name: 'Ган хавтан S355 10мм', qty: 120, unit: 'кг', price: 4500 }, { name: 'Труба 89×5', qty: 6, unit: 'м', price: 38000 }]; q.cons = [{ name: 'Гагнуурын утас 1.2мм', qty: 5, unit: 'кг', price: 15000 }];
+  q.qf = { custId: 'S01', rfqName: 'Sample RFQ', rfqNo: 'N/A', person: 'Contact Person', email: 'contact@sample.mn', phone: '(976) 9900 0000', address: 'Ulaanbaatar, Mongolia', lead: '10 business days', delivery: "Kh will delivery customer's WHS", pay: '100% after work completion', discount: 0, mode: 'single', note: QF_NOTE, incl: 'Engineering drawing\nMaterial (Fiber laser cutting for preparation)\nFabrication welding and cleaning', excl: '3rd party NDT / inspection', title: 'AXLE STAND - 2', formId: '', _formOff: 1 };
+  j.dock = { no: '0000', date: today(), to: 'Sample LLC', supplied: 'Kh International', po: 'PO-0000', orderDate: today(), delDate: today(), phone: '(976) 9900 0000', contact: 'Contact Person', address: 'Ulaanbaatar', items: [{ desc: 'AXLE STAND', ordered: 2, shipped: 2, pk: 1, kg: 240 }], photos: [], delivered: '', received: '', note: '', tagsPer: 4 };
+  return j;
+}
+async function docSample(k) {
+  const prev = window.__docK; window.__docK = 3;
+  try {
+    const J0 = docSampleJob(), first = D => D.pages[0].toDataURL('image/jpeg', 0.9);
+    if (k === 'quote' || k === '_all') return (await quoteFormImgs(J0, 3))[0].url;
+    if (k === 'docket') return (await docketImgs(J0, 3))[0].url;
+    if (k === 'qdetail') return first(await quoteDoc(J0));
+    if (k === 'scope') return first(await scopeDoc(J0));
+    if (k === 'cost') return first(await costDoc(J0));
+    if (k === 'prog') return first(await progDoc(J0));
+    if (k === 'acc') return first(await accDoc(J0));
+    const m = (IS().machines || [])[0];
+    if (k === 'instr') return m ? first(await instrDoc(m)) : '';
+    if (k === 'insp') { if (!m) return ''; await logoImg(); return await pageImg(true, twoUp(x => drawCover(x, m)), 3); }
+    if (k === 'idea') return first(await ideaDoc({ no: 'ID-000', title: 'Жишээ санал', cat: (typeof ICAT !== 'undefined' ? ICAT[0] : ''), prio: 'med', by: '', owner: '', problem: 'Одоогийн байдал …', proposal: 'Санал болгож буй шийдэл …', benefit: '', saving: '', due: '', budget: [], photos: [], st: 'idea' }));
+  } catch (e) { console.error(e); return ''; } finally { window.__docK = prev; }
+  return '';
+}
+function renderDocLib(el) {
+  const k = FM.dk || '_all', A = (S.docStyle = S.docStyle || {}), own = A[k] = A[k] || {}, base = Object.assign({}, DOC_STYLE_DEF, k === '_all' ? {} : A._all || {}), cur = Object.assign({}, base, own), d = DOC_KINDS.find(x => x.k === k) || { n: 'Бүх маягтад нийтлэг', k: '_all' }, kd = !!d.title, C = company();
+  const val = f => own[f] != null && own[f] !== '' ? own[f] : '';
+  el.innerHTML = `<div class="dhead"><div><h2>${esc(d.n)}</h2><p class="muted">${k === '_all' ? 'Энд тавьсан тохиргоо бүх маягтад үйлчилнэ; маягт бүрт тусад нь өөрчилж болно.' : 'Хоосон талбар нь «Бүх маягтад нийтлэг» тохиргоогоор явна.'}</p></div><span class="sp" style="flex:1"></span>${Object.keys(own).length ? '<button class="btn ghost" id="dlReset">Анхны тохиргоонд буцаах</button>' : ''}<button class="btn" id="dlPrint">🖨 Жишээ хэвлэх</button></div>
+    <div class="dlwrap"><div>
+      <div class="jcard"><div class="bcard-h">Хэв маяг</div><div class="jbody"><div class="dlset">
+        <label class="fld">Үсгийн хэмжээ — <b id="dlFsV">${cur.fs}%</b><input type="range" min="80" max="130" step="5" id="dl_fs" value="${cur.fs}"></label>
+        <label class="fld">Логоны хэмжээ — <b id="dlLhV">${cur.logoH}%</b><input type="range" min="50" max="160" step="5" id="dl_logoH" value="${cur.logoH}"></label>
+        <label class="fld">Логоны байршил<select id="dl_logo">${[['left', 'Зүүн дээд'], ['right', 'Баруун дээд'], ['none', 'Харуулахгүй']].map(([v, n]) => `<option value="${v}"${cur.logo === v ? ' selected' : ''}>${n}</option>`).join('')}</select></label>
+        ${kd ? `<label class="fld">Гарчиг<input id="dl_title" value="${esc(val('title'))}" placeholder="${esc(d.title)}"></label>` : ''}
+        ${kd || k === '_all' ? `<label class="fld" style="grid-column:1/-1">Хөлийн бичиг (хуудасны доор)<input id="dl_foot" value="${esc(val('foot'))}" placeholder="Kh International · ISO 9001 чанарын удирдлагын тогтолцоо"></label>` : ''}
+      </div><p class="note">Үсгийг 115%-иас том болговол урт хүснэгтэд мөр давхцаж магадгүй — жишээн дээр шалгана уу.</p></div></div>
+      ${k === '_all' || k === 'quote' || k === 'docket' ? `<div class="jcard"><div class="bcard-h">Компанийн мэдээлэл (маягтын толгой)</div><div class="jbody"><div class="jgrid">${[['name', 'Компанийн нэр'], ['tag', 'Уриа'], ['a1', 'Хаяг 1'], ['a2', 'Хаяг 2'], ['a3', 'Хаяг 3'], ['phone', 'Утас'], ['mail', 'Имэйл'], ['bank', 'Банкны данс'], ['reg', 'Регистр'], ['currency', 'Валют']].map(([f, n]) => fldIn('dco_' + f, n, C[f])).join('')}</div>
+        <div class="logoset" style="margin-top:10px"><span class="logo-wrap"><img class="brand-logo" alt="лого" src="${logoSrc()}"></span><button class="btn sm" id="dlLogo">Лого солих</button><button class="btn sm ghost" id="dlLogoReset">Анхны лого</button></div></div></div>` : ''}
+    </div><div><div class="dlprev" title="Дарж томруулна"><img id="dlImg" alt="Жишээ"></div><p class="note" id="dlNote" style="text-align:center">Жишээ ачаалж байна…</p></div></div>`;
+  const img = el.querySelector('#dlImg'), note = el.querySelector('#dlNote'); let tm = 0;
+  const refresh = () => { clearTimeout(tm); tm = setTimeout(async () => { const u = await docSample(k); if (!img.isConnected) return; if (u) { img.src = u; note.textContent = 'Жишээ өгөгдлөөр'; } else note.textContent = k === 'instr' || k === 'insp' ? 'Үзлэг · ХАБ хэсэгт тоног төхөөрөмж нэмсний дараа жишээ гарна' : 'Жишээ гаргаж чадсангүй'; }, 250); };
+  const setv = (f, v) => { if (v === '' || v == null || (k !== '_all' && String(v) === String(base[f]))) delete own[f]; else own[f] = v; save(); renderFormSide(); refresh(); };
+  const fs = el.querySelector('#dl_fs'), lhv = el.querySelector('#dl_logoH');
+  fs.addEventListener('input', () => { el.querySelector('#dlFsV').textContent = fs.value + '%'; }); fs.addEventListener('change', () => setv('fs', +fs.value));
+  lhv.addEventListener('input', () => { el.querySelector('#dlLhV').textContent = lhv.value + '%'; }); lhv.addEventListener('change', () => setv('logoH', +lhv.value));
+  el.querySelector('#dl_logo').addEventListener('change', e => setv('logo', e.target.value));
+  ['title', 'foot'].forEach(f => { const i = el.querySelector('#dl_' + f); if (i) i.addEventListener('change', () => setv(f, i.value.trim())); });
+  el.querySelectorAll('[id^="dco_"]').forEach(i => i.addEventListener('change', () => { const C2 = company(); C2[i.id.slice(4)] = i.value; S.company = C2; save(); refresh(); }));
+  const rs = el.querySelector('#dlReset'); if (rs) rs.addEventListener('click', () => { A[k] = {}; save(); renderFormSide(); renderDocLib(el); });
+  const lg = el.querySelector('#dlLogo'); if (lg) lg.addEventListener('click', () => { const b = $('#logoPick'); if (b) b.click(); setTimeout(refresh, 1500); });
+  const lr = el.querySelector('#dlLogoReset'); if (lr) lr.addEventListener('click', () => { const b = $('#logoReset'); if (b) b.click(); setTimeout(() => { el.querySelector('.brand-logo').src = logoSrc(); refresh(); }, 300); });
+  const pr = async () => { const u = await (async () => { const p = window.__docK; window.__docK = 0; try { return k === 'quote' || k === '_all' ? (await quoteFormImgs(docSampleJob()))[0].url : null; } finally { window.__docK = p; } })(); if (u) printImgs([{ url: u, alias: 's' }], false, 'letter', d.n, true); else if (img.src) printImgs([{ url: img.src, alias: 's' }], k === 'insp', 'a4', d.n, true); };
+  el.querySelector('#dlPrint').addEventListener('click', pr); el.querySelector('.dlprev').addEventListener('click', pr);
+  refresh();
+}

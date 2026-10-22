@@ -528,6 +528,7 @@ label.fld,.fld>.flab{font-size:11.5px;font-weight:600;color:var(--ink-3);letter-
 .mtab .mcin{width:90px;text-align:right;margin-left:auto}
 .qfph{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-start}.qfph figure{position:relative;margin:0;width:150px;display:grid;gap:4px}.qfph img{width:150px;height:110px;object-fit:cover;border-radius:8px;border:1px solid var(--line)}.qfph .x{position:absolute;top:4px;right:4px}.qfph .inp{padding:4px 6px;font-size:12px}
 .bdwrap{margin-top:8px}.bdt input{width:100%}.bdt td:nth-child(2){width:160px}
+.dlset{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}.dlset input[type=range]{width:100%}.dlwrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,440px);gap:16px;align-items:start}.dlprev{border:1px solid var(--line);border-radius:10px;background:#fff;padding:6px;cursor:zoom-in}.dlprev img{width:100%;display:block}@media(max-width:1100px){.dlwrap{grid-template-columns:1fr}}
 .savebtn.ok{background:#16a34a!important;color:#fff!important;border-color:#16a34a!important}
 .fmorg{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);margin:12px 2px 4px}
 .fmlog{margin:0;padding-left:18px;display:grid;gap:3px;font-size:12.5px;max-height:260px;overflow:auto}
@@ -700,10 +701,17 @@ label.fld,.fld>.flab{font-size:11.5px;font-weight:600;color:var(--ink-3);letter-
         <div id="dkList" class="plist"></div>
       </section>
       <section id="jtab-forms" hidden>
+        <div class="seg" id="fmSeg" style="margin-bottom:10px"><button data-fmv="lib" class="on">Бүх маягт (загвар)</button><button data-fmv="org">Байгууллагын үнийн санал</button></div>
+        <div id="fmOrgBox" hidden>
         <p class="hint">Байгууллага тус бүрийн үнийн саналын маягт — нөхцөл, үнэд багтсан/ороогүй, тэмдэглэл. Үнийн санал дээр захиалагч сонгоход ★ маягт автоматаар орно; санал дээр нөхцөлөө засахад энд бүртгэгдэнэ.</p>
         <div class="ptools"><button class="btn primary" id="fmNew">+ Шинэ маягт</button><button class="btn" id="fmImp" title="Kh-ийн Excel үнийн саналын маягтууд (… - Form.xlsx, SQ… - Quotation….xlsx) — олныг зэрэг сонгож болно">⇪ Excel маягт оруулах</button><input type="file" id="fmImpIn" accept=".xlsx,.xlsm,.xls" multiple hidden></div>
         <input id="fmSearch" class="inp" placeholder="Хайх: байгууллага, маягт…" style="margin:10px 0">
         <div id="fmList" class="plist"></div>
+        </div>
+        <div id="fmLibBox">
+        <p class="hint">Програмын бүх хэвлэх маягт нэг дор — үсгийн хэмжээ, логоны байршил, хэмжээ, гарчиг, хөлийн бичгийг эндээс засна. Өөрчлөлт тухайн маягтаар гаргах бүх PDF, хэвлэлд үйлчилнэ.</p>
+        <div id="dlList" class="plist"></div>
+        </div>
       </section>
       <section id="jtab-certs" hidden>
         <p class="hint">Ирсэн хавтангийн гэрчилгээ (heat/хайлалтын дугаар). Зүсэлт бүртгэхэд аль хайлалтаас хэрэглэснийг сонгож ISO ул мөрийг хадгална.</p>
@@ -4677,7 +4685,19 @@ const I18N_EN = {
 "Задаргааны мөр": "Breakdown line",
 "Тооцооноос бөглөх": "Fill from costing",
 "Цэвэрлэх (автомат руу)": "Clear (back to automatic)",
-"+ Мөр": "+ Row"
+"+ Мөр": "+ Row",
+"Бүх маягт (загвар)": "All forms (templates)",
+"Байгууллагын үнийн санал": "Organisation quotations",
+"Хэв маяг": "Style",
+"Логоны байршил": "Logo position",
+"Зүүн дээд": "Top left",
+"Баруун дээд": "Top right",
+"Харуулахгүй": "Hidden",
+"Гарчиг": "Title",
+"Хөлийн бичиг (хуудасны доор)": "Footer text",
+"Анхны тохиргоонд буцаах": "Reset to default",
+"Компанийн мэдээлэл (маягтын толгой)": "Company details (form header)",
+"Жишээ өгөгдлөөр": "With sample data"
 };
 /* ================= KH Fab — language (МН / EN) and theme (Day / Night) =================
    The UI is written in Mongolian. In English mode every Mongolian fragment that reaches the
@@ -7748,6 +7768,25 @@ const PRINT_K = 12, PREV_K = 3;
 /* ================= Kh International — logo + printable document engine =================
    KH_LOGO_DEFAULT is injected by build.py from src/logo.png. Every document is drawn on
    canvases (so Cyrillic fonts render exactly), then saved as PDF or sent straight to the printer. */
+/* ---------- form library: every printable form, with its own style (text size, logo place/size, title, footer) ---------- */
+const DOC_KINDS = [
+  { k: 'quote', n: 'Үнийн санал — Kh загвар (захиалагчид)' },
+  { k: 'docket', n: 'Delivery Docket / Packing list' },
+  { k: 'qdetail', n: 'Үнийн санал — дэлгэрэнгүй задаргаа', title: 'ҮНИЙН САНАЛ' },
+  { k: 'scope', n: 'Ажлын scope, хуваарь', title: 'АЖЛЫН SCOPE — МЭДЭЭЛЭЛ & ХУВААРЬ' },
+  { k: 'cost', n: 'Зардал, ажиллах хүчний тооцоо', title: 'ЗАРДАЛ & АЖИЛЛАХ ХҮЧНИЙ ТООЦООЛОЛ' },
+  { k: 'prog', n: 'Ажлын явц, зардлын тайлан', title: 'АЖЛЫН ЯВЦ & ЗАРДЛЫН ТАЙЛАН' },
+  { k: 'acc', n: 'Хүлээн авалтын акт', title: 'ХҮЛЭЭН АВАЛТЫН АКТ & ӨӨРЧЛӨЛТИЙН БҮРТГЭЛ' },
+  { k: 'instr', n: 'Ажлын байрны заавар', title: 'АЖЛЫН БАЙРНЫ ЗААВАР' },
+  { k: 'insp', n: 'Өдөр тутмын үзлэгийн хуудас' },
+  { k: 'idea', n: 'Санал — үйлдвэрийн сайжруулалт', title: 'САНАЛ — ҮЙЛДВЭРИЙН САЙЖРУУЛАЛТ' }];
+const DOC_STYLE_DEF = { fs: 100, logo: 'left', logoH: 100, title: '', foot: '' };
+function docStyle(k) { const A = (S.docStyle = S.docStyle || {}); return Object.assign({}, DOC_STYLE_DEF, A._all || {}, A[k] || {}); }
+const docFs = k => Math.min(1.3, Math.max(0.8, (+docStyle(k).fs || 100) / 100));
+const docLogoK = k => Math.min(1.6, Math.max(0.5, (+docStyle(k).logoH || 100) / 100));
+/* a document canvas carries its text scale: every «font = … Npx» on it is scaled */
+(() => { const P = CanvasRenderingContext2D.prototype, d = Object.getOwnPropertyDescriptor(P, 'font'); if (!d || !d.set) return;
+  Object.defineProperty(P, 'font', { configurable: true, get() { return d.get.call(this); }, set(v) { const k = this.canvas && this.canvas.__fs; if (k && k !== 1 && typeof v === 'string') v = v.replace(/(\d*\.?\d+)px/, (m, n) => (+n * k).toFixed(3) + 'px'); d.set.call(this, v); } }); })();
 const LOGO_KEY = 'kh-logo';
 function logoSrc() { try { return localStorage.getItem(LOGO_KEY) || KH_LOGO_DEFAULT; } catch (e) { return KH_LOGO_DEFAULT; } }
 let LOGO_IMG = null;
@@ -7774,16 +7813,18 @@ async function kdoc(opt) {
   if (!window.jspdf && !opt.noPdfLib) { /* printing still works without jsPDF */ }
   try { await document.fonts.ready; } catch (e) { }
   await logoImg();
-  const land = !!opt.landscape, PW = land ? 297 : 210, PH = land ? 210 : 297, K = opt.K || PRINT_K, M = opt.margin || 14, pages = [];
+  const kind = (DOC_KINDS.find(d => d.title && d.title === opt.title) || {}).k || opt.kind || '', ST = docStyle(kind);
+  const land = !!opt.landscape, PW = land ? 297 : 210, PH = land ? 210 : 297, K = opt.K || window.__docK || PRINT_K, M = opt.margin || 14, pages = [];
   const D = { PW, PH, M, W: PW - 2 * M, pages, x: null, y: 0, land };
-  D.foot = opt.foot || `Kh International · ISO 9001 чанарын удирдлагын тогтолцоо${S.iso && S.iso.rev ? ' · Хувилбар ' + S.iso.rev : ''}`;
+  D.foot = ST.foot || opt.foot || `Kh International · ISO 9001 чанарын удирдлагын тогтолцоо${S.iso && S.iso.rev ? ' · Хувилбар ' + S.iso.rev : ''}`;
   D.page = () => {
     const c = document.createElement('canvas'); c.width = PW * K; c.height = PH * K; const x = c.getContext('2d'); x.scale(K, K); x.fillStyle = '#fff'; x.fillRect(0, 0, PW, PH);
-    D.x = x; pages.push(c);
+    c.__fs = docFs(kind); D.x = x; pages.push(c);
     if (opt.bare) { D.y = M; return x; }
-    drawLogo(x, M, 8, 10);
-    x.textBaseline = 'alphabetic'; x.textAlign = 'right'; x.fillStyle = DC.ink; x.font = `700 4.6px ${DF}`; x.fillText(opt.title || '', PW - M, 13.5);
-    x.font = `400 2.9px ${DF}`; x.fillStyle = DC.mute; x.fillText([opt.sub, `хуудас ${pages.length}`].filter(Boolean).join(' · '), PW - M, 18.5);
+    const lh = Math.min(12.5, 10 * docLogoK(kind)), R = ST.logo === 'right', tx = R ? M : PW - M;
+    if (ST.logo !== 'none') drawLogo(x, R ? PW - M : M, Math.max(4, 18 - lh), lh, R ? 'right' : 'left');
+    x.textBaseline = 'alphabetic'; x.textAlign = R ? 'left' : 'right'; x.fillStyle = DC.ink; x.font = `700 4.6px ${DF}`; x.fillText(ST.title || opt.title || '', tx, 13.5);
+    x.font = `400 2.9px ${DF}`; x.fillStyle = DC.mute; x.fillText([opt.sub, `хуудас ${pages.length}`].filter(Boolean).join(' · '), tx, 18.5);
     x.strokeStyle = DC.acc; x.lineWidth = 0.5; x.beginPath(); x.moveTo(M, 21.5); x.lineTo(PW - M, 21.5); x.stroke();
     x.textAlign = 'left'; x.font = `400 2.5px ${DF}`; x.fillStyle = DC.mute; x.fillText(D.foot, M, PH - 6);
     x.textAlign = 'right'; x.fillText(opt.code || '', PW - M, PH - 6); x.textAlign = 'left';
@@ -7916,7 +7957,7 @@ const docImgs = D => D.pages.map((c, i) => ({ url: c.toDataURL('image/jpeg', 0.9
 function docPdf(D, name) { pdfImgs(docImgs(D), D.land, name); }
 function docPrint(D, name) { printImgs(docImgs(D), D.land, 'a4', name); }
 /* draw one page on a fresh canvas and return it as an image */
-async function pageImg(land, draw, K = PRINT_K) {
+async function pageImg(land, draw, K = window.__docK || PRINT_K) {
   const PW = land ? 297 : 210, PH = land ? 210 : 297, c = document.createElement('canvas'); c.width = PW * K; c.height = PH * K;
   const x = c.getContext('2d'); x.scale(K, K); x.fillStyle = '#fff'; x.fillRect(0, 0, PW, PH); draw(x, PW, PH);
   return c.toDataURL('image/jpeg', 0.95);
@@ -9832,18 +9873,18 @@ async function quoteFormImgs(job, KK) {
   window.__noTr = MN;
   try {
   const excl = lines.reduce((a, l) => a + Math.round(l.p) * l.q, 0), disc = +f.discount || 0, vat = Math.round((excl - disc) * vatR / 100), total = excl - disc + vat;
-  const W = 215.9, H = 279.4, K = KK || PRINT_K, L0 = 23.9, R0 = 198.0, pages = [];
+  const W = 215.9, H = 279.4, K = KK || window.__docK || PRINT_K, L0 = 23.9, R0 = 198.0, pages = [], ST = docStyle('quote');
   let x, y;
-  const newPage = () => { const c = document.createElement('canvas'); c.width = Math.round(W * K); c.height = Math.round(H * K); x = c.getContext('2d'); x.scale(K, K); x.fillStyle = '#fff'; x.fillRect(0, 0, W, H); pages.push(c); };
+  const newPage = () => { const c = document.createElement('canvas'); c.__fs = docFs('quote'); c.width = Math.round(W * K); c.height = Math.round(H * K); x = c.getContext('2d'); x.scale(K, K); x.fillStyle = '#fff'; x.fillRect(0, 0, W, H); pages.push(c); };
   const T = (s, X, Y, o = {}) => { x.font = `${o.b ? 700 : 400} ${(o.s || 2.55) * 1.08}px ${QFS.F}`; x.fillStyle = o.c || '#000'; x.textAlign = o.a || 'left'; x.textBaseline = 'middle'; let v = String(s ?? ''); if (o.w) while (v.length > 1 && x.measureText(v).width > o.w) v = v.slice(0, -2) + '…'; x.fillText(v, X, Y); if (o.u) { const w = x.measureText(v).width, x0 = o.a === 'right' ? X - w : o.a === 'center' ? X - w / 2 : X; x.strokeStyle = o.c; x.lineWidth = 0.12; x.beginPath(); x.moveTo(x0, Y + 1.1); x.lineTo(x0 + w, Y + 1.1); x.stroke(); } };
   const box = (X, Y, w, h, fill) => { if (fill) { x.fillStyle = fill; x.fillRect(X, Y, w, h); } x.strokeStyle = QFS.line; x.lineWidth = 0.22; x.strokeRect(X, Y, w, h); };
   const ln = (X1, Y1, X2, Y2, w = 0.22) => { x.strokeStyle = QFS.line; x.lineWidth = w; x.beginPath(); x.moveTo(X1, Y1); x.lineTo(X2, Y2); x.stroke(); };
   const wrap = (s, w, font) => { x.font = font; const out = []; String(s || '').split('\n').forEach(p => { let l = ''; p.split(' ').forEach(wd => { const t = l ? l + ' ' + wd : wd; if (x.measureText(t).width > w && l) { out.push(l); l = wd; } else l = t; }); out.push(l); }); return out; };
   const header = () => {
-    drawLogo(x, 25.0, 23.8, 15.4);
-    T(C.tag, 30.7, 42.1, { b: 1, s: 2.75, c: QFS.blue });
-    T(C.name, R0 - 0.3, 29.8, { b: 1, s: 3.25, a: 'right' });
-    [C.a1, C.a2, C.a3].forEach((a, i) => T(a, R0 - 0.3, 33.9 + i * 4.05, { s: 2.55, a: 'right' }));
+    const R = ST.logo === 'right', lh = Math.min(19, 15.4 * docLogoK('quote')), ta = R ? 'left' : 'right', tx = R ? L0 + 0.3 : R0 - 0.3;
+    if (ST.logo !== 'none') { const lw = drawLogo(x, R ? R0 : 25.0, 39.2 - lh, lh, R ? 'right' : 'left'); T(C.tag, R ? R0 - 5.3 : 30.7, 42.1, { b: 1, s: 2.75, c: QFS.blue, a: R ? 'right' : 'left' }); }
+    T(C.name, tx, 29.8, { b: 1, s: 3.25, a: ta });
+    [C.a1, C.a2, C.a3].forEach((a, i) => T(a, tx, 33.9 + i * 4.05, { s: 2.55, a: ta }));
     x.strokeStyle = QFS.purple; x.lineWidth = 0.35; x.beginPath(); x.moveTo(L0, 46.1); x.lineTo(R0, 46.1); x.stroke();
   };
   const itemHead = Y => { const cols = [[L0, 29.8, '№'], [29.8, 128.9, Lb('Description')], [128.9, 143.7, Lb('UOM')], [143.7, 157.1, Lb('QTY')], [157.1, 176.4, Lb('Unit price')], [176.4, R0, Lb('Total excluded\nVAT')]]; cols.forEach(([a, b, t]) => { box(a, Y, b - a, 6.8, QFS.fill); const ls = t.split('\n'); ls.forEach((l, i) => T(l, (a + b) / 2, Y + 3.4 + (i - (ls.length - 1) / 2) * 2.6, { b: 1, s: 2.55, a: 'center' })); }); return Y + 6.8; };
@@ -10176,8 +10217,10 @@ function bindQfFormBar(el, job, qf, org, rerender) {
 }
 
 /* ---------- Баримт бичиг → Маягт (side list + editor) ---------- */
-const FM = { sel: null, q: '' };
+const FM = { sel: null, q: '', view: 'lib', dk: '_all' };
 function renderFormSide() {
+  { const o = $('#fmOrgBox'), l = $('#fmLibBox'); if (o) o.hidden = FM.view !== 'org'; if (l) l.hidden = FM.view !== 'lib'; document.querySelectorAll('[data-fmv]').forEach(b => b.classList.toggle('on', b.dataset.fmv === FM.view)); }
+  { const L = $('#dlList'); if (L) L.innerHTML = [{ k: '_all', n: 'Бүх маягтад нийтлэг (компани, үндсэн хэв маяг)' }].concat(DOC_KINDS).map(d => { const st = d.k === '_all' ? null : (S.docStyle || {})[d.k]; return `<div class="bitem fmi${FM.dk === d.k && J.tab === 'forms' && FM.view === 'lib' ? ' on' : ''}" data-dk="${d.k}"><div style="min-width:0"><div class="t">${esc(d.n)}</div><div class="m">${d.k === '_all' ? 'лого, компанийн мэдээлэл' : st && Object.keys(st).length ? 'тусгай тохиргоотой' : 'нийтлэг тохиргоогоор'}</div></div></div>`; }).join(''); }
   const box = $('#fmList'); if (!box) return; const q = lc(FM.q);
   const L = forms().filter(f => !q || lc([f.org, f.name, f.no].join(' ')).includes(q));
   const G = {}; L.forEach(f => { const k = (orgFind(f.org) || {}).name || f.org || '— Байгууллагагүй —'; (G[k] = G[k] || []).push(f); });
@@ -10186,6 +10229,8 @@ function renderFormSide() {
 (() => {
   const n = $('#fmNew'); if (n) n.addEventListener('click', () => { const org = prompt('Байгууллагын нэр', ''); if (org == null) return; const f = formNew(org.trim(), null, 'Үндсэн маягт'); orgLearn({ org: f.org }); FM.sel = f.id; renderFormSide(); renderJobMain(); });
   const s = $('#fmSearch'); if (s) s.addEventListener('input', () => { FM.q = s.value; renderFormSide(); });
+  document.querySelectorAll('[data-fmv]').forEach(b => b.addEventListener('click', () => { FM.view = b.dataset.fmv; renderFormSide(); renderJobMain(); }));
+  const dl = $('#dlList'); if (dl) dl.addEventListener('click', e => { const it = e.target.closest('[data-dk]'); if (!it) return; FM.dk = it.dataset.dk; renderFormSide(); renderJobMain(); });
   const l = $('#fmList'); if (l) l.addEventListener('click', e => { const it = e.target.closest('[data-fm]'); if (!it) return; FM.sel = it.dataset.fm; renderFormSide(); renderJobMain(); });
 })();
 function formPreviewJob(f) {
@@ -10193,6 +10238,7 @@ function formPreviewJob(f) {
   return { _nest: 1, no: 'SQ-0000', title: 'Sample work description', customer: (orgFind(f.org) || {}).name || f.org, quote: { no: 'SQ-0000', date: today(), valid: 14, vat: 10, qf }, _linesFn: () => [{ d: qf.title, u: 'set', q: 1, p: 1000000 }] };
 }
 function renderFormMain(el) {
+  if (FM.view === 'lib') return renderDocLib(el);
   const f = formById(FM.sel);
   if (!f) {
     const L = forms();
@@ -10307,6 +10353,64 @@ async function fxImportFiles(files) {
   b.addEventListener('click', () => i.click());
   i.addEventListener('change', async () => { const F = [...i.files]; i.value = ''; if (F.length) await fxImportFiles(F); });
 })();
+
+/* ---------- form library: style editor with a live sample ---------- */
+function docSampleJob() {
+  const j = { id: 'sample', no: 'KH-2026-000', short: '000', title: 'Жишээ ажил — AXLE STAND', customer: 'Sample LLC', due: '', status: 'new', note: '', items: [], extra: [], est: null, act: { hours: '', kg: '', other: '' }, trace: [], log: [], created: today() };
+  jx(j); const q = j.quote; q.no = 'SQ0000'; q.mats = [{ name: 'Ган хавтан S355 10мм', qty: 120, unit: 'кг', price: 4500 }, { name: 'Труба 89×5', qty: 6, unit: 'м', price: 38000 }]; q.cons = [{ name: 'Гагнуурын утас 1.2мм', qty: 5, unit: 'кг', price: 15000 }];
+  q.qf = { custId: 'S01', rfqName: 'Sample RFQ', rfqNo: 'N/A', person: 'Contact Person', email: 'contact@sample.mn', phone: '(976) 9900 0000', address: 'Ulaanbaatar, Mongolia', lead: '10 business days', delivery: "Kh will delivery customer's WHS", pay: '100% after work completion', discount: 0, mode: 'single', note: QF_NOTE, incl: 'Engineering drawing\nMaterial (Fiber laser cutting for preparation)\nFabrication welding and cleaning', excl: '3rd party NDT / inspection', title: 'AXLE STAND - 2', formId: '', _formOff: 1 };
+  j.dock = { no: '0000', date: today(), to: 'Sample LLC', supplied: 'Kh International', po: 'PO-0000', orderDate: today(), delDate: today(), phone: '(976) 9900 0000', contact: 'Contact Person', address: 'Ulaanbaatar', items: [{ desc: 'AXLE STAND', ordered: 2, shipped: 2, pk: 1, kg: 240 }], photos: [], delivered: '', received: '', note: '', tagsPer: 4 };
+  return j;
+}
+async function docSample(k) {
+  const prev = window.__docK; window.__docK = 3;
+  try {
+    const J0 = docSampleJob(), first = D => D.pages[0].toDataURL('image/jpeg', 0.9);
+    if (k === 'quote' || k === '_all') return (await quoteFormImgs(J0, 3))[0].url;
+    if (k === 'docket') return (await docketImgs(J0, 3))[0].url;
+    if (k === 'qdetail') return first(await quoteDoc(J0));
+    if (k === 'scope') return first(await scopeDoc(J0));
+    if (k === 'cost') return first(await costDoc(J0));
+    if (k === 'prog') return first(await progDoc(J0));
+    if (k === 'acc') return first(await accDoc(J0));
+    const m = (IS().machines || [])[0];
+    if (k === 'instr') return m ? first(await instrDoc(m)) : '';
+    if (k === 'insp') { if (!m) return ''; await logoImg(); return await pageImg(true, twoUp(x => drawCover(x, m)), 3); }
+    if (k === 'idea') return first(await ideaDoc({ no: 'ID-000', title: 'Жишээ санал', cat: (typeof ICAT !== 'undefined' ? ICAT[0] : ''), prio: 'med', by: '', owner: '', problem: 'Одоогийн байдал …', proposal: 'Санал болгож буй шийдэл …', benefit: '', saving: '', due: '', budget: [], photos: [], st: 'idea' }));
+  } catch (e) { console.error(e); return ''; } finally { window.__docK = prev; }
+  return '';
+}
+function renderDocLib(el) {
+  const k = FM.dk || '_all', A = (S.docStyle = S.docStyle || {}), own = A[k] = A[k] || {}, base = Object.assign({}, DOC_STYLE_DEF, k === '_all' ? {} : A._all || {}), cur = Object.assign({}, base, own), d = DOC_KINDS.find(x => x.k === k) || { n: 'Бүх маягтад нийтлэг', k: '_all' }, kd = !!d.title, C = company();
+  const val = f => own[f] != null && own[f] !== '' ? own[f] : '';
+  el.innerHTML = `<div class="dhead"><div><h2>${esc(d.n)}</h2><p class="muted">${k === '_all' ? 'Энд тавьсан тохиргоо бүх маягтад үйлчилнэ; маягт бүрт тусад нь өөрчилж болно.' : 'Хоосон талбар нь «Бүх маягтад нийтлэг» тохиргоогоор явна.'}</p></div><span class="sp" style="flex:1"></span>${Object.keys(own).length ? '<button class="btn ghost" id="dlReset">Анхны тохиргоонд буцаах</button>' : ''}<button class="btn" id="dlPrint">🖨 Жишээ хэвлэх</button></div>
+    <div class="dlwrap"><div>
+      <div class="jcard"><div class="bcard-h">Хэв маяг</div><div class="jbody"><div class="dlset">
+        <label class="fld">Үсгийн хэмжээ — <b id="dlFsV">${cur.fs}%</b><input type="range" min="80" max="130" step="5" id="dl_fs" value="${cur.fs}"></label>
+        <label class="fld">Логоны хэмжээ — <b id="dlLhV">${cur.logoH}%</b><input type="range" min="50" max="160" step="5" id="dl_logoH" value="${cur.logoH}"></label>
+        <label class="fld">Логоны байршил<select id="dl_logo">${[['left', 'Зүүн дээд'], ['right', 'Баруун дээд'], ['none', 'Харуулахгүй']].map(([v, n]) => `<option value="${v}"${cur.logo === v ? ' selected' : ''}>${n}</option>`).join('')}</select></label>
+        ${kd ? `<label class="fld">Гарчиг<input id="dl_title" value="${esc(val('title'))}" placeholder="${esc(d.title)}"></label>` : ''}
+        ${kd || k === '_all' ? `<label class="fld" style="grid-column:1/-1">Хөлийн бичиг (хуудасны доор)<input id="dl_foot" value="${esc(val('foot'))}" placeholder="Kh International · ISO 9001 чанарын удирдлагын тогтолцоо"></label>` : ''}
+      </div><p class="note">Үсгийг 115%-иас том болговол урт хүснэгтэд мөр давхцаж магадгүй — жишээн дээр шалгана уу.</p></div></div>
+      ${k === '_all' || k === 'quote' || k === 'docket' ? `<div class="jcard"><div class="bcard-h">Компанийн мэдээлэл (маягтын толгой)</div><div class="jbody"><div class="jgrid">${[['name', 'Компанийн нэр'], ['tag', 'Уриа'], ['a1', 'Хаяг 1'], ['a2', 'Хаяг 2'], ['a3', 'Хаяг 3'], ['phone', 'Утас'], ['mail', 'Имэйл'], ['bank', 'Банкны данс'], ['reg', 'Регистр'], ['currency', 'Валют']].map(([f, n]) => fldIn('dco_' + f, n, C[f])).join('')}</div>
+        <div class="logoset" style="margin-top:10px"><span class="logo-wrap"><img class="brand-logo" alt="лого" src="${logoSrc()}"></span><button class="btn sm" id="dlLogo">Лого солих</button><button class="btn sm ghost" id="dlLogoReset">Анхны лого</button></div></div></div>` : ''}
+    </div><div><div class="dlprev" title="Дарж томруулна"><img id="dlImg" alt="Жишээ"></div><p class="note" id="dlNote" style="text-align:center">Жишээ ачаалж байна…</p></div></div>`;
+  const img = el.querySelector('#dlImg'), note = el.querySelector('#dlNote'); let tm = 0;
+  const refresh = () => { clearTimeout(tm); tm = setTimeout(async () => { const u = await docSample(k); if (!img.isConnected) return; if (u) { img.src = u; note.textContent = 'Жишээ өгөгдлөөр'; } else note.textContent = k === 'instr' || k === 'insp' ? 'Үзлэг · ХАБ хэсэгт тоног төхөөрөмж нэмсний дараа жишээ гарна' : 'Жишээ гаргаж чадсангүй'; }, 250); };
+  const setv = (f, v) => { if (v === '' || v == null || (k !== '_all' && String(v) === String(base[f]))) delete own[f]; else own[f] = v; save(); renderFormSide(); refresh(); };
+  const fs = el.querySelector('#dl_fs'), lhv = el.querySelector('#dl_logoH');
+  fs.addEventListener('input', () => { el.querySelector('#dlFsV').textContent = fs.value + '%'; }); fs.addEventListener('change', () => setv('fs', +fs.value));
+  lhv.addEventListener('input', () => { el.querySelector('#dlLhV').textContent = lhv.value + '%'; }); lhv.addEventListener('change', () => setv('logoH', +lhv.value));
+  el.querySelector('#dl_logo').addEventListener('change', e => setv('logo', e.target.value));
+  ['title', 'foot'].forEach(f => { const i = el.querySelector('#dl_' + f); if (i) i.addEventListener('change', () => setv(f, i.value.trim())); });
+  el.querySelectorAll('[id^="dco_"]').forEach(i => i.addEventListener('change', () => { const C2 = company(); C2[i.id.slice(4)] = i.value; S.company = C2; save(); refresh(); }));
+  const rs = el.querySelector('#dlReset'); if (rs) rs.addEventListener('click', () => { A[k] = {}; save(); renderFormSide(); renderDocLib(el); });
+  const lg = el.querySelector('#dlLogo'); if (lg) lg.addEventListener('click', () => { const b = $('#logoPick'); if (b) b.click(); setTimeout(refresh, 1500); });
+  const lr = el.querySelector('#dlLogoReset'); if (lr) lr.addEventListener('click', () => { const b = $('#logoReset'); if (b) b.click(); setTimeout(() => { el.querySelector('.brand-logo').src = logoSrc(); refresh(); }, 300); });
+  const pr = async () => { const u = await (async () => { const p = window.__docK; window.__docK = 0; try { return k === 'quote' || k === '_all' ? (await quoteFormImgs(docSampleJob()))[0].url : null; } finally { window.__docK = p; } })(); if (u) printImgs([{ url: u, alias: 's' }], false, 'letter', d.n, true); else if (img.src) printImgs([{ url: img.src, alias: 's' }], k === 'insp', 'a4', d.n, true); };
+  el.querySelector('#dlPrint').addEventListener('click', pr); el.querySelector('.dlprev').addEventListener('click', pr);
+  refresh();
+}
 
 /* ================= Kh International — job attachments (drawings, photos, PDFs) + BOM / cutting split =================
    Files live in IndexedDB (kh-docs, tagged with the job); the job keeps a small list with thumbnails.
@@ -10587,16 +10691,16 @@ const imgLoad = src => new Promise(res => { const i = new Image(); i.onload = ()
 
 async function docketImgs(job, KK) {
   try { await document.fonts.ready; } catch (e) { } await logoImg();
-  const D = dockDefaults(job), C = company(), W = 210, H = 297, K = KK || PRINT_K, L0 = 18, R0 = 192;
-  const c = document.createElement('canvas'); c.width = W * K; c.height = H * K; const x = c.getContext('2d'); x.scale(K, K); x.fillStyle = '#fff'; x.fillRect(0, 0, W, H);
+  const D = dockDefaults(job), C = company(), W = 210, H = 297, K = KK || window.__docK || PRINT_K, L0 = 18, R0 = 192, ST = docStyle('docket');
+  const c = document.createElement('canvas'); c.__fs = docFs('docket'); c.width = W * K; c.height = H * K; const x = c.getContext('2d'); x.scale(K, K); x.fillStyle = '#fff'; x.fillRect(0, 0, W, H);
   const T = (s, X, Y, o = {}) => { x.font = `${o.b ? 700 : 400} ${(o.s || 3.1) * 1.08}px ${QFS.F}`; x.fillStyle = o.c || '#000'; x.textAlign = o.a || 'left'; x.textBaseline = 'middle'; let v = trDoc(String(s ?? '')); if (o.w) while (v.length > 1 && x.measureText(v).width > o.w) v = v.slice(0, -2) + '…'; x.fillText(v, X, Y); return x.measureText(v).width; };
   const ln = (a, b, c2, d, w = 0.25, col = '#000') => { x.strokeStyle = col; x.lineWidth = w; x.beginPath(); x.moveTo(a, b); x.lineTo(c2, d); x.stroke(); };
   const KV = (k, v, X, Y, o = {}) => { const w = T(k, X, Y, { b: 1, s: 3.2 }); T(' ' + (v || ''), X + w, Y, { s: 3.2, w: o.w, b: o.vb }); };
   // header
-  drawLogo(x, L0, 12, 19);
-  T(C.tag, L0 + 2, 35.5, { b: 1, s: 3.0, c: QFS.blue });
-  T(C.name, R0, 15, { b: 1, s: 4.1, a: 'right' });
-  [C.a1 + ' ' + C.a2, C.a3, C.phone, C.mail].filter(Boolean).forEach((a, i) => T(a, R0, 20.5 + i * 4.4, { s: 2.95, a: 'right', c: a === C.mail ? QFS.link : '#000' }));
+  { const R = ST.logo === 'right', lh = Math.min(23, 19 * docLogoK('docket')), ta = R ? 'left' : 'right', tx = R ? L0 : R0;
+    if (ST.logo !== 'none') { const lw = drawLogo(x, R ? R0 : L0, 31 - lh, lh, R ? 'right' : 'left'); T(C.tag, R ? R0 - 2 : L0 + 2, 35.5, { b: 1, s: 3.0, c: QFS.blue, a: R ? 'right' : 'left' }); }
+    T(C.name, tx, 15, { b: 1, s: 4.1, a: ta });
+    [C.a1 + ' ' + C.a2, C.a3, C.phone, C.mail].filter(Boolean).forEach((a, i) => T(a, tx, 20.5 + i * 4.4, { s: 2.95, a: ta, c: a === C.mail ? QFS.link : '#000' })); }
   x.fillStyle = QFS.purple; x.fillRect(L0, 41.2, R0 - L0, 0.7);
   // title block
   T('DELIVERY DOCKET', R0, 51, { b: 1, s: 4.6, a: 'right' });
@@ -12903,8 +13007,9 @@ function icell(x, X, Y, w, h, fill) { if (fill) { x.fillStyle = fill; x.fillRect
 const IL = 12.4, IW = 128;
 function ititle(x, t) { x.fillStyle = IC.dark; x.fillRect(IL, 8.9, IW, 5.8); itxt(x, t, IL + IW / 2, 11.8, { b: 1, s: 3.1, c: '#fff', a: 'center', w: IW - 4 }); }
 function drawCover(x, m) {
-  drawLogo(x, IL, 9, 12.4);
-  itxt(x, 'Kh International', IL + IW, 15.8, { b: 1, s: 2.6, a: 'right' }); itxt(x, 'ISO 9001 чанарын удирдлагын тогтолцоо', IL + IW, 19.2, { s: 2, c: IC.mute, a: 'right' });
+  x.canvas.__fs = docFs('insp'); const ST = docStyle('insp'), R = ST.logo === 'right', lh = Math.min(15, 12.4 * docLogoK('insp'));
+  if (ST.logo !== 'none') drawLogo(x, R ? IL + IW : IL, 21.4 - lh, lh, R ? 'right' : 'left');
+  itxt(x, 'Kh International', R ? IL : IL + IW, 15.8, { b: 1, s: 2.6, a: R ? 'left' : 'right' }); itxt(x, 'ISO 9001 чанарын удирдлагын тогтолцоо', R ? IL : IL + IW, 19.2, { s: 2, c: IC.mute, a: R ? 'left' : 'right' });
   x.strokeStyle = IC.acc; x.lineWidth = 0.35; x.beginPath(); x.moveTo(IL, 25.6); x.lineTo(IL + IW, 25.6); x.stroke();
   x.fillStyle = IC.acc; x.fillRect(IL, 30, 2.6, 14);
   itxt(x, 'ӨДӨР ТУТМЫН ҮЗЛЭГИЙН ХУУДАС', IL + 5.5, 34.6, { b: 1, s: 4.3 }); itxt(x, m.name, IL + 5.5, 40.4, { b: 1, s: 3.1, c: IC.acc, w: IW - 8 });
@@ -12914,7 +13019,7 @@ function drawCover(x, m) {
   const J0 = 94.4, jh = 6 + INSP_JURAM.length * 2.8; icell(x, IL, J0, IW, jh, '#f7f7f7'); x.fillStyle = IC.acc; x.fillRect(IL, J0, 0.5, jh);
   itxt(x, 'ЖУРАМ:', IL + 2.4, J0 + 3, { b: 1, s: 2.4, c: IC.acc }); INSP_JURAM.forEach((t, i) => itxt(x, `${i + 1}. ${t}`, IL + 2.4, J0 + 6.2 + i * 2.8, { s: 1.95, c: '#333', w: IW - 5 }));
 }
-function drawSheet(x, m, rec) {
+function drawSheet(x, m, rec) { x.canvas.__fs = docFs('insp');
   ititle(x, m.title || (m.name.toUpperCase() + ' ӨДӨР ТУТМЫН ҮЗЛЭГИЙН ХУУДАС'));
   const cw = [32, 32, 32, 32]; let X = IL;
   const shift = rec ? (rec.shift === 'pm' ? 'Өглөө☐  Үдэш☑' : 'Өглөө☑  Үдэш☐') : 'Өглөө☐  Үдэш☐';
@@ -12958,7 +13063,7 @@ function drawSheet(x, m, rec) {
 }
 const LOGCOLS = { vehicle: [['№', 4.6], ['Явсан огноо, цаг', 20.7], ['Ирсэн огноо, цаг', 20.7], ['Жолооч', 20.2], ['Чиглэл / Зорчсон газар', 26.4], ['Гүйлт (км)', 13.7], ['Гарын үсэг', 21.7]],
   machine: [['№', 5], ['Засварын огноо', 20.3], ['Дараагийн засвар', 20.2], ['Тайлбар / Орлуулсан сэлбэг, тоо', 37.3], ['Засварласан ажилтан', 26.4], ['Гарын үсэг', 18.8]] };
-function drawLog(x, m, rows, start = 0) {
+function drawLog(x, m, rows, start = 0) { x.canvas.__fs = docFs('insp');
   const veh = m.kind === 'vehicle', cols = LOGCOLS[veh ? 'vehicle' : 'machine'], n = veh ? 16 : 18, rh = veh ? 6.5 : 6.2;
   ititle(x, veh ? 'ЖОЛООНЫ БҮРТГЭЛ' : 'ЗАСВАР ҮЙЛЧИЛГЭЭНИЙ БҮРТГЭЛ');
   icell(x, IL, 18.3, IW / 2, 4.4, IC.key); icell(x, IL + IW / 2, 18.3, IW / 2, 4.4, IC.key);

@@ -25,16 +25,16 @@ const imgLoad = src => new Promise(res => { const i = new Image(); i.onload = ()
 
 async function docketImgs(job, KK) {
   try { await document.fonts.ready; } catch (e) { } await logoImg();
-  const D = dockDefaults(job), C = company(), W = 210, H = 297, K = KK || PRINT_K, L0 = 18, R0 = 192;
-  const c = document.createElement('canvas'); c.width = W * K; c.height = H * K; const x = c.getContext('2d'); x.scale(K, K); x.fillStyle = '#fff'; x.fillRect(0, 0, W, H);
+  const D = dockDefaults(job), C = company(), W = 210, H = 297, K = KK || window.__docK || PRINT_K, L0 = 18, R0 = 192, ST = docStyle('docket');
+  const c = document.createElement('canvas'); c.__fs = docFs('docket'); c.width = W * K; c.height = H * K; const x = c.getContext('2d'); x.scale(K, K); x.fillStyle = '#fff'; x.fillRect(0, 0, W, H);
   const T = (s, X, Y, o = {}) => { x.font = `${o.b ? 700 : 400} ${(o.s || 3.1) * 1.08}px ${QFS.F}`; x.fillStyle = o.c || '#000'; x.textAlign = o.a || 'left'; x.textBaseline = 'middle'; let v = trDoc(String(s ?? '')); if (o.w) while (v.length > 1 && x.measureText(v).width > o.w) v = v.slice(0, -2) + '…'; x.fillText(v, X, Y); return x.measureText(v).width; };
   const ln = (a, b, c2, d, w = 0.25, col = '#000') => { x.strokeStyle = col; x.lineWidth = w; x.beginPath(); x.moveTo(a, b); x.lineTo(c2, d); x.stroke(); };
   const KV = (k, v, X, Y, o = {}) => { const w = T(k, X, Y, { b: 1, s: 3.2 }); T(' ' + (v || ''), X + w, Y, { s: 3.2, w: o.w, b: o.vb }); };
   // header
-  drawLogo(x, L0, 12, 19);
-  T(C.tag, L0 + 2, 35.5, { b: 1, s: 3.0, c: QFS.blue });
-  T(C.name, R0, 15, { b: 1, s: 4.1, a: 'right' });
-  [C.a1 + ' ' + C.a2, C.a3, C.phone, C.mail].filter(Boolean).forEach((a, i) => T(a, R0, 20.5 + i * 4.4, { s: 2.95, a: 'right', c: a === C.mail ? QFS.link : '#000' }));
+  { const R = ST.logo === 'right', lh = Math.min(23, 19 * docLogoK('docket')), ta = R ? 'left' : 'right', tx = R ? L0 : R0;
+    if (ST.logo !== 'none') { const lw = drawLogo(x, R ? R0 : L0, 31 - lh, lh, R ? 'right' : 'left'); T(C.tag, R ? R0 - 2 : L0 + 2, 35.5, { b: 1, s: 3.0, c: QFS.blue, a: R ? 'right' : 'left' }); }
+    T(C.name, tx, 15, { b: 1, s: 4.1, a: ta });
+    [C.a1 + ' ' + C.a2, C.a3, C.phone, C.mail].filter(Boolean).forEach((a, i) => T(a, tx, 20.5 + i * 4.4, { s: 2.95, a: ta, c: a === C.mail ? QFS.link : '#000' })); }
   x.fillStyle = QFS.purple; x.fillRect(L0, 41.2, R0 - L0, 0.7);
   // title block
   T('DELIVERY DOCKET', R0, 51, { b: 1, s: 4.6, a: 'right' });

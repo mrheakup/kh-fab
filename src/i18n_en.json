@@ -2966,5 +2966,17 @@
 "Задаргааны мөр": "Breakdown line",
 "Тооцооноос бөглөх": "Fill from costing",
 "Цэвэрлэх (автомат руу)": "Clear (back to automatic)",
-"+ Мөр": "+ Row"
+"+ Мөр": "+ Row",
+"Бүх маягт (загвар)": "All forms (templates)",
+"Байгууллагын үнийн санал": "Organisation quotations",
+"Хэв маяг": "Style",
+"Логоны байршил": "Logo position",
+"Зүүн дээд": "Top left",
+"Баруун дээд": "Top right",
+"Харуулахгүй": "Hidden",
+"Гарчиг": "Title",
+"Хөлийн бичиг (хуудасны доор)": "Footer text",
+"Анхны тохиргоонд буцаах": "Reset to default",
+"Компанийн мэдээлэл (маягтын толгой)": "Company details (form header)",
+"Жишээ өгөгдлөөр": "With sample data"
 }

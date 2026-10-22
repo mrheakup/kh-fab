@@ -64,18 +64,18 @@ async function quoteFormImgs(job, KK) {
   window.__noTr = MN;
   try {
   const excl = lines.reduce((a, l) => a + Math.round(l.p) * l.q, 0), disc = +f.discount || 0, vat = Math.round((excl - disc) * vatR / 100), total = excl - disc + vat;
-  const W = 215.9, H = 279.4, K = KK || PRINT_K, L0 = 23.9, R0 = 198.0, pages = [];
+  const W = 215.9, H = 279.4, K = KK || window.__docK || PRINT_K, L0 = 23.9, R0 = 198.0, pages = [], ST = docStyle('quote');
   let x, y;
-  const newPage = () => { const c = document.createElement('canvas'); c.width = Math.round(W * K); c.height = Math.round(H * K); x = c.getContext('2d'); x.scale(K, K); x.fillStyle = '#fff'; x.fillRect(0, 0, W, H); pages.push(c); };
+  const newPage = () => { const c = document.createElement('canvas'); c.__fs = docFs('quote'); c.width = Math.round(W * K); c.height = Math.round(H * K); x = c.getContext('2d'); x.scale(K, K); x.fillStyle = '#fff'; x.fillRect(0, 0, W, H); pages.push(c); };
   const T = (s, X, Y, o = {}) => { x.font = `${o.b ? 700 : 400} ${(o.s || 2.55) * 1.08}px ${QFS.F}`; x.fillStyle = o.c || '#000'; x.textAlign = o.a || 'left'; x.textBaseline = 'middle'; let v = String(s ?? ''); if (o.w) while (v.length > 1 && x.measureText(v).width > o.w) v = v.slice(0, -2) + '…'; x.fillText(v, X, Y); if (o.u) { const w = x.measureText(v).width, x0 = o.a === 'right' ? X - w : o.a === 'center' ? X - w / 2 : X; x.strokeStyle = o.c; x.lineWidth = 0.12; x.beginPath(); x.moveTo(x0, Y + 1.1); x.lineTo(x0 + w, Y + 1.1); x.stroke(); } };
   const box = (X, Y, w, h, fill) => { if (fill) { x.fillStyle = fill; x.fillRect(X, Y, w, h); } x.strokeStyle = QFS.line; x.lineWidth = 0.22; x.strokeRect(X, Y, w, h); };
   const ln = (X1, Y1, X2, Y2, w = 0.22) => { x.strokeStyle = QFS.line; x.lineWidth = w; x.beginPath(); x.moveTo(X1, Y1); x.lineTo(X2, Y2); x.stroke(); };
   const wrap = (s, w, font) => { x.font = font; const out = []; String(s || '').split('\n').forEach(p => { let l = ''; p.split(' ').forEach(wd => { const t = l ? l + ' ' + wd : wd; if (x.measureText(t).width > w && l) { out.push(l); l = wd; } else l = t; }); out.push(l); }); return out; };
   const header = () => {
-    drawLogo(x, 25.0, 23.8, 15.4);
-    T(C.tag, 30.7, 42.1, { b: 1, s: 2.75, c: QFS.blue });
-    T(C.name, R0 - 0.3, 29.8, { b: 1, s: 3.25, a: 'right' });
-    [C.a1, C.a2, C.a3].forEach((a, i) => T(a, R0 - 0.3, 33.9 + i * 4.05, { s: 2.55, a: 'right' }));
+    const R = ST.logo === 'right', lh = Math.min(19, 15.4 * docLogoK('quote')), ta = R ? 'left' : 'right', tx = R ? L0 + 0.3 : R0 - 0.3;
+    if (ST.logo !== 'none') { const lw = drawLogo(x, R ? R0 : 25.0, 39.2 - lh, lh, R ? 'right' : 'left'); T(C.tag, R ? R0 - 5.3 : 30.7, 42.1, { b: 1, s: 2.75, c: QFS.blue, a: R ? 'right' : 'left' }); }
+    T(C.name, tx, 29.8, { b: 1, s: 3.25, a: ta });
+    [C.a1, C.a2, C.a3].forEach((a, i) => T(a, tx, 33.9 + i * 4.05, { s: 2.55, a: ta }));
     x.strokeStyle = QFS.purple; x.lineWidth = 0.35; x.beginPath(); x.moveTo(L0, 46.1); x.lineTo(R0, 46.1); x.stroke();
   };
   const itemHead = Y => { const cols = [[L0, 29.8, '№'], [29.8, 128.9, Lb('Description')], [128.9, 143.7, Lb('UOM')], [143.7, 157.1, Lb('QTY')], [157.1, 176.4, Lb('Unit price')], [176.4, R0, Lb('Total excluded\nVAT')]]; cols.forEach(([a, b, t]) => { box(a, Y, b - a, 6.8, QFS.fill); const ls = t.split('\n'); ls.forEach((l, i) => T(l, (a + b) / 2, Y + 3.4 + (i - (ls.length - 1) / 2) * 2.6, { b: 1, s: 2.55, a: 'center' })); }); return Y + 6.8; };
