@@ -383,7 +383,7 @@ tr.rcut td:first-child{box-shadow:inset 3px 0 0 var(--accent)}
 
 /* jobs module views: quotes / jobs / dashboard / documents */
 html[data-jview="docs"] [data-jtab="jobs"]{display:none}
-html:not([data-jview="docs"]) [data-jtab="kits"],html:not([data-jview="docs"]) [data-jtab="certs"],html:not([data-jview="docs"]) [data-jtab="dockets"],html:not([data-jview="docs"]) [data-jtab="forms"]{display:none}
+html:not([data-jview="docs"]) [data-jtab="kits"],html:not([data-jview="docs"]) [data-jtab="certs"],html:not([data-jview="docs"]) [data-jtab="dockets"],html:not([data-jview="docs"]) [data-jtab="scopes"],html:not([data-jview="docs"]) [data-jtab="forms"]{display:none}
 html[data-jview="quotes"] #jFilter,html[data-jview="jobs"] #jFilter,html[data-jview="quotes"] #jNew,html[data-jview="jobs"] #qNew,html[data-jview="jobs"] #qImp,html[data-jview="dash"] #qImp{display:none}
 /* team & tasks */
 .av{display:inline-grid;place-items:center;border-radius:50%;color:#fff;font-weight:700;flex:none;line-height:1}.av.none{background:var(--surface-2);color:var(--ink-3);box-shadow:inset 0 0 0 1px var(--line);font-size:11px}
@@ -524,6 +524,7 @@ label.fld,.fld>.flab{font-size:11.5px;font-weight:600;color:var(--ink-3);letter-
 .qfph{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-start}.qfph figure{position:relative;margin:0;width:150px;display:grid;gap:4px}.qfph img{width:150px;height:110px;object-fit:cover;border-radius:8px;border:1px solid var(--line)}.qfph .x{position:absolute;top:4px;right:4px}.qfph .inp{padding:4px 6px;font-size:12px}
 .bdwrap{margin-top:8px}.bdt input{width:100%}.bdt td:nth-child(2){width:160px}
 .dlset{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}.dlset input[type=range]{width:100%}.dlwrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,440px);gap:16px;align-items:start}.dlprev{border:1px solid var(--line);border-radius:10px;background:#fff;padding:6px;cursor:zoom-in}.dlprev img{width:100%;display:block}@media(max-width:1100px){.dlwrap{grid-template-columns:1fr}}
+.qlines{margin-top:10px}.qlt input{width:100%}
 .savebtn.ok{background:#16a34a!important;color:#fff!important;border-color:#16a34a!important}
 .fmorg{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);margin:12px 2px 4px}
 .fmlog{margin:0;padding-left:18px;display:grid;gap:3px;font-size:12.5px;max-height:260px;overflow:auto}
@@ -655,6 +656,7 @@ label.fld,.fld>.flab{font-size:11.5px;font-weight:600;color:var(--ink-3);letter-
       <button data-jtab="certs">Гэрчилгээ</button>
       <button data-jtab="dockets">Packing list</button>
       <button data-jtab="forms">Маягт</button>
+      <button data-jtab="scopes">Scope</button>
     </nav>
     <div class="panel-body">
       <section id="jtab-jobs">
@@ -694,6 +696,12 @@ label.fld,.fld>.flab{font-size:11.5px;font-weight:600;color:var(--ink-3);letter-
         <div class="ptools"><button class="btn primary" id="dkNew">+ Шинэ Packing list</button></div>
         <input id="dkSearch" class="inp" placeholder="Хайх: №, захиалагч, PO, бараа…" style="margin:10px 0">
         <div id="dkList" class="plist"></div>
+      </section>
+      <section id="jtab-scopes" hidden>
+        <p class="hint">Ажлын scope — хамрах хүрээ, үе шат, хуваарь (Gantt), эрсдэл, багаж. Үнийн саналгүйгээр шууд бичиж PDF / хэвлэнэ; дараа нь «Ажил болгох».</p>
+        <div class="ptools"><button class="btn primary" id="scNew">+ Шинэ Scope</button></div>
+        <input id="scSearch" class="inp" placeholder="Хайх: №, төсөл, захиалагч…" style="margin:10px 0">
+        <div id="scList" class="plist"></div>
       </section>
       <section id="jtab-forms" hidden>
         <div class="seg" id="fmSeg" style="margin-bottom:10px"><button data-fmv="lib" class="on">Бүх маягт (загвар)</button><button data-fmv="org">Байгууллагын үнийн санал</button></div>

@@ -2978,5 +2978,11 @@
 "Хөлийн бичиг (хуудасны доор)": "Footer text",
 "Анхны тохиргоонд буцаах": "Reset to default",
 "Компанийн мэдээлэл (маягтын толгой)": "Company details (form header)",
-"Жишээ өгөгдлөөр": "With sample data"
+"Жишээ өгөгдлөөр": "With sample data",
+"+ Шинэ Scope": "+ New scope",
+"Бие даасан scope": "Stand-alone scope",
+"Ажлын scope": "Job scopes",
+"📊 Gantt PDF": "📊 Gantt PDF",
+"🖨 Gantt": "🖨 Gantt",
+"+ Мөр нэмэх": "+ Add line"
 }

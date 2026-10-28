@@ -122,12 +122,13 @@ function quoteCalc(job) {
   const cat = { mat: mat + scrap + trans, cons, labor: laborTotal, equip, other }, mc = q.mc || {}, kc = {}, price = {};
   Object.keys(cat).forEach(k => { kc[k] = mFac(mc[k] ?? q.margin); price[k] = cat[k] * kc[k]; });
   const byCat = Object.values(price).reduce((a, b) => a + b, 0);
-  const net = +q.fixedNet > 0 ? +q.fixedNet : byCat, profit = net - cost;
-  if (+q.fixedNet > 0) Object.keys(kc).forEach(k => kc[k] = cost > 0 ? net / cost : 1);
+  const fl = q.qf && q.qf.mode === 'fixed' && Array.isArray(q.lines) ? q.lines.reduce((a, l) => a + Math.round(+l.p || 0) * (+l.q || 0), 0) : 0;
+  const net = +q.fixedNet > 0 ? +q.fixedNet : fl > 0 ? fl : byCat, profit = net - cost;
+  if (+q.fixedNet > 0 || fl > 0) Object.keys(kc).forEach(k => kc[k] = cost > 0 ? net / cost : 1);
   const vat = net * (+q.vat || 0) / 100, total = net + vat, k = cost > 0 ? net / cost : 1, marginPct = net ? profit / net * 100 : 0;
   const chg = (job.acc ? job.acc.changes : []).filter(c => c.ok).reduce((a, c) => a + (+c.cost || 0), 0);
   const budget = { mat: mat + scrap, cons, labor: laborTotal, equip, trans, other };
-  return { rate, matKg, mat, scrap, trans, cons, matTotal, labor, laborTotal, laborH, equipRows, equipPctV, equip, other, cost, net, profit, vat, total, k, kc, cat, price, marginPct, chg, budget };
+  return { rate, matKg, mat, scrap, trans, cons, matTotal, labor, laborTotal, laborH, equipRows, equipPctV, equip, other, cost, net, profit, vat, total, k, kc, cat, price, marginPct, byCat, chg, budget };
 }
 function progCalc(job) {
   jx(job); const sc = job.scope, c = quoteCalc(job), exp = job.prog.exp;
@@ -179,6 +180,7 @@ function bindFields(root, obj, keys, after) {
 /* ---------- sub-tab bar ---------- */
 function jobSubBar(job) {
   if (job.kind === 'quote') return `<nav class="rtabs jsub stepper qbar"><span class="pill qst-${job.qst || 'draft'}" style="align-self:center">ҮНИЙН САНАЛ</span><label class="mono" style="align-self:center;display:flex;gap:6px;align-items:center">№<input id="qb_no" class="inp mono" value="${esc(job.quote.no || job.no)}" placeholder="SQ1756" title="Үнийн саналын дугаар — өөрөө оруулна" style="width:120px"></label>
+    <span class="seg qtabs" style="align-self:center"><button data-jsub="quote" class="${J.sub !== 'scope' ? 'on' : ''}">Үнийн санал</button><button data-jsub="scope" class="${J.sub === 'scope' ? 'on' : ''}" title="Ажлын scope, хуваарь, Gantt — ажил болгохоос өмнө ч гаргаж болно">Scope</button></span>
     <input id="qb_cust" class="inp" list="dl-org" placeholder="Захиалагч (байгууллага)" value="${esc(job.customer)}" style="flex:1 1 200px;min-width:0">
     <input id="qb_title" class="inp" placeholder="Ажлын нэр" value="${esc(job.title)}" style="flex:1 1 200px;min-width:0">
     <select id="qb_owner" class="inp" style="width:auto;max-width:200px" title="Үнийн санал хариуцагч">${peopleOpts(job.owner, '— хариуцагч —')}</select>
@@ -227,8 +229,8 @@ const RISK_COLS = [{ k: 'd', t: 'Эрсдэлийн тайлбар' }, { k: 'cau
 const EQUIP_COLS = [{ k: 'name', t: 'Нэр / загвар' }, { k: 'cat', t: 'Ангилал', w: 90 }, { k: 'qty', t: 'Тоо', num: 1, w: 50 }, { k: 'unit', t: 'Нэгж', w: 50 }, { k: 'loc', t: 'Байршил', w: 80 }, { k: 'st', t: 'Төлөв', w: 100 }, { k: 'stage', t: 'Ашиглах үе шат' }];
 function renderScope(el, job) {
   const sc = job.scope, P = progCalc(job);
-  el.innerHTML = `${jobSubBar(job)}
-    <div class="exports">${outBtns('scope', 'Scope')}</div>
+  el.innerHTML = `${job._sc ? scStdBar(job) : jobSubBar(job)}
+    <div class="exports">${outBtns('scope', 'Scope')}<span class="outb"><button class="btn" data-gantt="pdf">📊 Gantt PDF</button><button class="btn ghost" data-gantt="print" title="Gantt хуваарийг хэвтээ хуудсанд хэвлэх">🖨 Gantt</button></span></div>
     <div class="jcard"><div class="bcard-h">Мэдээлэл</div><div class="jbody"><div class="jgrid">
       <label class="fld">Төслийн нэр<input id="sc_title" value="${esc(job.title)}"></label>
       <label class="fld">Захиалагч<input id="sc_customer" value="${esc(job.customer)}"></label>
@@ -247,6 +249,7 @@ function renderScope(el, job) {
     <div class="jcard"><div class="bcard-h">Эрсдэлийн бүртгэл <span class="sp"></span><span class="muted" style="font-weight:400;font-size:12px">1 = бага · 2 = дунд · 3 = өндөр</span></div><div class="jbody">${edTable('rk', RISK_COLS, sc.risks)}</div></div>
     <div class="jcard"><div class="bcard-h">Тоног төхөөрөмж, багаж хэрэгсэл</div><div class="jbody">${edTable('eq', EQUIP_COLS, sc.equip)}</div></div>`;
   const re = () => renderJobMain();
+  el.querySelectorAll('[data-gantt]').forEach(b => b.addEventListener('click', () => docOut(b.dataset.gantt, () => ganttJobDoc(job), `${job.no} Gantt`)));
   bindWeldCard(el, job, re);
   bindFields(el, sc, [['sc_contract', 'contract'], ['sc_start', 'start'], ['sc_location', 'location'], ['sc_desc', 'desc'], ['sc_incl', 'incl'], ['sc_excl', 'excl']], k => { if (k === 'start') re(); });
   [['sc_title', 'title'], ['sc_customer', 'customer']].forEach(([id, k]) => el.querySelector('#' + id).addEventListener('change', e => { job[k] = e.target.value; save(); renderJList(); }));
