@@ -126,8 +126,8 @@ function jobMoney(job) {
 const daysLeft = d => d ? Math.round((new Date(d + 'T00:00:00') - new Date(today() + 'T00:00:00')) / 864e5) : null;
 
 /* ---------- side panel ---------- */
-$$('[data-jtab]').forEach(b => b.addEventListener('click', () => { J.tab = b.dataset.jtab; $$('[data-jtab]').forEach(x => x.classList.toggle('on', x === b)); ['jobs', 'kits', 'certs', 'dockets', 'forms', 'scopes'].forEach(t => $('#jtab-' + t).hidden = t !== J.tab); renderJobs(); }));
-function renderJobs() { renderJList(); renderKList(); renderCertSide(); renderDockSide(); renderFormSide(); renderScopeSide(); renderJobMain(); }
+$$('[data-jtab]').forEach(b => b.addEventListener('click', () => { J.tab = b.dataset.jtab; $$('[data-jtab]').forEach(x => x.classList.toggle('on', x === b)); ['jobs', 'kits', 'certs', 'dockets', 'forms', 'scopes', 'invoices'].forEach(t => $('#jtab-' + t).hidden = t !== J.tab); renderJobs(); }));
+function renderJobs() { renderJList(); renderKList(); renderCertSide(); renderDockSide(); renderFormSide(); renderScopeSide(); renderInvSide(); renderJobMain(); }
 function renderJList() {
   $('#cntJobs').textContent = S.jobs.filter(j => isQ(j) ? j.qst !== 'lost' : !['done', 'given'].includes(j.status)).length || '';
   { const v = document.documentElement.dataset.jview, sg = $('#jSeg'), fv = $('#jFilter').value, opts = v === 'quotes' ? [['quotes', 'Идэвхтэй'], ['closed', 'Татгалзсан'], ['all', 'Бүгд']] : v === 'jobs' ? [['jobs', 'Идэвхтэй'], ['closed', 'Архив'], ['all', 'Бүгд']] : null;
@@ -175,7 +175,7 @@ function kitFromParts() {
 $('#kFromParts').addEventListener('click', () => { if (kitFromParts()) { renderJobs(); toast('Иж бүрдэл үүслээ — нэрийг нь өгнө үү'); } });
 $('#btnKitFrom').addEventListener('click', () => {
   if (!kitFromParts()) return;
-  J.tab = 'kits'; $$('[data-jtab]').forEach(x => x.classList.toggle('on', x.dataset.jtab === 'kits')); ['jobs', 'kits', 'certs', 'dockets', 'forms', 'scopes'].forEach(t => $('#jtab-' + t).hidden = t !== 'kits');
+  J.tab = 'kits'; $$('[data-jtab]').forEach(x => x.classList.toggle('on', x.dataset.jtab === 'kits')); ['jobs', 'kits', 'certs', 'dockets', 'forms', 'scopes', 'invoices'].forEach(t => $('#jtab-' + t).hidden = t !== 'kits');
   setModule('docs'); toast('Иж бүрдэл үүслээ — нэрийг нь өгнө үү');
 });
 
@@ -198,6 +198,7 @@ function renderJobMain() {
   if (J.tab === 'dockets') { renderDocketMain(el); return; }
   if (J.tab === 'forms') { renderFormMain(el); return; }
   if (J.tab === 'scopes') { renderScopeTab(el); return; }
+  if (J.tab === 'invoices') { renderInvTab(el); return; }
   if (J.dash && S.jobs.length) { renderDash(el); return; }
   const job = findJob(J.sel) || findJob(S.activeJob) || S.jobs[0];
   if (!job) { el.innerHTML = '<div class="jempty"><b>Ажил алга</b><br>Зүүн талын <b>+ Шинэ ажил</b> товчоор ажлын дугаар үүсгэнэ. Дугаар нь <span class="mono">KH-' + new Date().getFullYear() + '-001</span> хэлбэртэй, жил бүр шинээр эхэлнэ.</div>'; return; }

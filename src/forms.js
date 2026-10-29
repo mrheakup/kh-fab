@@ -215,6 +215,7 @@ async function docSample(k) {
     const J0 = docSampleJob(), first = D => D.pages[0].toDataURL('image/jpeg', 0.9);
     if (k === 'quote' || k === '_all') return (await quoteFormImgs(J0, 3))[0].url;
     if (k === 'docket') return (await docketImgs(J0, 3))[0].url;
+    if (k === 'invoice') return (await invoiceImgs({ no: 'INV0000', date: today(), po: 'PO-0000', terms: 'AXLE STAND - 2', vat: 10, comment: '', bill: { name: 'Contact Person', company: 'Sample LLC', address: 'Ulaanbaatar, Mongolia', phone: '(976) 9900 0000', mail: 'contact@sample.mn' }, items: [{ d: 'AXLE STAND', q: 2, p: 1500000 }] }, 3))[0].url;
     if (k === 'qdetail') return first(await quoteDoc(J0));
     if (k === 'scope') return first(await scopeDoc(J0));
     if (k === 'cost') return first(await costDoc(J0));
@@ -239,7 +240,7 @@ function renderDocLib(el) {
         ${kd ? `<label class="fld">Гарчиг<input id="dl_title" value="${esc(val('title'))}" placeholder="${esc(d.title)}"></label>` : ''}
         ${kd || k === '_all' ? `<label class="fld" style="grid-column:1/-1">Хөлийн бичиг (хуудасны доор)<input id="dl_foot" value="${esc(val('foot'))}" placeholder="Kh International · ISO 9001 чанарын удирдлагын тогтолцоо"></label>` : ''}
       </div><p class="note">Үсгийг 115%-иас том болговол урт хүснэгтэд мөр давхцаж магадгүй — жишээн дээр шалгана уу.</p></div></div>
-      ${k === '_all' || k === 'quote' || k === 'docket' ? `<div class="jcard"><div class="bcard-h">Компанийн мэдээлэл (маягтын толгой)</div><div class="jbody"><div class="jgrid">${[['name', 'Компанийн нэр'], ['tag', 'Уриа'], ['a1', 'Хаяг 1'], ['a2', 'Хаяг 2'], ['a3', 'Хаяг 3'], ['phone', 'Утас'], ['mail', 'Имэйл'], ['bank', 'Банкны данс'], ['reg', 'Регистр'], ['currency', 'Валют']].map(([f, n]) => fldIn('dco_' + f, n, C[f])).join('')}</div>
+      ${k === '_all' || k === 'quote' || k === 'docket' || k === 'invoice' ? `<div class="jcard"><div class="bcard-h">Компанийн мэдээлэл (маягтын толгой)</div><div class="jbody"><div class="jgrid">${[['name', 'Компанийн нэр'], ['tag', 'Уриа'], ['a1', 'Хаяг 1'], ['a2', 'Хаяг 2'], ['a3', 'Хаяг 3'], ['phone', 'Утас'], ['mail', 'Имэйл'], ['bank', 'Банкны данс'], ['reg', 'Регистр'], ['currency', 'Валют']].map(([f, n]) => fldIn('dco_' + f, n, C[f])).join('')}</div>
         <div class="logoset" style="margin-top:10px"><span class="logo-wrap"><img class="brand-logo" alt="лого" src="${logoSrc()}"></span><button class="btn sm" id="dlLogo">Лого солих</button><button class="btn sm ghost" id="dlLogoReset">Анхны лого</button></div></div></div>` : ''}
     </div><div><div class="dlprev" title="Дарж томруулна"><img id="dlImg" alt="Жишээ"></div><p class="note" id="dlNote" style="text-align:center">Жишээ ачаалж байна…</p></div></div>`;
   const img = el.querySelector('#dlImg'), note = el.querySelector('#dlNote'); let tm = 0;

@@ -7,6 +7,7 @@ const PRINT_K = 12, PREV_K = 3;
 const DOC_KINDS = [
   { k: 'quote', n: 'Үнийн санал — Kh загвар (захиалагчид)' },
   { k: 'docket', n: 'Delivery Docket / Packing list' },
+  { k: 'invoice', n: 'Нэхэмжлэх (INVOICE)' },
   { k: 'qdetail', n: 'Үнийн санал — дэлгэрэнгүй задаргаа', title: 'ҮНИЙН САНАЛ' },
   { k: 'scope', n: 'Ажлын scope, хуваарь', title: 'АЖЛЫН SCOPE — МЭДЭЭЛЭЛ & ХУВААРЬ' },
   { k: 'cost', n: 'Зардал, ажиллах хүчний тооцоо', title: 'ЗАРДАЛ & АЖИЛЛАХ ХҮЧНИЙ ТООЦООЛОЛ' },

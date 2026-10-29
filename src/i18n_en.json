@@ -2984,5 +2984,14 @@
 "Ажлын scope": "Job scopes",
 "📊 Gantt PDF": "📊 Gantt PDF",
 "🖨 Gantt": "🖨 Gantt",
-"+ Мөр нэмэх": "+ Add line"
+"+ Мөр нэмэх": "+ Add line",
+"Нэхэмжлэх": "Invoices",
+"+ Шинэ нэхэмжлэх": "+ New invoice",
+"⇪ Excel оруулах": "⇪ Import Excel",
+"Нэхэмжлэх (INVOICE)": "Invoices (INVOICE)",
+"↻ Сүүлийнхээс бөглөх": "↻ Fill from last",
+"Мөрүүд": "Lines",
+"Төлбөр": "Payments",
+"Үнийн саналын мөрүүдээс": "From quotation lines",
+"Хэнд нэхэмжлэх вэ? (байгууллагын нэр)": "Bill to (organisation name)"
 }

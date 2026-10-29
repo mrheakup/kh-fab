@@ -17,8 +17,8 @@ function setModule(v) {
   if (m === 'jobs' && typeof J !== 'undefined') {
     document.documentElement.dataset.jview = v;
     J.dash = v === 'dash';
-    if (v === 'docs') { if (!['kits', 'certs', 'dockets', 'forms', 'scopes'].includes(J.tab)) J.tab = 'dockets'; } else J.tab = 'jobs';
-    $$('[data-jtab]').forEach(x => x.classList.toggle('on', x.dataset.jtab === J.tab)); ['jobs', 'kits', 'certs', 'dockets', 'forms', 'scopes'].forEach(t => { const e = $('#jtab-' + t); if (e) e.hidden = t !== J.tab; });
+    if (v === 'docs') { if (!['kits', 'certs', 'dockets', 'forms', 'scopes', 'invoices'].includes(J.tab)) J.tab = 'dockets'; } else J.tab = 'jobs';
+    $$('[data-jtab]').forEach(x => x.classList.toggle('on', x.dataset.jtab === J.tab)); ['jobs', 'kits', 'certs', 'dockets', 'forms', 'scopes', 'invoices'].forEach(t => { const e = $('#jtab-' + t); if (e) e.hidden = t !== J.tab; });
     const f = $('#jFilter'); if (f && (v === 'quotes' || v === 'jobs')) f.value = v;
     if (v === 'quotes' || v === 'jobs') { const cur = findJob(J.sel); if (!cur || (v === 'quotes') !== isQ(cur)) { const first = S.jobs.find(j => (v === 'quotes') === isQ(j)); J.sel = first ? first.id : null; } J.sub = v === 'quotes' ? 'quote' : (J.sub === 'quote' ? 'main' : J.sub); }
     const pt = $('#jobsPT'); if (pt) pt.innerHTML = `${JVIEW_T[v][0]}<small>${JVIEW_T[v][1]}</small>`;
