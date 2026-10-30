@@ -86,6 +86,7 @@ ipcMain.handle('save-file', async (e, name, data) => {
 ipcMain.handle('show-in-folder', (e, p) => shell.showItemInFolder(p));
 /* data store: userData/kh-data.json (+ daily backups, 60 kept) */
 const dataFile = () => path.join(app.getPath('userData'), 'kh-data.json');
+const LINK = require('./link.js')({ getWin: () => win, readCfg, writeCfg, dataFile });
 const bakDir = () => path.join(app.getPath('userData'), 'backups');
 function writeData(txt) {
   const f = dataFile(), tmp = f + '.tmp'; fs.writeFileSync(tmp, txt, 'utf8'); fs.renameSync(tmp, f);
@@ -116,7 +117,7 @@ async function writeDataAsync(txt) {
     let old = true; try { old = Date.now() - (await fs.promises.stat(b)).mtimeMs > 3600e3; } catch (x) { }
     if (old) { await fs.promises.copyFile(f, b); const all = (await fs.promises.readdir(d)).filter(x => /^kh-data-\d{4}-\d{2}-\d{2}\.json$/.test(x)).sort(); for (const x of all.slice(0, Math.max(0, all.length - 60))) { try { await fs.promises.unlink(path.join(d, x)); } catch (y) { } } } } catch (x) { }
 }
-async function pumpWrite() { if (wBusy) return; wBusy = true; while (wPend !== null) { const t = wPend, ws = wWait; wPend = null; wWait = []; let r = { ok: true }; try { await writeDataAsync(t); } catch (x) { r = { error: String(x.message || x) }; } ws.forEach(f => f(r)); } wBusy = false; }
+async function pumpWrite() { if (wBusy) return; wBusy = true; while (wPend !== null) { const t = wPend, ws = wWait; wPend = null; wWait = []; let r = { ok: true }; try { await writeDataAsync(t); } catch (x) { r = { error: String(x.message || x) }; } ws.forEach(f => f(r)); } wBusy = false; LINK.backupNow(false); }
 ipcMain.handle('data-save', (e, txt) => new Promise(res => { wPend = String(txt); wWait.push(res); pumpWrite(); }));
 ipcMain.on('data-save-sync', (e, txt) => { try { wPend = null; writeData(String(txt)); e.returnValue = true; } catch (x) { e.returnValue = false; } });
 ipcMain.handle('data-dir', () => shell.openPath(app.getPath('userData')));

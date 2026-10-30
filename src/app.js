@@ -64,7 +64,7 @@ let saveT = 0;
 let saveWarned = false;
 function saveNow(sync) {
   clearTimeout(saveT); saveT = 0; S._saved = Date.now(); const txt = JSON.stringify(S);
-  if (window.kh && window.kh.dataSave) { try { if (sync && window.kh.dataSaveSync) { window.kh.dataSaveSync(txt); return Promise.resolve({ ok: true }); } return window.kh.dataSave(txt).then(r => { if (r && r.error) toast('⚠ Хадгалж чадсангүй: ' + r.error, 8000); else { try { localStorage.removeItem(KEY); } catch (e) { } } return r || { ok: true }; }); } catch (e) { toast('Хадгалж чадсангүй: ' + e.message); return Promise.resolve({ error: e.message }); } }
+  if (window.kh && window.kh.dataSave) { try { if (sync && window.kh.dataSaveSync) { window.kh.dataSaveSync(txt); return Promise.resolve({ ok: true }); } return window.kh.dataSave(txt).then(r => { if (r && r.error) toast('⚠ Хадгалж чадсангүй: ' + r.error, 8000); else { try { localStorage.removeItem(KEY); } catch (e) { } if (typeof KL !== 'undefined' && KL.on) syncPush(txt); } return r || { ok: true }; }); } catch (e) { toast('Хадгалж чадсангүй: ' + e.message); return Promise.resolve({ error: e.message }); } }
   try { localStorage.setItem(KEY, txt); } catch (e) { if (!saveWarned) { saveWarned = true; toast('⚠ Хөтчийн санах ой дүүрсэн — өгөгдөл хадгалагдсангүй! Desktop програм ашиглах эсвэл «Төсөл хадгалах»-аар нөөцлөнө үү.', 9000); } return { error: 'quota' }; }
   return { ok: true };
 }

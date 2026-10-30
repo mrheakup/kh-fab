@@ -2993,5 +2993,18 @@
 "Мөрүүд": "Lines",
 "Төлбөр": "Payments",
 "Үнийн саналын мөрүүдээс": "From quotation lines",
-"Хэнд нэхэмжлэх вэ? (байгууллагын нэр)": "Bill to (organisation name)"
+"Хэнд нэхэмжлэх вэ? (байгууллагын нэр)": "Bill to (organisation name)",
+"🔗 Холболт": "🔗 Connect",
+"+ Бараа": "+ Item",
+"Сангаас нэмэх": "Add from catalogue",
+"+ Орлого": "+ Receipt",
+"− Зарлага (ажилд)": "− Issue (to job)",
+"− Зарлага": "− Issue",
+"Тооллого": "Stock count",
+"Агуулахаас зарцуулсан": "Issued from warehouse",
+"− Агуулахаас олгох": "− Issue from warehouse",
+"Сүүлийн хөдөлгөөн": "Recent movements",
+"⚠ Захиалах шаардлагатай": "⚠ To reorder",
+"Хөдөлгөөн": "Movements",
+"Дутагдалтай": "Low stock"
 }

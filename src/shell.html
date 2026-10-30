@@ -526,6 +526,8 @@ label.fld,.fld>.flab{font-size:11.5px;font-weight:600;color:var(--ink-3);letter-
 .dlset{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}.dlset input[type=range]{width:100%}.dlwrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,440px);gap:16px;align-items:start}.dlprev{border:1px solid var(--line);border-radius:10px;background:#fff;padding:6px;cursor:zoom-in}.dlprev img{width:100%;display:block}@media(max-width:1100px){.dlwrap{grid-template-columns:1fr}}
 .qlines{margin-top:10px}.qlt input{width:100%}
 #jobsSide .tabs{flex-wrap:wrap;row-gap:0}#jobsSide .tabs button{white-space:nowrap}html[data-skin="modern"] #jobsSide .tabs button{margin-right:4px;padding:8px 6px}
+.skdlg{position:fixed;inset:0;background:rgba(15,20,30,.35);display:grid;place-items:center;z-index:200}.skbox{background:var(--surface);color:var(--ink);border-radius:14px;padding:18px 20px;width:min(520px,92vw);display:grid;gap:10px;box-shadow:0 20px 60px rgba(0,0,0,.25)}.skbox h3{margin:0}
+.lkbox{width:min(640px,94vw);max-height:90vh;overflow:auto}.lksec{border-top:1px solid var(--line);padding-top:10px;display:grid;gap:6px}.lkpath{font-size:12px;word-break:break-all;color:var(--ink-2)}.lkqr{display:flex;gap:14px;align-items:center;flex-wrap:wrap}.lkqr canvas{border:1px solid var(--line);border-radius:8px;background:#fff}#btnLink.lk-ok{color:#16a34a}#btnLink.lk-err{color:#b42318}
 .savebtn.ok{background:#16a34a!important;color:#fff!important;border-color:#16a34a!important}
 .fmorg{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);margin:12px 2px 4px}
 .fmlog{margin:0;padding-left:18px;display:grid;gap:3px;font-size:12.5px;max-height:260px;overflow:auto}
@@ -541,6 +543,7 @@ label.fld,.fld>.flab{font-size:11.5px;font-weight:600;color:var(--ink-3);letter-
       <button data-mod="jobs" role="tab" title="Ажлын scope, үйлдвэрлэл, явц, зардал, хүлээлгэх"><svg class="mico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18"/></svg>Ажил</button>
       <span class="mgrp">Үйлдвэрлэл</span>
       <button data-mod="plan" role="tab" title="Бүх ажлын Gantt хуваарь, машин/постын ачаалал"><svg class="mico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5h8M3 12h13M3 19h6"/><rect x="13" y="3" width="8" height="4" rx="1"/><rect x="17" y="10" width="4" height="4" rx="1"/><rect x="11" y="17" width="7" height="4" rx="1"/></svg>Төлөвлөгөө</button>
+      <button data-mod="stock" role="tab" title="Агуулах: үлдэгдэл, орлого, ажилд зарлага, тооллого"><svg class="mico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l9-5 9 5v11H3z"/><path d="M7 20v-7h10v7M7 16h10"/></svg>Агуулах</button>
       <button data-mod="nest" class="on" role="tab" title="Лист дээр парт өрөх, лазер зүсэлт, G-code, DXF"><svg class="mico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="3"/><path d="M14 14h4v4h-4zM14 5v4h5"/></svg>Зүсэлт</button>
       <button data-mod="bend" role="tab" title="Нугалах пресс, 3 булт галзуу"><svg class="mico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h7l9-9"/><path d="M4 16h5l8-8"/><circle cx="17" cy="5" r="1.5"/></svg>Нугалалт</button>
       <span class="mgrp">Баг · хяналт</span>
@@ -556,6 +559,7 @@ label.fld,.fld>.flab{font-size:11.5px;font-weight:600;color:var(--ink-3);letter-
       <div class="mco"><b>Kh International</b><small>ISO 9001 · Know us, know the quality</small></div>
       <div class="seg notr" id="langSeg" role="group" aria-label="Language"><button data-lang="mn" title="Монгол">МН</button><button data-lang="en" title="English">EN</button></div>
       <select id="skinSel" class="inp sm" aria-label="Загвар" title="Програмын загвар" style="width:auto;padding:5px 8px"><option value="modern">Загвар: Орчин үеийн</option><option value="calm">Загвар: Тайван (Linear)</option><option value="dark">Загвар: Харанхуй (Supabase)</option><option value="fintech">Загвар: Fintech (Stripe)</option><option value="bento">Загвар: Bento (улбар шар)</option></select>
+      <button class="btn sm ghost" id="btnLink" type="button" title="Нөөц (OneDrive), оффис ↔ үйлдвэр синк, утаснаас бүртгэх">🔗 Холболт</button>
       <button class="btn sm savebtn" type="button" title="Бүх өгөгдлийг одоо хадгалах (Ctrl+S). Програм өөрөө ч автоматаар хадгалдаг.">💾 Хадгалах</button>
       <button id="btnTheme" class="btn ghost sm notr" type="button">☾ Night</button>
       <input id="jobName" class="job" aria-label="Ажлын нэр">
@@ -629,6 +633,16 @@ label.fld,.fld>.flab{font-size:11.5px;font-weight:600;color:var(--ink-3);letter-
     <div class="panel-body"><p class="hint">Ажил бүрийн «Үйлдвэрлэл → Хуваарь, scope» дээр эхлэх огноо, үе шат, үе шат бүрийн машин/постыг оноосноор энд бүх ажлын хуваарь болон машины ачаалал гарна.</p><p class="hint">Шинэ ажил нээхдээ «Ажлын загвар»-аас сонговол үе шат, машин, даалгавар бэлэн бөглөгдөнө.</p></div>
   </aside>
   <main class="main" id="planMain" hidden></main>
+  <aside class="side" id="stockSide" hidden>
+    <div class="ptitle">Агуулах<small>Үлдэгдэл · орлого · зарлага · тооллого</small></div>
+    <div class="panel-body">
+      <div class="ptools"><button class="btn primary" id="skNew">+ Бараа</button><button class="btn" id="skFromCat" title="Үнийн сангийн бараануудыг агуулахад нэмэх">Сангаас нэмэх</button></div>
+      <input id="skQ" class="inp" placeholder="Хайх: нэр, марк, зузаан, байршил…" style="margin:10px 0">
+      <div class="grid2" style="margin-bottom:10px"><select id="skCat" class="inp"></select><label class="check"><input type="checkbox" id="skLow"><span>Дутагдалтай <b id="skLowN" class="late"></b></span></label></div>
+      <div id="skList" class="plist"></div>
+    </div>
+  </aside>
+  <main class="main" id="stockMain" hidden></main>
   <aside class="side" id="ideasSide" hidden>
     <div class="ptitle">Санаа, сайжруулалт<small>Тохижуулалт · сайжруулалт · төсөв · шийдвэр</small></div>
     <div class="panel-body">

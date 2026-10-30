@@ -259,9 +259,9 @@ function renderJobMain() {
       <div id="jTraceForm"></div>
       ${job.trace.length ? `<div class="tblwrap"><table class="dt"><thead><tr><th>Огноо</th><th>Лист</th><th>Хэмжээ</th><th>Материал</th><th class="r">Тоо</th><th>Хайлалт №</th><th>Гэрчилгээ №</th><th>Оператор</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>` : '<p class="note">Зүссэн лист бүрийн хавтангийн хайлалтын дугаар, операторыг энд бүртгэнэ. ISO аудитад бүтээгдэхүүнээс материалын гэрчилгээ хүртэл мөрдөх боломжтой болно.</p>'}
     </div></div>
-    ${jobNextHTML(job)}${jobInvHTML(job)}${jobTasksHTML(job)}${jobTplHTML(job)}${jobFilesHTML(job)}${srcFolderHTML(job)}<div class="jcard" data-v="main"><div class="bcard-h">Түүх</div><div class="jbody"><div class="jlog">${job.log.map(l => `<div><span class="mono">${esc(l.t)}</span>${esc(l.m)}</div>`).join('') || '<span class="note">—</span>'}</div></div></div>
+    ${jobNextHTML(job)}${jobInvHTML(job)}${jobStockHTML(job)}${jobTasksHTML(job)}${jobTplHTML(job)}${jobFilesHTML(job)}${srcFolderHTML(job)}<div class="jcard" data-v="main"><div class="bcard-h">Түүх</div><div class="jbody"><div class="jlog">${job.log.map(l => `<div><span class="mono">${esc(l.t)}</span>${esc(l.m)}</div>`).join('') || '<span class="note">—</span>'}</div></div></div>
     <datalist id="opList">${ops.map(o => `<option value="${esc(o)}">`).join('')}</datalist>`;
-  bindSubBar(el); bindJobFiles(el, job); bindJobTasks(el, job); bindSrcFolder(el, job); bindJobInv(el, job); bindJobTpl(el, job);
+  bindSubBar(el); bindJobFiles(el, job); bindJobTasks(el, job); bindSrcFolder(el, job); bindJobInv(el, job); bindJobStock(el, job); bindJobTpl(el, job);
   el.querySelectorAll('[data-st]').forEach(b => b.addEventListener('click', () => { if (b.dataset.st === job.status) return; const o = jstName(job.status); job.status = b.dataset.st; jobLog(`Төлөв: ${o} → ${jstName(job.status)}`, job); save(); renderJList(); renderJobMain(); }));
   el.querySelectorAll('[data-op]').forEach(b => b.addEventListener('click', () => { const o = job.ops = job.ops || [], k = b.dataset.op, i = o.indexOf(k); if (i >= 0) o.splice(i, 1); else o.push(k); save(); renderJobMain(); }));
   { const nd = el.querySelector('#jf_need'); if (nd) nd.addEventListener('change', () => { job.need = nd.value.trim(); if (job.need) jobLog('Тэмдэглэл: ' + job.need, job); save(); renderJList(); }); }

@@ -31,6 +31,8 @@ function setModule(v) {
   if ($('#teamSide')) $('#teamSide').hidden = $('#teamMain').hidden = m !== 'team';
   if ($('#planSide')) $('#planSide').hidden = $('#planMain').hidden = m !== 'plan';
   if ($('#ideasSide')) $('#ideasSide').hidden = $('#ideaMain').hidden = m !== 'ideas';
+  if ($('#stockSide')) $('#stockSide').hidden = $('#stockMain').hidden = m !== 'stock';
+  if (m === 'stock' && typeof renderWh === 'function') setTimeout(renderWh, 0);
   if (m === 'info') { if (typeof renderInfo === 'function') renderInfo(); } else if (m === 'insp') { if (typeof renderInsp === 'function') renderInsp(); } else if (m === 'team') { if (typeof renderTeam === 'function') renderTeam(); } else if (m === 'ideas') { if (typeof renderIdeas === 'function') renderIdeas(); } else if (m === 'plan') { if (typeof renderPlan === 'function') renderPlan($('#planMain')); } else if (m === 'bend') { renderBend(); if (typeof showBendTab === 'function') showBendTab(RT.tab); } else if (m === 'jobs') renderJobs(); else drawView();
   try { localStorage.setItem(KEY + ':mod', v); } catch (e) { }
 }

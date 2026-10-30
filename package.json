@@ -1,7 +1,7 @@
 {
   "name": "kh-fab",
   "productName": "KH Fab",
-  "version": "1.23.0",
+  "version": "1.24.0",
   "description": "Kh International — nesting ба bending програм",
   "author": "Kh International",
   "main": "main.js",
@@ -37,6 +37,7 @@
     "files": [
       "main.js",
       "preload.js",
+      "link.js",
       "app/**/*",
       "build/icon.png",
       "package.json"
