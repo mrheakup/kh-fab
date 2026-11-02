@@ -31,13 +31,19 @@ function qfDefaults(job) {
 /* line items for the form, net of VAT, margin spread so the sum = offer */
 /* Engineering drawing / FEA (engineer rows) + Material / Consumable / Labour / Machining / Equipment / Other — margin included */
 function qfBreakdown(job) {
-  const q = job.quote, c = quoteCalc(job), f = qfDefaults(job), kc = c.kc || {}, K = cat => kc[cat] || c.k, MN = f.lang === 'mn';
-    const B = [], kl = K('labor');
-    c.labor.filter(l => l.cost && l.rt === 'eng').forEach(l => B.push({ d: MN ? l.name : (l.en || l.name), u: 'lot', q: 1, p: l.cost * kl }));
-    const mach = c.labor.filter(l => l.cost && (l.rt === 'lathe' || l.rt === 'mill')).reduce((a, l) => a + l.cost, 0), lab = c.labor.filter(l => l.cost && !['eng', 'lathe', 'mill'].includes(l.rt)).reduce((a, l) => a + l.cost, 0);
-    [[MN ? 'Материал' : 'Material', c.mat + c.scrap + c.trans, 'mat'], [MN ? 'Туслах материал (consumable)' : 'Consumable', c.cons, 'cons'], [MN ? 'Ажиллах хүч' : 'Labour cost', lab, 'labor'], [MN ? 'Механик боловсруулалт (токар, фрезер)' : 'Machining cost', mach, 'labor'], [MN ? 'Тоног төхөөрөмж, үйлчилгээ' : 'Equipment and services', c.equip, 'equip'], [MN ? 'Бусад' : 'Other', c.other, 'other']]
-      .forEach(([d, v, cat]) => { if (v > 0) B.push({ d, u: 'lot', q: 1, p: v * K(cat) }); });
-    return B;
+  const q = job.quote, c = quoteCalc(job), f = qfDefaults(job), kc = c.kc || {}, K = cat => kc[cat] || c.k, MN = f.lang === 'mn', B = [], kl = K('labor'), ke = K('equip');
+  const nm = l => MN ? l.name : (l.en || l.name), add = (d, v, k) => { if (v > 0) B.push({ d, u: 'lot', q: 1, p: v * k }); };
+  const L = c.labor.filter(l => l.cost), sep = L.filter(l => l.sep), rest = L.filter(l => !l.sep);
+  sep.filter(l => l.rt === 'eng').forEach(l => add(nm(l), l.cost, kl));                                   // Engineering drawing, FEA …
+  add(MN ? 'Материал' : 'Material', c.mat + c.scrap + c.trans, K('mat'));
+  add(MN ? 'Туслах материал (consumable)' : 'Consumable', c.cons, K('cons'));
+  add(MN ? 'Ажиллах хүч' : 'Labour cost', rest.filter(l => !['lathe', 'mill'].includes(l.rt)).reduce((a, l) => a + l.cost, 0), kl);
+  add(MN ? 'Механик боловсруулалт (токар, фрезер)' : 'Machining cost', rest.filter(l => ['lathe', 'mill'].includes(l.rt)).reduce((a, l) => a + l.cost, 0), kl);
+  sep.filter(l => l.rt !== 'eng').forEach(l => add(nm(l), l.cost, kl));                                   // Sandblasting, Painting, NDT …
+  (q.equipRows || []).filter(r => r.name && (+r.qty || 0) * (+r.price || 0)).forEach(r => add(r.name, (+r.qty || 0) * (+r.price || 0), ke));   // 3rd party NDT, subcontract …
+  add(MN ? 'Тоног төхөөрөмжийн элэгдэл' : 'Equipment wear', c.equipPctV, ke);
+  add(MN ? 'Бусад' : 'Other', c.other, K('other'));
+  return B;
 }
 /* sub-rows printed under the main line(s): own list if typed, otherwise from the costing */
 function qfSubRows(job) {
