@@ -67,6 +67,7 @@ function dupJob(src) {
   else { const y = new Date().getFullYear(); if (S.jobYear !== y) { S.jobYear = y; S.jobSeq = 0; } const n = ++S.jobSeq, short = String(n).padStart(3, '0'); c.no = `KH-${y}-${short}`; c.short = short; c.status = 'new'; if (c.quote) { c.quote.no = ''; c.quote.date = today(); } }
   if (c.title) c.title = c.title.replace(/\s*\(хуулбар\)$/, '');
   S.jobs.splice(Math.max(0, S.jobs.indexOf(src)), 0, c);
+  if (c.quote && Array.isArray(c.quote.lines)) c.quote.lines.forEach(l => { const ch = qChild(l); if (!ch) return; const k = JSON.parse(JSON.stringify(ch)); Object.assign(k, { id: uid(), parent: c.id, created: today(), log: [] }); k.no = k.quote.no = `${(c.quote && c.quote.no) || c.no}-${c.quote.lines.indexOf(l) + 1}`; S.jobs.push(k); l.src = k.id; });
   jobLog(`${isQ(src) ? 'Үнийн санал' : 'Ажил'} ${isQ(src) ? (src.quote && src.quote.no) || src.no : src.no}-ээс хуулж үүсгэсэн`, c); save(); return c;
 }
 function newJob() {
@@ -129,7 +130,7 @@ const daysLeft = d => d ? Math.round((new Date(d + 'T00:00:00') - new Date(today
 $$('[data-jtab]').forEach(b => b.addEventListener('click', () => { J.tab = b.dataset.jtab; $$('[data-jtab]').forEach(x => x.classList.toggle('on', x === b)); ['jobs', 'kits', 'certs', 'dockets', 'forms', 'scopes', 'invoices'].forEach(t => $('#jtab-' + t).hidden = t !== J.tab); renderJobs(); }));
 function renderJobs() { renderJList(); renderKList(); renderCertSide(); renderDockSide(); renderFormSide(); renderScopeSide(); renderInvSide(); renderJobMain(); }
 function renderJList() {
-  $('#cntJobs').textContent = S.jobs.filter(j => isQ(j) ? j.qst !== 'lost' : !['done', 'given'].includes(j.status)).length || '';
+  $('#cntJobs').textContent = S.jobs.filter(j => !j.parent).filter(j => isQ(j) ? j.qst !== 'lost' : !['done', 'given'].includes(j.status)).length || '';
   { const v = document.documentElement.dataset.jview, sg = $('#jSeg'), fv = $('#jFilter').value, opts = v === 'quotes' ? [['quotes', 'Идэвхтэй'], ['closed', 'Татгалзсан'], ['all', 'Бүгд']] : v === 'jobs' ? [['jobs', 'Идэвхтэй'], ['closed', 'Архив'], ['all', 'Бүгд']] : null;
     if (sg) { sg.hidden = !opts; if (opts) { const arch = S.jobs.filter(j => v === 'quotes' ? isQ(j) && j.qst === 'lost' : !isQ(j) && ['done', 'given'].includes(j.status)).length; sg.innerHTML = opts.map(([k, n]) => `<button data-jf="${k}" class="${fv === k ? 'on' : ''}">${n}${k === 'closed' && arch ? ` <span class="mono">${arch}</span>` : ''}</button>`).join(''); } } }
   const q = ($('#jSearch').value || '').toLowerCase(), f = $('#jFilter').value, os = $('#jOrg'), og = os.value;
@@ -137,7 +138,7 @@ function renderJList() {
   const org = orgs().find(o => o.id === og), inOrg = org ? new Set(jobsOfOrg(org)) : null;
   const hay = j => { const f2 = (j.quote && j.quote.qf) || {}; return [j.no, j.customer, j.title, j.quote && j.quote.no, f2.person, f2.email, f2.phone, f2.rfqName, f2.rfqNo, j.dock && j.dock.no, j.dock && j.dock.po].join(' ').toLowerCase(); };
   const fOk = j => f === 'all' ? true : f === 'quotes' ? isQ(j) : f === 'jobs' ? !isQ(j) && !['done', 'given'].includes(j.status) : f === 'closed' ? (document.documentElement.dataset.jview === 'quotes' ? isQ(j) && j.qst === 'lost' : document.documentElement.dataset.jview === 'jobs' ? !isQ(j) && ['done', 'given'].includes(j.status) : (isQ(j) ? j.qst === 'lost' : ['done', 'given'].includes(j.status))) : (isQ(j) ? j.qst !== 'lost' : !['done', 'given'].includes(j.status));
-  const list = S.jobs.filter(j => fOk(j) && (!inOrg || inOrg.has(j)) && (!q || hay(j).includes(q)));
+  const list = S.jobs.filter(j => !j.parent && fOk(j) && (!inOrg || inOrg.has(j)) && (!q || hay(j).includes(q)));
   $('#jList').innerHTML = list.length ? list.map(j => {
     const late = j.due && j.due < today() && !['done', 'given'].includes(j.status);
     return `<div class="jitem${J.sel === j.id && J.tab === 'jobs' ? ' on' : ''}" data-id="${j.id}"><span class="no">${esc(j.no)}${S.activeJob === j.id ? ' <span class="pill rem">өрөлтөд</span>' : ''}</span>${isQ(j) ? `<span class="pill qst-${j.qst || 'draft'}">Санал · ${qstName(j.qst)}</span>` : `<span class="pill st-${j.status}">${jstName(j.status)}</span>`}<span class="t">${esc(j.title || '—')}${j.customer ? ' · ' + esc(j.customer) : ''}${j.quote && j.quote.qf && j.quote.qf.person ? ' · ' + esc(personSplit(j.quote.qf.person).name) : ''}${j.owner && typeof pName === 'function' && pName(j.owner) ? ' · 👤 ' + esc(pName(j.owner)) : ''}${j.need ? ' · ⚠ ' + esc(j.need) : ''}${j.due ? ` · <span class="${late ? 'late' : ''}">${esc(j.due)}</span>` : ''}</span></div>`;
@@ -478,7 +479,7 @@ async function jobCardPdf(job) {
 const DPER = [['month', 'Энэ сар'], ['quarter', 'Энэ улирал'], ['year', 'Энэ жил'], ['all', 'Бүгд']];
 function perStart(p) { const t = new Date(today() + 'T00:00:00'); if (p === 'month') t.setDate(1); else if (p === 'quarter') { t.setMonth(Math.floor(t.getMonth() / 3) * 3); t.setDate(1); } else if (p === 'year') { t.setMonth(0); t.setDate(1); } else return ''; return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-01`; }
 function quoteStats(per) {
-  const from = perStart(per), Q = S.jobs.filter(j => (isQ(j) || j.qst) && j.quote).map(j => { let c = null; try { c = quoteCalc(j); } catch (e) { } const net = c ? c.net : 0, nc = !!j.quote.noCost; return { j, st: isQ(j) ? (j.qst || 'draft') : 'won', date: j.quote.date || j.created || '', net, nc, profit: c && !nc ? c.profit : 0, pct: net && !nc ? c.profit / net * 100 : null }; }).filter(o => !from || o.date >= from);
+  const from = perStart(per), Q = S.jobs.filter(j => !j.parent && (isQ(j) || j.qst) && j.quote).map(j => { let c = null; try { c = quoteCalc(j); } catch (e) { } const net = c ? c.net : 0, nc = !!j.quote.noCost; return { j, st: isQ(j) ? (j.qst || 'draft') : 'won', date: j.quote.date || j.created || '', net, nc, profit: c && !nc ? c.profit : 0, pct: net && !nc ? c.profit / net * 100 : null }; }).filter(o => !from || o.date >= from);
   const by = k => Q.filter(o => o.st === k), sum = (a, f) => a.reduce((x, o) => x + (f(o) || 0), 0);
   const given = Q.filter(o => o.st !== 'draft'), won = by('won'), lost = by('lost'), sent = by('sent'), draft = by('draft');
   return { Q, given, won, lost, sent, draft, sum, conv: given.length ? won.length / given.length * 100 : null, convV: sum(given, o => o.net) ? sum(won, o => o.net) / sum(given, o => o.net) * 100 : null, mAll: sum(given.filter(o => !o.nc), o => o.net) ? sum(given, o => o.profit) / sum(given.filter(o => !o.nc), o => o.net) * 100 : null, mWon: sum(won.filter(o => !o.nc), o => o.net) ? sum(won, o => o.profit) / sum(won.filter(o => !o.nc), o => o.net) * 100 : null };

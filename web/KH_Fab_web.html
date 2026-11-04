@@ -531,7 +531,7 @@ label.fld,.fld>.flab{font-size:11.5px;font-weight:600;color:var(--ink-3);letter-
 .qfph{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-start}.qfph figure{position:relative;margin:0;width:150px;display:grid;gap:4px}.qfph img{width:150px;height:110px;object-fit:cover;border-radius:8px;border:1px solid var(--line)}.qfph .x{position:absolute;top:4px;right:4px}.qfph .inp{padding:4px 6px;font-size:12px}
 .bdwrap{margin-top:8px}.bdt input{width:100%}.bdt td:nth-child(2){width:160px}
 .dlset{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}.dlset input[type=range]{width:100%}.dlwrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,440px);gap:16px;align-items:start}.dlprev{border:1px solid var(--line);border-radius:10px;background:#fff;padding:6px;cursor:zoom-in}.dlprev img{width:100%;display:block}@media(max-width:1100px){.dlwrap{grid-template-columns:1fr}}
-.qlines{margin-top:10px}.qlt input{width:100%}
+.qlines{margin-top:10px}.qlt input{width:100%}.qlt input[data-qk="u"],.qlt input[data-qk="q"]{min-width:58px}.qlt input[data-qk="d"]{min-width:180px}.qlt td:nth-child(5) input{min-width:110px}
 #jobsSide .tabs{flex-wrap:wrap;row-gap:0}#jobsSide .tabs button{white-space:nowrap}html[data-skin="modern"] #jobsSide .tabs button{margin-right:4px;padding:8px 6px}
 .skdlg{position:fixed;inset:0;background:rgba(15,20,30,.35);display:grid;place-items:center;z-index:200}.skbox{background:var(--surface);color:var(--ink);border-radius:14px;padding:18px 20px;width:min(520px,92vw);display:grid;gap:10px;box-shadow:0 20px 60px rgba(0,0,0,.25)}.skbox h3{margin:0}
 .lkbox{width:min(640px,94vw);max-height:90vh;overflow:auto}.lksec{border-top:1px solid var(--line);padding-top:10px;display:grid;gap:6px}.lkpath{font-size:12px;word-break:break-all;color:var(--ink-2)}.lkqr{display:flex;gap:14px;align-items:center;flex-wrap:wrap}.lkqr canvas{border:1px solid var(--line);border-radius:8px;background:#fff}#btnLink.lk-ok{color:#16a34a}#btnLink.lk-err{color:#b42318}
@@ -4757,7 +4757,13 @@ const I18N_EN = {
 "Сүүлийн хөдөлгөөн": "Recent movements",
 "⚠ Захиалах шаардлагатай": "⚠ To reorder",
 "Хөдөлгөөн": "Movements",
-"Дутагдалтай": "Low stock"
+"Дутагдалтай": "Low stock",
+"+ Тооцоотой мөр нэмэх": "+ Line with its own costing",
+"+ Энгийн мөр": "+ Plain line",
+"🧮 Тооцоо нээх": "🧮 Open costing",
+"🧮 Тусад нь бодох": "🧮 Cost separately",
+"← Үндсэн санал": "← Main quotation",
+"🧮 Мөрийн тусдаа тооцоо": "🧮 Line costing"
 };
 /* ================= KH Fab — language (МН / EN) and theme (Day / Night) =================
    The UI is written in Mongolian. In English mode every Mongolian fragment that reaches the
@@ -8116,6 +8122,7 @@ function dupJob(src) {
   else { const y = new Date().getFullYear(); if (S.jobYear !== y) { S.jobYear = y; S.jobSeq = 0; } const n = ++S.jobSeq, short = String(n).padStart(3, '0'); c.no = `KH-${y}-${short}`; c.short = short; c.status = 'new'; if (c.quote) { c.quote.no = ''; c.quote.date = today(); } }
   if (c.title) c.title = c.title.replace(/\s*\(хуулбар\)$/, '');
   S.jobs.splice(Math.max(0, S.jobs.indexOf(src)), 0, c);
+  if (c.quote && Array.isArray(c.quote.lines)) c.quote.lines.forEach(l => { const ch = qChild(l); if (!ch) return; const k = JSON.parse(JSON.stringify(ch)); Object.assign(k, { id: uid(), parent: c.id, created: today(), log: [] }); k.no = k.quote.no = `${(c.quote && c.quote.no) || c.no}-${c.quote.lines.indexOf(l) + 1}`; S.jobs.push(k); l.src = k.id; });
   jobLog(`${isQ(src) ? 'Үнийн санал' : 'Ажил'} ${isQ(src) ? (src.quote && src.quote.no) || src.no : src.no}-ээс хуулж үүсгэсэн`, c); save(); return c;
 }
 function newJob() {
@@ -8178,7 +8185,7 @@ const daysLeft = d => d ? Math.round((new Date(d + 'T00:00:00') - new Date(today
 $$('[data-jtab]').forEach(b => b.addEventListener('click', () => { J.tab = b.dataset.jtab; $$('[data-jtab]').forEach(x => x.classList.toggle('on', x === b)); ['jobs', 'kits', 'certs', 'dockets', 'forms', 'scopes', 'invoices'].forEach(t => $('#jtab-' + t).hidden = t !== J.tab); renderJobs(); }));
 function renderJobs() { renderJList(); renderKList(); renderCertSide(); renderDockSide(); renderFormSide(); renderScopeSide(); renderInvSide(); renderJobMain(); }
 function renderJList() {
-  $('#cntJobs').textContent = S.jobs.filter(j => isQ(j) ? j.qst !== 'lost' : !['done', 'given'].includes(j.status)).length || '';
+  $('#cntJobs').textContent = S.jobs.filter(j => !j.parent).filter(j => isQ(j) ? j.qst !== 'lost' : !['done', 'given'].includes(j.status)).length || '';
   { const v = document.documentElement.dataset.jview, sg = $('#jSeg'), fv = $('#jFilter').value, opts = v === 'quotes' ? [['quotes', 'Идэвхтэй'], ['closed', 'Татгалзсан'], ['all', 'Бүгд']] : v === 'jobs' ? [['jobs', 'Идэвхтэй'], ['closed', 'Архив'], ['all', 'Бүгд']] : null;
     if (sg) { sg.hidden = !opts; if (opts) { const arch = S.jobs.filter(j => v === 'quotes' ? isQ(j) && j.qst === 'lost' : !isQ(j) && ['done', 'given'].includes(j.status)).length; sg.innerHTML = opts.map(([k, n]) => `<button data-jf="${k}" class="${fv === k ? 'on' : ''}">${n}${k === 'closed' && arch ? ` <span class="mono">${arch}</span>` : ''}</button>`).join(''); } } }
   const q = ($('#jSearch').value || '').toLowerCase(), f = $('#jFilter').value, os = $('#jOrg'), og = os.value;
@@ -8186,7 +8193,7 @@ function renderJList() {
   const org = orgs().find(o => o.id === og), inOrg = org ? new Set(jobsOfOrg(org)) : null;
   const hay = j => { const f2 = (j.quote && j.quote.qf) || {}; return [j.no, j.customer, j.title, j.quote && j.quote.no, f2.person, f2.email, f2.phone, f2.rfqName, f2.rfqNo, j.dock && j.dock.no, j.dock && j.dock.po].join(' ').toLowerCase(); };
   const fOk = j => f === 'all' ? true : f === 'quotes' ? isQ(j) : f === 'jobs' ? !isQ(j) && !['done', 'given'].includes(j.status) : f === 'closed' ? (document.documentElement.dataset.jview === 'quotes' ? isQ(j) && j.qst === 'lost' : document.documentElement.dataset.jview === 'jobs' ? !isQ(j) && ['done', 'given'].includes(j.status) : (isQ(j) ? j.qst === 'lost' : ['done', 'given'].includes(j.status))) : (isQ(j) ? j.qst !== 'lost' : !['done', 'given'].includes(j.status));
-  const list = S.jobs.filter(j => fOk(j) && (!inOrg || inOrg.has(j)) && (!q || hay(j).includes(q)));
+  const list = S.jobs.filter(j => !j.parent && fOk(j) && (!inOrg || inOrg.has(j)) && (!q || hay(j).includes(q)));
   $('#jList').innerHTML = list.length ? list.map(j => {
     const late = j.due && j.due < today() && !['done', 'given'].includes(j.status);
     return `<div class="jitem${J.sel === j.id && J.tab === 'jobs' ? ' on' : ''}" data-id="${j.id}"><span class="no">${esc(j.no)}${S.activeJob === j.id ? ' <span class="pill rem">өрөлтөд</span>' : ''}</span>${isQ(j) ? `<span class="pill qst-${j.qst || 'draft'}">Санал · ${qstName(j.qst)}</span>` : `<span class="pill st-${j.status}">${jstName(j.status)}</span>`}<span class="t">${esc(j.title || '—')}${j.customer ? ' · ' + esc(j.customer) : ''}${j.quote && j.quote.qf && j.quote.qf.person ? ' · ' + esc(personSplit(j.quote.qf.person).name) : ''}${j.owner && typeof pName === 'function' && pName(j.owner) ? ' · 👤 ' + esc(pName(j.owner)) : ''}${j.need ? ' · ⚠ ' + esc(j.need) : ''}${j.due ? ` · <span class="${late ? 'late' : ''}">${esc(j.due)}</span>` : ''}</span></div>`;
@@ -8527,7 +8534,7 @@ async function jobCardPdf(job) {
 const DPER = [['month', 'Энэ сар'], ['quarter', 'Энэ улирал'], ['year', 'Энэ жил'], ['all', 'Бүгд']];
 function perStart(p) { const t = new Date(today() + 'T00:00:00'); if (p === 'month') t.setDate(1); else if (p === 'quarter') { t.setMonth(Math.floor(t.getMonth() / 3) * 3); t.setDate(1); } else if (p === 'year') { t.setMonth(0); t.setDate(1); } else return ''; return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-01`; }
 function quoteStats(per) {
-  const from = perStart(per), Q = S.jobs.filter(j => (isQ(j) || j.qst) && j.quote).map(j => { let c = null; try { c = quoteCalc(j); } catch (e) { } const net = c ? c.net : 0, nc = !!j.quote.noCost; return { j, st: isQ(j) ? (j.qst || 'draft') : 'won', date: j.quote.date || j.created || '', net, nc, profit: c && !nc ? c.profit : 0, pct: net && !nc ? c.profit / net * 100 : null }; }).filter(o => !from || o.date >= from);
+  const from = perStart(per), Q = S.jobs.filter(j => !j.parent && (isQ(j) || j.qst) && j.quote).map(j => { let c = null; try { c = quoteCalc(j); } catch (e) { } const net = c ? c.net : 0, nc = !!j.quote.noCost; return { j, st: isQ(j) ? (j.qst || 'draft') : 'won', date: j.quote.date || j.created || '', net, nc, profit: c && !nc ? c.profit : 0, pct: net && !nc ? c.profit / net * 100 : null }; }).filter(o => !from || o.date >= from);
   const by = k => Q.filter(o => o.st === k), sum = (a, f) => a.reduce((x, o) => x + (f(o) || 0), 0);
   const given = Q.filter(o => o.st !== 'draft'), won = by('won'), lost = by('lost'), sent = by('sent'), draft = by('draft');
   return { Q, given, won, lost, sent, draft, sum, conv: given.length ? won.length / given.length * 100 : null, convV: sum(given, o => o.net) ? sum(won, o => o.net) / sum(given, o => o.net) * 100 : null, mAll: sum(given.filter(o => !o.nc), o => o.net) ? sum(given, o => o.profit) / sum(given.filter(o => !o.nc), o => o.net) * 100 : null, mWon: sum(won.filter(o => !o.nc), o => o.net) ? sum(won, o => o.profit) / sum(won.filter(o => !o.nc), o => o.net) * 100 : null };
@@ -8725,6 +8732,9 @@ function jx(job) {
   return job;
 }
 const qline = arr => (arr || []).reduce((a, r) => a + (+r.qty || 0) * (+r.price || 0), 0);
+/* a quotation line can carry its own costing (a child quote: «Drill box 1», «Drill box 2» …) */
+const qChild = l => l && l.src ? (S.jobs || []).find(j => j.id === l.src) || null : null;
+function qLineP(l) { const ch = qChild(l); if (!ch) return +l.p || 0; let n = 0; try { n = quoteCalc(ch).net; } catch (e) { } return Math.round(n / (+l.q || 1)); }
 function quoteCalc(job) {
   jx(job); const q = job.quote, sc = job.scope, rate = (+q.rate || 0) * (+q.rateK || 1);
   const matKg = (q.mats || []).reduce((a, r) => a + (+r.qty || 0) * (+r.kgu || 0), 0), mat = qline(q.mats), scrap = mat * (+q.scrapPct || 0) / 100, trans = +q.trans || 0, cons = qline(q.cons);
@@ -8733,17 +8743,20 @@ function quoteCalc(job) {
   const labor = sc.stages.map(s => { const r = rateOf(s), h = (+s.people || 0) * (+s.hours || 0); return { name: s.name, en: s.en || '', rt: s.rt || '', sep: s.sep ?? BD_SEP.includes(s.rt), people: +s.people || 0, hours: +s.hours || 0, h, rate: r, cost: h * r }; });
   const laborTotal = labor.reduce((a, l) => a + l.cost, 0), laborH = labor.reduce((a, l) => a + l.h, 0);
   const equipRows = qline(q.equipRows), equipPctV = matTotal * (+q.equipPct || 0) / 100, equip = equipRows + equipPctV, other = qline(q.other);
-  const cost = matTotal + laborTotal + equip + other;
+  let cost = matTotal + laborTotal + equip + other;
   const cat = { mat: mat + scrap + trans, cons, labor: laborTotal, equip, other }, mc = q.mc || {}, kc = {}, price = {};
   Object.keys(cat).forEach(k => { kc[k] = mFac(mc[k] ?? q.margin); price[k] = cat[k] * kc[k]; });
-  const byCat = Object.values(price).reduce((a, b) => a + b, 0);
-  const fl = q.qf && q.qf.mode === 'fixed' && Array.isArray(q.lines) ? q.lines.reduce((a, l) => a + Math.round(+l.p || 0) * (+l.q || 0), 0) : 0;
+  let byCat = Object.values(price).reduce((a, b) => a + b, 0);
+  const fixedM = q.qf && q.qf.mode === 'fixed' && Array.isArray(q.lines), kids = fixedM && !job.parent ? q.lines.map(qChild).filter(Boolean) : [];
+  if (kids.length && q.lines.every(l => qChild(l))) { cost = 0; byCat = 0; Object.keys(cat).forEach(k => { cat[k] = 0; }); }   // every line has its own costing → this quote's own sheet is not used
+  kids.forEach(ch => { const cc = quoteCalc(ch); Object.keys(cat).forEach(k => { cat[k] += cc.cat[k] || 0; }); cost += cc.cost; byCat += cc.net; });
+  const fl = fixedM ? q.lines.reduce((a, l) => a + qLineP(l) * (+l.q || 0), 0) : 0;
   const net = +q.fixedNet > 0 ? +q.fixedNet : fl > 0 ? fl : byCat, profit = net - cost;
   if (+q.fixedNet > 0 || fl > 0) Object.keys(kc).forEach(k => kc[k] = cost > 0 ? net / cost : 1);
   const vat = net * (+q.vat || 0) / 100, total = net + vat, k = cost > 0 ? net / cost : 1, marginPct = net ? profit / net * 100 : 0;
   const chg = (job.acc ? job.acc.changes : []).filter(c => c.ok).reduce((a, c) => a + (+c.cost || 0), 0);
   const budget = { mat: mat + scrap, cons, labor: laborTotal, equip, trans, other };
-  return { rate, matKg, mat, scrap, trans, cons, matTotal, labor, laborTotal, laborH, equipRows, equipPctV, equip, other, cost, net, profit, vat, total, k, kc, cat, price, marginPct, byCat, chg, budget };
+  return { rate, matKg, mat, scrap, trans, cons, matTotal, labor, laborTotal, laborH, equipRows, equipPctV, equip, other, cost, net, profit, vat, total, k, kc, cat, price, marginPct, byCat, kids: kids.length, chg, budget };
 }
 function progCalc(job) {
   jx(job); const sc = job.scope, c = quoteCalc(job), exp = job.prog.exp;
@@ -8800,7 +8813,7 @@ function jobSubBar(job) {
     <input id="qb_title" class="inp" placeholder="Ажлын нэр" value="${esc(job.title)}" style="flex:1 1 200px;min-width:0">
     <select id="qb_owner" class="inp" style="width:auto;max-width:200px" title="Үнийн санал хариуцагч">${peopleOpts(job.owner, '— хариуцагч —')}</select>
     <select id="qb_st" class="inp" style="width:auto">${QST.filter(x => x[0] !== 'won').map(([k, n]) => `<option value="${k}"${(job.qst || 'draft') === k ? ' selected' : ''}>${n}</option>`).join('')}</select>
-    ${job.quote.srcFolder ? `<button class="btn ghost" id="qb_dir" title="${esc(job.quote.srcFolder)}">📁 Фолдер</button>` : ''}<button class="btn ghost" id="qb_dup" title="Энэ үнийн саналыг хуулж шинэ SQ дугаартай санал үүсгэнэ">⧉ Хуулбар</button><button class="btn ghost savebtn" title="Хадгалах (Ctrl+S)">💾</button><button class="btn primary" id="qb_won" title="Захиалагч баталсан — бүх алхам (scope, үйлдвэрлэл, явц, хүлээлгэх) нээгдэнэ">✓ Ажил болгох</button><button class="btn ghost" id="qb_del">Устгах</button></nav>`;
+    ${job.quote.srcFolder ? `<button class="btn ghost" id="qb_dir" title="${esc(job.quote.srcFolder)}">📁 Фолдер</button>` : ''}<button class="btn ghost" id="qb_dup" title="Энэ үнийн саналыг хуулж шинэ SQ дугаартай санал үүсгэнэ">⧉ Хуулбар</button><button class="btn ghost savebtn" title="Хадгалах (Ctrl+S)">💾</button>${job.parent ? `<button class="btn primary" id="qb_parent">← Үндсэн санал</button>` : ''}<button class="btn primary" id="qb_won" title="Захиалагч баталсан — бүх алхам (scope, үйлдвэрлэл, явц, хүлээлгэх) нээгдэнэ">✓ Ажил болгох</button><button class="btn ghost" id="qb_del">Устгах</button></nav>`;
   const cur = stepOf(J.sub);
   return `<nav class="rtabs jsub stepper">${JSTEP.map(([k, n, d], i) => `${i ? '<span class="arr">›</span>' : ''}<button data-jsub="${k}" title="${d}" class="${cur === k ? 'on' : ''}"><span class="sn">${i + 1}</span>${n}</button>`).join('')}<span class="sp" style="flex:1"></span>
     ${cur === 'main' ? '' : `<label class="jstat" title="Ажлын төлөв">Төлөв <select id="sb_status" class="inp">${JST.map(([k, n]) => `<option value="${k}"${k === job.status ? ' selected' : ''}>${n}</option>`).join('')}</select></label>`}<button class="btn sm ghost" id="jb_dup" title="Энэ ажлыг хуулж шинэ дугаартай ажил үүсгэнэ (зураг хавсралт, бүртгэл, нэхэмжлэл хуулагдахгүй)">⧉ Хуулбар</button><button class="btn sm ghost savebtn" title="Хадгалах (Ctrl+S)">💾 Хадгалах</button><span class="muted mono jno">${esc(job.no)}</span></nav>
@@ -8818,8 +8831,9 @@ function bindSubBar(el) {
   const dir = el.querySelector('#qb_dir'); if (dir) dir.addEventListener('click', async () => { if (window.kh && window.kh.openPath) { const e = await window.kh.openPath(job.quote.srcFolder); if (e) toast('Фолдер олдсонгүй: ' + job.quote.srcFolder); } else toast(job.quote.srcFolder); });
   const ow = el.querySelector('#qb_owner'); if (ow) ow.addEventListener('change', () => { job.owner = ow.value; jobLog('Хариуцагч: ' + (pName(job.owner) || '—'), job); renderJList(); });
   if (st) st.addEventListener('change', () => { job.qst = st.value; jobLog('Саналын төлөв: ' + qstName(job.qst), job); renderJList(); });
+  { const pb = el.querySelector('#qb_parent'); if (pb) pb.addEventListener('click', () => { J.sel = job.parent; J.sub = 'quote'; renderJobs(); const m = $('#jobsMain'); if (m) m.scrollTop = 0; }); const wb = el.querySelector('#qb_won'); if (wb && job.parent) wb.hidden = true; }
   const w = el.querySelector('#qb_won'); if (w) w.addEventListener('click', () => { if (!confirm(`${job.no} саналыг баталж ажил болгох уу? Бүх мэдээлэл хадгалагдана.`)) return; quoteToJob(job); setModule('jobs'); J.sel = job.id; J.sub = 'main'; renderJobs(); toast('Ажил боллоо: ' + job.no); });
-  const d = el.querySelector('#qb_del'); if (d) d.addEventListener('click', ev => { const b = ev.currentTarget; if (!b.dataset.arm) { b.dataset.arm = 1; b.textContent = 'Дахин дарж баталгаажуулна'; setTimeout(() => { delete b.dataset.arm; b.textContent = 'Устгах'; }, 3000); return; } S.jobs = S.jobs.filter(j => j !== job); J.sel = null; save(); renderJobs(); });
+  const d = el.querySelector('#qb_del'); if (d) d.addEventListener('click', ev => { const b = ev.currentTarget; if (!b.dataset.arm) { b.dataset.arm = 1; b.textContent = 'Дахин дарж баталгаажуулна'; setTimeout(() => { delete b.dataset.arm; b.textContent = 'Устгах'; }, 3000); return; } S.jobs = S.jobs.filter(j => j !== job && j.parent !== job.id); if (job.parent) { const P = findJob(job.parent); if (P && P.quote.lines) P.quote.lines = P.quote.lines.filter(l => l.src !== job.id); } J.sel = job.parent || null; save(); renderJobs(); });
 }
 function renderJobSub(el, job) {
   jx(job);
@@ -8887,6 +8901,11 @@ function consPickHTML(q) {
     ${Object.keys(by).length > 1 || (Object.keys(by)[0] && Object.keys(by)[0] !== '—') ? `<div class="chips" style="width:100%;margin-top:6px">${Object.entries(by).sort().map(([g, v]) => `<span class="chip">${esc(g)}: <b class="mono">${money(v)}</b> ₮</span>`).join('')}</div>` : ''}`;
 }
 const CONS_PRESET = [['Гагнуурын утас ER70S-6 Ø1.2', 'кг', 9500], ['CO₂ / хольц хий', 'баллон', 85000], ['Зүсэх диск 125мм', 'ш', 3500], ['Өнгөлөх диск 125мм', 'ш', 4500], ['Будаг (грунт + өнгөлгөө)', 'л', 28000], ['Уусгагч', 'л', 9000], ['Лазерын хий (N₂ / O₂)', 'баллон', 95000], ['Электрод E7018 Ø3.2', 'кг', 12000]];
+function qChildCardHTML(job) {
+  const P = findJob(job.parent), line = P && (P.quote.lines || []).find(l => l.src === job.id); let c = null; try { c = quoteCalc(job); } catch (e) { }
+  return `<div class="jcard qchild"><div class="bcard-h">🧮 Мөрийн тусдаа тооцоо <span class="sp"></span><button class="btn primary sm" id="qcBack">← ${esc(P ? (P.quote.no || P.no) : 'Үндсэн санал')} руу буцах</button></div><div class="jbody">
+    <p>Энэ бол <b>${esc(P ? (P.quote.no || P.no) : '—')}</b> үнийн саналын «<b>${esc(line ? line.d : job.title)}</b>»${line && +line.q > 1 ? ` (${line.q} ${esc(line.u || '')})` : ''} мөрийн тооцоо. Доор материал, consumable, ажиллах хүч, тоног, margin-аа оруулна — дүн нь (${c ? n0(c.net) : 0} ₮ НӨАТ-гүй) үндсэн саналын мөрөнд автоматаар орж, задаргаа нь тэр мөрийн доор гарна.</p></div></div>`;
+}
 function renderJQuote(el, job) {
   job.scope && job.scope.stages.forEach(s => { if (s.sep === undefined) s.sep = BD_SEP.includes(s.rt); });
   const q = job.quote, c = quoteCalc(job), sc = job.scope;
@@ -8894,7 +8913,7 @@ function renderJQuote(el, job) {
   el.innerHTML = `${jobSubBar(job)}${srcFolderHTML(job)}
     <div class="exports">${outBtns('quote', 'Дэлгэрэнгүй задаргаа')}${outBtns('cost', 'Дотоод тооцоо')}<span class="sp" style="flex:1"></span><button class="btn" id="qFromNest"${job.est ? '' : ' disabled title="Ажлыг өрөлтөд ачаалж өрнө үү"'}>Өрөлтөөс материал, зүсэлт</button></div>
     <div class="summary">${[['Материал + consumable', money(c.matTotal)], ['Ажиллах хүч', money(c.laborTotal), `${nf(c.laborH, 0)} цаг × ${money(c.rate)}`], ['Тоног, үйлчилгээ', money(c.equip)], ['Өртөг', money(c.cost)], (q.noCost && !c.cost ? ['Ашиг', '—', 'Excel-ээс оруулсан — өртөг оруулаагүй'] : ['Ашиг', money(c.profit), c.net ? nf(c.profit / c.net * 100, 1) + '%' : '']), ['Санал (НӨАТ-гүй)', money(c.net)], ['Нийт (НӨАТ-тай)', money(c.total)]].map(s => `<div class="stat"><div class="k">${s[0]}</div><div class="v">${s[1]}<small>₮</small></div><div class="s">${s[2] || ''}</div></div>`).join('')}</div>
-    ${qfCardHTML(job)}
+    ${job.parent ? qChildCardHTML(job) : qfCardHTML(job)}
     <div class="jcard"><div class="bcard-h">Саналын мэдээлэл</div><div class="jbody"><div class="jgrid">
       ${fldIn('q_no', 'Саналын дугаар', q.no, { ph: job.no + '-Q1' })}${fldIn('q_date', 'Огноо', q.date, { type: 'date' })}${fldIn('q_valid', 'Хүчинтэй хугацаа, хоног', q.valid, { num: 1 })}${fldIn('q_delivery', 'Хийж дуусгах хугацаа', q.delivery, { ph: `${progCalc(job).end} хоног` })}
       ${fldIn('q_pay', 'Төлбөрийн нөхцөл', q.pay)}${fldIn('q_contact', 'Холбоо барих (утас, и-мэйл)', q.contact)}
@@ -8945,7 +8964,8 @@ function renderJQuote(el, job) {
   { const d = el.querySelector('.lrates'); if (d) d.addEventListener('toggle', () => { J.lrOpen = d.open; }); }
   el.querySelectorAll('[data-lr]').forEach(i => i.addEventListener('change', () => { q.rates = q.rates || {}; q.rates[i.dataset.lr] = +i.value || 0; S.labRates = Object.assign({}, S.labRates || {}, { [i.dataset.lr]: +i.value || 0 }); save(); re(); }));
   { const w = el.querySelector('#qWork'); if (w) w.addEventListener('change', () => { if (!w.value) return; const [gi, wi] = w.value.split('|').map(Number), [mn, en, rt, h] = WORK_LIB[gi][1][wi]; sc.stages.push({ name: mn, en, rt, sep: BD_SEP.includes(rt), start: 1, dur: 1, people: 1, hours: h, pct: 0 }); let inc = ''; { const f = qfDefaults(job), t = f.lang === 'mn' ? mn : en, L = String(f.incl || '').split('\n'); if (!L.some(x => x.replace(/^\s*[-–•]\s*/, '').trim().toLowerCase() === t.toLowerCase())) { f.incl = L.filter(x => x.trim()).concat(t).join('\n'); inc = ' · «Quote included»-д нэмсэн'; } } save(); re(); toast(`${mn} нэмэгдлээ — цагаа засна уу${inc}`); }); }
-  bindQfCard(el, job); bindSrcFolder(el, job);
+  if (job.parent) { const b = el.querySelector('#qcBack'); if (b) b.addEventListener('click', () => { J.sel = job.parent; J.sub = 'quote'; renderJobs(); }); } else bindQfCard(el, job);
+  bindSrcFolder(el, job);
   el.querySelector('#q_netIn').addEventListener('change', e => { q.netIn = e.target.checked; save(); });
   el.querySelectorAll('[data-kgc]').forEach(b => b.addEventListener('click', () => { toKg(q.mats[+b.dataset.kgc]); save(); re(); }));
   el.querySelector('#qAllKg').addEventListener('click', () => { q.mats.forEach(toKg); save(); re(); });
@@ -9926,13 +9946,14 @@ function qfBreakdown(job) {
 /* sub-rows printed under the main line(s): own list if typed, otherwise from the costing */
 function qfSubRows(job) {
   const f = qfDefaults(job); if (!f.showBd || f.mode === 'breakdown' || f.mode === 'detail' || f.mode === 'sections') return [];
+  if (f.mode === 'fixed' && (job.quote.lines || []).some(l => qChild(l))) return [];
   if (Array.isArray(f.bd) && f.bd.some(r => r.d)) return f.bd.filter(r => r.d).map(r => ({ d: r.d, p: +r.p || 0 }));
   try { return qfBreakdown(job).map(l => ({ d: l.d, p: l.p })); } catch (e) { return []; }
 }
 function qfLines(job) {
   if (job._linesFn) return job._linesFn();
   const q = job.quote, c = quoteCalc(job), f = qfDefaults(job), kc = c.kc || {}, K = cat => kc[cat] || c.k, MN = f.lang === 'mn';
-  if (f.mode === 'fixed' && Array.isArray(q.lines) && q.lines.length) return q.lines.map(l => ({ d: l.d, u: l.u || 'ea', q: +l.q || 1, p: +l.p || 0 }));
+  if (f.mode === 'fixed' && Array.isArray(q.lines) && q.lines.length) return q.lines.map(l => { const ch = qChild(l), o = { d: l.d, u: l.u || 'ea', q: +l.q || 1, p: qLineP(l) }; if (ch && f.showBd) { try { o.sub = qfBreakdown(ch).map(b => ({ d: b.d, p: b.p })); } catch (e) { } } return o; });
   if (f.mode === 'single') return [{ d: f.title || job.title || 'Fabrication work', u: 'set', q: 1, p: c.net, b: 1 }];
   if (f.mode === 'sections') {   // coarse groups; labour rows marked «Тусдаа мөр» still get their own line
     const kl = K('labor'), L = c.labor.filter(l => l.cost), sep = L.filter(l => l.sep), rest = L.reduce((a, l) => a + (l.sep ? 0 : l.cost), 0), out = [];
@@ -9995,8 +10016,15 @@ async function quoteFormImgs(job, KK) {
     T(l.u, (128.9 + 143.7) / 2, cy, { b: 1, s: 2.55, a: 'center' }); T(n0(Math.round(l.q * 100) / 100), (143.7 + 157.1) / 2, cy, { b: 1, s: 2.55, a: 'center' });
     T(n0(l.p), 175.9, cy, { b: 1, s: 2.55, a: 'right' }); T(n0(Math.round(l.p) * l.q), R0 - 0.4, cy, { b: 1, s: 2.55, a: 'right' });
     y += rh;
+    (l.sub || []).forEach(subRow);
   });
-  qfSubRows(job).forEach(r => {
+  function subRow(r) {
+    const rh = 3.8; if (y + rh > H - 20) { newPage(); header(); y = itemHead(52.5); }
+    [[L0, 29.8], [29.8, 128.9], [128.9, 143.7], [143.7, 157.1], [157.1, 176.4], [176.4, R0]].forEach(([a, b]) => box(a, y, b - a, rh));
+    const cy = y + rh / 2; T('– ' + r.d, 34.5, cy, { s: 2.35, c: '#333', w: 128.9 - 36 }); T(n0(r.p), 175.9, cy, { s: 2.35, c: '#333', a: 'right' });
+    y += rh;
+  }
+  if (!lines.some(l => l.sub)) qfSubRows(job).forEach(r => {
     const rh = 3.8; if (y + rh > H - 20) { newPage(); header(); y = itemHead(52.5); }
     [[L0, 29.8], [29.8, 128.9], [128.9, 143.7], [143.7, 157.1], [157.1, 176.4], [176.4, R0]].forEach(([a, b]) => box(a, y, b - a, rh));
     const cy = y + rh / 2; T('– ' + r.d, 34.5, cy, { s: 2.35, c: '#333', w: 128.9 - 36 }); T(n0(r.p), 175.9, cy, { s: 2.35, c: '#333', a: 'right' });
@@ -10050,18 +10078,35 @@ async function quoteFormOut(job, mode) {
 const QF_PV = new Map();
 /* «Олон бүтээгдэхүүн»: the customer sees exactly these lines (e.g. 2 different items in one quotation) */
 function qfLinesEdHTML(job) {
-  const L = job.quote.lines = Array.isArray(job.quote.lines) ? job.quote.lines : [], sum = L.reduce((a, l) => a + Math.round(+l.p || 0) * (+l.q || 0), 0); let net = 0; try { net = quoteCalc(job).byCat; } catch (e) { }
-  return `<div class="qlines"><table class="dt qlt"><thead><tr><th style="width:26px">№</th><th>Description (бүтээгдэхүүн / ажил)</th><th style="width:70px">UOM</th><th class="r" style="width:70px">QTY</th><th class="r" style="width:130px">Unit price, ₮</th><th class="r" style="width:120px">Total, ₮</th><th style="width:26px"></th></tr></thead><tbody>
-    ${L.map((l, i) => `<tr><td class="num muted">${i + 1}</td><td><input class="inp" data-ql="${i}" data-qk="d" value="${esc(l.d || '')}" placeholder="жишээ: AXLE STAND"></td><td><input class="inp" data-ql="${i}" data-qk="u" value="${esc(l.u || 'ea')}"></td><td><input class="inp mono" type="number" step="any" data-ql="${i}" data-qk="q" value="${l.q ?? 1}" style="text-align:right"></td><td><input class="inp mono" type="number" step="any" data-ql="${i}" data-qk="p" value="${l.p ?? ''}" style="text-align:right"></td><td class="r num">${n0(Math.round(+l.p || 0) * (+l.q || 0))}</td><td><button class="x" data-qlx="${i}" type="button" aria-label="Устгах">×</button></td></tr>`).join('') || '<tr><td colspan="7" class="muted">Мөр алга — «+ Мөр нэмэх»</td></tr>'}
-    <tr class="tot"><td></td><td colspan="4">Нийт (НӨАТ-гүй)</td><td class="r num">${n0(sum)}</td><td></td></tr></tbody></table>
-    <div class="addrow"><button class="btn sm" id="qlAdd" type="button">+ Мөр нэмэх</button>${net ? `<button class="btn sm ghost" id="qlSplit" type="button" title="Тооцоолсон саналын дүнг мөрүүдийн одоогийн үнийн харьцаагаар (үнэгүй бол тэнцүү) хуваана">Тооцооны дүнг (${n0(net)} ₮) мөрүүдэд хуваах</button>` : ''}<span class="note">Захиалагчид яг эдгээр мөр гарна. Нийт дүн нь мөрүүдийн нийлбэр.</span></div></div>`;
+  const L = job.quote.lines = Array.isArray(job.quote.lines) ? job.quote.lines : [], sum = L.reduce((a, l) => a + qLineP(l) * (+l.q || 0), 0); let net = 0; try { net = quoteCalc(job).byCat; } catch (e) { }
+  const own = L.some(l => !qChild(l));
+  return `<div class="qlines"><div class="tblwrap"><table class="dt qlt"><thead><tr><th style="width:26px">№</th><th>Description (бүтээгдэхүүн / ажил)</th><th style="width:70px">UOM</th><th class="r" style="width:70px">QTY</th><th class="r" style="width:130px">Unit price, ₮</th><th class="r" style="width:120px">Total, ₮</th><th style="width:150px">Тооцоо</th><th style="width:26px"></th></tr></thead><tbody>
+    ${L.map((l, i) => { const ch = qChild(l), p = qLineP(l); let cm = ''; if (ch) { try { const cc = quoteCalc(ch); cm = `өртөг ${n0(cc.cost)} · margin ${nf(cc.marginPct, 1)}%`; } catch (e) { } }
+      return `<tr><td class="num muted">${i + 1}</td><td><input class="inp" data-ql="${i}" data-qk="d" value="${esc(l.d || '')}" placeholder="жишээ: DRILL BOX 1"></td><td><input class="inp" data-ql="${i}" data-qk="u" value="${esc(l.u || 'ea')}"></td><td><input class="inp mono" type="number" step="any" data-ql="${i}" data-qk="q" value="${l.q ?? 1}" style="text-align:right"></td>
+      <td>${ch ? `<div class="mono r" style="padding:6px 8px" title="Тусдаа тооцооноос">${n0(p)}</div>` : `<input class="inp mono" type="number" step="any" data-ql="${i}" data-qk="p" value="${l.p ?? ''}" style="text-align:right">`}</td><td class="r num">${n0(p * (+l.q || 0))}</td>
+      <td>${ch ? `<button class="btn sm" data-qlo="${i}" type="button" title="${esc(ch.quote.no || ch.no)}">🧮 Тооцоо нээх</button><div class="muted" style="font-size:11px">${cm}</div>` : `<button class="btn sm ghost" data-qlc="${i}" type="button" title="Энэ мөрийн материал, хүч, тоногийг тусад нь бодно — үнэ нь автоматаар орно">🧮 Тусад нь бодох</button>`}</td><td><button class="x" data-qlx="${i}" type="button" aria-label="Устгах">×</button></td></tr>`; }).join('') || '<tr><td colspan="8" class="muted">Мөр алга — «+ Мөр нэмэх»</td></tr>'}
+    <tr class="tot"><td></td><td colspan="4">Нийт (НӨАТ-гүй)</td><td class="r num">${n0(sum)}</td><td colspan="2"></td></tr></tbody></table></div>
+    <div class="addrow"><button class="btn sm primary" id="qlAddC" type="button" title="Шинэ мөр + түүний тусдаа тооцоо (материал, хүч, тоног, margin)">+ Тооцоотой мөр нэмэх</button><button class="btn sm" id="qlAdd" type="button">+ Энгийн мөр</button>${own && net ? `<button class="btn sm ghost" id="qlSplit" type="button" title="Энэ саналын өөрийн тооцоог тооцоогүй мөрүүдэд хуваана">Тооцооны дүнг (${n0(net)} ₮) мөрүүдэд хуваах</button>` : ''}</div>
+    <p class="note">«Тооцоотой мөр» бүр (жишээ нь DRILL BOX 1, 2, 3) өөрийн материал, ажиллах хүч, тоног, margin-тай; үнэ нь тэндээсээ автоматаар орж, «Үндсэн мөрийн доор задаргаа харуулах»-ыг асаавал мөр бүрийн доор өөрийн задаргаа гарна. Тооцоо нь тухайн мөрийн бүх тоо ширхэгийнх.</p></div>`;
+}
+function qChildNew(job, line) {
+  const kids = (S.jobs || []).filter(j => j.parent === job.id).length, pn = (job.quote && job.quote.no) || job.no;
+  const c = { id: uid(), parent: job.id, owner: job.owner || S.me || '', kind: 'quote', qst: 'draft', no: `${pn}-${kids + 1}`, short: '', customer: job.customer || '', title: line.d || `${job.title || 'Item'} ${kids + 1}`, due: '', status: 'new', note: '', items: [], extra: [], est: null, act: { hours: '', kg: '', other: '' }, trace: [], log: [], created: today() };
+  jx(c); c.quote.no = c.no; c.quote.qf = Object.assign({}, qfDefaults(job), { title: c.title, mode: 'breakdown', formId: '', _formOff: 1 });
+  if (job.quote) ['rate', 'rateK', 'rates', 'mc', 'margin', 'vat', 'scrapPct', 'equipPct'].forEach(k => { if (job.quote[k] != null) c.quote[k] = JSON.parse(JSON.stringify(job.quote[k])); });
+  c.scope.stages = [];
+  S.jobs.push(c); line.src = c.id; jobLog(`«${c.title}» мөрийн тусдаа тооцоо (${c.no}) үүсгэсэн`, job); save(); return c;
 }
 function bindQfLines(el, job, reCard) {
   const L = () => (job.quote.lines = Array.isArray(job.quote.lines) ? job.quote.lines : []);
-  el.querySelectorAll('[data-ql]').forEach(i => i.addEventListener('change', e => { e.stopPropagation(); const r = L()[+i.dataset.ql], k = i.dataset.qk; r[k] = k === 'q' || k === 'p' ? (+i.value || 0) : i.value; save(); reCard(); }));
-  el.querySelectorAll('[data-qlx]').forEach(b => b.addEventListener('click', () => { L().splice(+b.dataset.qlx, 1); save(); reCard(); }));
+  const open = c => { J.sel = c.id; J.sub = 'quote'; renderJobs(); const m = $('#jobsMain'); if (m) m.scrollTop = 0; window.scrollTo(0, 0); };
+  el.querySelectorAll('[data-ql]').forEach(i => i.addEventListener('change', e => { e.stopPropagation(); const r = L()[+i.dataset.ql], k = i.dataset.qk; r[k] = k === 'q' || k === 'p' ? (+i.value || 0) : i.value; if (k === 'd') { const ch = qChild(r); if (ch) { ch.title = r.d; ch.quote.qf.title = r.d; } } save(); reCard(); }));
+  el.querySelectorAll('[data-qlx]').forEach(b => b.addEventListener('click', () => { const r = L()[+b.dataset.qlx], ch = qChild(r); if (ch && !confirm(`«${r.d}» мөр болон түүний тусдаа тооцоог (${ch.no}) устгах уу?`)) return; if (ch) S.jobs = S.jobs.filter(j => j !== ch); L().splice(+b.dataset.qlx, 1); save(); reCard(); }));
+  el.querySelectorAll('[data-qlo]').forEach(b => b.addEventListener('click', () => { const ch = qChild(L()[+b.dataset.qlo]); if (ch) open(ch); }));
+  el.querySelectorAll('[data-qlc]').forEach(b => b.addEventListener('click', () => { const r = L()[+b.dataset.qlc]; if (!r.d) { toast('Эхлээд мөрийн нэрийг бичнэ үү'); return; } open(qChildNew(job, r)); }));
+  const ac = el.querySelector('#qlAddC'); if (ac) ac.addEventListener('click', () => { const n = L().length + 1, d = prompt('Мөрийн нэр (жишээ: DRILL BOX 1)', `${job.title || 'ITEM'} ${n}`); if (d == null) return; const r = { d: d.trim() || `${job.title || 'ITEM'} ${n}`, u: 'set', q: 1, p: 0 }; L().push(r); open(qChildNew(job, r)); });
   const a = el.querySelector('#qlAdd'); if (a) a.addEventListener('click', () => { L().push({ d: '', u: 'ea', q: 1, p: 0 }); save(); reCard(); setTimeout(() => { const ins = document.querySelectorAll('[data-qk="d"]'); if (ins.length) ins[ins.length - 1].focus(); }, 60); });
-  const s = el.querySelector('#qlSplit'); if (s) s.addEventListener('click', () => { const A = L(); if (!A.length) A.push({ d: job.title || 'Fabrication work', u: 'set', q: 1, p: 0 }); const net = quoteCalc(job).byCat, w0 = A.map(l => (+l.p || 0) * (+l.q || 1)), w = w0.some(v => !v) ? A.map(() => 1) : w0, W = w.reduce((x, y) => x + y, 0); A.forEach((l, i) => { const share = W ? net * w[i] / W : net / A.length; l.p = Math.round(share / (+l.q || 1)); }); save(); reCard(); toast('Дүн мөрүүдэд хуваагдлаа'); });
+  const s = el.querySelector('#qlSplit'); if (s) s.addEventListener('click', () => { const A = L().filter(l => !qChild(l)); if (!A.length) return; const net = (() => { const c0 = quoteCalc(job); return c0.byCat - L().map(qChild).filter(Boolean).reduce((x, ch) => x + quoteCalc(ch).net, 0); })(), w0 = A.map(l => (+l.p || 0) * (+l.q || 1)), w = w0.some(v => !v) ? A.map(() => 1) : w0, W = w.reduce((x, y) => x + y, 0); A.forEach((l, i) => { const share = W ? net * w[i] / W : net / A.length; l.p = Math.round(share / (+l.q || 1)); }); save(); reCard(); toast('Дүн мөрүүдэд хуваагдлаа'); });
 }
 const qfOrg = job => job._nest ? (S.quote.customer || '') : (job.customer || '');
 function qfCardHTML(job) {

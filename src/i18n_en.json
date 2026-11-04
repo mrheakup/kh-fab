@@ -3006,5 +3006,11 @@
 "Сүүлийн хөдөлгөөн": "Recent movements",
 "⚠ Захиалах шаардлагатай": "⚠ To reorder",
 "Хөдөлгөөн": "Movements",
-"Дутагдалтай": "Low stock"
+"Дутагдалтай": "Low stock",
+"+ Тооцоотой мөр нэмэх": "+ Line with its own costing",
+"+ Энгийн мөр": "+ Plain line",
+"🧮 Тооцоо нээх": "🧮 Open costing",
+"🧮 Тусад нь бодох": "🧮 Cost separately",
+"← Үндсэн санал": "← Main quotation",
+"🧮 Мөрийн тусдаа тооцоо": "🧮 Line costing"
 }

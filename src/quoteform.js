@@ -48,13 +48,14 @@ function qfBreakdown(job) {
 /* sub-rows printed under the main line(s): own list if typed, otherwise from the costing */
 function qfSubRows(job) {
   const f = qfDefaults(job); if (!f.showBd || f.mode === 'breakdown' || f.mode === 'detail' || f.mode === 'sections') return [];
+  if (f.mode === 'fixed' && (job.quote.lines || []).some(l => qChild(l))) return [];
   if (Array.isArray(f.bd) && f.bd.some(r => r.d)) return f.bd.filter(r => r.d).map(r => ({ d: r.d, p: +r.p || 0 }));
   try { return qfBreakdown(job).map(l => ({ d: l.d, p: l.p })); } catch (e) { return []; }
 }
 function qfLines(job) {
   if (job._linesFn) return job._linesFn();
   const q = job.quote, c = quoteCalc(job), f = qfDefaults(job), kc = c.kc || {}, K = cat => kc[cat] || c.k, MN = f.lang === 'mn';
-  if (f.mode === 'fixed' && Array.isArray(q.lines) && q.lines.length) return q.lines.map(l => ({ d: l.d, u: l.u || 'ea', q: +l.q || 1, p: +l.p || 0 }));
+  if (f.mode === 'fixed' && Array.isArray(q.lines) && q.lines.length) return q.lines.map(l => { const ch = qChild(l), o = { d: l.d, u: l.u || 'ea', q: +l.q || 1, p: qLineP(l) }; if (ch && f.showBd) { try { o.sub = qfBreakdown(ch).map(b => ({ d: b.d, p: b.p })); } catch (e) { } } return o; });
   if (f.mode === 'single') return [{ d: f.title || job.title || 'Fabrication work', u: 'set', q: 1, p: c.net, b: 1 }];
   if (f.mode === 'sections') {   // coarse groups; labour rows marked «Тусдаа мөр» still get their own line
     const kl = K('labor'), L = c.labor.filter(l => l.cost), sep = L.filter(l => l.sep), rest = L.reduce((a, l) => a + (l.sep ? 0 : l.cost), 0), out = [];
@@ -117,8 +118,15 @@ async function quoteFormImgs(job, KK) {
     T(l.u, (128.9 + 143.7) / 2, cy, { b: 1, s: 2.55, a: 'center' }); T(n0(Math.round(l.q * 100) / 100), (143.7 + 157.1) / 2, cy, { b: 1, s: 2.55, a: 'center' });
     T(n0(l.p), 175.9, cy, { b: 1, s: 2.55, a: 'right' }); T(n0(Math.round(l.p) * l.q), R0 - 0.4, cy, { b: 1, s: 2.55, a: 'right' });
     y += rh;
+    (l.sub || []).forEach(subRow);
   });
-  qfSubRows(job).forEach(r => {
+  function subRow(r) {
+    const rh = 3.8; if (y + rh > H - 20) { newPage(); header(); y = itemHead(52.5); }
+    [[L0, 29.8], [29.8, 128.9], [128.9, 143.7], [143.7, 157.1], [157.1, 176.4], [176.4, R0]].forEach(([a, b]) => box(a, y, b - a, rh));
+    const cy = y + rh / 2; T('– ' + r.d, 34.5, cy, { s: 2.35, c: '#333', w: 128.9 - 36 }); T(n0(r.p), 175.9, cy, { s: 2.35, c: '#333', a: 'right' });
+    y += rh;
+  }
+  if (!lines.some(l => l.sub)) qfSubRows(job).forEach(r => {
     const rh = 3.8; if (y + rh > H - 20) { newPage(); header(); y = itemHead(52.5); }
     [[L0, 29.8], [29.8, 128.9], [128.9, 143.7], [143.7, 157.1], [157.1, 176.4], [176.4, R0]].forEach(([a, b]) => box(a, y, b - a, rh));
     const cy = y + rh / 2; T('– ' + r.d, 34.5, cy, { s: 2.35, c: '#333', w: 128.9 - 36 }); T(n0(r.p), 175.9, cy, { s: 2.35, c: '#333', a: 'right' });
@@ -172,18 +180,35 @@ async function quoteFormOut(job, mode) {
 const QF_PV = new Map();
 /* «Олон бүтээгдэхүүн»: the customer sees exactly these lines (e.g. 2 different items in one quotation) */
 function qfLinesEdHTML(job) {
-  const L = job.quote.lines = Array.isArray(job.quote.lines) ? job.quote.lines : [], sum = L.reduce((a, l) => a + Math.round(+l.p || 0) * (+l.q || 0), 0); let net = 0; try { net = quoteCalc(job).byCat; } catch (e) { }
-  return `<div class="qlines"><table class="dt qlt"><thead><tr><th style="width:26px">№</th><th>Description (бүтээгдэхүүн / ажил)</th><th style="width:70px">UOM</th><th class="r" style="width:70px">QTY</th><th class="r" style="width:130px">Unit price, ₮</th><th class="r" style="width:120px">Total, ₮</th><th style="width:26px"></th></tr></thead><tbody>
-    ${L.map((l, i) => `<tr><td class="num muted">${i + 1}</td><td><input class="inp" data-ql="${i}" data-qk="d" value="${esc(l.d || '')}" placeholder="жишээ: AXLE STAND"></td><td><input class="inp" data-ql="${i}" data-qk="u" value="${esc(l.u || 'ea')}"></td><td><input class="inp mono" type="number" step="any" data-ql="${i}" data-qk="q" value="${l.q ?? 1}" style="text-align:right"></td><td><input class="inp mono" type="number" step="any" data-ql="${i}" data-qk="p" value="${l.p ?? ''}" style="text-align:right"></td><td class="r num">${n0(Math.round(+l.p || 0) * (+l.q || 0))}</td><td><button class="x" data-qlx="${i}" type="button" aria-label="Устгах">×</button></td></tr>`).join('') || '<tr><td colspan="7" class="muted">Мөр алга — «+ Мөр нэмэх»</td></tr>'}
-    <tr class="tot"><td></td><td colspan="4">Нийт (НӨАТ-гүй)</td><td class="r num">${n0(sum)}</td><td></td></tr></tbody></table>
-    <div class="addrow"><button class="btn sm" id="qlAdd" type="button">+ Мөр нэмэх</button>${net ? `<button class="btn sm ghost" id="qlSplit" type="button" title="Тооцоолсон саналын дүнг мөрүүдийн одоогийн үнийн харьцаагаар (үнэгүй бол тэнцүү) хуваана">Тооцооны дүнг (${n0(net)} ₮) мөрүүдэд хуваах</button>` : ''}<span class="note">Захиалагчид яг эдгээр мөр гарна. Нийт дүн нь мөрүүдийн нийлбэр.</span></div></div>`;
+  const L = job.quote.lines = Array.isArray(job.quote.lines) ? job.quote.lines : [], sum = L.reduce((a, l) => a + qLineP(l) * (+l.q || 0), 0); let net = 0; try { net = quoteCalc(job).byCat; } catch (e) { }
+  const own = L.some(l => !qChild(l));
+  return `<div class="qlines"><div class="tblwrap"><table class="dt qlt"><thead><tr><th style="width:26px">№</th><th>Description (бүтээгдэхүүн / ажил)</th><th style="width:70px">UOM</th><th class="r" style="width:70px">QTY</th><th class="r" style="width:130px">Unit price, ₮</th><th class="r" style="width:120px">Total, ₮</th><th style="width:150px">Тооцоо</th><th style="width:26px"></th></tr></thead><tbody>
+    ${L.map((l, i) => { const ch = qChild(l), p = qLineP(l); let cm = ''; if (ch) { try { const cc = quoteCalc(ch); cm = `өртөг ${n0(cc.cost)} · margin ${nf(cc.marginPct, 1)}%`; } catch (e) { } }
+      return `<tr><td class="num muted">${i + 1}</td><td><input class="inp" data-ql="${i}" data-qk="d" value="${esc(l.d || '')}" placeholder="жишээ: DRILL BOX 1"></td><td><input class="inp" data-ql="${i}" data-qk="u" value="${esc(l.u || 'ea')}"></td><td><input class="inp mono" type="number" step="any" data-ql="${i}" data-qk="q" value="${l.q ?? 1}" style="text-align:right"></td>
+      <td>${ch ? `<div class="mono r" style="padding:6px 8px" title="Тусдаа тооцооноос">${n0(p)}</div>` : `<input class="inp mono" type="number" step="any" data-ql="${i}" data-qk="p" value="${l.p ?? ''}" style="text-align:right">`}</td><td class="r num">${n0(p * (+l.q || 0))}</td>
+      <td>${ch ? `<button class="btn sm" data-qlo="${i}" type="button" title="${esc(ch.quote.no || ch.no)}">🧮 Тооцоо нээх</button><div class="muted" style="font-size:11px">${cm}</div>` : `<button class="btn sm ghost" data-qlc="${i}" type="button" title="Энэ мөрийн материал, хүч, тоногийг тусад нь бодно — үнэ нь автоматаар орно">🧮 Тусад нь бодох</button>`}</td><td><button class="x" data-qlx="${i}" type="button" aria-label="Устгах">×</button></td></tr>`; }).join('') || '<tr><td colspan="8" class="muted">Мөр алга — «+ Мөр нэмэх»</td></tr>'}
+    <tr class="tot"><td></td><td colspan="4">Нийт (НӨАТ-гүй)</td><td class="r num">${n0(sum)}</td><td colspan="2"></td></tr></tbody></table></div>
+    <div class="addrow"><button class="btn sm primary" id="qlAddC" type="button" title="Шинэ мөр + түүний тусдаа тооцоо (материал, хүч, тоног, margin)">+ Тооцоотой мөр нэмэх</button><button class="btn sm" id="qlAdd" type="button">+ Энгийн мөр</button>${own && net ? `<button class="btn sm ghost" id="qlSplit" type="button" title="Энэ саналын өөрийн тооцоог тооцоогүй мөрүүдэд хуваана">Тооцооны дүнг (${n0(net)} ₮) мөрүүдэд хуваах</button>` : ''}</div>
+    <p class="note">«Тооцоотой мөр» бүр (жишээ нь DRILL BOX 1, 2, 3) өөрийн материал, ажиллах хүч, тоног, margin-тай; үнэ нь тэндээсээ автоматаар орж, «Үндсэн мөрийн доор задаргаа харуулах»-ыг асаавал мөр бүрийн доор өөрийн задаргаа гарна. Тооцоо нь тухайн мөрийн бүх тоо ширхэгийнх.</p></div>`;
+}
+function qChildNew(job, line) {
+  const kids = (S.jobs || []).filter(j => j.parent === job.id).length, pn = (job.quote && job.quote.no) || job.no;
+  const c = { id: uid(), parent: job.id, owner: job.owner || S.me || '', kind: 'quote', qst: 'draft', no: `${pn}-${kids + 1}`, short: '', customer: job.customer || '', title: line.d || `${job.title || 'Item'} ${kids + 1}`, due: '', status: 'new', note: '', items: [], extra: [], est: null, act: { hours: '', kg: '', other: '' }, trace: [], log: [], created: today() };
+  jx(c); c.quote.no = c.no; c.quote.qf = Object.assign({}, qfDefaults(job), { title: c.title, mode: 'breakdown', formId: '', _formOff: 1 });
+  if (job.quote) ['rate', 'rateK', 'rates', 'mc', 'margin', 'vat', 'scrapPct', 'equipPct'].forEach(k => { if (job.quote[k] != null) c.quote[k] = JSON.parse(JSON.stringify(job.quote[k])); });
+  c.scope.stages = [];
+  S.jobs.push(c); line.src = c.id; jobLog(`«${c.title}» мөрийн тусдаа тооцоо (${c.no}) үүсгэсэн`, job); save(); return c;
 }
 function bindQfLines(el, job, reCard) {
   const L = () => (job.quote.lines = Array.isArray(job.quote.lines) ? job.quote.lines : []);
-  el.querySelectorAll('[data-ql]').forEach(i => i.addEventListener('change', e => { e.stopPropagation(); const r = L()[+i.dataset.ql], k = i.dataset.qk; r[k] = k === 'q' || k === 'p' ? (+i.value || 0) : i.value; save(); reCard(); }));
-  el.querySelectorAll('[data-qlx]').forEach(b => b.addEventListener('click', () => { L().splice(+b.dataset.qlx, 1); save(); reCard(); }));
+  const open = c => { J.sel = c.id; J.sub = 'quote'; renderJobs(); const m = $('#jobsMain'); if (m) m.scrollTop = 0; window.scrollTo(0, 0); };
+  el.querySelectorAll('[data-ql]').forEach(i => i.addEventListener('change', e => { e.stopPropagation(); const r = L()[+i.dataset.ql], k = i.dataset.qk; r[k] = k === 'q' || k === 'p' ? (+i.value || 0) : i.value; if (k === 'd') { const ch = qChild(r); if (ch) { ch.title = r.d; ch.quote.qf.title = r.d; } } save(); reCard(); }));
+  el.querySelectorAll('[data-qlx]').forEach(b => b.addEventListener('click', () => { const r = L()[+b.dataset.qlx], ch = qChild(r); if (ch && !confirm(`«${r.d}» мөр болон түүний тусдаа тооцоог (${ch.no}) устгах уу?`)) return; if (ch) S.jobs = S.jobs.filter(j => j !== ch); L().splice(+b.dataset.qlx, 1); save(); reCard(); }));
+  el.querySelectorAll('[data-qlo]').forEach(b => b.addEventListener('click', () => { const ch = qChild(L()[+b.dataset.qlo]); if (ch) open(ch); }));
+  el.querySelectorAll('[data-qlc]').forEach(b => b.addEventListener('click', () => { const r = L()[+b.dataset.qlc]; if (!r.d) { toast('Эхлээд мөрийн нэрийг бичнэ үү'); return; } open(qChildNew(job, r)); }));
+  const ac = el.querySelector('#qlAddC'); if (ac) ac.addEventListener('click', () => { const n = L().length + 1, d = prompt('Мөрийн нэр (жишээ: DRILL BOX 1)', `${job.title || 'ITEM'} ${n}`); if (d == null) return; const r = { d: d.trim() || `${job.title || 'ITEM'} ${n}`, u: 'set', q: 1, p: 0 }; L().push(r); open(qChildNew(job, r)); });
   const a = el.querySelector('#qlAdd'); if (a) a.addEventListener('click', () => { L().push({ d: '', u: 'ea', q: 1, p: 0 }); save(); reCard(); setTimeout(() => { const ins = document.querySelectorAll('[data-qk="d"]'); if (ins.length) ins[ins.length - 1].focus(); }, 60); });
-  const s = el.querySelector('#qlSplit'); if (s) s.addEventListener('click', () => { const A = L(); if (!A.length) A.push({ d: job.title || 'Fabrication work', u: 'set', q: 1, p: 0 }); const net = quoteCalc(job).byCat, w0 = A.map(l => (+l.p || 0) * (+l.q || 1)), w = w0.some(v => !v) ? A.map(() => 1) : w0, W = w.reduce((x, y) => x + y, 0); A.forEach((l, i) => { const share = W ? net * w[i] / W : net / A.length; l.p = Math.round(share / (+l.q || 1)); }); save(); reCard(); toast('Дүн мөрүүдэд хуваагдлаа'); });
+  const s = el.querySelector('#qlSplit'); if (s) s.addEventListener('click', () => { const A = L().filter(l => !qChild(l)); if (!A.length) return; const net = (() => { const c0 = quoteCalc(job); return c0.byCat - L().map(qChild).filter(Boolean).reduce((x, ch) => x + quoteCalc(ch).net, 0); })(), w0 = A.map(l => (+l.p || 0) * (+l.q || 1)), w = w0.some(v => !v) ? A.map(() => 1) : w0, W = w.reduce((x, y) => x + y, 0); A.forEach((l, i) => { const share = W ? net * w[i] / W : net / A.length; l.p = Math.round(share / (+l.q || 1)); }); save(); reCard(); toast('Дүн мөрүүдэд хуваагдлаа'); });
 }
 const qfOrg = job => job._nest ? (S.quote.customer || '') : (job.customer || '');
 function qfCardHTML(job) {
