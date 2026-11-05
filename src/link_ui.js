@@ -26,6 +26,27 @@ function merge3(b, l, r, path, C) {
   }
   if (C) C.push(path); return l;
 }
+/* after a merge: counters never go back, and a number both PCs gave out at the same time (KH-2026-134 at the office
+   and at the factory) is kept by the record that was already shared; this PC's new one gets the next free number */
+function syncFixNumbers(m, R) {
+  const msgs = [], rIds = new Set(), walk = (o) => { if (Array.isArray(o)) o.forEach(walk); else if (isObj(o)) { if (o.id != null) rIds.add(o.id); Object.values(o).forEach(walk); } };
+  walk(R || {});
+  Object.keys(m).filter(k => /Seq$/.test(k)).forEach(k => { m[k] = Math.max(+m[k] || 0, +(R || {})[k] || 0); });
+  const dedupe = (items, key, renum) => { const by = new Map(); items.forEach(x => { const k = key(x); if (!k) return; (by.get(k) || by.set(k, []).get(k)).push(x); });
+    by.forEach((arr, k) => { if (arr.length < 2) return; arr.sort((a, b) => (rIds.has(b.o.id) ? 1 : 0) - (rIds.has(a.o.id) ? 1 : 0)); if (!rIds.has(arr[0].o.id)) return; arr.slice(1).filter(x => !rIds.has(x.o.id)).forEach(x => { const old = k, nw = renum(x); msgs.push(`${old} → ${nw}`); }); }); };
+  const J = (m.jobs || []).filter(j => !j.parent && j.kind !== 'quote');
+  const jmax = y => J.reduce((a, j) => { const t = String(j.no || '').match(/^KH-(\d{4})-(\d+)$/); return t && +t[1] === y ? Math.max(a, +t[2]) : a; }, 0);
+  dedupe(J.map(o => ({ o })), x => /^KH-\d{4}-\d+$/.test(x.o.no || '') ? x.o.no : '', x => { const y = +x.o.no.slice(3, 7), n = Math.max(jmax(y), y === m.jobYear ? +m.jobSeq || 0 : 0) + 1, sh = String(n).padStart(3, '0'); if (y === m.jobYear) m.jobSeq = n; const old = x.o.no; x.o.no = `KH-${y}-${sh}`; x.o.short = sh; (x.o.log = x.o.log || []).unshift({ t: new Date().toISOString().slice(0, 16).replace('T', ' '), m: `Синк: дугаар давхардсан тул ${old} → ${x.o.no}` }); return x.o.no; });
+  const I = []; (m.jobs || []).forEach(j => (j.inv || []).forEach(i => I.push({ o: i }))); (m.invoices || []).forEach(i => I.push({ o: i }));
+  const imax = () => I.reduce((a, x) => { const t = String(x.o.no || '').match(/^INV-?(\d{1,4})$/i); return t ? Math.max(a, +t[1]) : a; }, 0);
+  dedupe(I.filter(x => !x.o.imp), x => x.o.no || '', x => { const n = Math.max(imax(), +m.invSeq || 0) + 1; m.invSeq = n; x.o.no = 'INV' + String(n).padStart(4, '0'); return x.o.no; });
+  const SC = (m.scopes || []).map(o => ({ o })), smax = () => SC.reduce((a, x) => Math.max(a, parseInt(String(x.o.no || '').replace(/\D/g, ''), 10) || 0), 0);
+  dedupe(SC, x => x.o.no || '', x => { const n = Math.max(smax(), +m.scopeSeq || 0) + 1; m.scopeSeq = n; x.o.no = 'SC-' + String(n).padStart(4, '0'); return x.o.no; });
+  const D = []; (m.jobs || []).forEach(j => { if (j.dock) D.push({ o: Object.assign(j.dock, { id: j.dock.id || 'dk-' + j.id }) }); }); (m.dockets || []).forEach(x => { if (x.dock) D.push({ o: Object.assign(x.dock, { id: x.dock.id || 'dk-' + x.id }) }); });
+  const dmax = () => D.reduce((a, x) => Math.max(a, parseInt(x.o.no, 10) || 0), 0);
+  dedupe(D, x => x.o.no || '', x => { const n = Math.max(dmax(), +m.docketSeq || 0) + 1; m.docketSeq = n; x.o.no = String(n).padStart(4, '0'); return x.o.no; });
+  return msgs;
+}
 function applyState(m) { const keep = { _saved: S._saved }; Object.keys(S).forEach(k => delete S[k]); Object.assign(S, m, keep); }
 function rerenderAll() {
   try { const cur = (document.querySelector('.modtabs button.on') || {}).dataset?.mod || 'nest'; if (typeof renderAll === 'function') renderAll(); setModule(cur); if (typeof contactLists === 'function') contactLists(); } catch (e) { console.error(e); }
@@ -40,9 +61,10 @@ async function syncMerge(txt, startup) {
   let R; try { R = JSON.parse(txt); } catch (e) { return; }
   const C = [], L = JSON.parse(JSON.stringify(S)); delete L._saved; delete R._saved; const B = KL.base ? Object.assign({}, KL.base) : {}; delete B._saved;
   const m = merge3(B, L, R, 'S', C);
+  const fixedNos = syncFixNumbers(m, R);
   LOCAL_KEYS.forEach(k => { if (k in L) m[k] = L[k]; else delete m[k]; });   // this PC's own workspace / user stays as is
   KL.base = R; window.kh.syncBase(txt);
-  if (!jeq(m, L)) { applyState(m); rerenderAll(); toast(`🔄 Нөгөө компьютерын өөрчлөлт орлоо${C.length ? ` · ${C.length} зөрчилд энэ компьютерынх үлдсэн` : ''}`, 6000); }
+  if (!jeq(m, L)) { applyState(m); rerenderAll(); toast(`🔄 Нөгөө компьютерын өөрчлөлт орлоо${C.length ? ` · ${C.length} зөрчилд энэ компьютерынх үлдсэн` : ''}${fixedNos.length ? ` · давхар дугаар засав: ${fixedNos.join(', ')}` : ''}`, 8000); }
   const Rc = Object.assign({}, R); LOCAL_KEYS.forEach(k => { Rc[k] = m[k]; }); if (!jeq(m, Rc)) save();
 }
 async function syncPush(txt) {
@@ -67,7 +89,7 @@ const MOB = {
     const I = IS(), M = I.machines.map(m => ({ id: m.id, no: m.no, name: m.name, role: m.role || 'оператор', items: m.items.map(x => Array.isArray(x) ? (x[1] || x[0]) : String(x)) }));
     return { jobs, machines: M, people: people().filter(p => p.active !== false).map(p => p.name), concl: INSP_CONCL, company: company().name, date: today() };
   },
-  progress(b) { const j = findJob(b.job); if (!j) throw new Error('Ажил олдсонгүй'); jx(j); const s = j.scope.stages[+b.stage]; if (!s) throw new Error('Үе шат олдсонгүй'); const o = +s.pct || 0; s.pct = Math.max(0, Math.min(100, Math.round(+b.pct || 0))); jobLog(`📱 ${b.who || 'Утас'}: «${s.name}» ${o}% → ${s.pct}%${b.note ? ' — ' + b.note : ''}`, j); if (b.note && b.needs) { j.need = b.note; } save(); setTimeout(mobRefresh, 50); return { ok: true, pct: s.pct }; },
+  progress(b) { const j = findJob(b.job); if (!j) throw new Error('Ажил олдсонгүй'); jx(j); const s = j.scope.stages[+b.stage]; if (!s) throw new Error('Үе шат олдсонгүй'); const o = +s.pct || 0; s.pct = Math.max(0, Math.min(100, Math.round(+b.pct || 0))); jobLog(`📱 ${b.who || 'Утас'}: «${s.name}» ${o}% → ${s.pct}%${b.note ? ' — ' + b.note : ''}`, j); if (b.note && b.needs) { j.need = b.note; } jobAdvance(j, 'утаснаас'); save(); setTimeout(mobRefresh, 50); return { ok: true, pct: s.pct }; },
   async photo(b) { const j = findJob(b.job); if (!j) throw new Error('Ажил олдсонгүй'); const bin = atob(String(b.data).split(',')[1] || ''), u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); const f = new File([u], b.name || `photo-${Date.now()}.jpg`, { type: 'image/jpeg' }); await jobFilesAdd(j, [f]); jobLog(`📱 ${b.who || 'Утас'}: зураг нэмсэн${b.note ? ' — ' + b.note : ''}`, j); save(); setTimeout(mobRefresh, 50); return { ok: true }; },
   insp(b) { const I = IS(), m = I.machines.find(x => x.id === b.mid); if (!m) throw new Error('Тоног төхөөрөмж олдсонгүй'); if (!b.by) throw new Error('Үзлэг хийсэн хүний нэр'); const res = m.items.map((_, i) => (b.res || [])[i] || ''), bad = res.includes('bad');
     const rec = { id: uid(), mid: m.id, date: b.date || today(), shift: b.shift || (new Date().getHours() < 14 ? 'am' : 'pm'), res, notes: m.items.map((_, i) => (b.notes || [])[i] || ''), concl: b.concl || (bad ? 'fix' : res.every(v => v === 'ok') ? 'ok' : ''), by: b.by, chk: b.chk || '', note: (b.note || '') + ' (утаснаас)' };

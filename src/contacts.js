@@ -11,13 +11,19 @@ function orgs() {
   }
   return S.orgs;
 }
-const orgFind = name => { const n = lc(name); return n ? orgs().find(o => lc(o.name) === n || (o.alias || []).some(a => lc(a) === n)) : null; };
+/* «Epiroc Mongolia LLC», «Epiroc Mongolia», «EPIROC MONGOLIA ХХК» are one customer */
+const ORG_SUF = new Set(['llc', 'ltd', 'inc', 'co', 'corp', 'company', 'xxk', 'ххк', 'хк', 'компани']);
+const orgKey = s => lc(s).replace(/[«»"'“”.,()]/g, ' ').split(/\s+/).filter(w => w && !ORG_SUF.has(w)).join(' ');
+const orgIn = (list, name) => { const n = lc(name), k = orgKey(name); if (!n) return null; return list.find(o => lc(o.name) === n || (o.alias || []).some(a => lc(a) === n)) || (k ? list.find(o => orgKey(o.name) === k || (o.alias || []).some(a => orgKey(a) === k)) : null) || null; };
+const orgFind = name => orgIn(orgs(), name);
+/* the name a job should carry: the registered organisation's own spelling */
+const orgName = name => { const o = String(name || '').trim() ? orgIn(Array.isArray(S.orgs) ? S.orgs : [], name) : null; return o ? o.name : String(name || '').trim(); };
 const personSplit = s => { const m = String(s || '').match(/^(.*?)\s*\((.*)\)\s*$/); return m ? { name: m[1].trim(), pos: m[2].trim() } : { name: String(s || '').trim(), pos: '' }; };
 const personFull = p => p.pos ? `${p.name} (${p.pos})` : p.name;
 /* upsert organisation + person from a job / quote form ({org, custId, address, person, email, phone}) */
 function orgLearn(d, quiet) {
   const name = String(d.org || '').trim(); if (!name) return null;
-  let o = (Array.isArray(S.orgs) ? S.orgs : (S.orgs = [])).find(x => lc(x.name) === lc(name));
+  let o = orgIn(Array.isArray(S.orgs) ? S.orgs : (S.orgs = []), name);
   if (!o) { o = { id: uid(), name, custId: '', address: '', phone: '', note: '', persons: [], added: today() }; S.orgs.push(o); }
   if (d.custId && !o.custId) o.custId = d.custId; if (d.address && !o.address) o.address = d.address;
   const P = personSplit(d.person);
@@ -44,7 +50,17 @@ function qfFillFromDir(f, orgName) {
   if (o) { if (!f.address && o.address) { f.address = o.address; ch = true; } if (!f.custId && o.custId) { f.custId = o.custId; ch = true; } }
   return ch;
 }
-const jobsOfOrg = o => (S.jobs || []).filter(j => lc(j.customer) === lc(o.name) || (o.alias || []).some(a => lc(a) === lc(j.customer)));
+/* renaming an organisation renames it on every job, quote, invoice, scope, packing list and form */
+function orgRename(o, v) {
+  const old = o.name, hit = n => { const x = String(n || '').trim(); return x && (lc(x) === lc(old) || (o.alias || []).some(a => lc(a) === lc(x))); };
+  (S.jobs || []).forEach(j => { if (hit(j.customer)) j.customer = v; if (j.dock && hit(j.dock.to)) j.dock.to = v; (j.inv || []).forEach(i => { if (i.bill && hit(i.bill.company)) i.bill.company = v; }); });
+  (S.invoices || []).forEach(i => { if (i.bill && hit(i.bill.company)) i.bill.company = v; });
+  (S.scopes || []).forEach(x => { if (hit(x.customer)) x.customer = v; });
+  (S.dockets || []).forEach(x => { if (x.dock && hit(x.dock.to)) x.dock.to = v; if (hit(x.customer)) x.customer = v; });
+  (S.forms || []).forEach(f => { if (hit(f.org)) f.org = v; });
+  o.alias = [...new Set([...(o.alias || []), old])].filter(a => lc(a) !== lc(v)); o.name = v;
+}
+const jobsOfOrg = o => (S.jobs || []).filter(j => !j.parent).filter(j => lc(j.customer) === lc(o.name) || (o.alias || []).some(a => lc(a) === lc(j.customer)));
 
 /* ---------- Сан → «Харилцагч» ---------- */
 const CT = { sel: null, q: '' };
@@ -74,7 +90,7 @@ function renderOrgMain(el) {
     <div class="jcard"><div class="bcard-h">Ажил, үнийн санал (${JL.length})</div><div class="jbody">${JL.length ? `<div class="tblwrap"><table class="dt"><thead><tr><th>Ажил</th><th>Нэр</th><th>Үнийн санал</th><th>Холбогдох хүн</th><th class="r">Дүн, ₮</th><th>Төлөв</th></tr></thead><tbody>${JL.map(j => { const q = j.quote || {}, f = q.qf || {}; let net = 0; try { net = j.quote ? quoteCalc(j).net : 0; } catch (e) { } return `<tr class="jrow" data-job="${j.id}" style="cursor:pointer"><td class="num">${esc(j.no)}</td><td>${esc(j.title || '—')}</td><td class="num">${esc(q.no || '')}${q.date ? ' · ' + esc(q.date) : ''}</td><td>${esc(f.person || '')}</td><td class="r num">${net ? money(net) : ''}</td><td><span class="pill st-${j.status}">${jstName(j.status)}</span></td></tr>`; }).join('')}</tbody></table></div>` : '<p class="note">Энэ байгууллагад ажил алга.</p>'}</div></div>`;
   const re = () => { save(); contactLists(); renderOrgSide(); renderOrgMain(el); };
   ['name', 'custId', 'phone', 'address', 'note'].forEach(k => el.querySelector('#og_' + k).addEventListener('change', e => {
-    const v = e.target.value.trim(); if (k === 'name') { if (!v) return; const old = o.name; (S.jobs || []).forEach(j => { if (lc(j.customer) === lc(old)) j.customer = v; }); o.alias = [...new Set([...(o.alias || [])].filter(a => lc(a) !== lc(v)))]; } o[k] = v; re();
+    const v = e.target.value.trim(); if (k === 'name') { if (!v) return; orgRename(o, v); } else o[k] = v; re();
   }));
   el.querySelector('#og_alias').addEventListener('change', e => { o.alias = e.target.value.split(',').map(s => s.trim()).filter(Boolean); re(); });
   el.querySelector('#orgDel').addEventListener('click', () => { if (!confirm(`«${o.name}»-г жагсаалтаас устгах уу? (ажлууд хэвээр үлдэнэ)`)) return; S.orgs = orgs().filter(x => x !== o); CT.sel = null; re(); });

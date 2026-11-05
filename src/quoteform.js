@@ -56,7 +56,7 @@ function qfLines(job) {
   if (job._linesFn) return job._linesFn();
   const q = job.quote, c = quoteCalc(job), f = qfDefaults(job), kc = c.kc || {}, K = cat => kc[cat] || c.k, MN = f.lang === 'mn';
   if (f.mode === 'fixed' && Array.isArray(q.lines) && q.lines.length) return q.lines.map(l => { const ch = qChild(l), o = { d: l.d, u: l.u || 'ea', q: +l.q || 1, p: qLineP(l) }; if (ch && f.showBd) { try { o.sub = qfBreakdown(ch).map(b => ({ d: b.d, p: b.p })); } catch (e) { } } return o; });
-  if (f.mode === 'single') return [{ d: f.title || job.title || 'Fabrication work', u: 'set', q: 1, p: c.net, b: 1 }];
+  if (f.mode === 'single') return [{ d: f.title || job.title || 'Fabrication work', u: 'set', q: 1, p: c.gross, b: 1 }];
   if (f.mode === 'sections') {   // coarse groups; labour rows marked «Тусдаа мөр» still get their own line
     const kl = K('labor'), L = c.labor.filter(l => l.cost), sep = L.filter(l => l.sep), rest = L.reduce((a, l) => a + (l.sep ? 0 : l.cost), 0), out = [];
     const add = (d, v, k) => { if (v > 0) out.push({ d, u: 'lot', q: 1, p: v * k }); };
@@ -196,10 +196,10 @@ function qfLinesEdHTML(job) {
 function qChildNew(job, line) {
   const kids = (S.jobs || []).filter(j => j.parent === job.id).length, pn = (job.quote && job.quote.no) || job.no;
   const c = { id: uid(), parent: job.id, owner: job.owner || S.me || '', kind: 'quote', qst: 'draft', no: `${pn}-${kids + 1}`, short: '', customer: job.customer || '', title: line.d || `${job.title || 'Item'} ${kids + 1}`, due: '', status: 'new', note: '', items: [], extra: [], est: null, act: { hours: '', kg: '', other: '' }, trace: [], log: [], created: today() };
-  jx(c); c.quote.no = c.no; c.quote.qf = Object.assign({}, qfDefaults(job), { title: c.title, mode: 'breakdown', formId: '', _formOff: 1 });
+  jx(c); c.quote.no = c.no; c.quote.qf = Object.assign({}, qfDefaults(job), { title: c.title, mode: 'breakdown', formId: '', _formOff: 1, discount: 0 });
   if (job.quote) ['rate', 'rateK', 'rates', 'mc', 'margin', 'vat', 'scrapPct', 'equipPct'].forEach(k => { if (job.quote[k] != null) c.quote[k] = JSON.parse(JSON.stringify(job.quote[k])); });
   c.scope.stages = [];
-  S.jobs.push(c); line.src = c.id; jobLog(`«${c.title}» мөрийн тусдаа тооцоо (${c.no}) үүсгэсэн`, job); save(); return c;
+  S.jobs.push(c); line.src = c.id; qKidsSync(job); jobLog(`«${c.title}» мөрийн тусдаа тооцоо (${c.no}) үүсгэсэн`, job); save(); return c;
 }
 /* copy one line's costing (materials, consumables, labour, equipment, other, rates, margins) into another line */
 const QC_KEYS = ['mats', 'cons', 'equipRows', 'other', 'rate', 'rateK', 'rates', 'mc', 'margin', 'scrapPct', 'equipPct', 'trans', 'vat'];
@@ -212,7 +212,7 @@ function bindQfLines(el, job, reCard) {
   const L = () => (job.quote.lines = Array.isArray(job.quote.lines) ? job.quote.lines : []);
   const open = c => { J.sel = c.id; J.sub = 'quote'; renderJobs(); const m = $('#jobsMain'); if (m) m.scrollTop = 0; window.scrollTo(0, 0); };
   el.querySelectorAll('[data-ql]').forEach(i => i.addEventListener('change', e => { e.stopPropagation(); const r = L()[+i.dataset.ql], k = i.dataset.qk; r[k] = k === 'q' || k === 'p' ? (+i.value || 0) : i.value; if (k === 'd') { const ch = qChild(r); if (ch) { ch.title = r.d; ch.quote.qf.title = r.d; } } save(); reCard(); }));
-  el.querySelectorAll('[data-qlx]').forEach(b => b.addEventListener('click', () => { const r = L()[+b.dataset.qlx], ch = qChild(r); if (ch && !confirm(`«${r.d}» мөр болон түүний тусдаа тооцоог (${ch.no}) устгах уу?`)) return; if (ch) S.jobs = S.jobs.filter(j => j !== ch); L().splice(+b.dataset.qlx, 1); save(); reCard(); }));
+  el.querySelectorAll('[data-qlx]').forEach(b => b.addEventListener('click', () => { const r = L()[+b.dataset.qlx], ch = qChild(r); if (ch && !confirm(`«${r.d}» мөр болон түүний тусдаа тооцоог (${ch.no}) устгах уу?`)) return; L().splice(+b.dataset.qlx, 1); qKidsSync(job); save(); reCard(); }));
   el.querySelectorAll('[data-qlcp]').forEach(sel => sel.addEventListener('change', e => { e.stopPropagation(); if (sel.value === '') return; const to = L()[+sel.dataset.qlcp], from = qChild(L()[+sel.value]); if (!from) return;
     let ch = qChild(to); if (ch && (ch.quote.mats.length || ch.scope.stages.length || ch.quote.cons.length) && !confirm(`«${to.d}»-ийн одоогийн тооцоог «${L()[+sel.value].d}»-ийн тооцоогоор солих уу?`)) { sel.value = ''; return; }
     if (!to.d) to.d = (L()[+sel.value].d || '') + ' (хуулбар)'; if (!ch) ch = qChildNew(job, to); qCostCopy(from, ch); ch.title = to.d; jobLog(`«${to.d}» тооцоог «${L()[+sel.value].d}»-оос хуулсан`, job); save(); toast('⧉ 1 ширхэгийн тооцоо хуулагдлаа — «Тооцоо нээх» дарж хэмжээний ялгааг засна уу'); reCard(); }));

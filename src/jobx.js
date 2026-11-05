@@ -12,7 +12,7 @@ function jobStepDone(job, k) {
   const q = job.quote, a = job.acc, sc = job.scope;
   if (k === 'main') return !!(job.title && job.customer);
   if (k === 'scope') return !!(sc && (sc.desc || sc.contract));
-  if (k === 'quote') return !!(+job.price || (q && (q.mats.length || +q.fixedNet)));
+  if (k === 'quote') { if (+job.price) return true; try { return quoteCalc(job).net > 0; } catch (e) { return false; } }
   if (k === 'prod') return !!(job.est || (job.trace && job.trace.length));
   if (k === 'prog') return !!(sc && sc.stages.length && sc.stages.every(s => +s.pct >= 100));
   if (k === 'acc') return !!((a && a.done) || (job.dock && job.dock.issued));
@@ -75,11 +75,13 @@ function jobMoneyHTML(job) {
   const cell = (k, v, s, cls) => `<div class="stat"><div class="k">${k}</div><div class="v ${cls || ''}">${v}</div><div class="s">${s || ''}</div></div>`;
   return `<div class="jcard" data-v="main"><div class="bcard-h">Санхүү <span class="sp"></span><button class="linkbtn" data-go="quote">үнийн санал →</button><button class="linkbtn" data-go="make">зардал бүртгэх →</button></div><div class="jbody"><div class="summary">
     ${cell('Үнийн санал / гэрээ', m.price ? money(m.price) + '<small>₮</small>' : '—', q.no ? q.no + (q.date ? ' · ' + q.date : '') : 'санал оруулаагүй')}
-    ${cell('Төсөвт өртөг', m.plan ? money(m.plan) + '<small>₮</small>' : '—', q.noCost ? 'Excel-ээс — өртөг оруулаагүй' : 'үнийн саналын тооцоо')}
+    ${cell('Төсөвт өртөг', m.plan ? money(m.plan) + '<small>₮</small>' : '—', c && c.kids ? 'мөрүүдийн тооцооноос' : q.noCost && !(c && c.cost) ? 'Excel-ээс — өртөг оруулаагүй' : 'үнийн саналын тооцоо')}
     ${cell('Бодит зардал', act ? money(act) + '<small>₮</small>' : '—', act && m.plan ? `төсвийн ${Math.round(act / m.plan * 100)}%` : 'зардал бүртгээгүй', act && m.plan && act > m.plan ? 'late' : '')}
     ${cell('Ашиг (таамаг)', m.price && (act || m.plan) ? money(m.price - (act || m.plan)) + '<small>₮</small>' : '—', m.price && (act || m.plan) ? Math.round((m.price - (act || m.plan)) / m.price * 100) + '%' : '')}
-  </div></div></div>`;
+  </div>${c && +job.price > 0 && c.net > 0 && Math.abs(+job.price - c.net) > 1 && Math.round(c.net) !== job.priceAck ? `<p class="note late" style="margin:8px 0 0">⚠ Гэрээний үнэ ${money(job.price)} ₮ — үнийн саналын дүн ${money(c.net)} ₮-өөс өөр байна. <button class="linkbtn" data-psync="1">Үнийн саналаар шинэчлэх</button> · <button class="linkbtn" data-psync="0">Гэрээний үнийг хэвээр үлдээх</button></p>` : ''}</div></div>`;
 }
+/* the contract price follows the quote unless typed in; a difference is shown on the job page */
+function bindPriceSync(el, job) { el.querySelectorAll('[data-psync]').forEach(b => b.addEventListener('click', () => { const c = quoteCalc(job); if (b.dataset.psync === '1') { jobLog(`Гэрээний үнэ ${money(job.price)} → ${money(Math.round(c.net))} ₮ (үнийн саналаар)`, job); job.price = Math.round(c.net); } else { job.priceAck = Math.round(c.net); jobLog(`Гэрээний үнэ ${money(job.price)} ₮ хэвээр (үнийн санал ${money(job.priceAck)} ₮)`, job); } save(); renderJobMain(); })); }
 
 /* labour types with their own hourly rate (engineer hour ≠ lathe hour ≠ welder hour) */
 const LAB_TYPES = [['gen', 'Ерөнхий ажилчин', 'General labour'], ['eng', 'Инженер (зураг, тооцоо)', 'Engineer'], ['weld', 'Гагнуурчин', 'Welder'], ['fit', 'Слесарь / угсрагч', 'Fitter'], ['lathe', 'Токарьчин', 'Lathe operator'], ['mill', 'Фрезерчин', 'Milling operator'], ['paint', 'Будагчин / элсэн цацагч', 'Painter / blaster'], ['qc', 'Чанарын хяналт, NDT', 'QC / NDT inspector'], ['op', 'Машин оператор (лазер, нугалалт)', 'Machine operator']];
@@ -106,6 +108,7 @@ function jx(job) {
     mats: [], cons: [], equipRows: [], other: [], spread: true, pay: 'Урьдчилгаа 50%, ажил хүлээлгэж өгөхөд 50%', delivery: '', note: '', contact: '' };
   { const q = job.quote;
     if (!q.rates) { q.rates = {}; const g = S.labRates || {}; LAB_TYPES.forEach(([id]) => { q.rates[id] = +g[id] || 0; }); }
+    if (q.imported && !q._m27) { q._m27 = 1; const ls = (q.lines || []).reduce((a, l) => a + (l.src ? 0 : (+l.p || 0) * (+l.q || 0)), 0); if (ls > 0 && +q.fixedNet > 0 && ls - q.fixedNet > 1 && q.qf && !+q.qf.discount) q.qf.discount = Math.round(ls - q.fixedNet); }   // v1.27: priced lines are the quote, the Excel's lower total becomes a discount
     if (!q.mc) { const m = +q.margin || 0, mm = q._new ? m : (m > -100 ? m / (1 + m / 100) : 0); q.mc = {}; MCATS.forEach(([k]) => q.mc[k] = mm); q.margin = mm; delete q._new; } }
   if (!job.prog) job.prog = { exp: [] };
   if (!job.acc) job.acc = { done: '', names: ['', '', ''], checks: DEF_CHECKS.map(([item, req]) => ({ item, req, res: '', note: '' })), changes: [] };
@@ -132,12 +135,14 @@ function quoteCalc(job) {
   if (kids.length && q.lines.every(l => qChild(l))) { cost = 0; byCat = 0; Object.keys(cat).forEach(k => { cat[k] = 0; }); }   // every line has its own costing → this quote's own sheet is not used
   if (fixedM && !job.parent) q.lines.forEach(l => { const ch = qChild(l); if (!ch) return; const cc = quoteCalc(ch), n = +l.q || 1; Object.keys(cat).forEach(k => { cat[k] += (cc.cat[k] || 0) * n; }); cost += cc.cost * n; byCat += cc.net * n; });
   const fl = fixedM ? q.lines.reduce((a, l) => a + qLineP(l) * (+l.q || 0), 0) : 0;
-  const net = +q.fixedNet > 0 ? +q.fixedNet : fl > 0 ? fl : byCat, profit = net - cost;
-  if (+q.fixedNet > 0 || fl > 0) Object.keys(kc).forEach(k => kc[k] = cost > 0 ? net / cost : 1);
+  /* gross = what the lines add up to; the discount on the quotation form comes off it, so net = the printed «Total excluded VAT» */
+  const gross = fl > 0 ? fl : +q.fixedNet > 0 ? +q.fixedNet : byCat,   // priced lines are what gets printed, so they win over a typed total
+    linesSum = fl, disc = job.parent ? 0 : Math.max(0, +(q.qf && q.qf.discount) || 0), net = gross - disc, profit = net - cost;
+  if (+q.fixedNet > 0 || fl > 0) Object.keys(kc).forEach(k => kc[k] = cost > 0 ? gross / cost : 1);
   const vat = net * (+q.vat || 0) / 100, total = net + vat, k = cost > 0 ? net / cost : 1, marginPct = net ? profit / net * 100 : 0;
   const chg = (job.acc ? job.acc.changes : []).filter(c => c.ok).reduce((a, c) => a + (+c.cost || 0), 0);
   const budget = { mat: mat + scrap, cons, labor: laborTotal, equip, trans, other };
-  return { rate, matKg, mat, scrap, trans, cons, matTotal, labor, laborTotal, laborH, equipRows, equipPctV, equip, other, cost, net, profit, vat, total, k, kc, cat, price, marginPct, byCat, kids: kids.length, chg, budget };
+  return { rate, matKg, mat, scrap, trans, cons, matTotal, labor, laborTotal, laborH, equipRows, equipPctV, equip, other, cost, net, profit, vat, total, k, kc, cat, price, marginPct, byCat, kids: kids.length, chg, budget, linesSum, gross, disc };
 }
 function progCalc(job) {
   jx(job); const sc = job.scope, c = quoteCalc(job), exp = job.prog.exp;
@@ -177,7 +182,7 @@ function bindEd(root, map, after, hook) {
   });
   root.addEventListener('click', ev => {
     const M = root._edMap, d = ev.target.closest('[data-edel]'), a = ev.target.closest('[data-eadd]');
-    if (d && M[d.dataset.edel]) { M[d.dataset.edel].arr().splice(+d.dataset.r, 1); save(); root._edAfter(d.dataset.edel); }
+    if (d && M[d.dataset.edel]) { const E = M[d.dataset.edel], row = E.arr()[+d.dataset.r]; if (E.onDel && E.onDel(row) === false) return; E.arr().splice(+d.dataset.r, 1); save(); root._edAfter(d.dataset.edel); }
     if (a && M[a.dataset.eadd]) { M[a.dataset.eadd].arr().push(M[a.dataset.eadd].blank()); save(); root._edAfter(a.dataset.eadd); }
   });
 }
@@ -205,16 +210,16 @@ function bindSubBar(el) {
   { const ss = el.querySelector('#sb_status'), jb = findJob(J.sel); if (ss && jb) ss.addEventListener('change', () => { const o = jstName(jb.status); jb.status = ss.value; jobLog(`Төлөв: ${o} → ${jstName(jb.status)}`, jb); save(); renderJList(); renderJobMain(); }); }
   { const jb = findJob(J.sel); el.querySelectorAll('#qb_dup,#jb_dup').forEach(b => b.addEventListener('click', () => { if (!jb) return; const c = dupJob(jb); if (isQ(c)) setModule('quotes'); J.sel = c.id; renderJobs(); toast(`⧉ Хуулбар үүслээ: ${isQ(c) ? c.quote.no : c.no}`); })); }
   const job = findJob(J.sel); if (!job || job.kind !== 'quote') return;
-  const qn = el.querySelector('#qb_no'); if (qn) qn.addEventListener('change', () => { const v = qn.value.trim(); if (!v) { qn.value = job.quote.no; return; } if (S.jobs.some(j => j !== job && ((j.quote && j.quote.no) === v || j.no === v))) toast('Анхаар: ' + v + ' дугаар өөр санал/ажилд байна'); job.quote.no = v; job.no = v; save(); renderJList(); });
+  const qn = el.querySelector('#qb_no'); if (qn) qn.addEventListener('change', () => { const v = qn.value.trim(); if (!v) { qn.value = job.quote.no; return; } if (S.jobs.some(j => j !== job && ((j.quote && j.quote.no) === v || j.no === v))) toast('Анхаар: ' + v + ' дугаар өөр санал/ажилд байна'); job.quote.no = v; job.no = v; qKidsSync(job); save(); renderJList(); });
   const c = el.querySelector('#qb_cust'), t = el.querySelector('#qb_title'), st = el.querySelector('#qb_st');
-  if (c) c.addEventListener('change', () => { job.customer = c.value.trim(); if (job.customer) { orgLearn({ org: job.customer }); if (job.quote.qf) { qfFillFromDir(job.quote.qf, job.customer); if (formAuto(job.quote.qf, job.customer)) toast('📄 «' + job.customer + '» маягт үнийн саналд орлоо'); } } save(); renderJList(); renderJobMain(); });
+  if (c) c.addEventListener('change', () => { job.customer = c.value.trim(); if (job.customer) { const o = orgLearn({ org: job.customer }); if (o) job.customer = c.value = o.name; } qKidsSync(job); if (job.customer) { if (job.quote.qf) { qfFillFromDir(job.quote.qf, job.customer); if (formAuto(job.quote.qf, job.customer)) toast('📄 «' + job.customer + '» маягт үнийн саналд орлоо'); } } save(); renderJList(); renderJobMain(); });
   if (t) t.addEventListener('change', () => { job.title = t.value.trim(); if (job.quote.qf && !job.quote.qf.title) { job.quote.qf.title = job.title; job.quote.qf.rfqName = job.quote.qf.rfqName || job.title; } save(); renderJList(); renderJobMain(); });
   const dir = el.querySelector('#qb_dir'); if (dir) dir.addEventListener('click', async () => { if (window.kh && window.kh.openPath) { const e = await window.kh.openPath(job.quote.srcFolder); if (e) toast('Фолдер олдсонгүй: ' + job.quote.srcFolder); } else toast(job.quote.srcFolder); });
   const ow = el.querySelector('#qb_owner'); if (ow) ow.addEventListener('change', () => { job.owner = ow.value; jobLog('Хариуцагч: ' + (pName(job.owner) || '—'), job); renderJList(); });
   if (st) st.addEventListener('change', () => { job.qst = st.value; jobLog('Саналын төлөв: ' + qstName(job.qst), job); renderJList(); });
   { const pb = el.querySelector('#qb_parent'); if (pb) pb.addEventListener('click', () => { J.sel = job.parent; J.sub = 'quote'; renderJobs(); const m = $('#jobsMain'); if (m) m.scrollTop = 0; }); const wb = el.querySelector('#qb_won'); if (wb && job.parent) wb.hidden = true; }
   const w = el.querySelector('#qb_won'); if (w) w.addEventListener('click', () => { if (!confirm(`${job.no} саналыг баталж ажил болгох уу? Бүх мэдээлэл хадгалагдана.`)) return; quoteToJob(job); setModule('jobs'); J.sel = job.id; J.sub = 'main'; renderJobs(); toast('Ажил боллоо: ' + job.no); });
-  const d = el.querySelector('#qb_del'); if (d) d.addEventListener('click', ev => { const b = ev.currentTarget; if (!b.dataset.arm) { b.dataset.arm = 1; b.textContent = 'Дахин дарж баталгаажуулна'; setTimeout(() => { delete b.dataset.arm; b.textContent = 'Устгах'; }, 3000); return; } S.jobs = S.jobs.filter(j => j !== job && j.parent !== job.id); if (job.parent) { const P = findJob(job.parent); if (P && P.quote.lines) P.quote.lines = P.quote.lines.filter(l => l.src !== job.id); } J.sel = job.parent || null; save(); renderJobs(); });
+  const d = el.querySelector('#qb_del'); if (d) d.addEventListener('click', ev => { const b = ev.currentTarget; if (!b.dataset.arm) { b.dataset.arm = 1; b.textContent = 'Дахин дарж баталгаажуулна'; setTimeout(() => { delete b.dataset.arm; b.textContent = 'Устгах'; }, 3000); return; } const par = job.parent; jobRemove(job); if (par) qKidsSync(findJob(par)); J.sel = par || null; renderJobs(); });
 }
 function renderJobSub(el, job) {
   jx(job);
@@ -322,11 +327,12 @@ function renderJQuote(el, job) {
     </div></div>
     <div class="jcard"><div class="bcard-h">E. Бусад зардал</div><div class="jbody">${edTable('qo', LINE_COLS, q.other, { foot: sumRow('Бусад зардлын дүн', c.other) })}</div></div>
     <div class="jcard"><div class="bcard-h">Нийт зардлын дүгнэлт</div><div class="jbody">
-      <div class="jgrid">${fldIn('q_mall', 'Бүх ангилалд нэг margin, %', (() => { const v = MCATS.map(([k]) => +(q.mc || {})[k] || 0); return v.every(x => Math.abs(x - v[0]) < 1e-9) ? +v[0].toFixed(2) : ''; })(), { num: 1, ph: 'ангилал бүрт өөр' })}${fldIn('q_fixed', 'Эсвэл саналын дүнг шууд оруулах (НӨАТ-гүй), ₮', q.fixedNet || '', { num: 1, ph: '0 = margin-аар' })}${fldIn('q_vat', 'НӨАТ, %', q.vat, { num: 1 })}
+      <div class="jgrid">${fldIn('q_mall', 'Бүх ангилалд нэг margin, %', (() => { const v = MCATS.map(([k]) => +(q.mc || {})[k] || 0); return v.every(x => Math.abs(x - v[0]) < 1e-9) ? +v[0].toFixed(2) : ''; })(), { num: 1, ph: 'ангилал бүрт өөр' })}${fldIn('q_fixed', c.linesSum > 0 ? 'Шууд дүн — мөрүүдийн үнэ орсон тул ашиглагдахгүй' : 'Эсвэл саналын дүнг шууд оруулах (НӨАТ-гүй), ₮', c.linesSum > 0 ? '' : q.fixedNet || '', { num: 1, ph: c.linesSum > 0 ? 'мөрүүдийн нийлбэр ' + money(c.linesSum) : '0 = margin-аар' })}${fldIn('q_vat', 'НӨАТ, %', q.vat, { num: 1 })}
       <label class="check" style="align-self:end"><input type="checkbox" id="q_spread"${q.spread ? ' checked' : ''}><span>Ашгийг мөр бүрийн үнэд шингээх (захиалагчид өртөг харагдахгүй)</span></label></div>
       <p class="note">Margin = ашиг ÷ үнийн санал. 20% тавибал саналын 20% нь ашиг болно (өртөг ÷ 0.8).</p>
       <div class="tblwrap"><table class="dt mtab"><thead><tr><th>Зардлын ангилал</th><th class="r">Өртөг, ₮</th><th class="r">Margin, %</th><th class="r">Үнэ (НӨАТ-гүй), ₮</th><th class="r">Ашиг, ₮</th></tr></thead><tbody>
         ${MCATS.map(([k, n], i) => `<tr><td>${i + 1}. ${n}</td><td class="r num">${money(c.cat[k])}</td><td class="r"><input type="number" step="any" class="inp mono mcin" data-mc="${k}" value="${+(+(q.mc || {})[k] || 0).toFixed(2)}"${+q.fixedNet > 0 ? ' disabled title="Саналын дүнг шууд оруулсан"' : ''}></td><td class="r num">${money(c.cat[k] * c.kc[k])}</td><td class="r num">${money(c.cat[k] * (c.kc[k] - 1))}</td></tr>`).join('')}
+        ${c.disc ? `<tr><td>Хөнгөлөлт (үнийн саналын маягт дээр)</td><td></td><td></td><td class="r num">−${money(c.disc)}</td><td class="r num">−${money(c.disc)}</td></tr>` : ''}
         <tr class="tot"><td>Нийт</td><td class="r num">${money(c.cost)}</td><td class="r num ${c.profit < 0 ? 'late' : ''}"><b>${nf(c.marginPct, 1)}%</b></td><td class="r num">${money(c.net)}</td><td class="r num ${c.profit < 0 ? 'late' : ''}">${money(c.profit)}</td></tr>
         <tr><td colspan="3" class="muted">Нийт margin ${nf(c.marginPct, 1)}% · өртөг дээр нэмсэн хувь (markup) ${c.cost ? nf(c.profit / c.cost * 100, 1) : 0}%</td><td></td><td></td></tr>
         <tr><td>НӨАТ (${q.vat}%)</td><td></td><td></td><td class="r num">${money(c.vat)}</td><td></td></tr>
@@ -401,8 +407,8 @@ function renderProg(el, job) {
       ${edTable('ex', cols, job.prog.exp)}
     </div></div>`;
   const re = () => renderJobMain();
-  el.querySelector('.dt tbody').addEventListener('change', ev => { const t = ev.target, k = t.dataset.pk, tr = t.closest('tr[data-i]'); if (!k || !tr) return; const s = sc.stages[+tr.dataset.i]; s[k] = k === 'pct' ? Math.min(100, Math.max(0, +t.value || 0)) : t.value; if (k === 'pct' && s.pct >= 100 && !s.aEnd) s.aEnd = today(); if (k === 'pct' && s.pct > 0 && !s.aStart) s.aStart = today(); save(); re(); });
-  bindEd(el, { ex: { arr: () => job.prog.exp, cols, blank: () => ({ date: today(), cat: 'mat', stage: '', desc: '', hours: '', amount: '', who: '' }) } }, re);
+  el.querySelector('.dt tbody').addEventListener('change', ev => { const t = ev.target, k = t.dataset.pk, tr = t.closest('tr[data-i]'); if (!k || !tr) return; const s = sc.stages[+tr.dataset.i]; s[k] = k === 'pct' ? Math.min(100, Math.max(0, +t.value || 0)) : t.value; if (k === 'pct' && s.pct >= 100 && !s.aEnd) s.aEnd = today(); if (k === 'pct' && s.pct > 0 && !s.aStart) s.aStart = today(); if (k === 'pct') jobAdvance(job, 'явц'); save(); re(); });
+  bindEd(el, { ex: { arr: () => job.prog.exp, cols, blank: () => ({ date: today(), cat: 'mat', stage: '', desc: '', hours: '', amount: '', who: '' }), onDel: r => stkUndoExp(job, r) } }, () => { jobAdvance(job, 'зардал'); re(); });
 }
 
 /* ---------- acceptance act & change log ---------- */
@@ -423,6 +429,7 @@ function renderAcc(el, job) {
     </div></div>`;
   const re = () => renderJobMain();
   bindFields(el, A, [['a_done', 'done']]);
+  { const ad = el.querySelector('#a_done'); if (ad) ad.addEventListener('change', () => { if (jobAdvance(job, 'хүлээн авалтын акт')) { save(); renderJList(); } }); }
   [0, 1, 2].forEach(i => el.querySelector('#a_n' + i).addEventListener('change', e => { A.names[i] = e.target.value; save(); }));
   const DK = bindDockCard(el, job); DK.refresh();
   bindEd(el, { ...DK.edMap, ck: { arr: () => A.checks, cols: CHK_COLS, blank: () => ({ item: '', req: '', res: '', note: '' }) }, cg: { arr: () => A.changes, cols: CHG_COLS, blank: () => ({ date: today(), desc: '', reason: '', impact: '', cost: '', ok: false, note: '' }) } }, id => { if (id === 'dki') { DK.refresh(); renderJobMain(); } else re(); });

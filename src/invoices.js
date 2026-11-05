@@ -31,7 +31,7 @@ function invFill(i, job) {
   if (!i.id) i.id = uid();
   if (i.vat == null) i.vat = job && job.quote && job.quote.vat != null ? +job.quote.vat || 0 : 10;
   if (!i.bill) i.bill = billFor(job ? job.customer : '', job);
-  if (i.po == null) i.po = ''; if (i.terms == null) i.terms = job ? (job.title || '') : ''; if (i.comment == null) i.comment = '';
+  if (i.po == null) i.po = (job && ((job.dock && job.dock.po) || ((job.inv || []).find(x => x !== i && x.po) || {}).po)) || '';   // one PO per job: packing list ↔ invoices if (i.terms == null) i.terms = job ? (job.title || '') : ''; if (i.comment == null) i.comment = '';
   if (!Array.isArray(i.items) || !i.items.length) { const net = Math.round((+i.amount || 0) / (1 + (+i.vat || 0) / 100)); i.items = [{ d: (job && ((job.quote && job.quote.qf && job.quote.qf.title) || job.title)) || '', q: 1, p: net }]; }
   return i;
 }

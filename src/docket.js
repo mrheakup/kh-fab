@@ -8,8 +8,8 @@ const dockNo = n => String(n).padStart(4, '0');
 function dockDefaults(job) {
   if (job.dock) return job.dock;
   jx(job); const f = (job.quote && job.quote.qf) || {}, P = personSplit(f.person || '');
-  S.docketSeq = (+S.docketSeq || 231) + 1;
-  job.dock = { no: dockNo(S.docketSeq), date: today(), to: job.customer || '', supplied: 'Kh International', po: '', orderDate: job.quote.date || job.created || '', delDate: today(), phone: f.phone || '', contact: P.name || '', address: f.address || '',
+  S.docketSeq = Math.max(+S.docketSeq || 231, ...[...S.jobs.filter(j => j.dock).map(j => j.dock), ...stdDocks().map(x => x.dock)].map(d => parseInt(d && d.no, 10) || 0)) + 1;
+  job.dock = { no: dockNo(S.docketSeq), date: today(), to: job.customer || '', supplied: 'Kh International', po: ((job.inv || []).find(x => x.po) || {}).po || '', orderDate: job.quote.date || job.created || '', delDate: today(), phone: f.phone || '', contact: P.name || '', address: f.address || '',
     items: dockItemsFrom(job, 'quote'), photos: [], delivered: '', received: '', note: '', tagsPer: 4 };
   save(); return job.dock;
 }
@@ -120,7 +120,7 @@ async function dockOut(job, what, mode) {
   try {
     const D = dockDefaults(job), imgs = what === 'tag' ? await tagImgs(job) : await docketImgs(job), name = what === 'tag' ? `${job.no} - Tags - DD${D.no}` : `DD${D.no} - ${D.to || 'Customer'} - Delivery Docket`;
     if (mode === 'print') printImgs(imgs, false, 'a4', name); else { pdfImgs(imgs, false, name, 'a4'); jobLog(what === 'tag' ? `Шошго (${D.no}) PDF гаргасан` : `Delivery Docket ${D.no} PDF гаргасан`, job); }
-    if (what !== 'tag' && !D.issued) { D.issued = today(); save(); }
+    if (what !== 'tag' && !D.issued) { D.issued = today(); if (job && !job._std) jobAdvance(job, 'Packing list ' + D.no); save(); }
   } catch (e) { console.error(e); toast('Алдаа: ' + e.message); }
 }
 const DOCK_COLS = [{ k: 'desc', t: 'Description' }, { k: 'ordered', t: 'Ordered', num: 1, w: 80 }, { k: 'shipped', t: 'Shipped', num: 1, w: 80 }, { k: 'back', t: 'Backorder', calc: r => n0d(dockBack(r)) }, { k: 'pk', t: 'Багц (tag)', num: 1, w: 80 }, { k: 'kg', t: 'Жин, кг', num: 1, w: 80 }];
@@ -164,7 +164,7 @@ function allDocks() {
   return a.concat(stdDocks().map(x => ({ src: x, std: true, D: x.dock, job: null }))).sort((p, q) => String(q.D.date || '').localeCompare(String(p.D.date || '')) || String(q.D.no).localeCompare(String(p.D.no)));
 }
 function newStdDock() {
-  S.docketSeq = (+S.docketSeq || 231) + 1;
+  S.docketSeq = Math.max(+S.docketSeq || 231, ...[...S.jobs.filter(j => j.dock).map(j => j.dock), ...stdDocks().map(x => x.dock)].map(d => parseInt(d && d.no, 10) || 0)) + 1;
   const x = { id: uid(), _std: 1, no: '', title: '', customer: '', created: today(), log: [], files: [], quote: {}, dock: { no: dockNo(S.docketSeq), date: today(), to: '', supplied: 'Kh International', po: '', orderDate: '', delDate: today(), phone: '', contact: '', address: '', items: [{ desc: '', ordered: 1, shipped: 1, pk: 1, kg: '' }], photos: [], delivered: '', received: '', note: '', tagsPer: 4 } };
   stdDocks().unshift(x); save(); return x;
 }

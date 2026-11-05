@@ -42,20 +42,58 @@ function importQuotes(arr) {
     const q = job.quote; job.customer = r.customer || job.customer; job.title = r.title || job.title;
     Object.assign(q, { no: r.no, date: r.date || q.date, valid: r.valid || q.valid, vat: r.vat != null ? r.vat : q.vat, fixedNet: +r.net || 0, lines: r.lines || [], imported: true, noCost: true, srcFolder: r.folder || '', srcFiles: r.files || [] });
     q.qf = Object.assign(qfDefaults(job), r.qf || {}, { mode: (r.lines || []).length ? 'fixed' : 'single' });
+    { const ls = (r.lines || []).reduce((a, l) => a + (+l.p || 0) * (+l.q || 0), 0); if (ls > 0 && +r.net > 0 && ls - r.net > 1) q.qf.discount = Math.round(ls - r.net); if (ls > 0) q.fixedNet = 0; }   // lines are the quote; a lower total is a discount
     if (r.breakdown && r.breakdown.length) job.scope.desc = 'Задаргаа (Excel):\n' + r.breakdown.map(b => `• ${b.d} — ${b.q} ${b.u} × ${money(b.p)}`).join('\n');
-    if (job.customer) orgLearn({ org: job.customer, ...q.qf });
+    if (job.customer) { const o = orgLearn({ org: job.customer, ...q.qf }, true); if (o) job.customer = o.name; }
     if (isNew) { jobLog(`Үнийн санал импортолсон (${r.src || 'Excel'})`, job); n++; } else u++;
   });
   S.jobs.sort((a, b) => String((b.quote && b.quote.date) || b.created || '').localeCompare(String((a.quote && a.quote.date) || a.created || '')));
   save(); return { n, u, skip };
 }
+/* next KH-YYYY-NNN: never below a number already in use (manual edits, the other PC's jobs after a sync) */
+function nextJobNo() {
+  const y = new Date().getFullYear(); if (S.jobYear !== y) { S.jobYear = y; S.jobSeq = 0; }
+  let mx = +S.jobSeq || 0; const re = new RegExp('^KH-' + y + '-(\\d+)$');
+  (S.jobs || []).forEach(j => { const m = String(j.no || '').match(re); if (m && +m[1] > mx) mx = +m[1]; });
+  S.jobSeq = mx + 1; const short = String(S.jobSeq).padStart(3, '0'); return { no: `KH-${y}-${short}`, short };
+}
+const topJobs = () => (S.jobs || []).filter(j => !j.parent);
+/* child costings follow their parent: number = parent quote no + line position, same customer */
+function qKidsSync(job) {
+  if (!job || !job.quote || !Array.isArray(job.quote.lines)) return; const pn = job.quote.no || job.no;
+  job.quote.lines.forEach((l, i) => { const ch = qChild(l); if (!ch) return; ch.parent = job.id; ch.no = ch.quote.no = `${pn}-${i + 1}`; ch.customer = job.customer || ''; ch.owner = ch.owner || job.owner || ''; });
+  const used = new Set(job.quote.lines.map(l => l.src).filter(Boolean)); S.jobs = S.jobs.filter(j => j.parent !== job.id || used.has(j.id));   // costing whose line is gone
+}
+/* remove a job / quote with everything that only belongs to it; invoices are kept as stand-alone records */
+function jobRemove(job) {
+  const kids = S.jobs.filter(j => j.parent === job.id), all = [job, ...kids], ids = new Set(all.map(j => j.id));
+  let keptInv = 0; all.forEach(j => (j.inv || []).forEach(i => { i.jobNo = j.no; if (j.customer && !(i.bill && i.bill.company)) { i.bill = i.bill || {}; i.bill.company = j.customer; } (S.invoices = Array.isArray(S.invoices) ? S.invoices : []).unshift(i); keptInv++; }));
+  if (job.dock && (job.dock.issued || job.dock.items && job.dock.items.length)) { const d = JSON.parse(JSON.stringify(job.dock)); (S.dockets = Array.isArray(S.dockets) ? S.dockets : []).unshift({ id: uid(), _std: 1, no: '', title: job.title || '', customer: job.customer || '', created: today(), log: [], files: [], quote: {}, dock: d, jobNo: job.no }); }
+  (Array.isArray(S.tasks) ? S.tasks : []).forEach(t => { if (ids.has(t.jobId)) { t.note = [t.note, `(${job.no} устгагдсан)`].filter(Boolean).join(' '); t.jobId = ''; } });
+  (Array.isArray(S.stockMoves) ? S.stockMoves : []).forEach(m => { if (ids.has(m.job)) { m.jobNo = m.jobNo || job.no; m.job = ''; } });
+  all.forEach(j => (j.files || []).forEach(f => { try { if (typeof docDel === 'function') docDel(f.id); } catch (e) { } }));
+  if (job.parent) { const P = findJob(job.parent); if (P && P.quote && P.quote.lines) P.quote.lines = P.quote.lines.filter(l => l.src !== job.id); }
+  S.jobs = S.jobs.filter(j => !ids.has(j.id)); if (ids.has(S.activeJob)) S.activeJob = null;
+  S.parts = (S.parts || []).map(p => ids.has(p.jobId) ? Object.assign(p, { jobId: null }) : p);
+  if (keptInv) toast(`${keptInv} нэхэмжлэх «Нэхэмжлэх» жагсаалтад бие даасан болж үлдлээ`, 5000);
+  save();
+}
+/* status only moves forward by itself (progress, acceptance, docket); a manual choice is never overwritten backwards */
+function jobAdvance(job, why) {
+  if (!job || isQ(job) || job.parent) return; jx(job);
+  const order = JST.map(s => s[0]), cur = order.indexOf(job.status); let to = cur < 0 ? 0 : cur;
+  const st = job.scope.stages, anyP = st.some(s => +s.pct > 0) || (job.prog.exp || []).length > 0, allP = st.length && st.every(s => +s.pct >= 100);
+  if (anyP) to = Math.max(to, order.indexOf('cut'));
+  if (allP) to = Math.max(to, order.indexOf('weld'));
+  if (job.acc && job.acc.done) to = Math.max(to, order.indexOf('done'));
+  if (job.dock && job.dock.issued) to = Math.max(to, order.indexOf('given'));
+  if (to > cur) { const o = jstName(job.status); job.status = order[to]; jobLog(`Төлөв автоматаар: ${o} → ${jstName(job.status)}${why ? ' (' + why + ')' : ''}`, job); return true; }
+  return false;
+}
 function quoteToJob(job) {
-  const y = new Date().getFullYear();
-  if (S.jobYear !== y) { S.jobYear = y; S.jobSeq = 0; }
-  const n = ++S.jobSeq, short = String(n).padStart(3, '0');
+  const { no, short } = nextJobNo(); const y = new Date().getFullYear();
   if (!job.quote.no) job.quote.no = job.no;
-  delete job.kind; job.qst = 'won'; job.no = `KH-${y}-${short}`; job.short = short; job.status = 'new';
-  if (!+job.price) { try { job.price = Math.round(quoteCalc(job).net); } catch (e) { } }
+  delete job.kind; job.qst = 'won'; job.no = no; job.short = short; job.status = 'new';
   jobLog(`Үнийн санал ${job.quote.no} батлагдаж ажил болсон`, job); J.sub = 'main'; save();
 }
 /* duplicate a quote or job: same content, new number, fresh status; history, files, invoices, docket and records are not copied */
@@ -64,17 +102,15 @@ function dupJob(src) {
   Object.keys(c).forEach(k => { if (k[0] === '_') delete c[k]; });
   if (c.scope && Array.isArray(c.scope.stages)) c.scope.stages.forEach(st => { st.pct = 0; });
   if (isQ(src)) { const no = nextSQ(); c.no = no; c.short = no.replace(/^\D+/, ''); c.qst = 'draft'; if (c.quote) { c.quote.no = no; c.quote.date = today(); c.quote.srcFiles = []; } }
-  else { const y = new Date().getFullYear(); if (S.jobYear !== y) { S.jobYear = y; S.jobSeq = 0; } const n = ++S.jobSeq, short = String(n).padStart(3, '0'); c.no = `KH-${y}-${short}`; c.short = short; c.status = 'new'; if (c.quote) { c.quote.no = ''; c.quote.date = today(); } }
+  else { const nn = nextJobNo(); c.no = nn.no; c.short = nn.short; c.status = 'new'; if (c.quote) { c.quote.no = ''; c.quote.date = today(); } }
   if (c.title) c.title = c.title.replace(/\s*\(хуулбар\)$/, '');
   S.jobs.splice(Math.max(0, S.jobs.indexOf(src)), 0, c);
-  if (c.quote && Array.isArray(c.quote.lines)) c.quote.lines.forEach(l => { const ch = qChild(l); if (!ch) return; const k = JSON.parse(JSON.stringify(ch)); Object.assign(k, { id: uid(), parent: c.id, created: today(), log: [] }); k.no = k.quote.no = `${(c.quote && c.quote.no) || c.no}-${c.quote.lines.indexOf(l) + 1}`; S.jobs.push(k); l.src = k.id; });
+  if (c.quote && Array.isArray(c.quote.lines)) { c.quote.lines.forEach(l => { const ch = qChild(l); if (!ch) return; const k = JSON.parse(JSON.stringify(ch)); Object.assign(k, { id: uid(), parent: c.id, created: today(), log: [] }); S.jobs.push(k); l.src = k.id; }); qKidsSync(c); }
   jobLog(`${isQ(src) ? 'Үнийн санал' : 'Ажил'} ${isQ(src) ? (src.quote && src.quote.no) || src.no : src.no}-ээс хуулж үүсгэсэн`, c); save(); return c;
 }
 function newJob() {
-  const y = new Date().getFullYear();
-  if (S.jobYear !== y) { S.jobYear = y; S.jobSeq = 0; }
-  const n = ++S.jobSeq, short = String(n).padStart(3, '0');
-  const job = { id: uid(), owner: S.me || '', no: `KH-${y}-${short}`, short, customer: '', title: '', due: '', status: 'new', note: '', items: [], extra: [], est: null, act: { hours: '', kg: '', other: '' }, trace: [], log: [], created: today() };
+  const { no, short } = nextJobNo();
+  const job = { id: uid(), owner: S.me || '', no, short, customer: '', title: '', due: '', status: 'new', note: '', items: [], extra: [], est: null, act: { hours: '', kg: '', other: '' }, trace: [], log: [], created: today() };
   S.jobs.unshift(job); jobLog('Ажил нээсэн', job);
   J.sel = job.id; save(); return job;
 }
@@ -119,7 +155,7 @@ function jobMoney(job) {
   const act = e ? (actKg || e.kg) * g0 + (actH ? actH * rate : e.cutCost) + other : other;
   let plan = (e ? e.cost : 0) + (+job.planOther || 0), price = +job.price || 0, act2 = act, has2 = has;
   if (job.quote || job.prog) {
-    const c = quoteCalc(job); if (c.mat + c.cons + c.equipRows + c.other > 0) { plan = c.cost; if (!price) price = c.net; } price += c.chg;
+    const c = quoteCalc(job); if (c.cost > 0) plan = c.cost; if (!price) price = c.net; price += c.chg;
     const ex = job.prog.exp.reduce((s, x) => s + expAmt(job, x), 0); if (ex > 0) { act2 = ex + other; has2 = true; }
   }
   return { plan, act: has2 ? act2 : null, price, margin: price ? price - (has2 ? act2 : plan) : null, has: has2, actH, actKg, other, g0, rate };
@@ -223,7 +259,7 @@ function renderJobMain() {
       <label class="fld">Хугацаа<input id="jf_due" type="date" value="${esc(job.due)}"></label>
       <label class="fld" hidden>Төлөв<select id="jf_status">${JST.map(([k, n]) => `<option value="${k}"${k === job.status ? ' selected' : ''}>${n}</option>`).join('')}</select></label>
       <label class="fld grow">Тайлбар<input id="jf_note" value="${esc(job.note)}"></label>
-      <label class="fld">Гэрээний үнэ, ₮<input id="jf_price" type="number" min="0" step="10000" value="${esc(job.price || '')}" class="mono"></label>
+      <label class="fld">Гэрээний үнэ, ₮<input id="jf_price" type="number" min="0" step="10000" value="${esc(job.price || '')}" placeholder="${(() => { try { const n = Math.round(quoteCalc(job).net); return n ? money(n) + ' (үнийн саналаас)' : ''; } catch (e) { return ''; } })()}" class="mono"></label>
     </div>
     <div class="exports" data-v="prod">
       <button class="btn primary" id="jLoad">Өрөлтөд ачаалах</button>
@@ -266,9 +302,10 @@ function renderJobMain() {
   el.querySelectorAll('[data-st]').forEach(b => b.addEventListener('click', () => { if (b.dataset.st === job.status) return; const o = jstName(job.status); job.status = b.dataset.st; jobLog(`Төлөв: ${o} → ${jstName(job.status)}`, job); save(); renderJList(); renderJobMain(); }));
   el.querySelectorAll('[data-op]').forEach(b => b.addEventListener('click', () => { const o = job.ops = job.ops || [], k = b.dataset.op, i = o.indexOf(k); if (i >= 0) o.splice(i, 1); else o.push(k); save(); renderJobMain(); }));
   { const nd = el.querySelector('#jf_need'); if (nd) nd.addEventListener('change', () => { job.need = nd.value.trim(); if (job.need) jobLog('Тэмдэглэл: ' + job.need, job); save(); renderJList(); }); }
+  bindPriceSync(el, job);
   { const v = J.sub === 'prod' ? 'prod' : 'main'; el.querySelectorAll('[data-v]').forEach(n => { n.hidden = n.dataset.v !== v; }); el.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => { J.sub = b.dataset.go === 'make' ? (J.mk || 'prod') : b.dataset.go; renderJobMain(); })); }
   // field bindings
-  ['no', 'title', 'customer', 'due', 'note'].forEach(k => $('#jf_' + k).addEventListener('change', ev => { const v = ev.target.value.trim(); if (k === 'no' && !v) return; if (k === 'no') { job.no = v; job.short = (v.match(/(\d+)\s*$/) || [, v])[1]; } else job[k] = v; if (k === 'customer' && v) { orgLearn({ org: v }); if (job.quote && job.quote.qf) { if (formAuto(job.quote.qf, v)) toast('📄 «' + v + '» маягт үнийн саналд орлоо'); else if (qfFillFromDir(job.quote.qf, v)) toast('Захиалагчийн хаяг, ID үнийн саналд бөглөгдлөө'); } } save(); renderJList(); }));
+  ['no', 'title', 'customer', 'due', 'note'].forEach(k => $('#jf_' + k).addEventListener('change', ev => { const v = ev.target.value.trim(); if (k === 'no' && !v) return; if (k === 'no') { job.no = v; job.short = (v.match(/(\d+)\s*$/) || [, v])[1]; } else job[k] = v; if (k === 'customer' || k === 'no') qKidsSync(job); if (k === 'customer' && v) { const o = orgLearn({ org: v }); if (o && o.name !== v) { job.customer = o.name; $('#jf_customer').value = o.name; } if (job.quote && job.quote.qf) { if (formAuto(job.quote.qf, v)) toast('📄 «' + v + '» маягт үнийн саналд орлоо'); else if (qfFillFromDir(job.quote.qf, v)) toast('Захиалагчийн хаяг, ID үнийн саналд бөглөгдлөө'); } } save(); renderJList(); }));
   $('#jf_status').addEventListener('change', ev => { const o = jstName(job.status); job.status = ev.target.value; jobLog(`Төлөв: ${o} → ${jstName(job.status)}`, job); renderJList(); renderJobMain(); });
   ['hours', 'kg', 'other'].forEach(k => $('#ja_' + k).addEventListener('change', ev => { job.act[k] = ev.target.value; save(); renderJobMain(); }));
   $('#jf_price').addEventListener('change', ev => { job.price = Math.max(0, +ev.target.value || 0); save(); renderJobMain(); });
@@ -281,7 +318,7 @@ function renderJobMain() {
   $('#jLabels').addEventListener('click', () => jobLabelsPdf(job, $('#jEach').checked));
   $('#jCard').addEventListener('click', () => jobCardPdf(job));
   $('#jCardPrint').addEventListener('click', () => { window.__pv = 1; jobCardPdf(job); });
-  $('#jDel').addEventListener('click', ev => { const b = ev.currentTarget; if (!b.dataset.arm) { b.dataset.arm = 1; b.textContent = 'Дахин дарж баталгаажуулна'; setTimeout(() => { delete b.dataset.arm; b.textContent = 'Ажил устгах'; }, 3000); return; } S.jobs = S.jobs.filter(j => j !== job); if (S.activeJob === job.id) S.activeJob = null; J.sel = null; save(); renderJobs(); });
+  $('#jDel').addEventListener('click', ev => { const b = ev.currentTarget; if (!b.dataset.arm) { b.dataset.arm = 1; b.textContent = 'Дахин дарж баталгаажуулна'; setTimeout(() => { delete b.dataset.arm; b.textContent = 'Ажил устгах'; }, 3000); return; } jobRemove(job); J.sel = null; renderJobs(); });
   const tb = el.querySelectorAll('tbody')[1]; if (tb) tb.addEventListener('click', ev => { if (!ev.target.matches('[data-tdel]')) return; const t = job.trace.splice(+ev.target.closest('tr').dataset.i, 1)[0]; const c = S.certs.find(x => x.heat === t.heat && x.mat === t.mat && +x.thk === +t.thk); if (c) c.used = Math.max(0, c.used - t.count); jobLog(`Бүртгэл устгасан: ${t.lay} (${t.heat})`, job); renderJobMain(); });
   $('#jTraceAdd').addEventListener('click', () => traceForm(job, null));
   $('#jTraceNest').addEventListener('click', () => { if (!R || S.activeJob !== job.id) { toast('Энэ ажлыг эхлээд өрөлтөд ачаалж, өрнө үү'); return; } traceForm(job, R); });

@@ -15,7 +15,7 @@ function scStdBar(job) {
 function renderScopeSide() {
   const box = $('#scList'); if (!box) return; const q = lc(($('#scSearch') || {}).value || '');
   const own = stdScopes().filter(x => !q || lc([x.no, x.title, x.customer].join(' ')).includes(q));
-  const jobsW = (S.jobs || []).filter(j => j.scope && (j.scope.desc || j.scope.contract) && (!q || lc([j.no, j.title, j.customer].join(' ')).includes(q)));
+  const jobsW = (S.jobs || []).filter(j => !j.parent && j.scope && (j.scope.desc || j.scope.contract) && (!q || lc([j.no, j.title, j.customer].join(' ')).includes(q)));
   box.innerHTML = (own.length ? '<div class="fmorg">Бие даасан scope</div>' : '') + own.map(x => `<div class="bitem fmi${SCV.sel === x.id && J.tab === 'scopes' ? ' on' : ''}" data-sc="${x.id}"><div style="min-width:0"><div class="t"><span class="mono">${esc(x.no)}</span> ${esc(x.title || '—')}</div><div class="m">${esc(x.customer || '')} · ${esc(x.created)}</div></div></div>`).join('')
     + (jobsW.length ? '<div class="fmorg">Ажлын scope</div>' : '') + jobsW.map(j => `<div class="bitem fmi" data-scj="${j.id}"><div style="min-width:0"><div class="t"><span class="mono">${esc(j.no)}</span> ${esc(j.title || '—')}</div><div class="m">${esc(j.customer || '')}${isQ(j) ? ' · үнийн санал' : ''}</div></div></div>`).join('')
     || '<p class="note">Scope алга. «+ Шинэ Scope» дарж үнийн саналгүйгээр шууд бичнэ.</p>';
@@ -48,8 +48,8 @@ function renderScopeTab(el) {
   el.querySelector('#scDup').addEventListener('click', () => { const c = JSON.parse(JSON.stringify(x)); S.scopeSeq = (+S.scopeSeq || 0) + 1; Object.assign(c, { id: uid(), no: 'SC-' + String(S.scopeSeq).padStart(4, '0'), created: today(), log: [] }); c.scope.stages.forEach(s => s.pct = 0); stdScopes().unshift(c); SCV.sel = c.id; save(); renderScopeSide(); renderJobMain(); toast('⧉ ' + c.no + ' үүслээ'); });
   el.querySelector('#scToJob').addEventListener('click', () => {
     if (!confirm(`${x.no}-оор шинэ ажил үүсгэх үү? Scope бүхэлдээ ажилд шилжинэ.`)) return;
-    const y = new Date().getFullYear(); if (S.jobYear !== y) { S.jobYear = y; S.jobSeq = 0; } const n = ++S.jobSeq, short = String(n).padStart(3, '0');
-    const j = JSON.parse(JSON.stringify(x)); delete j._std; delete j._sc; Object.assign(j, { id: uid(), no: `KH-${y}-${short}`, short, owner: S.me || '', created: today() });
+    const { no: jno, short } = nextJobNo();
+    const j = JSON.parse(JSON.stringify(x)); delete j._std; delete j._sc; Object.assign(j, { id: uid(), no: jno, short, owner: S.me || '', created: today() });
     S.jobs.unshift(j); jobLog(`Scope ${x.no}-оос ажил үүсгэсэн`, j); S.scopes = stdScopes().filter(o => o !== x); SCV.sel = null; save();
     setModule('jobs'); J.sel = j.id; J.sub = 'scope'; J.mk = 'scope'; renderJobs(); toast('Ажил боллоо: ' + j.no);
   });

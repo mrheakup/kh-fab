@@ -34,7 +34,7 @@ function renderTeamSide() {
     (S.me ? `<div class="jitem${TM.who === S.me ? ' on' : ''}" data-who="${S.me}"><span class="no" style="font-family:inherit">★ Миний даалгавар</span><span class="pill">${open.filter(t => t.assignee === S.me).length}</span></div>` : '') +
     `<div class="jitem${TM.who === '-' ? ' on' : ''}" data-who="-"><span class="no" style="font-family:inherit">Хариуцагчгүй</span><span class="pill">${open.filter(t => !t.assignee).length}</span></div>` +
     TTYPE.map(([k, n]) => `<div class="jitem${TM.type === k ? ' on' : ''}" data-ttype="${k}"><span class="no" style="font-family:inherit">${n}</span><span class="pill">${open.filter(t => t.type === k).length}</span></div>`).join('');
-  $('#tmPeople').innerHTML = P.length ? P.map(p => { const n = open.filter(t => t.assignee === p.id).length, jb = S.jobs.filter(j => j.owner === p.id && !['done', 'given'].includes(j.status) && j.qst !== 'lost').length; return `<div class="jitem${TM.psel === p.id ? ' on' : ''}" data-pid="${p.id}" style="grid-template-columns:auto minmax(0,1fr) auto;align-items:center">${avatar(p.id, 30)}<span><b>${esc(p.name)}</b><br><small class="muted">${esc(p.role || '')}${p.active === false ? ' · идэвхгүй' : ''}</small></span><span class="pill">${n} даалгавар · ${jb} ажил</span></div>`; }).join('') : '<p class="note">Хүн нэмээгүй байна. «+ Хүн нэмэх».</p>';
+  $('#tmPeople').innerHTML = P.length ? P.map(p => { const n = open.filter(t => t.assignee === p.id).length, jb = topJobs().filter(j => j.owner === p.id && !['done', 'given'].includes(j.status) && j.qst !== 'lost').length; return `<div class="jitem${TM.psel === p.id ? ' on' : ''}" data-pid="${p.id}" style="grid-template-columns:auto minmax(0,1fr) auto;align-items:center">${avatar(p.id, 30)}<span><b>${esc(p.name)}</b><br><small class="muted">${esc(p.role || '')}${p.active === false ? ' · идэвхгүй' : ''}</small></span><span class="pill">${n} даалгавар · ${jb} ажил</span></div>`; }).join('') : '<p class="note">Хүн нэмээгүй байна. «+ Хүн нэмэх».</p>';
 }
 (() => {
   $$('[data-ttab]').forEach(b => b.addEventListener('click', () => { TM.tab = b.dataset.ttab; renderTeam(); }));
@@ -98,7 +98,7 @@ function taskCalHTML(L) {
     <div class="tcal">${['Да', 'Мя', 'Лх', 'Пү', 'Ба', 'Бя', 'Ня'].map(d => `<div class="tch">${d}</div>`).join('')}${cells.map(c => `<div class="tcd${c === today() ? ' now' : ''}${!c ? ' blank' : ''}" data-day="${c}">${c ? `<span class="tdn">${+c.slice(8)}</span>${L.filter(t => t.due === c).map(t => `<div class="tce" data-tid="${t.id}" style="border-left-color:${(TSTAT.find(x => x[0] === t.status) || TSTAT[0])[2]}">${esc(t.title || '(гарчиггүй)')}</div>`).join('')}` : ''}</div>`).join('')}</div></div>`;
 }
 function workloadHTML() {
-  const P = people().filter(p => p.active !== false), T = tasks(), act = S.jobs.filter(j => !['done', 'given'].includes(j.status) && j.qst !== 'lost');
+  const P = people().filter(p => p.active !== false), T = tasks(), act = topJobs().filter(j => !['done', 'given'].includes(j.status) && j.qst !== 'lost');
   const card = (id, name, role) => {
     const tk = T.filter(t => (id ? t.assignee === id : !t.assignee) && t.status !== 'done'), jb = act.filter(j => (id ? j.owner === id : false));
     const doing = tk.filter(t => t.status === 'doing');
@@ -112,7 +112,7 @@ function workloadHTML() {
 }
 function taskDetailHTML(t) {
   if (!t) return '';
-  const J = S.jobs.filter(j => j.qst !== 'lost');
+  const J = topJobs().filter(j => j.qst !== 'lost');
   return `<aside class="tdetail jcard"><div class="bcard-h">Даалгавар <span class="sp"></span><button class="btn sm ghost" data-tdel="${t.id}">Устгах</button><button class="btn sm ghost" data-tclose>✕</button></div><div class="jbody">
     <input id="tk_title" class="inp ttl" value="${esc(t.title)}" placeholder="Юу хийх вэ?">
     <div class="jgrid">
@@ -165,7 +165,7 @@ function openJobFrom(id) { const j = findJob(id); if (!j) return; J.sel = id; J.
 function renderPeopleMain(el) {
   const p = people().find(x => x.id === TM.psel);
   if (!p) { el.innerHTML = `<div class="dhead"><div><h2>Хүмүүс</h2><p class="muted">Оператор, ажилчид, инженерүүд — ажил, үнийн санал, даалгаварт хариуцагчаар сонгогдоно</p></div></div>${workloadHTML()}`; bindTasksMain2(el); return; }
-  const T = tasks().filter(t => t.assignee === p.id), JB = S.jobs.filter(j => j.owner === p.id);
+  const T = tasks().filter(t => t.assignee === p.id), JB = topJobs().filter(j => j.owner === p.id);
   el.innerHTML = `<div class="dhead"><div style="display:flex;gap:12px;align-items:center">${avatar(p.id, 44)}<div><h2>${esc(p.name)}</h2><p class="muted">${esc(p.role || '')}</p></div></div><span class="sp" style="flex:1"></span><button class="btn ghost" id="ppDel">Устгах</button></div>
     <div class="jcard"><div class="jbody"><div class="jgrid">${fldIn('pp_name', 'Нэр', p.name)}<label class="fld">Албан тушаал / үүрэг<input id="pp_role" list="dl-roles" value="${esc(p.role || '')}"></label>${fldIn('pp_phone', 'Утас', p.phone)}<label class="check" style="align-self:end"><input type="checkbox" id="pp_active"${p.active !== false ? ' checked' : ''}><span>Идэвхтэй</span></label></div>
       <datalist id="dl-roles">${ROLES.map(r => `<option value="${esc(r)}">`).join('')}</datalist></div></div>
