@@ -4,7 +4,7 @@
    synced copy), so work done at the office and at the factory is kept. Phone: the PC serves a small page on
    the local Wi-Fi; workers scan the QR and update job progress, add photos, fill daily inspections. */
 /* per-computer things that are not shared: who is using this PC, the nesting workspace */
-const LOCAL_KEYS = ['me', 'jobName', 'parts', 'std', 'sheetMode', 'fixedIdx', 's', 'quote', 'activeJob'];
+const LOCAL_KEYS = ['me', 'chatRead', 'jobName', 'parts', 'std', 'sheetMode', 'fixedIdx', 's', 'quote', 'activeJob'];
 const KL = { base: null, mt: 0, on: false, busy: false, pendRemote: null };
 const isObj = v => v && typeof v === 'object' && !Array.isArray(v);
 const jeq = (a, b) => JSON.stringify(a) === JSON.stringify(b);
@@ -87,13 +87,15 @@ const MOB = {
   state() {
     const jobs = (S.jobs || []).filter(j => !isQ(j) && !['given'].includes(j.status)).map(j => { jx(j); return { id: j.id, no: j.no, title: j.title || '', customer: j.customer || '', due: j.due || '', status: jstName(j.status), stages: j.scope.stages.map((s, i) => ({ i, name: s.name, pct: +s.pct || 0 })) }; });
     const I = IS(), M = I.machines.map(m => ({ id: m.id, no: m.no, name: m.name, role: m.role || 'оператор', items: m.items.map(x => Array.isArray(x) ? (x[1] || x[0]) : String(x)) }));
-    return { jobs, machines: M, people: people().filter(p => p.active !== false).map(p => p.name), concl: INSP_CONCL, company: company().name, date: today() };
+    const chat = chatMsgs().slice().sort((a, b) => a.t.localeCompare(b.t)).slice(-200).map(m => ({ id: m.id, ch: m.ch, who: m.who, t: m.t, text: m.text, ph: !!m.src }));
+    return { jobs, chat, machines: M, people: people().filter(p => p.active !== false).map(p => p.name), concl: INSP_CONCL, company: company().name, date: today() };
   },
   progress(b) { const j = findJob(b.job); if (!j) throw new Error('Ажил олдсонгүй'); jx(j); const s = j.scope.stages[+b.stage]; if (!s) throw new Error('Үе шат олдсонгүй'); const o = +s.pct || 0; s.pct = Math.max(0, Math.min(100, Math.round(+b.pct || 0))); jobLog(`📱 ${b.who || 'Утас'}: «${s.name}» ${o}% → ${s.pct}%${b.note ? ' — ' + b.note : ''}`, j); if (b.note && b.needs) { j.need = b.note; } jobAdvance(j, 'утаснаас'); save(); setTimeout(mobRefresh, 50); return { ok: true, pct: s.pct }; },
   async photo(b) { const j = findJob(b.job); if (!j) throw new Error('Ажил олдсонгүй'); const bin = atob(String(b.data).split(',')[1] || ''), u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); const f = new File([u], b.name || `photo-${Date.now()}.jpg`, { type: 'image/jpeg' }); await jobFilesAdd(j, [f]); jobLog(`📱 ${b.who || 'Утас'}: зураг нэмсэн${b.note ? ' — ' + b.note : ''}`, j); save(); setTimeout(mobRefresh, 50); return { ok: true }; },
   insp(b) { const I = IS(), m = I.machines.find(x => x.id === b.mid); if (!m) throw new Error('Тоног төхөөрөмж олдсонгүй'); if (!b.by) throw new Error('Үзлэг хийсэн хүний нэр'); const res = m.items.map((_, i) => (b.res || [])[i] || ''), bad = res.includes('bad');
     const rec = { id: uid(), mid: m.id, date: b.date || today(), shift: b.shift || (new Date().getHours() < 14 ? 'am' : 'pm'), res, notes: m.items.map((_, i) => (b.notes || [])[i] || ''), concl: b.concl || (bad ? 'fix' : res.every(v => v === 'ok') ? 'ok' : ''), by: b.by, chk: b.chk || '', note: (b.note || '') + ' (утаснаас)' };
     I.recs.push(rec); save(); setTimeout(mobRefresh, 50); return { ok: true, bad: res.filter(v => v === 'bad').length }; },
+  chat(b) { if (!String(b.who || '').trim()) throw new Error('Нэрээ сонгоно уу'); const ch = b.ch === 'general' || findJob(b.ch) ? b.ch : 'general'; const m = chatPost(ch, b.text, b.who, 'phone'); if (!m) throw new Error('Хоосон мессеж'); setTimeout(() => { try { chatTick(); } catch (e) { } }, 50); return { ok: true, id: m.id }; },
   note(b) { const j = findJob(b.job); if (!j) throw new Error('Ажил олдсонгүй'); j.need = String(b.text || '').trim(); jobLog(`📱 ${b.who || 'Утас'}: ${j.need}`, j); save(); setTimeout(mobRefresh, 50); return { ok: true }; }
 };
 function mobRefresh() { try { const cur = (document.querySelector('.modtabs button.on') || {}).dataset?.mod; if (['jobs', 'dash', 'plan', 'insp'].includes(cur)) setModule(cur); } catch (e) { } }

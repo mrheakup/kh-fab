@@ -532,6 +532,7 @@ label.fld,.fld>.flab{font-size:11.5px;font-weight:600;color:var(--ink-3);letter-
 .qlines{margin-top:10px}.qlcp{margin-top:4px;padding:4px 6px!important;font-size:12px;width:100%;display:block}.qlt td:nth-child(7){min-width:170px}.qlt input{width:100%}.qlt input[data-qk="u"],.qlt input[data-qk="q"]{min-width:58px}.qlt input[data-qk="d"]{min-width:180px}.qlt td:nth-child(5) input{min-width:110px}
 #jobsSide .tabs{flex-wrap:wrap;row-gap:0}#jobsSide .tabs button{white-space:nowrap}html[data-skin="modern"] #jobsSide .tabs button{margin-right:4px;padding:8px 6px}
 .skdlg{position:fixed;inset:0;background:rgba(15,20,30,.35);display:grid;place-items:center;z-index:200}.skbox{background:var(--surface);color:var(--ink);border-radius:14px;padding:18px 20px;width:min(520px,92vw);display:grid;gap:10px;box-shadow:0 20px 60px rgba(0,0,0,.25)}.skbox h3{margin:0}
+.chdrawer{position:fixed;top:0;right:0;bottom:0;width:min(400px,100vw);background:var(--panel,#fff);border-left:1px solid var(--line);box-shadow:-8px 0 24px rgba(0,0,0,.12);z-index:60;display:flex;flex-direction:column}.chhead{display:flex;align-items:center;padding:10px 12px;border-bottom:1px solid var(--line)}.chchans{display:flex;gap:6px;overflow-x:auto;padding:8px 12px;border-bottom:1px solid var(--line);flex-wrap:wrap;max-height:96px;overflow-y:auto}.chch{border:1px solid var(--line);background:transparent;color:inherit;border-radius:999px;padding:4px 10px;font:inherit;font-size:12.5px;cursor:pointer;white-space:nowrap;max-width:220px;overflow:hidden;text-overflow:ellipsis}.chch.on{background:var(--acc,#e0650f);border-color:var(--acc,#e0650f);color:#fff}.chlist{flex:1;overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:8px}.chm{max-width:85%;align-self:flex-start;background:var(--soft,#f1f3f5);border-radius:12px;padding:6px 10px}.chm.mine{align-self:flex-end;background:color-mix(in srgb,var(--acc,#e0650f) 14%,transparent)}.chmeta{font-size:11.5px;color:var(--muted,#6b7280)}.chtxt{white-space:normal;word-break:break-word;font-size:14px}.chin{display:flex;gap:6px;padding:8px 12px 4px;border-top:1px solid var(--line)}.chin textarea{flex:1;resize:none}.chwho{padding:0 12px 10px;font-size:12px}.chbadge{display:inline-block;min-width:18px;padding:0 5px;border-radius:9px;background:#dc2626;color:#fff;font-size:11px;line-height:18px;text-align:center;font-weight:700}
 .lkbox{width:min(640px,94vw);max-height:90vh;overflow:auto}.lksec{border-top:1px solid var(--line);padding-top:10px;display:grid;gap:6px}.lkpath{font-size:12px;word-break:break-all;color:var(--ink-2)}.lkqr{display:flex;gap:14px;align-items:center;flex-wrap:wrap}.lkqr canvas{border:1px solid var(--line);border-radius:8px;background:#fff}#btnLink.lk-ok{color:#16a34a}#btnLink.lk-err{color:#b42318}
 .savebtn.ok{background:#16a34a!important;color:#fff!important;border-color:#16a34a!important}
 .fmorg{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);margin:12px 2px 4px}
@@ -564,6 +565,7 @@ label.fld,.fld>.flab{font-size:11.5px;font-weight:600;color:var(--ink-3);letter-
       <div class="mco"><b>Kh International</b><small>ISO 9001 · Know us, know the quality</small></div>
       <div class="seg notr" id="langSeg" role="group" aria-label="Language"><button data-lang="mn" title="Монгол">МН</button><button data-lang="en" title="English">EN</button></div>
       <select id="skinSel" class="inp sm" aria-label="Загвар" title="Програмын загвар" style="width:auto;padding:5px 8px"><option value="modern">Загвар: Орчин үеийн</option><option value="calm">Загвар: Тайван (Linear)</option><option value="dark">Загвар: Харанхуй (Supabase)</option><option value="fintech">Загвар: Fintech (Stripe)</option><option value="bento">Загвар: Bento (улбар шар)</option></select>
+      <button class="btn sm ghost" id="btnChat" type="button" title="Оффис, үйлдвэрийн дотоод чат — ерөнхий суваг, ажил бүрийн чат">💬 Чат</button>
       <button class="btn sm ghost" id="btnLink" type="button" title="Нөөц (OneDrive), оффис ↔ үйлдвэр синк, утаснаас бүртгэх">🔗 Холболт</button>
       <button class="btn sm savebtn" type="button" title="Бүх өгөгдлийг одоо хадгалах (Ctrl+S). Програм өөрөө ч автоматаар хадгалдаг.">💾 Хадгалах</button>
       <button id="btnTheme" class="btn ghost sm notr" type="button">☾ Night</button>
@@ -4786,7 +4788,19 @@ const I18N_EN = {
 "Синк": "Sync",
 "дугаар давхардсан тул": "number was duplicated,",
 "Гэрээний үнэ": "Contract price",
-"хэвээр": "kept"
+"хэвээр": "kept",
+"Чат": "Chat",
+"Илгээх": "Send",
+"солих": "change",
+"синк асаагүй — зөвхөн энэ компьютерт": "sync is off — this PC only",
+"Та хэн бэ?": "Who are you?",
+"нэрээ сонгох": "choose your name",
+"Энэ ажлын чат": "This job's chat",
+"рүү бичих": "— write",
+"устгагдсан ажил": "deleted job",
+"Оффис, үйлдвэрийн бүх хүний ерөнхий суваг.": "General channel for everyone at the office and factory.",
+"Энэ ажлын чат — асуулт, мэдэгдлээ энд бичнэ.": "This job's chat — write questions and notices here.",
+"Синк асаалттай бол нөгөө компьютер дээр ойролцоогоор 15–60 секундэд хүрнэ.": "With sync on, it reaches the other PC in about 15–60 seconds."
 };
 /* ================= KH Fab — language (МН / EN) and theme (Day / Night) =================
    The UI is written in Mongolian. In English mode every Mongolian fragment that reaches the
@@ -8151,7 +8165,7 @@ function jobRemove(job) {
   (Array.isArray(S.stockMoves) ? S.stockMoves : []).forEach(m => { if (ids.has(m.job)) { m.jobNo = m.jobNo || job.no; m.job = ''; } });
   all.forEach(j => (j.files || []).forEach(f => { try { if (typeof docDel === 'function') docDel(f.id); } catch (e) { } }));
   if (job.parent) { const P = findJob(job.parent); if (P && P.quote && P.quote.lines) P.quote.lines = P.quote.lines.filter(l => l.src !== job.id); }
-  S.jobs = S.jobs.filter(j => !ids.has(j.id)); if (ids.has(S.activeJob)) S.activeJob = null;
+  S.jobs = S.jobs.filter(j => !ids.has(j.id)); if (ids.has(S.activeJob)) S.activeJob = null; if (Array.isArray(S.chat)) S.chat = S.chat.filter(m => !ids.has(m.ch));
   S.parts = (S.parts || []).map(p => ids.has(p.jobId) ? Object.assign(p, { jobId: null }) : p);
   if (keptInv) toast(`${keptInv} нэхэмжлэх «Нэхэмжлэх» жагсаалтад бие даасан болж үлдлээ`, 5000);
   save();
@@ -8380,7 +8394,7 @@ function renderJobMain() {
   el.querySelectorAll('[data-st]').forEach(b => b.addEventListener('click', () => { if (b.dataset.st === job.status) return; const o = jstName(job.status); job.status = b.dataset.st; jobLog(`Төлөв: ${o} → ${jstName(job.status)}`, job); save(); renderJList(); renderJobMain(); }));
   el.querySelectorAll('[data-op]').forEach(b => b.addEventListener('click', () => { const o = job.ops = job.ops || [], k = b.dataset.op, i = o.indexOf(k); if (i >= 0) o.splice(i, 1); else o.push(k); save(); renderJobMain(); }));
   { const nd = el.querySelector('#jf_need'); if (nd) nd.addEventListener('change', () => { job.need = nd.value.trim(); if (job.need) jobLog('Тэмдэглэл: ' + job.need, job); save(); renderJList(); }); }
-  bindPriceSync(el, job);
+  bindPriceSync(el, job); el.querySelectorAll('[data-chat]').forEach(b => b.addEventListener('click', () => chatOpen(b.dataset.chat)));
   { const v = J.sub === 'prod' ? 'prod' : 'main'; el.querySelectorAll('[data-v]').forEach(n => { n.hidden = n.dataset.v !== v; }); el.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => { J.sub = b.dataset.go === 'make' ? (J.mk || 'prod') : b.dataset.go; renderJobMain(); })); }
   // field bindings
   ['no', 'title', 'customer', 'due', 'note'].forEach(k => $('#jf_' + k).addEventListener('change', ev => { const v = ev.target.value.trim(); if (k === 'no' && !v) return; if (k === 'no') { job.no = v; job.short = (v.match(/(\d+)\s*$/) || [, v])[1]; } else job[k] = v; if (k === 'customer' || k === 'no') qKidsSync(job); if (k === 'customer' && v) { const o = orgLearn({ org: v }); if (o && o.name !== v) { job.customer = o.name; $('#jf_customer').value = o.name; } if (job.quote && job.quote.qf) { if (formAuto(job.quote.qf, v)) toast('📄 «' + v + '» маягт үнийн саналд орлоо'); else if (qfFillFromDir(job.quote.qf, v)) toast('Захиалагчийн хаяг, ID үнийн саналд бөглөгдлөө'); } } save(); renderJList(); }));
@@ -8730,7 +8744,7 @@ function jobNeeds(job) {
 function jobNextHTML(job) {
   jx(job); const { N, T } = jobNeeds(job), dl = daysLeft(job.due), si = JST.findIndex(s => s[0] === job.status), P = (() => { try { return progCalc(job); } catch (e) { return null; } })();
   const pct = P ? Math.round(P.pct * 100) : 0;
-  return `<div class="jcard jstate" data-v="main"><div class="bcard-h">Ажлын байдал <span class="sp"></span><span class="muted" style="font-weight:400;font-size:12.5px">${pct ? `гүйцэтгэл ${pct}%` : ''}</span></div><div class="jbody">
+  return `<div class="jcard jstate" data-v="main"><div class="bcard-h">Ажлын байдал <span class="sp"></span><span class="muted" style="font-weight:400;font-size:12.5px">${pct ? `гүйцэтгэл ${pct}%` : ''}</span>${typeof chatMsgs === 'function' && !isQ(job) ? `<button class="linkbtn" data-chat="${job.id}" style="margin-left:10px">💬 Чат${(() => { const n = chatMsgs().filter(m => m.ch === job.id).length, u = chatUnread(job.id); return n ? ` (${n}${u ? ', ' + u + ' шинэ' : ''})` : ''; })()}</button>` : ''}</div><div class="jbody">
     <div class="spipe">${JST.map(([k, n], i) => `<button data-st="${k}" class="${i < si ? 'past' : i === si ? 'now' : ''}"><i>${i < si ? '✓' : i + 1}</i>${n}</button>`).join('')}</div>
     <div class="sgrid">
       <div><small>Хариуцагч</small><div class="sown">${typeof avatar === 'function' ? avatar(job.owner, 30) : ''}<select id="jf_owner" class="inp">${typeof peopleOpts === 'function' ? peopleOpts(job.owner) : ''}</select></div></div>
@@ -14424,7 +14438,7 @@ function bindJobStock(el, job) { const b = el.querySelector('#jStkOut'); if (b) 
    synced copy), so work done at the office and at the factory is kept. Phone: the PC serves a small page on
    the local Wi-Fi; workers scan the QR and update job progress, add photos, fill daily inspections. */
 /* per-computer things that are not shared: who is using this PC, the nesting workspace */
-const LOCAL_KEYS = ['me', 'jobName', 'parts', 'std', 'sheetMode', 'fixedIdx', 's', 'quote', 'activeJob'];
+const LOCAL_KEYS = ['me', 'chatRead', 'jobName', 'parts', 'std', 'sheetMode', 'fixedIdx', 's', 'quote', 'activeJob'];
 const KL = { base: null, mt: 0, on: false, busy: false, pendRemote: null };
 const isObj = v => v && typeof v === 'object' && !Array.isArray(v);
 const jeq = (a, b) => JSON.stringify(a) === JSON.stringify(b);
@@ -14507,13 +14521,15 @@ const MOB = {
   state() {
     const jobs = (S.jobs || []).filter(j => !isQ(j) && !['given'].includes(j.status)).map(j => { jx(j); return { id: j.id, no: j.no, title: j.title || '', customer: j.customer || '', due: j.due || '', status: jstName(j.status), stages: j.scope.stages.map((s, i) => ({ i, name: s.name, pct: +s.pct || 0 })) }; });
     const I = IS(), M = I.machines.map(m => ({ id: m.id, no: m.no, name: m.name, role: m.role || 'оператор', items: m.items.map(x => Array.isArray(x) ? (x[1] || x[0]) : String(x)) }));
-    return { jobs, machines: M, people: people().filter(p => p.active !== false).map(p => p.name), concl: INSP_CONCL, company: company().name, date: today() };
+    const chat = chatMsgs().slice().sort((a, b) => a.t.localeCompare(b.t)).slice(-200).map(m => ({ id: m.id, ch: m.ch, who: m.who, t: m.t, text: m.text, ph: !!m.src }));
+    return { jobs, chat, machines: M, people: people().filter(p => p.active !== false).map(p => p.name), concl: INSP_CONCL, company: company().name, date: today() };
   },
   progress(b) { const j = findJob(b.job); if (!j) throw new Error('Ажил олдсонгүй'); jx(j); const s = j.scope.stages[+b.stage]; if (!s) throw new Error('Үе шат олдсонгүй'); const o = +s.pct || 0; s.pct = Math.max(0, Math.min(100, Math.round(+b.pct || 0))); jobLog(`📱 ${b.who || 'Утас'}: «${s.name}» ${o}% → ${s.pct}%${b.note ? ' — ' + b.note : ''}`, j); if (b.note && b.needs) { j.need = b.note; } jobAdvance(j, 'утаснаас'); save(); setTimeout(mobRefresh, 50); return { ok: true, pct: s.pct }; },
   async photo(b) { const j = findJob(b.job); if (!j) throw new Error('Ажил олдсонгүй'); const bin = atob(String(b.data).split(',')[1] || ''), u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); const f = new File([u], b.name || `photo-${Date.now()}.jpg`, { type: 'image/jpeg' }); await jobFilesAdd(j, [f]); jobLog(`📱 ${b.who || 'Утас'}: зураг нэмсэн${b.note ? ' — ' + b.note : ''}`, j); save(); setTimeout(mobRefresh, 50); return { ok: true }; },
   insp(b) { const I = IS(), m = I.machines.find(x => x.id === b.mid); if (!m) throw new Error('Тоног төхөөрөмж олдсонгүй'); if (!b.by) throw new Error('Үзлэг хийсэн хүний нэр'); const res = m.items.map((_, i) => (b.res || [])[i] || ''), bad = res.includes('bad');
     const rec = { id: uid(), mid: m.id, date: b.date || today(), shift: b.shift || (new Date().getHours() < 14 ? 'am' : 'pm'), res, notes: m.items.map((_, i) => (b.notes || [])[i] || ''), concl: b.concl || (bad ? 'fix' : res.every(v => v === 'ok') ? 'ok' : ''), by: b.by, chk: b.chk || '', note: (b.note || '') + ' (утаснаас)' };
     I.recs.push(rec); save(); setTimeout(mobRefresh, 50); return { ok: true, bad: res.filter(v => v === 'bad').length }; },
+  chat(b) { if (!String(b.who || '').trim()) throw new Error('Нэрээ сонгоно уу'); const ch = b.ch === 'general' || findJob(b.ch) ? b.ch : 'general'; const m = chatPost(ch, b.text, b.who, 'phone'); if (!m) throw new Error('Хоосон мессеж'); setTimeout(() => { try { chatTick(); } catch (e) { } }, 50); return { ok: true, id: m.id }; },
   note(b) { const j = findJob(b.job); if (!j) throw new Error('Ажил олдсонгүй'); j.need = String(b.text || '').trim(); jobLog(`📱 ${b.who || 'Утас'}: ${j.need}`, j); save(); setTimeout(mobRefresh, 50); return { ok: true }; }
 };
 function mobRefresh() { try { const cur = (document.querySelector('.modtabs button.on') || {}).dataset?.mod; if (['jobs', 'dash', 'plan', 'insp'].includes(cur)) setModule(cur); } catch (e) { } }
@@ -14557,6 +14573,69 @@ async function linkPanel() {
 }
 (() => { const b = $('#btnLink'); if (b) b.addEventListener('click', linkPanel); })();
 setTimeout(() => { syncInit().catch(e => console.error(e)); }, 1500);
+
+/* ================= Kh International — дотоод чат: «Ерөнхий» суваг + ажил бүрийн чат =================
+   Messages live in the shared data, so the office ↔ factory sync (OneDrive) carries them to the other PC and the
+   phone page on the factory Wi-Fi can read and write them. What this PC has already read is kept on this PC only. */
+const CH = { open: false, ch: 'general', seen: null };
+const chatMsgs = () => (S.chat = Array.isArray(S.chat) ? S.chat : []);
+const chatRead = () => (S.chatRead = S.chatRead && typeof S.chatRead === 'object' && !Array.isArray(S.chatRead) ? S.chatRead : {});
+const chatMe = () => (typeof pName === 'function' && pName(S.me)) || '';
+const chName = ch => { if (ch === 'general') return '# Ерөнхий'; const j = findJob(ch); return j ? `${j.no}${j.title ? ' · ' + j.title : ''}` : '(устгагдсан ажил)'; };
+const chTime = t => { const d = new Date(t), p = n => String(n).padStart(2, '0'), td = today(); const ds = new Date(d - d.getTimezoneOffset() * 6e4).toISOString().slice(0, 10); return (ds === td ? '' : ds.slice(5) + ' ') + p(d.getHours()) + ':' + p(d.getMinutes()); };
+function chatPost(ch, text, who, src) {
+  text = String(text || '').trim(); if (!text) return null;
+  const m = { id: uid(), ch: ch || 'general', who: String(who || chatMe() || 'Нэргүй').slice(0, 60), t: new Date().toISOString(), text: text.slice(0, 2000) };
+  if (src) m.src = src;
+  chatMsgs().push(m); if (chatMsgs().length > 3000) S.chat = chatMsgs().slice(-3000);
+  if (!src) chatRead()[m.ch] = m.t;
+  CH.seen && CH.seen.add(m.id); saveNow(true); return m;
+}
+function chatUnread(ch) {
+  const R = chatRead(), me = chatMe();
+  return chatMsgs().filter(m => (ch == null || m.ch === ch) && m.t > (R[m.ch] || '') && (m.who !== me || m.src)).length;
+}
+function chatChannels() {
+  const by = new Map([['general', '']]); chatMsgs().forEach(m => { if ((by.get(m.ch) || '') < m.t) by.set(m.ch, m.t); });
+  const cur = (typeof J !== 'undefined' && J.sel && findJob(J.sel) && !isQ(findJob(J.sel))) ? J.sel : null; if (cur && !by.has(cur)) by.set(cur, '');
+  return [...by.entries()].filter(([c]) => c === 'general' || findJob(c)).sort((a, b) => (a[0] === 'general' ? -1 : b[0] === 'general' ? 1 : b[1].localeCompare(a[1])));
+}
+function chatBadge() {
+  const b = $('#btnChat'); if (!b) return; const n = chatUnread(null);
+  b.innerHTML = `💬 Чат${n ? ` <span class="chbadge">${n > 99 ? '99+' : n}</span>` : ''}`;
+}
+function chatOpen(ch) { CH.open = true; if (ch) CH.ch = ch; renderChat(); }
+function renderChat() {
+  let d = $('#chatDrawer'); if (!CH.open) { if (d) d.hidden = true; chatBadge(); return; }
+  if (!d) { d = document.createElement('div'); d.id = 'chatDrawer'; d.className = 'chdrawer'; document.body.appendChild(d); }
+  d.hidden = false; if (!findJob(CH.ch)) CH.ch = CH.ch === 'general' ? 'general' : 'general';
+  const L = chatMsgs().filter(m => m.ch === CH.ch).sort((a, b) => a.t.localeCompare(b.t)).slice(-300), me = chatMe(), C = chatChannels();
+  d.innerHTML = `<div class="chhead"><b>💬 Чат</b><span class="sp" style="flex:1"></span><button class="btn ghost sm" id="chX" title="Хаах">✕</button></div>
+    <div class="chchans">${C.map(([c]) => { const n = chatUnread(c); return `<button class="chch${c === CH.ch ? ' on' : ''}" data-ch="${c}">${esc(chName(c))}${n ? ` <span class="chbadge">${n}</span>` : ''}</button>`; }).join('')}</div>
+    <div class="chlist" id="chList">${L.map(m => `<div class="chm${m.who === me && !m.src ? ' mine' : ''}"><div class="chmeta"><b>${esc(m.who)}</b>${m.src ? ' 📱' : ''} · ${chTime(m.t)}</div><div class="chtxt">${esc(m.text).replace(/\n/g, '<br>')}</div></div>`).join('') || `<p class="note" style="text-align:center;margin-top:30px">${CH.ch === 'general' ? 'Оффис, үйлдвэрийн бүх хүний ерөнхий суваг.' : 'Энэ ажлын чат — асуулт, мэдэгдлээ энд бичнэ.'}<br>Синк асаалттай бол нөгөө компьютер дээр ойролцоогоор 15–60 секундэд хүрнэ.</p>`}</div>
+    ${me ? `<div class="chin"><textarea id="chTxt" rows="2" class="inp" placeholder="${esc(chName(CH.ch))} рүү бичих… (Enter — илгээх, Shift+Enter — шинэ мөр)"></textarea><button class="btn primary" id="chSend">Илгээх</button></div><div class="note chwho">Та: <b>${esc(me)}</b> · <a href="#" class="linkbtn" id="chMe">солих</a>${(typeof KL !== 'undefined' && KL.on) ? '' : ' · <span class="late">синк асаагүй — зөвхөн энэ компьютерт</span>'}</div>`
+      : `<div class="chin" style="display:grid;gap:6px"><label class="fld">Та хэн бэ? (Баг → хүмүүс жагсаалтаас)<select id="chMeSel" class="inp">${peopleOpts('', '— нэрээ сонгох —')}</select></label></div>`}`;
+  CH.seen = CH.seen || new Set(chatMsgs().map(m => m.id));
+  const last = L.length ? L[L.length - 1].t : ''; if (last && (chatRead()[CH.ch] || '') < last) { chatRead()[CH.ch] = last; save(); }
+  const ls = d.querySelector('#chList'); ls.scrollTop = ls.scrollHeight;
+  d.querySelector('#chX').addEventListener('click', () => { CH.open = false; renderChat(); });
+  d.querySelectorAll('[data-ch]').forEach(b => b.addEventListener('click', () => { CH.ch = b.dataset.ch; renderChat(); }));
+  const ms = d.querySelector('#chMeSel'); if (ms) ms.addEventListener('change', () => { if (!ms.value) return; S.me = ms.value; save(); renderChat(); });
+  const mc = d.querySelector('#chMe'); if (mc) mc.addEventListener('click', e => { e.preventDefault(); S.me = ''; renderChat(); });
+  const tx = d.querySelector('#chTxt'), send = () => { if (!tx.value.trim()) return; chatPost(CH.ch, tx.value); renderChat(); setTimeout(() => { const t = $('#chTxt'); if (t) t.focus(); }, 30); };
+  if (tx) { tx.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } }); d.querySelector('#chSend').addEventListener('click', send); setTimeout(() => tx.focus(), 30); }
+  chatBadge();
+}
+/* new messages that arrived from the other PC (sync) or a phone: badge + a short notice */
+function chatTick() {
+  const all = chatMsgs(); if (!CH.seen) { CH.seen = new Set(all.map(m => m.id)); chatBadge(); return; }
+  const nw = all.filter(m => !CH.seen.has(m.id)); if (!nw.length) return; nw.forEach(m => CH.seen.add(m.id));
+  const me = chatMe(), other = nw.filter(m => m.who !== me || m.src);
+  if (other.length) { const m = other[other.length - 1]; if (!(CH.open && CH.ch === m.ch)) toast(`💬 ${m.who} (${chName(m.ch)}): ${m.text.slice(0, 80)}`, 6000); }
+  if (CH.open) { const a = document.activeElement, typing = a && a.id === 'chTxt' ? a.value : null; renderChat(); if (typing != null) { const t = $('#chTxt'); if (t) { t.value = typing; t.focus(); } } } else chatBadge();
+}
+setInterval(() => { try { chatTick(); } catch (e) { } }, 3000);
+(() => { const b = $('#btnChat'); if (b) b.addEventListener('click', () => { CH.open = !CH.open; if (CH.open && typeof J !== 'undefined' && J.sel && findJob(J.sel) && !isQ(findJob(J.sel)) && !$('#jobsMain').hidden && chatMsgs().some(m => m.ch === J.sel)) CH.ch = J.sel; renderChat(); }); setTimeout(chatBadge, 500); })();
 
 /* ================= KH Fab — «Мэдээлэл · сан»: mining machines, bucket types, product templates, own file library ================= */
 const IN = { tab: 'cat', cat: 'all', q: '', sel: null, bt: null, tpl: 'pegboard', lib: null, p: {} };

@@ -50,7 +50,7 @@ function jobNeeds(job) {
 function jobNextHTML(job) {
   jx(job); const { N, T } = jobNeeds(job), dl = daysLeft(job.due), si = JST.findIndex(s => s[0] === job.status), P = (() => { try { return progCalc(job); } catch (e) { return null; } })();
   const pct = P ? Math.round(P.pct * 100) : 0;
-  return `<div class="jcard jstate" data-v="main"><div class="bcard-h">Ажлын байдал <span class="sp"></span><span class="muted" style="font-weight:400;font-size:12.5px">${pct ? `гүйцэтгэл ${pct}%` : ''}</span></div><div class="jbody">
+  return `<div class="jcard jstate" data-v="main"><div class="bcard-h">Ажлын байдал <span class="sp"></span><span class="muted" style="font-weight:400;font-size:12.5px">${pct ? `гүйцэтгэл ${pct}%` : ''}</span>${typeof chatMsgs === 'function' && !isQ(job) ? `<button class="linkbtn" data-chat="${job.id}" style="margin-left:10px">💬 Чат${(() => { const n = chatMsgs().filter(m => m.ch === job.id).length, u = chatUnread(job.id); return n ? ` (${n}${u ? ', ' + u + ' шинэ' : ''})` : ''; })()}</button>` : ''}</div><div class="jbody">
     <div class="spipe">${JST.map(([k, n], i) => `<button data-st="${k}" class="${i < si ? 'past' : i === si ? 'now' : ''}"><i>${i < si ? '✓' : i + 1}</i>${n}</button>`).join('')}</div>
     <div class="sgrid">
       <div><small>Хариуцагч</small><div class="sown">${typeof avatar === 'function' ? avatar(job.owner, 30) : ''}<select id="jf_owner" class="inp">${typeof peopleOpts === 'function' ? peopleOpts(job.owner) : ''}</select></div></div>

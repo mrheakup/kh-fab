@@ -3037,5 +3037,17 @@
 "Синк": "Sync",
 "дугаар давхардсан тул": "number was duplicated,",
 "Гэрээний үнэ": "Contract price",
-"хэвээр": "kept"
+"хэвээр": "kept",
+"Чат": "Chat",
+"Илгээх": "Send",
+"солих": "change",
+"синк асаагүй — зөвхөн энэ компьютерт": "sync is off — this PC only",
+"Та хэн бэ?": "Who are you?",
+"нэрээ сонгох": "choose your name",
+"Энэ ажлын чат": "This job's chat",
+"рүү бичих": "— write",
+"устгагдсан ажил": "deleted job",
+"Оффис, үйлдвэрийн бүх хүний ерөнхий суваг.": "General channel for everyone at the office and factory.",
+"Энэ ажлын чат — асуулт, мэдэгдлээ энд бичнэ.": "This job's chat — write questions and notices here.",
+"Синк асаалттай бол нөгөө компьютер дээр ойролцоогоор 15–60 секундэд хүрнэ.": "With sync on, it reaches the other PC in about 15–60 seconds."
 }

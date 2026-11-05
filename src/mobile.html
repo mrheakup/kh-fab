@@ -18,10 +18,11 @@ input[type=range]{padding:0;height:36px}
 .it{padding:10px 0;border-top:1px solid var(--line)}.it:first-child{border-top:0}.it .q{font-size:14px;margin-bottom:6px}
 .seg{display:flex;gap:6px}.seg button{flex:1;padding:10px;border:1px solid var(--line);border-radius:10px;background:#fff;font:inherit;font-weight:600}.seg button.ok{background:var(--ok);color:#fff;border-color:var(--ok)}.seg button.bad{background:var(--bad);color:#fff;border-color:var(--bad)}
 #toast{position:fixed;left:12px;right:12px;bottom:14px;background:#141a20;color:#fff;padding:12px 14px;border-radius:12px;display:none;z-index:9}
+.cm{padding:8px 10px;border-radius:12px;background:#f1f3f5;margin:6px 0;max-width:88%}.cm.me{background:#fde6d4;margin-left:auto}.cm .w{font-size:12px;color:var(--mute)}.cms{max-height:55vh;overflow-y:auto}
 .thumbs img{width:72px;height:72px;object-fit:cover;border-radius:8px;margin:6px 6px 0 0}
 </style></head><body>
 <header><b id="co">Kh International</b><span id="dt"></span></header>
-<nav><button data-v="jobs" class="on">Ажлын явц</button><button data-v="insp">Үзлэг</button></nav>
+<nav><button data-v="jobs" class="on">Ажлын явц</button><button data-v="chat">💬 Чат</button><button data-v="insp">Үзлэг</button></nav>
 <main id="main"><p class="m">Ачаалж байна…</p></main>
 <div id="toast"></div>
 <script>
@@ -37,10 +38,23 @@ function render() {
   if (V === 'jobs') {
     $('#main').innerHTML = D.jobs.length ? D.jobs.map(j => { const p = j.stages.length ? Math.round(j.stages.reduce((a, s) => a + s.pct, 0) / j.stages.length) : 0; return `<div class="card" data-j="${j.id}"><h3>${esc(j.no)} · ${esc(j.title)}</h3><div class="m">${esc(j.customer)}${j.due ? ' · хугацаа ' + esc(j.due) : ''} · ${esc(j.status)}</div><div class="bar"><i style="width:${p}%"></i></div><div class="m" style="margin-top:4px">Нийт ${p}% — дарж нээнэ</div></div>`; }).join('') : '<div class="card"><p class="m">Идэвхтэй ажил алга.</p></div>';
     document.querySelectorAll('[data-j]').forEach(c => c.onclick = () => job(c.dataset.j));
-  } else {
+  } else if (V === 'chat') { chatView('general', $('#main')); } else {
     $('#main').innerHTML = `<div class="card"><h3>Өдөр тутмын үзлэг</h3><label>Тоног төхөөрөмж</label><select id="im"><option value="">— сонгох —</option>${D.machines.map(m => `<option value="${m.id}">${esc(m.no)} · ${esc(m.name)}</option>`).join('')}</select></div><div id="ib"></div>`;
     $('#im').onchange = e => insp(e.target.value);
   }
+}
+const hm = t => { const d = new Date(t), p = n => String(n).padStart(2, '0'); return `${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`; };
+/* chat: «Ерөнхий» channel or one job's chat; refreshes every 8 s while open */
+let CT = null;
+function chatView(ch, box) {
+  const draw = () => { const L = (D.chat || []).filter(m => m.ch === ch);
+    box.innerHTML = `<div class="card"><h3>${ch === 'general' ? '💬 Ерөнхий чат' : '💬 Энэ ажлын чат'}</h3><div class="cms" id="cms">${L.map(m => `<div class="cm${m.who === who ? ' me' : ''}"><div class="w"><b>${esc(m.who)}</b> · ${hm(m.t)}</div>${esc(m.text)}</div>`).join('') || '<p class="m">Мессеж алга.</p>'}</div>
+      ${ch === 'general' ? whoSel('cw') : ''}<textarea id="ctx" rows="2" placeholder="Мессеж бичих…" style="margin-top:8px"></textarea><button class="btn" id="csd">Илгээх</button></div>`;
+    const c = box.querySelector('#cms'); c.scrollTop = c.scrollHeight;
+    const cw = box.querySelector('#cw'); if (cw) cw.onchange = cw.oninput = e => { who = e.target.value; localStorage.setItem('kh-who', who); };
+    box.querySelector('#csd').onclick = async () => { const w = (box.querySelector('#cw') || $('#who') || {}).value || who, t = box.querySelector('#ctx').value.trim(); if (!w.trim()) return toast('Нэрээ сонгоно уу'); if (!t) return; who = w; localStorage.setItem('kh-who', who);
+      try { await api('/api/chat', { ch, text: t, who: w }); D = await api('/api/state'); draw(); } catch (e) { toast('Алдаа: ' + e.message, 5000); } }; };
+  draw(); clearInterval(CT); CT = setInterval(async () => { if (!document.body.contains(box) || (box.querySelector('#ctx') || {}).value) return; try { const n = await api('/api/state'); if (JSON.stringify(n.chat) !== JSON.stringify(D.chat)) { D = n; draw(); } } catch (e) { } }, 8000);
 }
 function job(id) {
   const j = D.jobs.find(x => x.id === id); if (!j) return;
@@ -51,8 +65,8 @@ function job(id) {
       <label>Тэмдэглэл (заавал биш)</label><input id="nt" placeholder="жишээ: гагнуур дууссан, будаг хүлээж байна">
       <label style="display:flex;gap:8px;align-items:center;font-weight:500"><input type="checkbox" id="nd" style="width:auto"> Энэ нь «одоо хэрэгтэй / саад» гэж тэмдэглэх</label>
       <button class="btn" id="sv">Хадгалах</button></div>
-    <div class="card"><h3>Зураг нэмэх</h3><input type="file" id="ph" accept="image/*" capture="environment" multiple><input id="pn" placeholder="Зургийн тайлбар" style="margin-top:8px"><button class="btn" id="up">Зураг илгээх</button><div class="thumbs" id="th"></div></div>`;
-  $('#bk').onclick = () => { V = 'jobs'; load(); };
+    <div id="jc"></div><div class="card"><h3>Зураг нэмэх</h3><input type="file" id="ph" accept="image/*" capture="environment" multiple><input id="pn" placeholder="Зургийн тайлбар" style="margin-top:8px"><button class="btn" id="up">Зураг илгээх</button><div class="thumbs" id="th"></div></div>`;
+  $('#bk').onclick = () => { V = 'jobs'; load(); }; chatView(j.id, $('#jc'));
   const sg = $('#sg'), pc = $('#pc'), set = () => { const s = j.stages.find(x => x.i === +sg.value); pc.value = s ? s.pct : 0; $('#pv').textContent = pc.value + '%'; };
   if (sg) { sg.onchange = set; set(); } pc.oninput = () => $('#pv').textContent = pc.value + '%';
   $('#who').onchange = $('#who').oninput = e => { who = e.target.value; localStorage.setItem('kh-who', who); };

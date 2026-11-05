@@ -73,7 +73,7 @@ function jobRemove(job) {
   (Array.isArray(S.stockMoves) ? S.stockMoves : []).forEach(m => { if (ids.has(m.job)) { m.jobNo = m.jobNo || job.no; m.job = ''; } });
   all.forEach(j => (j.files || []).forEach(f => { try { if (typeof docDel === 'function') docDel(f.id); } catch (e) { } }));
   if (job.parent) { const P = findJob(job.parent); if (P && P.quote && P.quote.lines) P.quote.lines = P.quote.lines.filter(l => l.src !== job.id); }
-  S.jobs = S.jobs.filter(j => !ids.has(j.id)); if (ids.has(S.activeJob)) S.activeJob = null;
+  S.jobs = S.jobs.filter(j => !ids.has(j.id)); if (ids.has(S.activeJob)) S.activeJob = null; if (Array.isArray(S.chat)) S.chat = S.chat.filter(m => !ids.has(m.ch));
   S.parts = (S.parts || []).map(p => ids.has(p.jobId) ? Object.assign(p, { jobId: null }) : p);
   if (keptInv) toast(`${keptInv} нэхэмжлэх «Нэхэмжлэх» жагсаалтад бие даасан болж үлдлээ`, 5000);
   save();
@@ -302,7 +302,7 @@ function renderJobMain() {
   el.querySelectorAll('[data-st]').forEach(b => b.addEventListener('click', () => { if (b.dataset.st === job.status) return; const o = jstName(job.status); job.status = b.dataset.st; jobLog(`Төлөв: ${o} → ${jstName(job.status)}`, job); save(); renderJList(); renderJobMain(); }));
   el.querySelectorAll('[data-op]').forEach(b => b.addEventListener('click', () => { const o = job.ops = job.ops || [], k = b.dataset.op, i = o.indexOf(k); if (i >= 0) o.splice(i, 1); else o.push(k); save(); renderJobMain(); }));
   { const nd = el.querySelector('#jf_need'); if (nd) nd.addEventListener('change', () => { job.need = nd.value.trim(); if (job.need) jobLog('Тэмдэглэл: ' + job.need, job); save(); renderJList(); }); }
-  bindPriceSync(el, job);
+  bindPriceSync(el, job); el.querySelectorAll('[data-chat]').forEach(b => b.addEventListener('click', () => chatOpen(b.dataset.chat)));
   { const v = J.sub === 'prod' ? 'prod' : 'main'; el.querySelectorAll('[data-v]').forEach(n => { n.hidden = n.dataset.v !== v; }); el.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => { J.sub = b.dataset.go === 'make' ? (J.mk || 'prod') : b.dataset.go; renderJobMain(); })); }
   // field bindings
   ['no', 'title', 'customer', 'due', 'note'].forEach(k => $('#jf_' + k).addEventListener('change', ev => { const v = ev.target.value.trim(); if (k === 'no' && !v) return; if (k === 'no') { job.no = v; job.short = (v.match(/(\d+)\s*$/) || [, v])[1]; } else job[k] = v; if (k === 'customer' || k === 'no') qKidsSync(job); if (k === 'customer' && v) { const o = orgLearn({ org: v }); if (o && o.name !== v) { job.customer = o.name; $('#jf_customer').value = o.name; } if (job.quote && job.quote.qf) { if (formAuto(job.quote.qf, v)) toast('📄 «' + v + '» маягт үнийн саналд орлоо'); else if (qfFillFromDir(job.quote.qf, v)) toast('Захиалагчийн хаяг, ID үнийн саналд бөглөгдлөө'); } } save(); renderJList(); }));
