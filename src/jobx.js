@@ -243,6 +243,7 @@ const STAGE_COLS = [{ k: 'name', t: 'Үе шатны нэр' }, { k: 'start', t:
 const RISK_COLS = [{ k: 'd', t: 'Эрсдэлийн тайлбар' }, { k: 'cause', t: 'Шалтгаан' }, { k: 'p', t: 'Магадлал (1–3)', num: 1, w: 70 }, { k: 'i', t: 'Нөлөөлөл (1–3)', num: 1, w: 70 }, { k: 'sc', t: 'Оноо', calc: r => { const s = (+r.p || 0) * (+r.i || 0); return `<span class="${s >= 6 ? 'late' : ''}">${s}</span>`; } }, { k: 'prev', t: 'Урьдчилан сэргийлэх' }, { k: 'owner', t: 'Хариуцах', w: 100 }];
 const EQUIP_COLS = [{ k: 'name', t: 'Нэр / загвар' }, { k: 'cat', t: 'Ангилал', w: 90 }, { k: 'qty', t: 'Тоо', num: 1, w: 50 }, { k: 'unit', t: 'Нэгж', w: 50 }, { k: 'loc', t: 'Байршил', w: 80 }, { k: 'st', t: 'Төлөв', w: 100 }, { k: 'stage', t: 'Ашиглах үе шат' }];
 function renderScope(el, job) {
+  if (!job.parent && stagesBlank(job.scope) && (job.ops || []).length) { stagesAuto(job); toast('⚡ Үе шатууд ажлын төрлөөс автоматаар бөглөгдлөө', 4000); }
   const sc = job.scope, P = progCalc(job);
   el.innerHTML = `${job._sc ? scStdBar(job) : jobSubBar(job)}
     <div class="exports">${outBtns('scope', 'Scope')}<span class="outb"><button class="btn" data-gantt="pdf">📊 Gantt PDF</button><button class="btn ghost" data-gantt="print" title="Gantt хуваарийг хэвтээ хуудсанд хэвлэх">🖨 Gantt</button></span></div>
@@ -257,7 +258,7 @@ function renderScope(el, job) {
       <div class="jgrid">${fldIn('sc_incl', 'Scope-д орох', sc.incl, { area: 1, rows: 3 })}${fldIn('sc_excl', 'Scope-д ОРОХГҮЙ', sc.excl, { area: 1, rows: 3 })}</div>
     </div></div>
     <div class="jcard"><div class="bcard-h">Үе шат — хуваарь <span class="sp"></span><span class="muted" style="font-weight:400;font-size:12px">Хүн × цаг нь үнийн саналын ажиллах хүчний зардал болно</span></div><div class="jbody">
-      ${edTable('st', stageCols(), sc.stages)}
+      ${stagePickHTML(job)}${edTable('st', stageCols(), sc.stages)}
       ${ganttHTML(job, P)}
     </div></div>
     ${weldCardHTML(job)}
@@ -265,10 +266,10 @@ function renderScope(el, job) {
     <div class="jcard"><div class="bcard-h">Тоног төхөөрөмж, багаж хэрэгсэл</div><div class="jbody">${edTable('eq', EQUIP_COLS, sc.equip)}</div></div>`;
   const re = () => renderJobMain();
   el.querySelectorAll('[data-gantt]').forEach(b => b.addEventListener('click', () => docOut(b.dataset.gantt, () => ganttJobDoc(job), `${job.no} Gantt`)));
-  bindWeldCard(el, job, re);
+  bindWeldCard(el, job, re); bindStagePick(el, job, re);
   bindFields(el, sc, [['sc_contract', 'contract'], ['sc_start', 'start'], ['sc_location', 'location'], ['sc_desc', 'desc'], ['sc_incl', 'incl'], ['sc_excl', 'excl']], k => { if (k === 'start') re(); });
   [['sc_title', 'title'], ['sc_customer', 'customer']].forEach(([id, k]) => el.querySelector('#' + id).addEventListener('change', e => { job[k] = e.target.value; save(); renderJList(); }));
-  bindEd(el, { st: { arr: () => sc.stages, cols: stageCols(), blank: () => ({ name: '', start: 1, dur: 1, people: 1, hours: 8, pct: 0 }) }, rk: { arr: () => sc.risks, cols: RISK_COLS, blank: () => ({ d: '', cause: '', p: 1, i: 1, prev: '', owner: '' }) }, eq: { arr: () => sc.equip, cols: EQUIP_COLS, blank: () => ({ name: '', cat: '', qty: 1, unit: 'ш', loc: 'Цех', st: 'Ажиллагаатай', stage: '' }) } }, re);
+  bindEd(el, { st: { arr: () => sc.stages, cols: stageCols(), blank: () => ({ name: '', start: 1, dur: 1, people: 1, hours: 8, pct: 0 }) }, rk: { arr: () => sc.risks, cols: RISK_COLS, blank: () => ({ d: '', cause: '', p: 1, i: 1, prev: '', owner: '' }) }, eq: { arr: () => sc.equip, cols: EQUIP_COLS, blank: () => ({ name: '', cat: '', qty: 1, unit: 'ш', loc: 'Цех', st: 'Ажиллагаатай', stage: '' }) } }, re, (id, r, k) => { if (id === 'st' && k === 'name') stageNameHook(r); });
 }
 
 /* ---------- detailed quotation ---------- */

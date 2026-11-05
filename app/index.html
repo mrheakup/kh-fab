@@ -4800,7 +4800,18 @@ const I18N_EN = {
 "устгагдсан ажил": "deleted job",
 "Оффис, үйлдвэрийн бүх хүний ерөнхий суваг.": "General channel for everyone at the office and factory.",
 "Энэ ажлын чат — асуулт, мэдэгдлээ энд бичнэ.": "This job's chat — write questions and notices here.",
-"Синк асаалттай бол нөгөө компьютер дээр ойролцоогоор 15–60 секундэд хүрнэ.": "With sync on, it reaches the other PC in about 15–60 seconds."
+"Синк асаалттай бол нөгөө компьютер дээр ойролцоогоор 15–60 секундэд хүрнэ.": "With sync on, it reaches the other PC in about 15–60 seconds.",
+"Ажил сонгож нэмэх": "Pick a work to add",
+"Ажлын төрлөөс бөглөх": "Fill from job types",
+"Загвараас": "From template",
+"Хуваарийг дараалуулах": "Sequence the schedule",
+"сонгох эсвэл бичих": "pick or type",
+"Үе шатууд ажлын төрлөөс автоматаар бөглөгдлөө": "Stages filled automatically from the job types",
+"Scope-ийн үе шатууд ажлын төрлөөс бөглөгдлөө": "Scope stages filled from the job types",
+"Материал худалдан авах": "Material procurement",
+"Хүлээн авах, үзлэг (VIR)": "Receiving inspection (VIR)",
+"Үе шатаа гараар бичих шаардлагагүй": "No need to type the stages",
+"үе шат бөглөгдлөө — хүн, цагаа шалгана уу": "stages filled — check people and hours"
 };
 /* ================= KH Fab — language (МН / EN) and theme (Day / Night) =================
    The UI is written in Mongolian. In English mode every Mongolian fragment that reaches the
@@ -8392,7 +8403,7 @@ function renderJobMain() {
     <datalist id="opList">${ops.map(o => `<option value="${esc(o)}">`).join('')}</datalist>`;
   bindSubBar(el); bindJobFiles(el, job); bindJobTasks(el, job); bindSrcFolder(el, job); bindJobInv(el, job); bindJobStock(el, job); bindJobTpl(el, job);
   el.querySelectorAll('[data-st]').forEach(b => b.addEventListener('click', () => { if (b.dataset.st === job.status) return; const o = jstName(job.status); job.status = b.dataset.st; jobLog(`Төлөв: ${o} → ${jstName(job.status)}`, job); save(); renderJList(); renderJobMain(); }));
-  el.querySelectorAll('[data-op]').forEach(b => b.addEventListener('click', () => { const o = job.ops = job.ops || [], k = b.dataset.op, i = o.indexOf(k); if (i >= 0) o.splice(i, 1); else o.push(k); save(); renderJobMain(); }));
+  el.querySelectorAll('[data-op]').forEach(b => b.addEventListener('click', () => { const o = job.ops = job.ops || [], k = b.dataset.op, i = o.indexOf(k); if (i >= 0) o.splice(i, 1); else o.push(k); jx(job); if (!job.parent && stagesBlank(job.scope) && o.length) { stagesAuto(job); toast('⚡ Scope-ийн үе шатууд ажлын төрлөөс бөглөгдлөө', 4000); } save(); renderJobMain(); }));
   { const nd = el.querySelector('#jf_need'); if (nd) nd.addEventListener('change', () => { job.need = nd.value.trim(); if (job.need) jobLog('Тэмдэглэл: ' + job.need, job); save(); renderJList(); }); }
   bindPriceSync(el, job); el.querySelectorAll('[data-chat]').forEach(b => b.addEventListener('click', () => chatOpen(b.dataset.chat)));
   { const v = J.sub === 'prod' ? 'prod' : 'main'; el.querySelectorAll('[data-v]').forEach(n => { n.hidden = n.dataset.v !== v; }); el.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => { J.sub = b.dataset.go === 'make' ? (J.mk || 'prod') : b.dataset.go; renderJobMain(); })); }
@@ -8937,6 +8948,7 @@ const STAGE_COLS = [{ k: 'name', t: 'Үе шатны нэр' }, { k: 'start', t:
 const RISK_COLS = [{ k: 'd', t: 'Эрсдэлийн тайлбар' }, { k: 'cause', t: 'Шалтгаан' }, { k: 'p', t: 'Магадлал (1–3)', num: 1, w: 70 }, { k: 'i', t: 'Нөлөөлөл (1–3)', num: 1, w: 70 }, { k: 'sc', t: 'Оноо', calc: r => { const s = (+r.p || 0) * (+r.i || 0); return `<span class="${s >= 6 ? 'late' : ''}">${s}</span>`; } }, { k: 'prev', t: 'Урьдчилан сэргийлэх' }, { k: 'owner', t: 'Хариуцах', w: 100 }];
 const EQUIP_COLS = [{ k: 'name', t: 'Нэр / загвар' }, { k: 'cat', t: 'Ангилал', w: 90 }, { k: 'qty', t: 'Тоо', num: 1, w: 50 }, { k: 'unit', t: 'Нэгж', w: 50 }, { k: 'loc', t: 'Байршил', w: 80 }, { k: 'st', t: 'Төлөв', w: 100 }, { k: 'stage', t: 'Ашиглах үе шат' }];
 function renderScope(el, job) {
+  if (!job.parent && stagesBlank(job.scope) && (job.ops || []).length) { stagesAuto(job); toast('⚡ Үе шатууд ажлын төрлөөс автоматаар бөглөгдлөө', 4000); }
   const sc = job.scope, P = progCalc(job);
   el.innerHTML = `${job._sc ? scStdBar(job) : jobSubBar(job)}
     <div class="exports">${outBtns('scope', 'Scope')}<span class="outb"><button class="btn" data-gantt="pdf">📊 Gantt PDF</button><button class="btn ghost" data-gantt="print" title="Gantt хуваарийг хэвтээ хуудсанд хэвлэх">🖨 Gantt</button></span></div>
@@ -8951,7 +8963,7 @@ function renderScope(el, job) {
       <div class="jgrid">${fldIn('sc_incl', 'Scope-д орох', sc.incl, { area: 1, rows: 3 })}${fldIn('sc_excl', 'Scope-д ОРОХГҮЙ', sc.excl, { area: 1, rows: 3 })}</div>
     </div></div>
     <div class="jcard"><div class="bcard-h">Үе шат — хуваарь <span class="sp"></span><span class="muted" style="font-weight:400;font-size:12px">Хүн × цаг нь үнийн саналын ажиллах хүчний зардал болно</span></div><div class="jbody">
-      ${edTable('st', stageCols(), sc.stages)}
+      ${stagePickHTML(job)}${edTable('st', stageCols(), sc.stages)}
       ${ganttHTML(job, P)}
     </div></div>
     ${weldCardHTML(job)}
@@ -8959,10 +8971,10 @@ function renderScope(el, job) {
     <div class="jcard"><div class="bcard-h">Тоног төхөөрөмж, багаж хэрэгсэл</div><div class="jbody">${edTable('eq', EQUIP_COLS, sc.equip)}</div></div>`;
   const re = () => renderJobMain();
   el.querySelectorAll('[data-gantt]').forEach(b => b.addEventListener('click', () => docOut(b.dataset.gantt, () => ganttJobDoc(job), `${job.no} Gantt`)));
-  bindWeldCard(el, job, re);
+  bindWeldCard(el, job, re); bindStagePick(el, job, re);
   bindFields(el, sc, [['sc_contract', 'contract'], ['sc_start', 'start'], ['sc_location', 'location'], ['sc_desc', 'desc'], ['sc_incl', 'incl'], ['sc_excl', 'excl']], k => { if (k === 'start') re(); });
   [['sc_title', 'title'], ['sc_customer', 'customer']].forEach(([id, k]) => el.querySelector('#' + id).addEventListener('change', e => { job[k] = e.target.value; save(); renderJList(); }));
-  bindEd(el, { st: { arr: () => sc.stages, cols: stageCols(), blank: () => ({ name: '', start: 1, dur: 1, people: 1, hours: 8, pct: 0 }) }, rk: { arr: () => sc.risks, cols: RISK_COLS, blank: () => ({ d: '', cause: '', p: 1, i: 1, prev: '', owner: '' }) }, eq: { arr: () => sc.equip, cols: EQUIP_COLS, blank: () => ({ name: '', cat: '', qty: 1, unit: 'ш', loc: 'Цех', st: 'Ажиллагаатай', stage: '' }) } }, re);
+  bindEd(el, { st: { arr: () => sc.stages, cols: stageCols(), blank: () => ({ name: '', start: 1, dur: 1, people: 1, hours: 8, pct: 0 }) }, rk: { arr: () => sc.risks, cols: RISK_COLS, blank: () => ({ d: '', cause: '', p: 1, i: 1, prev: '', owner: '' }) }, eq: { arr: () => sc.equip, cols: EQUIP_COLS, blank: () => ({ name: '', cat: '', qty: 1, unit: 'ш', loc: 'Цех', st: 'Ажиллагаатай', stage: '' }) } }, re, (id, r, k) => { if (id === 'st' && k === 'name') stageNameHook(r); });
 }
 
 /* ---------- detailed quotation ---------- */
@@ -13882,7 +13894,47 @@ async function ideasListDoc() {
 const MACH_DEF = [['laser', 'Лазер зүсэгч', 48], ['press', 'Нугалах пресс', 48], ['lathe', 'Токарь CA6240', 48], ['bore', 'Line bore', 48], ['weld', 'Гагнуурын пост', 96], ['blast', 'Элс цэвэрлэгээ, будаг', 48], ['mill', 'Фрезер', 48], ['crane', 'Гүүрэн кран', 60]];
 function machines() { if (!Array.isArray(S.machines)) S.machines = MACH_DEF.map(([id, name, cap]) => ({ id, name, cap })); return S.machines; }
 const machName = id => (machines().find(m => m.id === id) || {}).name || '';
-function stageCols() { return STAGE_COLS.concat([{ k: 'mach', t: 'Машин / пост', sel: [['', '—']].concat(machines().map(m => [m.id, m.name])), w: 150 }]); }
+/* ---------- stages picked, not typed: from the work library, from the job type chips, or a template ---------- */
+const workAll = () => WORK_LIB.flatMap(([g, a]) => a).concat([['Материал худалдан авах', 'Material procurement', 'gen', 4], ['Хүлээн авах, үзлэг (VIR)', 'Receiving inspection (VIR)', 'qc', 2]]);
+const workFind = n => { const k = String(n || '').trim().toLowerCase(); return k ? workAll().find(w => w[0].toLowerCase() === k || w[1].toLowerCase() === k) || null : null; };
+const RT_MACH = { op: 'laser', weld: 'weld', fit: 'weld', lathe: 'lathe', mill: 'mill', paint: 'blast' };
+const machFor = (rt, name) => { const id = /нугал|bend/i.test(name || '') ? 'press' : /line bor|уйтлах/i.test(name || '') ? 'bore' : RT_MACH[rt] || ''; return id && machines().some(m => m.id === id) ? id : ''; };
+/* job type chip → works, in shop order */
+const OP_WORK = [['buy', ['Материал худалдан авах']], ['laser', ['Лазер зүсэлт']], ['bend', ['Нугалалт']], ['mach', ['Токарийн ажил']], ['bore', ['Цооног уйтлах (line boring)']], ['repair', ['Хүлээн авах, үзлэг (VIR)', 'Голын засвар, наплавка']], ['weld', ['Хийцлэл, угсралт', 'Гагнуур']], ['blast', ['Элсэн цацал', 'Будаг']], ['ndt', ['Чанарын хяналт, NDT']], ['site', ['Хэмжилт, газар дээрх үзлэг']]];
+function stageFromWork(w, start) { const [name, en, rt, h] = w; return { name, en, rt, sep: BD_SEP.includes(rt), start: start || 1, dur: Math.max(1, Math.ceil((+h || 8) / 8)), people: 1, hours: +h || 8, pct: 0, mach: machFor(rt, name) }; }
+/* start days one after another (a stage starts when the previous one ends) */
+function stagesSequence(sc) { let d = 1; sc.stages.forEach(s => { s.start = d; d += Math.max(1, +s.dur || 1); }); }
+function stagesAuto(job) {
+  jx(job); const ops = job.ops || [], names = ['Цехийн зураг (shop drawing)'];
+  OP_WORK.forEach(([op, ws]) => { if (ops.includes(op)) ws.forEach(n => { if (!names.includes(n)) names.push(n); }); });
+  if (!ops.includes('ndt') && ops.some(o => ['weld', 'repair', 'mach', 'bore'].includes(o))) names.push('Чанарын хяналт, NDT');
+  names.push('Савлагаа, ачилт');
+  job.scope.stages = names.map(workFind).filter(Boolean).map(w => stageFromWork(w)); stagesSequence(job.scope);
+  job.scope._auto = job.scope.stages.map(s => s.name).join('|');   // remembered: while untouched, a new job type chip rebuilds the list
+  if (!job.scope.start) job.scope.start = today();
+  jobLog(`Үе шат автоматаар: ${job.scope.stages.map(s => s.name).join(', ')}`, job); save(); return job.scope.stages.length;
+}
+const stagesBlank = sc => (sc._auto && sc._auto === sc.stages.map(s => s.name).join('|') && sc.stages.every(s => !+s.pct)) || !sc.stages.length || sc.stages.every(s => !String(s.name || '').trim()) || (sc.stages.length === DEF_STAGES.length && sc.stages.every((s, i) => s.name === DEF_STAGES[i][0] && !+s.pct && +s.people === DEF_STAGES[i][3] && +s.hours === DEF_STAGES[i][4]));   // empty, or the untouched default list
+/* a typed / picked stage name from the library fills its English name, labour type, hours, days and machine */
+function stageNameHook(r) { const w = workFind(r.name); if (!w) return; r.name = w[0]; r.en = w[1]; r.rt = w[2]; r.sep = BD_SEP.includes(w[2]); if (!+r.hours || +r.hours === 8) r.hours = w[3]; r.dur = Math.max(+r.dur || 1, Math.ceil((+r.hours || 8) / 8)); if (!r.mach) r.mach = machFor(w[2], w[0]); }
+function stagePickHTML(job) {
+  const T = jtemplates();
+  return `<div class="addrow" style="margin:0 0 8px;flex-wrap:wrap;gap:6px">
+    <select id="stWork" class="inp" style="width:auto;max-width:340px"><option value="">+ Ажил сонгож нэмэх…</option>${WORK_LIB.map(([g, a]) => `<optgroup label="${esc(g)}">${a.map(w => `<option value="${esc(w[0])}">${esc(w[0])} — ${esc(w[1])}</option>`).join('')}</optgroup>`).join('')}<optgroup label="Бусад"><option value="Материал худалдан авах">Материал худалдан авах</option><option value="Хүлээн авах, үзлэг (VIR)">Хүлээн авах, үзлэг (VIR)</option></optgroup></select>
+    <button class="btn sm" id="stAuto" type="button" title="«Ажлын төрөл» (Лазер, Гагнуур, NDT…)-өөс үе шатуудыг дарааллаар нь бөглөнө">⚡ Ажлын төрлөөс бөглөх${(job.ops || []).length ? ` (${job.ops.length})` : ''}</button>
+    <select id="stTpl" class="inp" style="width:auto"><option value="">Загвараас…</option>${T.map(t => `<option value="${t.id}">${esc(t.name)}</option>`).join('')}</select>
+    <button class="btn sm ghost" id="stSeq" type="button" title="Үе шат бүр өмнөхөө дуусахад эхэлнэ">⇅ Хуваарийг дараалуулах</button>
+    <datalist id="dl-work">${workAll().map(w => `<option value="${esc(w[0])}">${esc(w[1])}</option>`).join('')}</datalist></div>
+    ${stagesBlank(job.scope) && !(job.ops || []).length ? '<p class="note">Үе шатаа гараар бичих шаардлагагүй: «Ажлын мэдээлэл»-д ажлын төрлөө (Лазер, Гагнуур…) сонговол энд автоматаар бөглөгдөнө. Эсвэл дээрээс ажил / загвар сонгоно.</p>' : ''}`;
+}
+function bindStagePick(el, job, re) {
+  const sc = job.scope;
+  const w = el.querySelector('#stWork'); if (w) w.addEventListener('change', () => { const x = workFind(w.value); if (!x) return; const last = sc.stages.filter(s => String(s.name || '').trim()); sc.stages = last; const st = last.length ? Math.max(...last.map(s => (+s.start || 1) + (+s.dur || 1))) : 1; sc.stages.push(stageFromWork(x, st)); save(); re(); });
+  const a = el.querySelector('#stAuto'); if (a) a.addEventListener('click', () => { if (!(job.ops || []).length) { toast('Эхлээд «Мэдээлэл» хуудсанд ажлын төрлөө (Лазер, Гагнуур, NDT…) сонгоно уу', 5000); return; } if (!stagesBlank(sc) && !confirm('Одоогийн үе шатуудыг ажлын төрлөөс шинээр бөглөх үү?')) return; const n = stagesAuto(job); re(); toast(`⚡ ${n} үе шат бөглөгдлөө — хүн, цагаа шалгана уу`); });
+  const t = el.querySelector('#stTpl'); if (t) t.addEventListener('change', () => { const x = jtemplates().find(y => y.id === t.value); if (!x) return; if (!stagesBlank(sc) && !confirm(`«${x.name}» загвараар үе шатыг солих уу?`)) { t.value = ''; return; } applyTemplate(job, x); sc.stages.forEach(s => stageNameHook(s)); re(); toast('Загвар: ' + x.name); });
+  const q = el.querySelector('#stSeq'); if (q) q.addEventListener('click', () => { stagesSequence(sc); save(); re(); });
+}
+function stageCols() { return STAGE_COLS.map(c => c.k === 'name' ? Object.assign({}, c, { list: 'dl-work', ph: 'сонгох эсвэл бичих', w: 260 }) : c).concat([{ k: 'mach', t: 'Машин / пост', sel: [['', '—']].concat(machines().map(m => [m.id, m.name])), w: 150 }]); }
 
 /* ---------- job templates ---------- */
 const JT_DEF = [

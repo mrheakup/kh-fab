@@ -3049,5 +3049,16 @@
 "устгагдсан ажил": "deleted job",
 "Оффис, үйлдвэрийн бүх хүний ерөнхий суваг.": "General channel for everyone at the office and factory.",
 "Энэ ажлын чат — асуулт, мэдэгдлээ энд бичнэ.": "This job's chat — write questions and notices here.",
-"Синк асаалттай бол нөгөө компьютер дээр ойролцоогоор 15–60 секундэд хүрнэ.": "With sync on, it reaches the other PC in about 15–60 seconds."
+"Синк асаалттай бол нөгөө компьютер дээр ойролцоогоор 15–60 секундэд хүрнэ.": "With sync on, it reaches the other PC in about 15–60 seconds.",
+"Ажил сонгож нэмэх": "Pick a work to add",
+"Ажлын төрлөөс бөглөх": "Fill from job types",
+"Загвараас": "From template",
+"Хуваарийг дараалуулах": "Sequence the schedule",
+"сонгох эсвэл бичих": "pick or type",
+"Үе шатууд ажлын төрлөөс автоматаар бөглөгдлөө": "Stages filled automatically from the job types",
+"Scope-ийн үе шатууд ажлын төрлөөс бөглөгдлөө": "Scope stages filled from the job types",
+"Материал худалдан авах": "Material procurement",
+"Хүлээн авах, үзлэг (VIR)": "Receiving inspection (VIR)",
+"Үе шатаа гараар бичих шаардлагагүй": "No need to type the stages",
+"үе шат бөглөгдлөө — хүн, цагаа шалгана уу": "stages filled — check people and hours"
 }
