@@ -389,7 +389,7 @@ tr.rcut td:first-child{box-shadow:inset 3px 0 0 var(--accent)}
 /* jobs module views: quotes / jobs / dashboard / documents */
 html[data-jview="docs"] [data-jtab="jobs"]{display:none}
 html:not([data-jview="docs"]) [data-jtab="kits"],html:not([data-jview="docs"]) [data-jtab="certs"],html:not([data-jview="docs"]) [data-jtab="dockets"],html:not([data-jview="docs"]) [data-jtab="scopes"],html:not([data-jview="docs"]) [data-jtab="invoices"],html:not([data-jview="docs"]) [data-jtab="forms"]{display:none}
-html[data-jview="quotes"] #jFilter,html[data-jview="jobs"] #jFilter,html[data-jview="quotes"] #jNew,html[data-jview="jobs"] #qNew,html[data-jview="jobs"] #qImp,html[data-jview="dash"] #qImp{display:none}
+html[data-jview="quotes"] #jFilter,html[data-jview="jobs"] #jFilter,html[data-jview="quotes"] #jNew,html[data-jview="jobs"] #qNew,html[data-jview="dash"] #qImp{display:none}
 /* team & tasks */
 .av{display:inline-grid;place-items:center;border-radius:50%;color:#fff;font-weight:700;flex:none;line-height:1}.av.none{background:var(--surface-2);color:var(--ink-3);box-shadow:inset 0 0 0 1px var(--line);font-size:11px}
 .pdot{display:inline-block;width:8px;height:8px;border-radius:50%;flex:none}.sdot{display:inline-block;width:9px;height:9px;border-radius:50%}
@@ -681,7 +681,7 @@ label.fld,.fld>.flab{font-size:11.5px;font-weight:600;color:var(--ink-3);letter-
     </nav>
     <div class="panel-body">
       <section id="jtab-jobs">
-        <div class="ptools"><button class="btn primary" id="jNew">+ Шинэ ажил</button><button class="btn" id="qNew" title="Зөвхөн үнийн санал — батлагдвал ажил болгоно">+ Үнийн санал</button><button class="btn ghost" id="qImp" title="SQ фолдеруудаас бэлдсэн импорт файл (.json)">⇪ Импорт</button><input type="file" id="qImpIn" accept=".json,application/json" hidden><button class="btn" id="jDash">Самбар</button></div>
+        <div class="ptools"><button class="btn primary" id="jNew">+ Шинэ ажил</button><button class="btn" id="qNew" title="Зөвхөн үнийн санал — батлагдвал ажил болгоно">+ Үнийн санал</button><button class="btn ghost" id="qImp" title="Kh-ийн Excel үнийн санал (SQ… - Quotation….xlsx) — мөр, үнэ, захиалагч, нөхцөл, задаргаатай нь оруулна. Ажил хэсгээс оруулбал шууд ажил болно. Олныг зэрэг сонгож болно.">⇪ Үнийн санал оруулах</button><input type="file" id="qImpIn" accept=".xlsx,.xlsm,.xls,.json,application/json" multiple hidden><button class="btn" id="jDash">Самбар</button></div>
         <div class="grid2" style="margin:10px 0">
           <input id="jSearch" class="inp" placeholder="Хайх: дугаар, захиалагч, хүн, үнийн санал…" aria-label="Хайх">
           <select id="jFilter" class="inp" aria-label="Төлөв"><option value="open">Идэвхтэй (ажил + санал)</option><option value="jobs">Зөвхөн ажил</option><option value="quotes">Зөвхөн үнийн санал</option><option value="all">Бүгд</option><option value="closed">Архив — дууссан, хүлээлгэсэн, татгалзсан</option></select>
@@ -8203,7 +8203,7 @@ function renderJList() {
 $('#jDash').addEventListener('click', () => setModule('dash'));
 $('#jList').addEventListener('click', e => { const it = e.target.closest('.jitem'); if (!it) return; J.sel = it.dataset.id; { const v = document.documentElement.dataset.jview, q = isQ(findJob(J.sel)); if (v === 'dash' || (v === 'quotes' && !q) || (v === 'jobs' && q)) { setModule(q ? 'quotes' : 'jobs'); J.sel = it.dataset.id; } } J.traceForm = false; J.dash = false; renderJList(); renderJobMain(); });
 $('#qImp').addEventListener('click', () => $('#qImpIn').click());
-$('#qImpIn').addEventListener('change', async e => { const f = e.target.files[0]; e.target.value = ''; if (!f) return; try { const d = JSON.parse(await f.text()); const r = importQuotes(Array.isArray(d) ? d : d.quotes || []); setModule('quotes'); renderJobs(); toast(`${r.n} үнийн санал нэмэгдлээ${r.u ? `, ${r.u} шинэчлэгдлээ` : ''}${r.skip.length ? ` · ${r.skip.length} нь аль хэдийн байсан тул алгассан` : ''}`); } catch (err) { console.error(err); toast('Файл уншигдсангүй: ' + err.message); } });
+$('#qImpIn').addEventListener('change', async e => { const F = [...e.target.files]; e.target.value = ''; if (!F.length) return; const xl = F.filter(x => /\.xls[xm]?$/i.test(x.name)); if (xl.length) { const asJob = document.documentElement.dataset.jview === 'jobs'; const r = await quoteImportFiles(xl, asJob); if (r.made.length) { setModule(asJob ? 'jobs' : 'quotes'); J.sel = r.made[0].id; J.sub = asJob ? 'main' : 'quote'; renderJobs(); } toast(`${r.made.length} ${asJob ? 'ажил' : 'үнийн санал'} Excel-ээс үүслээ${r.bad.length ? ' · уншаагүй: ' + r.bad.join(', ') : ''}`, 7000); if (!F.some(x => /\.json$/i.test(x.name))) return; } const f = F.find(x => /\.json$/i.test(x.name)); if (!f) return; try { const d = JSON.parse(await f.text()); const r = importQuotes(Array.isArray(d) ? d : d.quotes || []); setModule('quotes'); renderJobs(); toast(`${r.n} үнийн санал нэмэгдлээ${r.u ? `, ${r.u} шинэчлэгдлээ` : ''}${r.skip.length ? ` · ${r.skip.length} нь аль хэдийн байсан тул алгассан` : ''}`); } catch (err) { console.error(err); toast('Файл уншигдсангүй: ' + err.message); } });
 $('#qNew').addEventListener('click', () => { const q = newQuote(); setModule('quotes'); J.sel = q.id; J.sub = 'quote'; renderJobs(); setTimeout(() => { const el = $('#qb_no'); if (el) { el.focus(); el.setSelectionRange(el.value.length, el.value.length); } }, 50); });
 $('#jNew').addEventListener('click', () => { const nj = newJob(); setModule('jobs'); J.sel = nj.id; J.dash = false; J.sub = 'main'; renderJobs(); setTimeout(() => { const el = $('#jf_title'); if (el) el.focus(); }, 50); });
 $('#jSearch').addEventListener('input', renderJList);
@@ -10448,7 +10448,7 @@ function renderFormMain(el) {
    every contact person goes to the organisation's directory. */
 const FX_SUB = /^(visual inspection|magnetic particle|ultrasonic|dye penetrant|liquid penetrant|radiograph|material certificates?|weld traceability|welding procedures?|welder|q\d{3}|s\d{3}|rock wool|galvani[sz]ed|.*\bsquare tube\b)/i;
 const FX_LAB = [[/^(customer'?s?\s*name|харилцагч)$/i, 'org'], [/^(rfq\s*name|ажлын нэр)$/i, 'rfqName'], [/^(rfq\s*(number|no)|ажлын дугаар)$/i, 'rfqNo'], [/^(contact|position|name\s*\/\s*position|name|х[оа][лг]богдох хүн)$/i, 'person'], [/^(e-?mail|и-?мэйл)$/i, 'email'], [/^(phone|утас)/i, 'phone'],
-  [/^(customer\s*id|харилцагч id)$/i, 'custId'], [/^(lead\s*time|гүйцэтгэх хугацаа)$/i, 'lead'], [/^(customer'?s?\s*address|харилцагчийн хаяг)/i, 'address'], [/^registration$/i, 'reg'], [/^(payment\s*term|төлбөрийн нөхцөл)/i, 'pay'], [/^(delivery\s*term|хүргэлтийн нөхцөл)/i, 'delivery'], [/^(quote\s*#|үнийн саналын №)/i, 'quoteNo'], [/^(date|огноо)$/i, 'date'], [/^(currency|валют)$/i, 'currency']];
+  [/^(customer\s*id|харилцагч id)$/i, 'custId'], [/^(lead\s*time|гүйцэтгэх хугацаа)$/i, 'lead'], [/^(customer'?s?\s*address|харилцагчийн хаяг)/i, 'address'], [/^registration$/i, 'reg'], [/^(payment\s*term|төлбөрийн нөхцөл)/i, 'pay'], [/^(delivery\s*term|хүргэлтийн нөхцөл)/i, 'delivery'], [/^(quote\s*#|үнийн саналын №)/i, 'quoteNo'], [/^(valid\s*until|хүртэл хүчинтэй)$/i, 'valid'], [/^(date|огноо)$/i, 'date'], [/^(currency|валют)$/i, 'currency']];
 const FX_TPL = ['engineering drawing', 'finite element ana', 'material (fiber las', 'destructive test', 'steel fabrication', 'fabrication welding', 'internal non-destu', 'visual inspection', 'magnetic particle', 'proof load test', 'sandblasting is in', 'painting', 'manufacturers data', 'material certifica', 'weld traceability', 'welding procedure', 'welder', 'delivery to ot ub', 'machining work'];
 const FX_MN = /^(харилцагч|ажлын нэр|огноо|төлбөрийн нөхцөл)$/i;
 function fxParseSheet(ws, X) {
@@ -10481,6 +10481,51 @@ function fxParseBook(buf, X) {
   const wb = X.read(buf, { type: 'array', cellStyles: true }), out = [];
   wb.SheetNames.forEach((n, i) => { if (((wb.Workbook || {}).Sheets || [])[i] && wb.Workbook.Sheets[i].Hidden) return; const r = fxParseSheet(wb.Sheets[n], X); if (r) out.push({ ...r, sheet: n }); });
   return out;
+}
+/* ---------- a whole quotation from Excel: header fields (above) + item lines + totals ---------- */
+function fxParseQuote(ws, X) {
+  const h = fxParseSheet(ws, X); if (!h) return null;
+  const R = X.utils.sheet_to_json(ws, { header: 1, raw: true, defval: '', blankrows: true }), r0 = ws['!ref'] ? X.utils.decode_range(ws['!ref']).s.r : 0, hid = new Set(); (ws['!rows'] || []).forEach((r, i) => { if (r && r.hidden) hid.add(i - r0); });
+  const str = v => String(v ?? '').replace(/\s+/g, ' ').trim(), num = v => typeof v === 'number' ? v : +String(v || '').replace(/[^\d.\-]/g, '') || 0;
+  let hr = -1, C = {};
+  for (let i = 0; i < R.length && hr < 0; i++) { const row = R[i].map(str); const d = row.findIndex(c => /^(description|ажлын тайлбар)$/i.test(c)); if (d >= 0) { hr = i; C.no = row.findIndex(c => /^(№|no\.?)$/i.test(c)); C.d = d; C.u = row.findIndex(c => /^(uom|нэгж)$/i.test(c)); C.q = row.findIndex(c => /^(qty|тоо( ширхэг)?)$/i.test(c)); C.p = row.findIndex(c => /^(unit\s*price|rate( mnt)?|үнэ( mnt)?)$/i.test(c)); C.t = row.findIndex(c => /total\s*excluded|нийт.*ороогүй/i.test(c)); } }
+  const lines = [], bd = [];
+  if (hr >= 0) for (let i = hr + 1; i < R.length; i++) {
+    const row = R[i], first = str(row.find(c => str(c)) || ''); if (/^(special\s*note|тусгай тэмдэглэл|quote\s*(in|ex)cluded|үнийн саналд)/i.test(first)) break; if (hid.has(i)) continue;
+    const d = [C.d, C.d + 1].map(k => str(row[k])).filter(Boolean).join(' ').trim(); if (!d) continue;
+    const q = C.q >= 0 ? num(row[C.q]) : 0, p = C.p >= 0 ? num(row[C.p]) : 0, t = C.t >= 0 ? num(row[C.t]) : 0, u = C.u >= 0 ? str(row[C.u]) : '';
+    if (t > 0 || q > 0) lines.push({ d, u: u || 'ea', q: q || 1, p: Math.round(p || t / (q || 1)) });   // a line without a price yet is kept (to be priced)
+    else if (p > 0) bd.push({ d, p: Math.round(p) });      // «Drawing and FEA / Labor / Material …» rows with amount but no total = breakdown
+  }
+  let net = 0, vat = 10;
+  R.forEach(row => row.forEach((c, j) => { const s = str(c); if (/^(total\s*excluded\s*vat|нөат ороогүй үнэ)$/i.test(s)) { const v = row.slice(j + 1).find(x => typeof x === 'number'); if (v) net = v; } if (/^(vat\s*rate|нөат-ын хувь)/i.test(s)) { const v = row.slice(j + 1).find(x => x !== '' && x != null); if (v !== undefined) vat = (typeof v === 'number' ? (v <= 1 ? v * 100 : v) : num(v)); } }));
+  if (!net) net = lines.reduce((a, l) => a + l.p * l.q, 0);
+  const xd = v => /^\d{5}(\.\d+)?$/.test(String(v || '')) ? new Date(Math.round((+v - 25569) * 864e5)).toISOString().slice(0, 10) : String(v || '').slice(0, 10);
+  const date = xd(h.date), valid = h.valid ? Math.max(0, Math.round((new Date(xd(h.valid)) - new Date(date)) / 864e5)) || 30 : 30;
+  return { ...h, date, valid, lines, bd, net: Math.round(net), vat: Math.round(vat) };
+}
+async function quoteImportFiles(files, asJob) {
+  if (!window.XLSX) await loadScript(XLSX_URL);
+  const made = [], bad = [];
+  for (const f of files) {
+    try {
+      const wb = XLSX.read(await f.arrayBuffer(), { type: 'array', cellStyles: true }); let q = null;
+      for (const [i, n] of wb.SheetNames.entries()) { if (((wb.Workbook || {}).Sheets || [])[i] && wb.Workbook.Sheets[i].Hidden) continue; q = fxParseQuote(wb.Sheets[n], XLSX); if (q && (q.lines.length || q.net)) break; }
+      if (!q) { bad.push(f.name); continue; }
+      const no = q.quoteNo || (f.name.match(/SQ\s*\d+[-\d]*/i) || [nextSQ()])[0].replace(/\s+/g, '');
+      const title = q.rfqName || (q.lines[0] && q.lines[0].d) || f.name.replace(/\.[^.]+$/, '');
+      const r = { no, date: q.date || today(), valid: q.valid, vat: q.vat, customer: q.org, title, net: q.net, lines: q.lines, qst: 'sent', src: f.name,
+        qf: { custId: q.custId || '', rfqName: q.rfqName || '', rfqNo: q.rfqNo || 'N/A', person: q.person || '', email: q.email || '', phone: q.phone || '', address: q.address || '', lead: q.lead || '', pay: q.pay || '', delivery: q.delivery || '', note: q.note || '', incl: q.incl || '', excl: q.excl || '', lang: q.lang || '', title, showBd: q.bd.length > 0, bd: q.bd } };
+      const before = new Set(S.jobs.map(j => j.id)), res = importQuotes([r]);
+      let job = S.jobs.find(j => !before.has(j.id)) || S.jobs.find(j => (j.quote && j.quote.no) === no);
+      if (!job) { bad.push(f.name + ' (давхардсан ' + no + ')'); continue; }
+      Object.assign(job.quote.qf, { showBd: q.bd.length > 0, bd: q.bd });
+      if (asJob && isQ(job)) quoteToJob(job);
+      try { await jobFilesAdd(job, [f]); } catch (e) { }
+      made.push(job);
+    } catch (e) { console.error(e); bad.push(f.name); }
+  }
+  save(); return { made, bad };
 }
 /* sheets → organisations + persons + one ★ form per organisation (existing forms are updated, not duplicated) */
 function fxImport(list) {
