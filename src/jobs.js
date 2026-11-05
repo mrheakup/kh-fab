@@ -40,7 +40,7 @@ function importQuotes(arr) {
     if (isNew) { job = { id: uid(), owner: S.me || '', kind: 'quote', qst: r.qst || 'sent', no: r.no, short: r.no.replace(/^\D+/, ''), customer: '', title: '', due: '', status: 'new', note: '', items: [], extra: [], est: null, act: { hours: '', kg: '', other: '' }, trace: [], log: [], created: r.date || today() }; S.jobs.push(job); jx(job); job.scope.stages = []; }
     else if (!job.quote.imported) { skip.push(r.no); return; }
     const q = job.quote; job.customer = r.customer || job.customer; job.title = r.title || job.title;
-    Object.assign(q, { no: r.no, date: r.date || q.date, valid: r.valid || q.valid, vat: r.vat != null ? r.vat : q.vat, fixedNet: +r.net || 0, lines: r.lines || [], imported: true, noCost: true, srcFolder: r.folder || '', srcFiles: r.files || [] });
+    Object.assign(q, { no: r.no, date: r.date || q.date, valid: r.valid || q.valid, vat: r.vat != null ? r.vat : q.vat, fixedNet: +r.net || 0, lines: r.lines || [], imported: true, noCost: true, lock: true, srcFolder: r.folder || '', srcFiles: r.files || [] });
     q.qf = Object.assign(qfDefaults(job), r.qf || {}, { mode: (r.lines || []).length ? 'fixed' : 'single' });
     { const ls = (r.lines || []).reduce((a, l) => a + (+l.p || 0) * (+l.q || 0), 0); if (ls > 0 && +r.net > 0 && ls - r.net > 1) q.qf.discount = Math.round(ls - r.net); if (ls > 0) q.fixedNet = 0; }   // lines are the quote; a lower total is a discount
     if (r.breakdown && r.breakdown.length) job.scope.desc = 'Задаргаа (Excel):\n' + r.breakdown.map(b => `• ${b.d} — ${b.q} ${b.u} × ${money(b.p)}`).join('\n');

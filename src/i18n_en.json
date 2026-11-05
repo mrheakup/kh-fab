@@ -3060,5 +3060,12 @@
 "Материал худалдан авах": "Material procurement",
 "Хүлээн авах, үзлэг (VIR)": "Receiving inspection (VIR)",
 "Үе шатаа гараар бичих шаардлагагүй": "No need to type the stages",
-"үе шат бөглөгдлөө — хүн, цагаа шалгана уу": "stages filled — check people and hours"
+"үе шат бөглөгдлөө — хүн, цагаа шалгана уу": "stages filled — check people and hours",
+"Саналын дүнг түгжих": "Lock the quote total",
+"Саналын дүн (түгжсэн)": "Quote total (locked)",
+"Өртөг (оруулсан зардал)": "Cost (entered)",
+"түгжсэн дүнгээс автоматаар бодогдоно": "calculated from the locked total",
+"Саналын дүн түгжигдсэн": "Quote total locked",
+"нэгж үнэ": "unit price",
+"ашиг": "profit"
 }

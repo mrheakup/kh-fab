@@ -108,6 +108,7 @@ function jx(job) {
     mats: [], cons: [], equipRows: [], other: [], spread: true, pay: 'Урьдчилгаа 50%, ажил хүлээлгэж өгөхөд 50%', delivery: '', note: '', contact: '' };
   { const q = job.quote;
     if (!q.rates) { q.rates = {}; const g = S.labRates || {}; LAB_TYPES.forEach(([id]) => { q.rates[id] = +g[id] || 0; }); }
+    if (q.imported && q.lock == null) q.lock = true;
     if (q.imported && !q._m27) { q._m27 = 1; const ls = (q.lines || []).reduce((a, l) => a + (l.src ? 0 : (+l.p || 0) * (+l.q || 0)), 0); if (ls > 0 && +q.fixedNet > 0 && ls - q.fixedNet > 1 && q.qf && !+q.qf.discount) q.qf.discount = Math.round(ls - q.fixedNet); }   // v1.27: priced lines are the quote, the Excel's lower total becomes a discount
     if (!q.mc) { const m = +q.margin || 0, mm = q._new ? m : (m > -100 ? m / (1 + m / 100) : 0); q.mc = {}; MCATS.forEach(([k]) => q.mc[k] = mm); q.margin = mm; delete q._new; } }
   if (!job.prog) job.prog = { exp: [] };
@@ -118,7 +119,10 @@ const qline = arr => (arr || []).reduce((a, r) => a + (+r.qty || 0) * (+r.price 
 /* a quotation line can carry its own costing (a child quote: «Drill box 1», «Drill box 2» …) */
 const qChild = l => l && l.src ? (S.jobs || []).find(j => j.id === l.src) || null : null;
 /* the line costing is for ONE unit: unit price = its price, line total = unit price × qty */
-function qLineP(l) { const ch = qChild(l); if (!ch) return +l.p || 0; let n = 0; try { n = quoteCalc(ch).net; } catch (e) { } return Math.round(n); }
+/* «🔒 Дүн түгжих»: the price agreed / sent to the customer stays; costing added later only changes the profit */
+const qLocked = job => !!(job && job.quote && job.quote.lock);
+function qLockPrice(child) { const P = child && child.parent ? findJob(child.parent) : null; if (!qLocked(P)) return null; const l = (P.quote.lines || []).find(x => x.src === child.id); return l && +l.p > 0 ? +l.p : null; }
+function qLineP(l) { const ch = qChild(l); if (!ch) return +l.p || 0; if (+l.p > 0 && qLocked(findJob(ch.parent))) return +l.p; let n = 0; try { n = quoteCalc(ch).net; } catch (e) { } return Math.round(n); }
 function quoteCalc(job) {
   jx(job); const q = job.quote, sc = job.scope, rate = (+q.rate || 0) * (+q.rateK || 1);
   const matKg = (q.mats || []).reduce((a, r) => a + (+r.qty || 0) * (+r.kgu || 0), 0), mat = qline(q.mats), scrap = mat * (+q.scrapPct || 0) / 100, trans = +q.trans || 0, cons = qline(q.cons);
@@ -136,13 +140,14 @@ function quoteCalc(job) {
   if (fixedM && !job.parent) q.lines.forEach(l => { const ch = qChild(l); if (!ch) return; const cc = quoteCalc(ch), n = +l.q || 1; Object.keys(cat).forEach(k => { cat[k] += (cc.cat[k] || 0) * n; }); cost += cc.cost * n; byCat += cc.net * n; });
   const fl = fixedM ? q.lines.reduce((a, l) => a + qLineP(l) * (+l.q || 0), 0) : 0;
   /* gross = what the lines add up to; the discount on the quotation form comes off it, so net = the printed «Total excluded VAT» */
-  const gross = fl > 0 ? fl : +q.fixedNet > 0 ? +q.fixedNet : byCat,   // priced lines are what gets printed, so they win over a typed total
+  const lockP = job.parent ? qLockPrice(job) : null;
+  const gross = lockP != null ? lockP : fl > 0 ? fl : +q.fixedNet > 0 ? +q.fixedNet : byCat,   // priced lines are what gets printed, so they win over a typed total
     linesSum = fl, disc = job.parent ? 0 : Math.max(0, +(q.qf && q.qf.discount) || 0), net = gross - disc, profit = net - cost;
-  if (+q.fixedNet > 0 || fl > 0) Object.keys(kc).forEach(k => kc[k] = cost > 0 ? gross / cost : 1);
+  if (lockP != null || +q.fixedNet > 0 || fl > 0) Object.keys(kc).forEach(k => kc[k] = cost > 0 ? gross / cost : 1);
   const vat = net * (+q.vat || 0) / 100, total = net + vat, k = cost > 0 ? net / cost : 1, marginPct = net ? profit / net * 100 : 0;
   const chg = (job.acc ? job.acc.changes : []).filter(c => c.ok).reduce((a, c) => a + (+c.cost || 0), 0);
   const budget = { mat: mat + scrap, cons, labor: laborTotal, equip, trans, other };
-  return { rate, matKg, mat, scrap, trans, cons, matTotal, labor, laborTotal, laborH, equipRows, equipPctV, equip, other, cost, net, profit, vat, total, k, kc, cat, price, marginPct, byCat, kids: kids.length, chg, budget, linesSum, gross, disc };
+  return { rate, matKg, mat, scrap, trans, cons, matTotal, labor, laborTotal, laborH, equipRows, equipPctV, equip, other, cost, net, profit, vat, total, k, kc, cat, price, marginPct, byCat, kids: kids.length, chg, budget, linesSum, gross, disc, locked: lockP != null || qLocked(job) };
 }
 function progCalc(job) {
   jx(job); const sc = job.scope, c = quoteCalc(job), exp = job.prog.exp;
@@ -327,12 +332,13 @@ function renderJQuote(el, job) {
       <div class="jgrid">${fldIn('q_equipPct', 'Тоног төхөөрөмжийн элэгдэл, % (материалаас)', q.equipPct, { num: 1 })}<div class="fld">Элэгдэл, ₮<div class="mono" style="padding:7px 0">${money(c.equipPctV)}</div></div></div>
     </div></div>
     <div class="jcard"><div class="bcard-h">E. Бусад зардал</div><div class="jbody">${edTable('qo', LINE_COLS, q.other, { foot: sumRow('Бусад зардлын дүн', c.other) })}</div></div>
-    <div class="jcard"><div class="bcard-h">Нийт зардлын дүгнэлт</div><div class="jbody">
-      <div class="jgrid">${fldIn('q_mall', 'Бүх ангилалд нэг margin, %', (() => { const v = MCATS.map(([k]) => +(q.mc || {})[k] || 0); return v.every(x => Math.abs(x - v[0]) < 1e-9) ? +v[0].toFixed(2) : ''; })(), { num: 1, ph: 'ангилал бүрт өөр' })}${fldIn('q_fixed', c.linesSum > 0 ? 'Шууд дүн — мөрүүдийн үнэ орсон тул ашиглагдахгүй' : 'Эсвэл саналын дүнг шууд оруулах (НӨАТ-гүй), ₮', c.linesSum > 0 ? '' : q.fixedNet || '', { num: 1, ph: c.linesSum > 0 ? 'мөрүүдийн нийлбэр ' + money(c.linesSum) : '0 = margin-аар' })}${fldIn('q_vat', 'НӨАТ, %', q.vat, { num: 1 })}
+    <div class="jcard"><div class="bcard-h">Нийт зардлын дүгнэлт <span class="sp"></span>${job.parent ? (c.locked ? `<span class="pill st-done" title="Үндсэн саналын мөрийн үнэ түгжигдсэн">🔒 нэгж үнэ ${money(c.net)} ₮</span>` : '') : `<label class="check" style="font-weight:500;font-size:13px" title="Захиалагчид өгсөн дүн хэвээр үлдэнэ; материал, consumable, хүч нэмэхэд зөвхөн ашиг өөрчлөгдөнө"><input type="checkbox" id="q_lock"${q.lock ? ' checked' : ''}><span>🔒 Саналын дүнг түгжих</span></label>`}</div><div class="jbody">
+      ${c.locked ? `<div class="lockbar"><div><small>Саналын дүн (түгжсэн)</small><b>${money(c.net)} ₮</b></div><div><small>Өртөг (оруулсан зардал)</small><b>${money(c.cost)} ₮</b></div><div><small>Ашиг</small><b class="${c.profit < 0 ? 'late' : ''}">${money(c.profit)} ₮</b></div><div><small>Margin</small><b class="${c.profit < 0 ? 'late' : ''}">${c.cost ? nf(c.marginPct, 1) + '%' : '—'}</b></div></div><p class="note">Зардал нэмэх, хасахад дээрх саналын дүн өөрчлөгдөхгүй — ашиг, margin, задаргааны мөр бүрийн үнэ (ашиг шингэсэн) өөрчлөгдөнө.${c.cost ? '' : ' Одоогоор зардал оруулаагүй тул ашиг = 100%.'}</p>` : ''}
+      <div class="jgrid">${c.locked ? '<div class="fld">Margin<div class="note" style="padding:6px 0">🔒 түгжсэн дүнгээс автоматаар бодогдоно</div></div>' : ''}${c.locked ? '' : fldIn('q_mall', 'Бүх ангилалд нэг margin, %', (() => { const v = MCATS.map(([k]) => +(q.mc || {})[k] || 0); return v.every(x => Math.abs(x - v[0]) < 1e-9) ? +v[0].toFixed(2) : ''; })(), { num: 1, ph: 'ангилал бүрт өөр' })}${fldIn('q_fixed', c.linesSum > 0 ? 'Шууд дүн — мөрүүдийн үнэ орсон тул ашиглагдахгүй' : 'Эсвэл саналын дүнг шууд оруулах (НӨАТ-гүй), ₮', c.linesSum > 0 ? '' : q.fixedNet || '', { num: 1, ph: c.linesSum > 0 ? 'мөрүүдийн нийлбэр ' + money(c.linesSum) : '0 = margin-аар' })}${fldIn('q_vat', 'НӨАТ, %', q.vat, { num: 1 })}
       <label class="check" style="align-self:end"><input type="checkbox" id="q_spread"${q.spread ? ' checked' : ''}><span>Ашгийг мөр бүрийн үнэд шингээх (захиалагчид өртөг харагдахгүй)</span></label></div>
       <p class="note">Margin = ашиг ÷ үнийн санал. 20% тавибал саналын 20% нь ашиг болно (өртөг ÷ 0.8).</p>
       <div class="tblwrap"><table class="dt mtab"><thead><tr><th>Зардлын ангилал</th><th class="r">Өртөг, ₮</th><th class="r">Margin, %</th><th class="r">Үнэ (НӨАТ-гүй), ₮</th><th class="r">Ашиг, ₮</th></tr></thead><tbody>
-        ${MCATS.map(([k, n], i) => `<tr><td>${i + 1}. ${n}</td><td class="r num">${money(c.cat[k])}</td><td class="r"><input type="number" step="any" class="inp mono mcin" data-mc="${k}" value="${+(+(q.mc || {})[k] || 0).toFixed(2)}"${+q.fixedNet > 0 ? ' disabled title="Саналын дүнг шууд оруулсан"' : ''}></td><td class="r num">${money(c.cat[k] * c.kc[k])}</td><td class="r num">${money(c.cat[k] * (c.kc[k] - 1))}</td></tr>`).join('')}
+        ${MCATS.map(([k, n], i) => `<tr><td>${i + 1}. ${n}</td><td class="r num">${money(c.cat[k])}</td><td class="r"><input type="number" step="any" class="inp mono mcin" data-mc="${k}" value="${c.locked ? (c.cat[k] ? +((1 - 1 / c.kc[k]) * 100).toFixed(1) : '') : +(+(q.mc || {})[k] || 0).toFixed(2)}"${+q.fixedNet > 0 || c.locked ? ` disabled title="${c.locked ? 'Саналын дүн түгжигдсэн — margin нь зардлаас бодогдоно' : 'Саналын дүнг шууд оруулсан'}"` : ''}></td><td class="r num">${money(c.cat[k] * c.kc[k])}</td><td class="r num">${money(c.cat[k] * (c.kc[k] - 1))}</td></tr>`).join('')}
         ${c.disc ? `<tr><td>Хөнгөлөлт (үнийн саналын маягт дээр)</td><td></td><td></td><td class="r num">−${money(c.disc)}</td><td class="r num">−${money(c.disc)}</td></tr>` : ''}
         <tr class="tot"><td>Нийт</td><td class="r num">${money(c.cost)}</td><td class="r num ${c.profit < 0 ? 'late' : ''}"><b>${nf(c.marginPct, 1)}%</b></td><td class="r num">${money(c.net)}</td><td class="r num ${c.profit < 0 ? 'late' : ''}">${money(c.profit)}</td></tr>
         <tr><td colspan="3" class="muted">Нийт margin ${nf(c.marginPct, 1)}% · өртөг дээр нэмсэн хувь (markup) ${c.cost ? nf(c.profit / c.cost * 100, 1) : 0}%</td><td></td><td></td></tr>
@@ -348,6 +354,7 @@ function renderJQuote(el, job) {
     if (!['no', 'date', 'delivery', 'pay', 'contact', 'note'].includes(k)) re();
   });
   el.querySelector('#q_spread').addEventListener('change', e => { q.spread = e.target.checked; save(); });
+  { const lk = el.querySelector('#q_lock'); if (lk) lk.addEventListener('change', () => { const c0 = quoteCalc(job); q.lock = lk.checked; if (q.lock && !(c0.linesSum > 0) && !(+q.fixedNet > 0)) { q.fixedNet = Math.round(c0.gross); q._lockFN = 1; } if (!q.lock && q._lockFN) { q.fixedNet = 0; delete q._lockFN; } if (q.lock) (q.lines || []).forEach(l => { if (qChild(l) && !(+l.p > 0)) l.p = qLineP(l); }); jobLog(q.lock ? `Саналын дүн түгжсэн: ${money(quoteCalc(job).net)} ₮` : 'Саналын дүнгийн түгжээ авсан', job); save(); re(); }); }
   { const ma = el.querySelector('#q_mall'); if (ma) ma.addEventListener('change', () => { if (ma.value === '') return; const v = +ma.value || 0; q.mc = q.mc || {}; MCATS.forEach(([k]) => q.mc[k] = v); q.margin = v; Object.assign(costDef(), { margin: v }); save(); re(); }); }
   el.querySelectorAll('[data-mc]').forEach(i => i.addEventListener('change', () => { q.mc = q.mc || {}; q.mc[i.dataset.mc] = +i.value || 0; save(); re(); }));
   { const d = el.querySelector('.lrates'); if (d) d.addEventListener('toggle', () => { J.lrOpen = d.open; }); }
