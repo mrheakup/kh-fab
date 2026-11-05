@@ -38,7 +38,20 @@ function invFill(i, job) {
 function invSync(i) { if (i.items && i.items.length) i.amount = invTotals(i).tot; }
 
 /* ---------- the INVOICE form (A4), drawn like the company's Excel invoice ---------- */
-async function invoiceImgs(i, KK) {
+/* stamp / signature picture: kept as PNG with transparency; a scan on white paper gets its white made see-through,
+   so the text under it shows like a real stamp */
+function stampPrep(file) {
+  return new Promise(res => { const u = URL.createObjectURL(file), im = new Image(); im.onload = () => {
+    const k = Math.min(1, 900 / Math.max(im.naturalWidth, im.naturalHeight)), c = document.createElement('canvas'); c.width = Math.max(1, Math.round(im.naturalWidth * k)); c.height = Math.max(1, Math.round(im.naturalHeight * k));
+    const x = c.getContext('2d'); x.drawImage(im, 0, 0, c.width, c.height); URL.revokeObjectURL(u);
+    try { const d = x.getImageData(0, 0, c.width, c.height), p = d.data; let hasA = false; for (let n = 3; n < p.length; n += 4) if (p[n] < 250) { hasA = true; break; }
+      if (!hasA) for (let n = 0; n < p.length; n += 4) { const lo = Math.min(p[n], p[n + 1], p[n + 2]); if (lo > 200) p[n + 3] = Math.round(Math.max(0, 255 - (lo - 200) * 255 / 40)); }   // white paper → transparent (soft edge)
+      x.putImageData(d, 0, 0); } catch (e) { }
+    res(c.toDataURL('image/png')); }; im.onerror = () => { URL.revokeObjectURL(u); res(''); }; im.src = u; });
+}
+/* where the stamp goes: centre offset (mm) from the «Invoiced by» line and its height; per invoice, new ones start from the last used */
+const stampPos = i => Object.assign({ dx: 3, dy: -1, h: 24 }, company().stampPos || {}, i.stampPos || {});
+async function invoiceImgs(i, KK, noStamp) {
   try { await document.fonts.ready; } catch (e) { } await logoImg();
   const C = company(), ST = docStyle('invoice'), W = 210, H = 297, K = KK || window.__docK || PRINT_K, L = 24, R = 186, BL = '#1270c0', F = QFS.F;
   const c = document.createElement('canvas'); c.__fs = docFs('invoice'); c.width = W * K; c.height = H * K; const x = c.getContext('2d'); x.scale(K, K); x.fillStyle = '#fff'; x.fillRect(0, 0, W, H);
@@ -79,8 +92,9 @@ async function invoiceImgs(i, KK) {
   T('Name: ' + (C.name || ''), L, y + 11, { s: 2.9 }); T('Register: ' + (C.reg || ''), L, y + 15, { s: 2.9 });
   // invoiced by (+ stamp / signature)
   y += 27; T('Invoiced by ….............................................', 105, y, { s: 2.9, a: 'center' });
-  if (i.stamp !== false && C.stamp) { const im = await imgLoad(C.stamp); if (im) { const h = 24, w = h * im.naturalWidth / im.naturalHeight; x.drawImage(im, 108 - w / 2, y - h / 2 - 1, w, h); } }
-  return [{ url: c.toDataURL('image/jpeg', 0.95), alias: 'inv' }];
+  const sp = stampPos(i), at = { cx: 105 + sp.dx, cy: y + sp.dy, h: sp.h, y0: y };
+  if (!noStamp && i.stamp !== false && C.stamp) { const im = await imgLoad(C.stamp); if (im) { const h = sp.h, w = h * im.naturalWidth / im.naturalHeight; x.drawImage(im, at.cx - w / 2, at.cy - h / 2, w, h); } }
+  return [{ url: c.toDataURL('image/jpeg', 0.95), alias: 'inv', stampAt: at }];
 }
 async function invOut(i, mode) {
   try { const imgs = await invoiceImgs(i), name = `${i.no || 'INV'} - ${(i.bill && i.bill.company) || 'Customer'} - Invoice`; if (mode === 'print') printImgs(imgs, false, 'a4', name); else pdfImgs(imgs, false, name); }
@@ -130,9 +144,23 @@ function renderInvTab(el) {
         <label class="check" style="margin-top:8px"><input type="checkbox" id="iv_stamp"${i.stamp !== false ? ' checked' : ''}><span>Тамга, гарын үсгийн зураг тавих${company().stamp ? '' : ' — зураг оруулаагүй'}</span></label> <button class="btn sm ghost" id="ivStampPick" type="button">${company().stamp ? 'Тамга/гарын үсэг солих' : '+ Тамга/гарын үсгийн зураг'}</button>${company().stamp ? '<button class="btn sm ghost" id="ivStampDel" type="button">Хасах</button>' : ''}
       </div></div>
       <div class="jcard"><div class="bcard-h">Төлбөр <span class="sp"></span><button class="btn sm" id="ivPay">+ Төлбөр</button></div><div class="jbody">${(i.pays || []).length ? `<ul class="fmlog">${i.pays.map((p, k) => `<li><span class="num">${esc(p.date)}</span> · ${money(p.amount)} ₮ <button class="linkbtn" data-ivpx="${k}">✕</button></li>`).join('')}</ul>` : '<p class="note">Төлбөр бүртгээгүй.</p>'}<p class="note">Төлсөн ${money(invPaid(i))} ₮ · үлдэгдэл ${money(Math.max(0, (+i.amount || 0) - invPaid(i)))} ₮${i.imp ? ' · Excel-ээс оруулсан нэхэмжлэх авлагад тооцогдохгүй' : ''}</p>${i.imp ? '<label class="check"><input type="checkbox" id="iv_imp" checked><span>Түүх (авлагад тооцохгүй)</span></label>' : ''}</div></div>
-    </div><div><div class="dlprev" title="Дарж томруулна"><img id="ivImg" alt="INVOICE"></div></div></div>`;
+    </div><div><div class="dlprev" title="Дарж томруулна" style="position:relative"><img id="ivImg" alt="INVOICE"><img id="ivStampOv" class="stov" alt="" hidden title="Чирж байрлуулна · хулганы дугуйгаар томруулна/жижигрүүлнэ"></div>${company().stamp && i.stamp !== false ? `<div class="addrow" style="justify-content:center;gap:8px"><span class="note">Тамгыг зураг дээр чирж байрлуулна.</span><label class="note">Хэмжээ <input type="range" id="ivStH" min="10" max="60" step="1" value="${stampPos(i).h}" style="vertical-align:middle"></label><button class="btn sm ghost" id="ivStReset" type="button">Анхны байрлал</button></div>${/^data:image\/jpeg/.test(company().stamp) ? '<p class="note late" style="text-align:center">⚠ Хуучин тамганы зураг ар талгүй (хар дэвсгэртэй) хадгалагдсан байна — «Тамга/гарын үсэг солих»-оор дахин оруулна уу.</p>' : ''}` : ''}</div></div>`;
   const img = el.querySelector('#ivImg'); let tm = 0;
-  const refresh = () => { clearTimeout(tm); tm = setTimeout(() => invoiceImgs(i, 3).then(im => { if (img.isConnected) img.src = im[0].url; }).catch(() => { }), 200); };
+  const ov = el.querySelector('#ivStampOv'), showOv = !!(company().stamp && i.stamp !== false); let AT = null;
+  const place = () => { if (!ov || !AT || !showOv || !img.clientWidth) return; const k = img.clientWidth / 210, sp = stampPos(i), r = ov.naturalWidth && ov.naturalHeight ? ov.naturalWidth / ov.naturalHeight : 1, h = sp.h * k, w = h * r; ov.style.height = h + 'px'; ov.style.width = w + 'px'; ov.style.left = (img.offsetLeft + (105 + sp.dx) * k - w / 2) + 'px'; ov.style.top = (img.offsetTop + (AT.y0 + sp.dy) * k - h / 2) + 'px'; ov.hidden = false; };
+  const refresh = () => { clearTimeout(tm); tm = setTimeout(() => invoiceImgs(i, 3, showOv).then(im => { if (!img.isConnected) return; AT = im[0].stampAt; img.onload = place; img.src = im[0].url; }).catch(() => { }), 200); };
+  if (ov && showOv) {
+    ov.src = company().stamp; ov.onload = place; window.addEventListener('resize', place);
+    const keep = p => { i.stampPos = p; const C2 = company(); C2.stampPos = Object.assign({}, p); S.company = C2; save(); };
+    ov.addEventListener('click', e => e.stopPropagation());
+    ov.addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); ov.setPointerCapture(e.pointerId); const k = img.clientWidth / 210, s0 = stampPos(i), X0 = e.clientX, Y0 = e.clientY;
+      const mv = ev => { i.stampPos = Object.assign({}, s0, { dx: Math.round((s0.dx + (ev.clientX - X0) / k) * 10) / 10, dy: Math.round((s0.dy + (ev.clientY - Y0) / k) * 10) / 10 }); place(); };
+      const up = () => { ov.removeEventListener('pointermove', mv); ov.removeEventListener('pointerup', up); keep(stampPos(i)); };
+      ov.addEventListener('pointermove', mv); ov.addEventListener('pointerup', up); });
+    ov.addEventListener('wheel', e => { e.preventDefault(); const s0 = stampPos(i), h = Math.max(10, Math.min(60, s0.h + (e.deltaY < 0 ? 1 : -1))); keep(Object.assign({}, s0, { h })); const r = el.querySelector('#ivStH'); if (r) r.value = h; place(); }, { passive: false });
+    const hr = el.querySelector('#ivStH'); if (hr) hr.addEventListener('input', () => { i.stampPos = Object.assign({}, stampPos(i), { h: +hr.value }); place(); }), hr.addEventListener('change', () => keep(stampPos(i)));
+    const rs = el.querySelector('#ivStReset'); if (rs) rs.addEventListener('click', () => { const p = { dx: 3, dy: -1, h: 24 }; keep(p); if (hr) hr.value = 24; place(); });
+  }
   const re = () => { invSync(i); save(); renderInvSide(); renderInvTab(el); if (o.job && typeof renderJList === 'function') { } };
   [['iv_no', 'no'], ['iv_date', 'date'], ['iv_due', 'due'], ['iv_po', 'po'], ['iv_terms', 'terms'], ['iv_comment', 'comment']].forEach(([id, k]) => el.querySelector('#' + id).addEventListener('change', e => { i[k] = e.target.value; save(); renderInvSide(); refresh(); }));
   el.querySelector('#iv_vat').addEventListener('change', e => { i.vat = +e.target.value || 0; re(); });
@@ -143,7 +171,7 @@ function renderInvTab(el) {
   el.querySelector('#ivAddL').addEventListener('click', () => { i.items.push({ d: '', q: 1, p: 0 }); re(); });
   const fq = el.querySelector('#ivFromQ'); if (fq) fq.addEventListener('click', () => { try { const L = qfLines(o.job); if (L.length) { i.items = L.map(l => ({ d: l.d, q: l.q, p: Math.round(l.p) })); re(); toast('Үнийн саналын мөрүүд орлоо'); } } catch (e) { toast('Үнийн саналын мөр алга'); } });
   el.querySelector('#iv_stamp').addEventListener('change', e => { i.stamp = e.target.checked; save(); refresh(); });
-  el.querySelector('#ivStampPick').addEventListener('click', () => { const f = document.createElement('input'); f.type = 'file'; f.accept = 'image/*'; f.onchange = async () => { const file = f.files[0]; if (!file) return; const C2 = company(); C2.stamp = await imgThumb(file, 900); S.company = C2; save(); renderInvTab(el); toast('Тамга / гарын үсгийн зураг хадгалагдлаа — бүх нэхэмжлэхэд гарна'); }; f.click(); });
+  el.querySelector('#ivStampPick').addEventListener('click', () => { const f = document.createElement('input'); f.type = 'file'; f.accept = 'image/*'; f.onchange = async () => { const file = f.files[0]; if (!file) return; const C2 = company(); C2.stamp = await stampPrep(file); S.company = C2; save(); renderInvTab(el); toast('Тамга / гарын үсгийн зураг хадгалагдлаа — бүх нэхэмжлэхэд гарна'); }; f.click(); });
   const sd = el.querySelector('#ivStampDel'); if (sd) sd.addEventListener('click', () => { const C2 = company(); delete C2.stamp; S.company = C2; save(); renderInvTab(el); });
   el.querySelector('#ivPay').addEventListener('click', () => { const left = (+i.amount || 0) - invPaid(i); const v = prompt(`Төлбөрийн дүн, ₮ (үлдэгдэл ${money(left)}):`, String(Math.max(0, left))); if (v == null) return; const amt = +String(v).replace(/[^\d.]/g, ''); if (!amt) return; const d = prompt('Төлсөн огноо (YYYY-MM-DD):', today()) || today(); (i.pays = i.pays || []).push({ date: d, amount: amt }); if (o.job) jobLog(`Төлбөр орсон: ${money(amt)} ₮ (${i.no})`, o.job); re(); });
   el.querySelectorAll('[data-ivpx]').forEach(b => b.addEventListener('click', () => { i.pays.splice(+b.dataset.ivpx, 1); re(); }));

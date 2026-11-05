@@ -3067,5 +3067,9 @@
 "түгжсэн дүнгээс автоматаар бодогдоно": "calculated from the locked total",
 "Саналын дүн түгжигдсэн": "Quote total locked",
 "нэгж үнэ": "unit price",
-"ашиг": "profit"
+"ашиг": "profit",
+"Тамгыг зураг дээр чирж байрлуулна.": "Drag the stamp on the picture to place it.",
+"Анхны байрлал": "Default position",
+"Чирж байрлуулна": "Drag to place",
+"хулганы дугуйгаар томруулна/жижигрүүлнэ": "mouse wheel to resize"
 }
