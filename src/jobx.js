@@ -231,8 +231,14 @@ function renderJobSub(el, job) {
   if (J.sub === 'scope') renderScope(el, job); else if (J.sub === 'quote') renderJQuote(el, job); else if (J.sub === 'prog') renderProg(el, job); else renderAcc(el, job);
   bindSubBar(el);
   el.querySelectorAll('[data-out]').forEach(b => b.addEventListener('click', () => jobDocOut(job, b.dataset.doc, b.dataset.out)));
+  el.querySelectorAll('[data-dl]').forEach(b => b.addEventListener('click', () => { costDef().docLang = b.dataset.dl; save(); el.querySelectorAll('[data-dl]').forEach(x => x.classList.toggle('on', x === b)); toast(b.dataset.dl === 'en' ? 'Задаргаа, дотоод тооцоо англиар гарна' : 'Задаргаа, дотоод тооцоо монголоор гарна'); }));
 }
-function jobDocOut(job, id, mode) {
+/* the detailed quotation and the internal costing can be made in English while the program stays in Mongolian */
+const qDocLang = () => (costDef().docLang || 'en');
+const docNm = l => (window.__docEn || LANG === 'en') && l.en ? l.en : l.name;
+async function jobDocOut(job, id, mode) {
+  const en = ['quote', 'cost'].includes(id) && qDocLang() === 'en';
+  if (en) { const EB = { quote: [quoteDoc, 'Quotation breakdown'], cost: [costDoc, 'Internal costing'] }[id]; window.__docEn = true; try { await docOut(mode, () => EB[0](job), `${job.no} ${EB[1]}`); } finally { window.__docEn = false; } if (mode === 'pdf') jobLog(`${EB[1]} PDF (EN) гаргасан`, job); return; }
   const B = { scope: [scopeDoc, 'Scope_хуваарь'], quote: [quoteDoc, 'Үнийн_санал'], cost: [costDoc, 'Зардлын_тооцоо'], prog: [progDoc, 'Явцын_тайлан'], acc: [accDoc, 'Хүлээн_авалтын_акт'] }[id];
   if (!B) return; docOut(mode, () => B[0](job), `${job.no}_${B[1]}`); if (mode === 'pdf') jobLog(`${B[1].replace(/_/g, ' ')} PDF гаргасан`, job);
 }
@@ -304,7 +310,7 @@ function renderJQuote(el, job) {
   const q = job.quote, c = quoteCalc(job), sc = job.scope;
   const sumRow = (label, v, ex = 0) => `<tr class="tot"><td></td><td colspan="${4 + ex}">${label}</td><td class="r num">${money(v)}</td><td colspan="2"></td></tr>`;
   el.innerHTML = `${jobSubBar(job)}${srcFolderHTML(job)}
-    <div class="exports">${outBtns('quote', 'Дэлгэрэнгүй задаргаа')}${outBtns('cost', 'Дотоод тооцоо')}<span class="sp" style="flex:1"></span><button class="btn" id="qFromNest"${job.est ? '' : ' disabled title="Ажлыг өрөлтөд ачаалж өрнө үү"'}>Өрөлтөөс материал, зүсэлт</button></div>
+    <div class="exports">${outBtns('quote', 'Дэлгэрэнгүй задаргаа')}${outBtns('cost', 'Дотоод тооцоо')}<span class="seg notr" id="qDocLang" title="Дэлгэрэнгүй задаргаа, дотоод тооцооны PDF-ийн хэл"><button type="button" data-dl="en"${qDocLang() === 'en' ? ' class="on"' : ''}>EN</button><button type="button" data-dl="mn"${qDocLang() === 'mn' ? ' class="on"' : ''}>МН</button></span><span class="sp" style="flex:1"></span><button class="btn" id="qFromNest"${job.est ? '' : ' disabled title="Ажлыг өрөлтөд ачаалж өрнө үү"'}>Өрөлтөөс материал, зүсэлт</button></div>
     <div class="summary">${[['Материал + consumable', money(c.matTotal)], ['Ажиллах хүч', money(c.laborTotal), `${nf(c.laborH, 0)} цаг × ${money(c.rate)}`], ['Тоног, үйлчилгээ', money(c.equip)], ['Өртөг', money(c.cost)], (q.noCost && !c.cost ? ['Ашиг', '—', 'Excel-ээс оруулсан — өртөг оруулаагүй'] : ['Ашиг', money(c.profit), c.net ? nf(c.profit / c.net * 100, 1) + '%' : '']), ['Санал (НӨАТ-гүй)', money(c.net)], ['Нийт (НӨАТ-тай)', money(c.total)]].map(s => `<div class="stat"><div class="k">${s[0]}</div><div class="v">${s[1]}<small>₮</small></div><div class="s">${s[2] || ''}</div></div>`).join('')}</div>
     ${job.parent ? qChildCardHTML(job) : qfCardHTML(job)}
     <div class="jcard"><div class="bcard-h">Саналын мэдээлэл</div><div class="jbody"><div class="jgrid">
@@ -508,7 +514,7 @@ async function quoteDoc(job) {
   k = K('labor'); if (c.laborTotal) {
     D.h2(sec('Ажиллах хүч'));
     D.table([{ t: '№', w: 8, m: 1 }, { t: 'Үе шат' }, { t: 'Хүн', w: 14, a: 'r', m: 1 }, { t: 'Нийт цаг', w: 20, a: 'r', m: 1 }, { t: 'Ц/х, ₮', w: 24, a: 'r', m: 1 }, { t: 'Дүн, ₮', w: 28, a: 'r', m: 1 }],
-      c.labor.filter(l => l.cost).map((l, i) => [i + 1, l.name, l.people, nf(l.h, 1), money(l.rate * k), money(l.cost * k)]).concat([{ bold: 1, fill: DC.soft, cells: ['', 'Ажиллах хүчний дүн', '', nf(c.laborH, 1), '', money(c.laborTotal * k)] }]));
+      c.labor.filter(l => l.cost).map((l, i) => [i + 1, docNm(l), l.people, nf(l.h, 1), money(l.rate * k), money(l.cost * k)]).concat([{ bold: 1, fill: DC.soft, cells: ['', 'Ажиллах хүчний дүн', '', nf(c.laborH, 1), '', money(c.laborTotal * k)] }]));
   }
   k = K('equip'); const erows = lineRows(q.equipRows); if (c.equipPctV) erows.push(['', `Тоног төхөөрөмжийн элэгдэл (${q.equipPct}%)`, '', '', '', money(c.equipPctV * k)]);
   if (erows.length) { D.h2(sec('Тоног төхөөрөмж, үйлчилгээ')); D.table(lineCols, erows.concat([tot('Тоног, үйлчилгээний дүн', c.equip)])); }
@@ -533,9 +539,9 @@ async function costDoc(job) {
   D.h2('A. Материал & худалдан авалт');
   D.table(cols, rows(q.mats).concat([T('Материалын дүн', c.mat), ['', '+ Тээвэр / хүргэлт', '', '', '', money(c.trans), ''], ['', `+ Хаягдал нөөц (${q.scrapPct}%)`, '', '', '', money(c.scrap), ''], ['', '+ Consumable', '', '', '', money(c.cons), ''], T('Материалын нийт дүн', c.matTotal)]));
   if (q.cons.length) { D.h2('Consumable задаргаа'); D.table(cols, rows(q.cons).concat([T('Consumable дүн', c.cons)])); }
-  D.h2('B. Ажиллах хүчний тооцоолол', `үндсэн цагийн хөлс ${money(q.rate)} × ${q.rateK} = ${money(c.rate)} ₮ · төрөл бүрийн хөлс мөр бүрт`);
+  D.h2('B. Ажиллах хүчний тооцоолол', (window.__docEn ? `base hourly rate ${money(q.rate)} × ${q.rateK} = ${money(c.rate)} ₮ · each labour type at its own rate` : `үндсэн цагийн хөлс ${money(q.rate)} × ${q.rateK} = ${money(c.rate)} ₮ · төрөл бүрийн хөлс мөр бүрт`));
   D.table([{ t: '№', w: 8, m: 1 }, { t: 'Үе шатны нэр' }, { t: 'Хүн', w: 14, a: 'r', m: 1 }, { t: 'Нэг хүний цаг', w: 22, a: 'r', m: 1 }, { t: 'Нийт цаг', w: 18, a: 'r', m: 1 }, { t: 'Ц/х, ₮', w: 22, a: 'r', m: 1 }, { t: 'Нийт цалин, ₮', w: 28, a: 'r', m: 1 }],
-    c.labor.map((l, i) => [i + 1, l.name + (l.rt ? ' · ' + labTypeName(l.rt) : ''), l.people, l.hours, nf(l.h, 1), money(l.rate), money(l.cost)]).concat([{ bold: 1, fill: DC.soft, cells: ['', 'Хүчний нийт дүн', '', '', nf(c.laborH, 1), '', money(c.laborTotal)] }]));
+    c.labor.map((l, i) => [i + 1, docNm(l) + (l.rt ? ' · ' + (window.__docEn ? (LAB_TYPES.find(t => t[0] === l.rt) || [, , ''])[2] : labTypeName(l.rt)) : ''), l.people, l.hours, nf(l.h, 1), money(l.rate), money(l.cost)]).concat([{ bold: 1, fill: DC.soft, cells: ['', 'Хүчний нийт дүн', '', '', nf(c.laborH, 1), '', money(c.laborTotal)] }]));
   if (q.equipRows.length || c.equipPctV) { D.h2('Тоног төхөөрөмж, үйлчилгээ'); D.table(cols, rows(q.equipRows).concat([['', `Элэгдэл (${q.equipPct}% материалаас)`, '', '', '', money(c.equipPctV), ''], T('Тоног, үйлчилгээний дүн', c.equip)])); }
   if (q.other.length) { D.h2('Бусад зардал'); D.table(cols, rows(q.other).concat([T('Бусад дүн', c.other)])); }
   D.h2('Margin ангиллаар');

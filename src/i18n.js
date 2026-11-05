@@ -28,7 +28,7 @@ function trForce(s) {
 }
 const tr = s => LANG === 'en' ? trForce(s) : s;
 /* documents: never print half-translated text (user-typed Mongolian stays as typed) */
-const trDoc = s => { if (LANG !== 'en' || typeof s !== 'string') return s; const v = trForce(s); return v !== s && TR_CYR.test(v) ? s : v; };
+const trDoc = s => { if ((LANG !== 'en' && !window.__docEn) || typeof s !== 'string') return s; const v = trForce(s); return v !== s && TR_CYR.test(v) ? s : v; };
 
 /* ---- DOM: translate text nodes and a few attributes; originals are kept so МН can be restored ---- */
 const TR_ORIG = new WeakMap(), TR_OUT = new WeakMap(), TR_ATTRS = ['placeholder', 'title', 'aria-label'];
