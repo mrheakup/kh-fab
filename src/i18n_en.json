@@ -3071,5 +3071,8 @@
 "Тамгыг зураг дээр чирж байрлуулна.": "Drag the stamp on the picture to place it.",
 "Анхны байрлал": "Default position",
 "Чирж байрлуулна": "Drag to place",
-"хулганы дугуйгаар томруулна/жижигрүүлнэ": "mouse wheel to resize"
+"хулганы дугуйгаар томруулна/жижигрүүлнэ": "mouse wheel to resize",
+"Стандартаар бөглөх": "Fill by the standard",
+"Автомат — ажил өөрчлөгдөхөд дагаж шинэчлэгдэнэ": "Auto — follows the job when it changes",
+"Included / Excluded стандартаар бөглөгдлөө": "Included / Excluded filled by the standard"
 }

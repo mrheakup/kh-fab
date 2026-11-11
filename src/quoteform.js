@@ -12,9 +12,44 @@ const CO_MN = { prepLbl: 'Боловсруулсан:', apprLbl: 'Хянаж, з
 const QF_NOTE = 'This quotation may be subject to revision in the event of any variation or modification to the scope of work, including but not limited to additional engineering drawings or fabrication services.';
 /* standard «Quote included / excluded» clauses. A line starting with "- " is a sub-item. */
 const QF_CLAUSES = {
-  incl: ['Engineering drawing', 'Finite Element Analysis (FEA)', 'Material (Fiber laser cutting for preparation)', 'Destructive Test (Material chemical composition and Mechanical property test)', "Steel fabrication is in accordance with customer's specs", 'Fabrication welding and cleaning', 'Internal Non-Destructive Testing (NDT)', '- Visual Inspection - 100%', '- Magnetic particle test - 25%', '- Ultrasonic test - 10%', 'Proof load test', 'Sandblasting is in accordance with specs (125 micron)', 'Painting', 'Manufacturers Data Record (MDR)', '- Material certificates', '- Weld traceability maps', '- Welding procedures', '- Welder qualifications', '- Welding supervisor qualifications', '- Dimensional inspection reports', '- Inspection Test Plans (ITPs)', '- Painting reports', '- Packing list reports', 'All consumables required for the work are included in the quoted price.', 'Packing (wooden pallet, film)', "Delivery to customer's warehouse (Ulaanbaatar)"],
+  incl: ['Engineering drawing', 'Finite Element Analysis (FEA)', 'Material (Fiber laser cutting for preparation)', 'Destructive Test (Material chemical composition and Mechanical property test)', "Steel fabrication is in accordance with customer's specs", 'Fabrication welding and cleaning', 'Bending', 'Machining', 'Line boring', 'Repair work as per agreed scope', 'Internal Non-Destructive Testing (NDT)', '- Visual Inspection - 100%', '- Magnetic particle test - 25%', '- Ultrasonic test - 10%', 'Proof load test', 'Sandblasting is in accordance with specs (125 micron)', 'Painting', 'Manufacturers Data Record (MDR)', '- Material certificates', '- Weld traceability maps', '- Welding procedures', '- Welder qualifications', '- Welding supervisor qualifications', '- Dimensional inspection reports', '- Inspection Test Plans (ITPs)', '- Painting reports', '- Packing list reports', 'All consumables required for the work are included in the quoted price.', 'Packing (wooden pallet, film)', "Delivery to customer's warehouse (Ulaanbaatar)", 'Site installation'],
   excl: ['Engineering drawing and FEA', '3rd party NDT / inspection', 'Machining and line boring', 'Sandblasting and painting', 'Site installation', 'Freight outside Ulaanbaatar', 'Customer-supplied materials and parts', 'Overtime and weekend work', 'Any work outside the agreed scope', 'Bending and rolling', 'Heat treatment (PWHT)']
 };
+/* «Quote included / excluded» by the standard, from what THIS job really has (job types, scope stages, costing rows),
+   instead of the whole process list of a template */
+const QF_CL_MN = { 'Engineering drawing': 'Инженерийн зураг төсөл', 'Finite Element Analysis (FEA)': 'Хүч чадлын тооцоо (FEA)', 'Material (Fiber laser cutting for preparation)': 'Материал (лазер зүсэлтээр бэлтгэл)', 'Material': 'Материал',
+  'Destructive Test (Material chemical composition and Mechanical property test)': 'Эвдэх сорил (материалын хими, механик шинж чанар)', "Steel fabrication is in accordance with customer's specs": 'Ган хийцийг захиалагчийн техникийн шаардлагын дагуу үйлдвэрлэнэ', 'Fabrication welding and cleaning': 'Гагнуур, цэвэрлэгээ',
+  'Bending': 'Нугалалт', 'Machining': 'Механик боловсруулалт (токар, фрезер)', 'Line boring': 'Цооног уйтлах (line boring)', 'Repair work as per agreed scope': 'Тохиролцсон хүрээнд засварын ажил',
+  'Internal Non-Destructive Testing (NDT)': 'Дотоод эвдэлгүй сорил (NDT)', '- Visual Inspection - 100%': '- Нүдэн үзлэг - 100%', '- Magnetic particle test - 25%': '- Соронзон нунтгийн сорил (MT) - 25%', '- Ultrasonic test - 10%': '- Хэт авианы сорил (UT) - 10%',
+  'Proof load test': 'Ачааллын сорил', 'Sandblasting is in accordance with specs (125 micron)': 'Элсэн цэвэрлэгээ шаардлагын дагуу (125 микрон)', 'Painting': 'Будаг', 'Manufacturers Data Record (MDR)': 'Үйлдвэрлэлийн баримт бичиг (MDR)',
+  '- Material certificates': '- Материалын сертификат', '- Weld traceability maps': '- Гагнуурын мөшгөлтийн зураг', '- Welding procedures': '- Гагнуурын технологи (WPS)', '- Welder qualifications': '- Гагнуурчны мэргэшил', '- Dimensional inspection reports': '- Хэмжээсийн шалгалтын тайлан', '- Inspection Test Plans (ITPs)': '- Хяналт сорилын төлөвлөгөө (ITP)', '- Painting reports': '- Будгийн тайлан', '- Packing list reports': '- Packing list',
+  'All consumables required for the work are included in the quoted price.': 'Ажилд шаардлагатай туслах материал үнэд багтсан.', 'Packing (wooden pallet, film)': 'Савлагаа (модон тавиур, хальс)', "Delivery to customer's warehouse (Ulaanbaatar)": 'Захиалагчийн агуулах хүртэл хүргэлт (Улаанбаатар)', 'Site installation': 'Газар дээрх угсралт',
+  'Engineering drawing and FEA': 'Инженерийн зураг, FEA', '3rd party NDT / inspection': 'Гуравдагч талын NDT / хяналт', 'Machining and line boring': 'Механик боловсруулалт, line boring', 'Sandblasting and painting': 'Элсэн цэвэрлэгээ, будаг', 'Freight outside Ulaanbaatar': 'Улаанбаатараас гадуурх тээвэр', 'Bending and rolling': 'Нугалалт, булуулалт', 'Any work outside the agreed scope': 'Тохиролцсон хүрээнээс гадуурх ажил', 'Heat treatment (PWHT)': 'Дулааны боловсруулалт (PWHT)' };
+function qfStdClauses(job) {
+  jx(job); const q = job.quote, sc = job.scope, ops = job.ops || [], f = q.qf || {}, MN = f.lang === 'mn';
+  const st = (sc.stages || []).filter(s => String(s.name || '').trim()), rt = new Set(st.map(s => s.rt));
+  const rowsTxt = [...(q.mats || []), ...(q.cons || []), ...(q.equipRows || []), ...(q.other || []), ...(q.lines || [])].map(r => (r.name || r.d || '')).join(' | ').toLowerCase();
+  const has = re => st.some(s => re.test(s.name + ' ' + (s.en || ''))) || re.test(rowsTxt);
+  const eng = rt.has('eng') || has(/зураг|drawing/i), fea = has(/fea|хүч чадал/i), laser = ops.includes('laser') || has(/лазер|laser/i);
+  const weld = ops.includes('weld') || rt.has('weld') || rt.has('fit') || has(/гагнуур|weld|хийцлэл|fabricat/i), bend = ops.includes('bend') || has(/нугал|bend/i);
+  const mach = ops.includes('mach') || rt.has('lathe') || rt.has('mill') || has(/токар|фрезер|machin|lathe/i), bore = ops.includes('bore') || has(/line bor|уйтлах/i), repair = ops.includes('repair');
+  const ndt = ops.includes('ndt') || rt.has('qc') || has(/ndt|чанарын хяналт|qc/i), mt = has(/\bmt\b|соронз|magnetic/i), ut = has(/\but\b|хэт авиа|ultrason/i), load = has(/load test|ачааллын сорил/i);
+  const blast = ops.includes('blast') || has(/элс|blast/i), paint = has(/будаг|paint/i) || ops.includes('blast'), pack = has(/савлагаа|pack/i), site = ops.includes('site') || has(/угсралт.*газар|site install|газар дээр/i);
+  const deliv = +q.trans > 0 || pack || has(/хүргэлт|тээвэр|deliver|freight/i), dt = has(/destructive|эвдэх сорил|tensile|chemical/i), tp = has(/3rd party|гуравдагч/i);
+  const I = [], E = [];
+  if (eng) I.push('Engineering drawing'); if (fea) I.push('Finite Element Analysis (FEA)');
+  if ((q.mats || []).length || laser) I.push(laser ? 'Material (Fiber laser cutting for preparation)' : 'Material'); if (dt) I.push('Destructive Test (Material chemical composition and Mechanical property test)');
+  if (weld) I.push("Steel fabrication is in accordance with customer's specs", 'Fabrication welding and cleaning'); if (bend) I.push('Bending'); if (mach) I.push('Machining'); if (bore) I.push('Line boring'); if (repair) I.push('Repair work as per agreed scope');
+  if (ndt) { I.push('Internal Non-Destructive Testing (NDT)', '- Visual Inspection - 100%'); if (mt) I.push('- Magnetic particle test - 25%'); if (ut) I.push('- Ultrasonic test - 10%'); }
+  if (load) I.push('Proof load test'); if (blast) I.push('Sandblasting is in accordance with specs (125 micron)'); if (paint) I.push('Painting');
+  if (ndt) { I.push('Manufacturers Data Record (MDR)', '- Material certificates'); if (weld) I.push('- Weld traceability maps', '- Welding procedures', '- Welder qualifications'); I.push('- Dimensional inspection reports'); if (paint) I.push('- Painting reports'); if (pack) I.push('- Packing list reports'); }
+  I.push('All consumables required for the work are included in the quoted price.'); if (pack) I.push('Packing (wooden pallet, film)'); if (deliv) I.push("Delivery to customer's warehouse (Ulaanbaatar)"); if (site) I.push('Site installation');
+  if (!eng && !fea) E.push('Engineering drawing and FEA'); if (!tp) E.push('3rd party NDT / inspection'); if (!mach && !bore) E.push('Machining and line boring'); if (!blast && !paint) E.push('Sandblasting and painting');
+  if (!site) E.push('Site installation'); E.push('Freight outside Ulaanbaatar'); if (weld && !bend) E.push('Bending and rolling'); E.push('Any work outside the agreed scope');
+  const tr = a => MN ? a.map(t => QF_CL_MN[t] || t) : a; return { incl: tr(I).join('\n'), excl: tr(E).join('\n') };
+}
+/* while «auto» is on (new quotes), the clauses follow the job; any hand edit turns it off */
+function qfClAuto(job) { const f = job.quote && job.quote.qf; if (!f || !f.clAuto) return false; const n = qfStdClauses(job); if (f.incl === n.incl && f.excl === n.excl) return false; f.incl = n.incl; f.excl = n.excl; return true; }
 const qfClauses = () => (S.qfClauses = S.qfClauses || { incl: [], excl: [] });
 const company = () => (S.company = Object.assign({}, CO_DEF, S.company || {}));
 const QFS = { fill: '#d9e1f2', line: '#000', purple: '#7030a0', blue: '#4472c4', link: '#0563c1', F: '"Times New Roman", Times, "Liberation Serif", serif' };
@@ -26,6 +61,7 @@ function qfDefaults(job) {
   q.qf = { custId: '', rfqName: job.title || '', rfqNo: 'N/A', person: '', email: '', phone: '', address: '', lead: '', delivery: "Kh will delivery customer's WHS", pay: '100% after work completion', discount: 0, mode: 'single', note: QF_NOTE,
     incl: (sc.incl ? sc.incl.split(/\n|;/) : []).map(s => s.trim()).filter(Boolean).join('\n') || 'All consumables required for the work are included in the quoted price.', excl: (sc.excl || '').split(/\n|;/).map(s => s.trim()).filter(Boolean).join('\n'), title: job.title || '' };
   if (job.customer) formAuto(q.qf, job.customer);
+  q.qf.clAuto = true; { const n = qfStdClauses(job); q.qf.incl = n.incl; q.qf.excl = n.excl; }   // by the standard, from this job — not the template's full process list
   return q.qf;
 }
 /* line items for the form, net of VAT, margin spread so the sum = offer */
@@ -241,6 +277,7 @@ function qfCardHTML(job) {
           <div class="addrow"><button class="btn sm" id="bdAdd" type="button">+ Мөр</button><button class="btn sm ghost" id="bdFill" type="button" ${auto.length ? '' : 'disabled'}>Тооцооноос бөглөх</button>${R.length ? '<button class="btn sm ghost" id="bdClr" type="button">Цэвэрлэх (автомат руу)</button>' : ''}<span class="note ${Math.abs(sub - tot) > 1 && sub ? 'late' : ''}">Задаргааны нийлбэр ${n0(sub)} ₮ · саналын дүн ${n0(tot)} ₮</span></div>
           <datalist id="dl-bd">${['Engineering drawing', 'Finite Element Analysis (FEA)', 'Drawing and FEA', 'Material', 'Consumable', 'Labour cost', 'Machining cost', 'Linebore', '3rd Party NDT', 'Freight', 'QA/QC', 'Painting', 'Sandblasting'].map(t => `<option value="${t}">`).join('')}</datalist></div>`; })() : ''}</div>` : ''}
     <div class="qfsec"><div class="qfsec-t">Агуулга</div>${fldIn('qf_note', 'Special note', f.note, { area: 1, rows: 2 })}
+    <div class="addrow" style="margin:4px 0 6px;gap:8px"><button class="btn sm" id="qfClStd" type="button" title="Ажлын төрөл, Scope-ийн үе шат, тооцооны мөрөөс стандарт заалтуудыг сонгоно">⚡ Стандартаар бөглөх</button><label class="check"><input type="checkbox" id="qf_clAuto"${f.clAuto ? ' checked' : ''}><span>Автомат — ажил өөрчлөгдөхөд дагаж шинэчлэгдэнэ</span></label></div>
     <div class="jgrid qfcl"><div class="fld"><span class="flab">Quote included — үнэд багтсан</span><div class="clbox" data-ck="incl"></div></div><div class="fld"><span class="flab">Quote excluded — үнэд ороогүй</span><div class="clbox" data-ck="excl"></div></div></div></div>
     <div class="qfsec"><div class="qfsec-t">Зураг — санал дээр харуулах (4 хүртэл)</div><div class="qfph">${(f.photos || []).map((p, i) => `<figure><img src="${p.src}" alt=""><input class="inp" data-qpc="${i}" value="${esc(p.cap || '')}" placeholder="Тайлбар (заавал биш)"><button class="x" data-qpx="${i}" aria-label="Устгах">×</button></figure>`).join('')}
       ${(f.photos || []).length < 4 ? `<button class="btn sm" id="qfPhAdd" type="button">+ Зураг нэмэх</button>${!job._nest && (job.files || []).some(x => jfIsImg(x)) ? '<button class="btn sm ghost" id="qfPhFiles" type="button">Хавсралтаас</button>' : ''}` : ''}</div>
@@ -277,7 +314,11 @@ function bindQfCard(el, job) {
   const refresh = () => { sync(); clearTimeout(tm); tm = setTimeout(() => { const k = pvKey(), h = QF_PV.get(pid); if (h && h.k === k) { if (img.isConnected && img.src !== h.url) img.src = h.url; return; }
     quoteFormImgs(job, PREV_K).then(im => { QF_PV.set(pid, { k, url: im[0].url }); if (img.isConnected) { img.src = im[0].url; img._imgs = im; } }).catch(() => { }); }, 300); };
   el.querySelector('.qffields').addEventListener('change', refresh);
-  el.querySelectorAll('.clbox').forEach(b => clauseBox(b, f, b.dataset.ck, refresh)); refresh();
+  if (qfClAuto(job)) save();
+  el.querySelectorAll('.clbox').forEach(b => clauseBox(b, f, b.dataset.ck, refresh));
+  { const sb = el.querySelector('#qfClStd'); if (sb) sb.addEventListener('click', () => { const n = qfStdClauses(job); f.incl = n.incl; f.excl = n.excl; f.clAuto = true; save(); el.querySelectorAll('.clbox').forEach(b => { const nb = b.cloneNode(false); b.replaceWith(nb); clauseBox(nb, f, nb.dataset.ck, refresh); }); const ca = el.querySelector('#qf_clAuto'); if (ca) ca.checked = true; refresh(); toast('Included / Excluded стандартаар бөглөгдлөө'); });
+    const ca = el.querySelector('#qf_clAuto'); if (ca) ca.addEventListener('change', () => { f.clAuto = ca.checked; if (f.clAuto) qfClAuto(job); save(); el.querySelectorAll('.clbox').forEach(b => { const nb = b.cloneNode(false); b.replaceWith(nb); clauseBox(nb, f, nb.dataset.ck, refresh); }); refresh(); }); }
+  refresh();
   { const reCard = () => { if (job._nest) renderTable(); else renderJobMain(); };
     const addPh = async blobs => { f.photos = f.photos || []; for (const b of blobs) { if (f.photos.length >= 4) break; f.photos.push({ src: await imgThumb(b, 1400), cap: '' }); } save(); reCard(); };
     const a = el.querySelector('#qfPhAdd'); if (a) a.addEventListener('click', () => { const i = document.createElement('input'); i.type = 'file'; i.accept = 'image/*'; i.multiple = true; i.onchange = () => addPh([...i.files]); i.click(); });
@@ -289,7 +330,7 @@ function bindQfCard(el, job) {
 }
 /* included / excluded editor: pick from the standard + own list, or type a new clause (it is remembered) */
 function clauseBox(box, f, k, refresh) {
-  const get = () => String(f[k] || '').split('\n').map(t => t.replace(/\s+$/, '')).filter(t => t.trim()), put = a => { f[k] = a.join('\n'); save(); draw(); refresh(); };
+  const get = () => String(f[k] || '').split('\n').map(t => t.replace(/\s+$/, '')).filter(t => t.trim()), put = a => { f[k] = a.join('\n'); if (f.clAuto) { f.clAuto = false; const ca = document.querySelector('#qf_clAuto'); if (ca) ca.checked = false; } save(); draw(); refresh(); };
   const draw = () => {
     const a = get(), my = qfClauses()[k], used = new Set(a.map(t => t.trim()));
     const opt = t => `<option value="${esc(t)}"${used.has(t) ? ' disabled' : ''}>${/^- /.test(t) ? '   • ' + esc(t.slice(2)) : esc(t)}</option>`;
