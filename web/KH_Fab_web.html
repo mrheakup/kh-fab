@@ -10041,14 +10041,50 @@ const QF_CLAUSES = {
 };
 /* «Quote included / excluded» by the standard, from what THIS job really has (job types, scope stages, costing rows),
    instead of the whole process list of a template */
-const QF_CL_MN = { 'Engineering drawing': 'Инженерийн зураг төсөл', 'Finite Element Analysis (FEA)': 'Хүч чадлын тооцоо (FEA)', 'Material (Fiber laser cutting for preparation)': 'Материал (лазер зүсэлтээр бэлтгэл)', 'Material': 'Материал',
-  'Destructive Test (Material chemical composition and Mechanical property test)': 'Эвдэх сорил (материалын хими, механик шинж чанар)', "Steel fabrication is in accordance with customer's specs": 'Ган хийцийг захиалагчийн техникийн шаардлагын дагуу үйлдвэрлэнэ', 'Fabrication welding and cleaning': 'Гагнуур, цэвэрлэгээ',
-  'Bending': 'Нугалалт', 'Machining': 'Механик боловсруулалт (токар, фрезер)', 'Line boring': 'Цооног уйтлах (line boring)', 'Repair work as per agreed scope': 'Тохиролцсон хүрээнд засварын ажил',
-  'Internal Non-Destructive Testing (NDT)': 'Дотоод эвдэлгүй сорил (NDT)', '- Visual Inspection - 100%': '- Нүдэн үзлэг - 100%', '- Magnetic particle test - 25%': '- Соронзон нунтгийн сорил (MT) - 25%', '- Ultrasonic test - 10%': '- Хэт авианы сорил (UT) - 10%',
-  'Proof load test': 'Ачааллын сорил', 'Sandblasting is in accordance with specs (125 micron)': 'Элсэн цэвэрлэгээ шаардлагын дагуу (125 микрон)', 'Painting': 'Будаг', 'Manufacturers Data Record (MDR)': 'Үйлдвэрлэлийн баримт бичиг (MDR)',
-  '- Material certificates': '- Материалын сертификат', '- Weld traceability maps': '- Гагнуурын мөшгөлтийн зураг', '- Welding procedures': '- Гагнуурын технологи (WPS)', '- Welder qualifications': '- Гагнуурчны мэргэшил', '- Dimensional inspection reports': '- Хэмжээсийн шалгалтын тайлан', '- Inspection Test Plans (ITPs)': '- Хяналт сорилын төлөвлөгөө (ITP)', '- Painting reports': '- Будгийн тайлан', '- Packing list reports': '- Packing list',
-  'All consumables required for the work are included in the quoted price.': 'Ажилд шаардлагатай туслах материал үнэд багтсан.', 'Packing (wooden pallet, film)': 'Савлагаа (модон тавиур, хальс)', "Delivery to customer's warehouse (Ulaanbaatar)": 'Захиалагчийн агуулах хүртэл хүргэлт (Улаанбаатар)', 'Site installation': 'Газар дээрх угсралт',
-  'Engineering drawing and FEA': 'Инженерийн зураг, FEA', '3rd party NDT / inspection': 'Гуравдагч талын NDT / хяналт', 'Machining and line boring': 'Механик боловсруулалт, line boring', 'Sandblasting and painting': 'Элсэн цэвэрлэгээ, будаг', 'Freight outside Ulaanbaatar': 'Улаанбаатараас гадуурх тээвэр', 'Bending and rolling': 'Нугалалт, булуулалт', 'Any work outside the agreed scope': 'Тохиролцсон хүрээнээс гадуурх ажил', 'Heat treatment (PWHT)': 'Дулааны боловсруулалт (PWHT)' };
+/* the standard clauses, written out in full (EN · MN). A key starting with "- " is a sub-item of the line above. */
+const QF_CL = {
+  eng: ['Engineering: shop drawings (cutting, assembly and weld details) prepared by Kh International and submitted for customer approval before fabrication', 'Инженерийн зураг: зүсэлт, угсралт, гагнуурын дэлгэрэнгүй зургийг Kh International боловсруулж, үйлдвэрлэлийн өмнө захиалагчаар батлуулна'],
+  fea: ['Finite Element Analysis (FEA) of the main load-bearing structure, with a summary report', 'Гол даацын хийцийн хүч чадлын тооцоо (FEA), товч тайлангийн хамт'],
+  matL: ['Material supply as per drawing and specified steel grade, cut to size on CNC fiber laser', 'Материалыг зураг, заасан гангийн маркийн дагуу нийлүүлж, CNC fiber лазераар хэмжээнд нь зүснэ'],
+  mat: ['Material supply as per drawing and specified steel grade', 'Материалыг зураг, заасан гангийн маркийн дагуу нийлүүлнэ'],
+  dt: ['Destructive testing of material (chemical composition and mechanical properties) by an accredited laboratory', 'Материалын эвдэх сорил (химийн найрлага, механик шинж чанар) итгэмжлэгдсэн лабораторид'],
+  fab: ["Steel fabrication in accordance with the customer's drawings and specifications, dimensional tolerances as per drawing", 'Ган хийцийг захиалагчийн зураг, техникийн шаардлагын дагуу үйлдвэрлэнэ; хэмжээсийн хүлцэл зургийн дагуу'],
+  weld: ['Welding by qualified welders to approved welding procedures (WPS), incl. grinding, spatter removal and cleaning', 'Мэргэшсэн гагнуурчин батлагдсан технологиор (WPS) гагнана; өнгөлгөө, цацраг цэвэрлэгээ орно'],
+  bend: ['Bending on CNC press brake as per drawing', 'CNC нугалах машинаар зургийн дагуу нугална'],
+  mach: ['Machining (turning / milling) to drawing tolerances', 'Механик боловсруулалт (токар, фрезер) зургийн хүлцлээр'],
+  bore: ['Line boring of bores to drawing tolerances', 'Цооногийг зургийн хүлцлээр уйтлах (line boring)'],
+  rep: ['Repair work within the agreed scope (inspection, disassembly, repair and re-assembly)', 'Тохиролцсон хүрээнд засвар (үзлэг, задлалт, засвар, угсралт)'],
+  ndt: ['Internal non-destructive testing (NDT) by Kh International QC inspector:', 'Kh International-ийн QC байцаагчийн дотоод эвдэлгүй сорил (NDT):'],
+  vt: ['- Visual inspection (VT) of all welds - 100%', '- Бүх гагнуурын нүдэн үзлэг (VT) - 100%'],
+  mt: ['- Magnetic particle testing (MT) - 25% of welds', '- Соронзон нунтгийн сорил (MT) - гагнуурын 25%'],
+  ut: ['- Ultrasonic testing (UT) - 10% of full-penetration welds', '- Хэт авианы сорил (UT) - бүрэн нэвчилттэй гагнуурын 10%'],
+  load: ['Proof load test with test report', 'Ачааллын сорил, сорилын тайлангийн хамт'],
+  blast: ['Surface preparation by sandblasting in accordance with the paint specification (Sa 2½ unless otherwise specified)', 'Будгийн өмнө элсэн цэвэрлэгээ, будгийн шаардлагын дагуу (өөрөөр заагаагүй бол Sa 2½)'],
+  paint: ["Painting: primer and top coat, total dry film thickness (DFT) 125 µm, colour as per customer's specification", 'Будаг: праймер ба өнгөлгөөний давхарга, нийт хуурай зузаан (DFT) 125 µm, өнгө захиалагчийн шаардлагаар'],
+  mdr: ["Manufacturer's Data Record (MDR) handed over with the product:", 'Бүтээгдэхүүнтэй хамт хүлээлгэх үйлдвэрлэлийн баримт бичиг (MDR):'],
+  mdrMat: ['- Material certificates (mill test certificates)', '- Материалын сертификат (mill test certificate)'],
+  mdrMap: ['- Weld traceability map', '- Гагнуурын мөшгөлтийн зураг'],
+  mdrWps: ['- Welding procedure specifications (WPS)', '- Гагнуурын технологийн карт (WPS)'],
+  mdrWq: ['- Welder qualification certificates', '- Гагнуурчны мэргэшлийн гэрчилгээ'],
+  mdrNdt: ['- NDT reports', '- NDT сорилын тайлан'],
+  mdrDim: ['- Dimensional inspection report', '- Хэмжээсийн шалгалтын тайлан'],
+  mdrItp: ['- Inspection and test plan (ITP)', '- Хяналт сорилын төлөвлөгөө (ITP)'],
+  mdrPnt: ['- Painting / DFT report', '- Будаг, DFT хэмжилтийн тайлан'],
+  mdrPack: ['- Packing list', '- Packing list'],
+  cons: ['All consumables (welding wire, shielding gas, grinding and cutting discs, etc.) are included in the quoted price', 'Ажлын бүх туслах материал (гагнуурын утас, хий, зүлгүүр, зүсэх диск г.м.) үнэд багтсан'],
+  pack: ['Packing for transport: wooden pallet / skid, stretch film wrapping, marked with the job number', 'Тээвэрлэлтийн савлагаа: модон тавиур, хальсан ороолт, ажлын дугаараар тэмдэглэнэ'],
+  deliv: ["Delivery to the customer's warehouse in Ulaanbaatar (UB) by Kh International transport", 'Захиалагчийн Улаанбаатар (УБ) дахь агуулах хүртэл Kh International-ийн тээврээр хүргэнэ'],
+  site: ["Site installation and assembly at the customer's site", 'Захиалагчийн талбай дээр угсралт, суурилуулалт'],
+  xEng: ['Engineering drawing and FEA (to be provided by the customer)', 'Инженерийн зураг, FEA (захиалагч гаргаж өгнө)'],
+  x3p: ['3rd party NDT / inspection and witness inspection (can be arranged at additional cost)', 'Гуравдагч талын NDT, хяналт, гэрчилгээт үзлэг (нэмэлт төлбөрөөр зохион байгуулж болно)'],
+  xMach: ['Machining and line boring', 'Механик боловсруулалт, line boring'],
+  xPaint: ['Sandblasting and painting', 'Элсэн цэвэрлэгээ, будаг'],
+  xSite: ['Site installation, assembly and commissioning', 'Газар дээрх угсралт, суурилуулалт, ашиглалтад оруулах'],
+  xFreight: ['Freight outside Ulaanbaatar', 'Улаанбаатараас гадуурх тээвэр'],
+  xBend: ['Bending and rolling', 'Нугалалт, булуулалт'],
+  xScope: ['Any work outside the agreed scope (quoted separately as a variation)', 'Тохиролцсон хүрээнээс гадуурх ажил (нэмэлт ажлаар тусад нь үнэлнэ)']
+};
+const QF_CL_MN = Object.fromEntries(Object.values(QF_CL).map(([e, m]) => [e, m]));
 function qfStdClauses(job) {
   jx(job); const q = job.quote, sc = job.scope, ops = job.ops || [], f = q.qf || {}, MN = f.lang === 'mn';
   const st = (sc.stages || []).filter(s => String(s.name || '').trim()), rt = new Set(st.map(s => s.rt));
@@ -10061,19 +10097,21 @@ function qfStdClauses(job) {
   const blast = ops.includes('blast') || has(/элс|blast/i), paint = has(/будаг|paint/i) || ops.includes('blast'), pack = has(/савлагаа|pack/i), site = ops.includes('site') || has(/угсралт.*газар|site install|газар дээр/i);
   const deliv = +q.trans > 0 || pack || has(/хүргэлт|тээвэр|deliver|freight/i), dt = has(/destructive|эвдэх сорил|tensile|chemical/i), tp = has(/3rd party|гуравдагч/i);
   const I = [], E = [];
-  if (eng) I.push('Engineering drawing'); if (fea) I.push('Finite Element Analysis (FEA)');
-  if ((q.mats || []).length || laser) I.push(laser ? 'Material (Fiber laser cutting for preparation)' : 'Material'); if (dt) I.push('Destructive Test (Material chemical composition and Mechanical property test)');
-  if (weld) I.push("Steel fabrication is in accordance with customer's specs", 'Fabrication welding and cleaning'); if (bend) I.push('Bending'); if (mach) I.push('Machining'); if (bore) I.push('Line boring'); if (repair) I.push('Repair work as per agreed scope');
-  if (ndt) { I.push('Internal Non-Destructive Testing (NDT)', '- Visual Inspection - 100%'); if (mt) I.push('- Magnetic particle test - 25%'); if (ut) I.push('- Ultrasonic test - 10%'); }
-  if (load) I.push('Proof load test'); if (blast) I.push('Sandblasting is in accordance with specs (125 micron)'); if (paint) I.push('Painting');
-  if (ndt) { I.push('Manufacturers Data Record (MDR)', '- Material certificates'); if (weld) I.push('- Weld traceability maps', '- Welding procedures', '- Welder qualifications'); I.push('- Dimensional inspection reports'); if (paint) I.push('- Painting reports'); if (pack) I.push('- Packing list reports'); }
-  I.push('All consumables required for the work are included in the quoted price.'); if (pack) I.push('Packing (wooden pallet, film)'); if (deliv) I.push("Delivery to customer's warehouse (Ulaanbaatar)"); if (site) I.push('Site installation');
-  if (!eng && !fea) E.push('Engineering drawing and FEA'); if (!tp) E.push('3rd party NDT / inspection'); if (!mach && !bore) E.push('Machining and line boring'); if (!blast && !paint) E.push('Sandblasting and painting');
-  if (!site) E.push('Site installation'); E.push('Freight outside Ulaanbaatar'); if (weld && !bend) E.push('Bending and rolling'); E.push('Any work outside the agreed scope');
-  const tr = a => MN ? a.map(t => QF_CL_MN[t] || t) : a; return { incl: tr(I).join('\n'), excl: tr(E).join('\n') };
+  if (eng) I.push('eng'); if (fea) I.push('fea');
+  if ((q.mats || []).length || laser) I.push(laser ? 'matL' : 'mat'); if (dt) I.push('dt');
+  if (weld) I.push('fab', 'weld'); if (bend) I.push('bend'); if (mach) I.push('mach'); if (bore) I.push('bore'); if (repair) I.push('rep');
+  if (ndt) { I.push('ndt', 'vt'); if (mt) I.push('mt'); if (ut) I.push('ut'); }
+  if (load) I.push('load'); if (blast) I.push('blast'); if (paint) I.push('paint');
+  if (ndt) { I.push('mdr', 'mdrMat'); if (weld) I.push('mdrMap', 'mdrWps', 'mdrWq'); I.push('mdrNdt', 'mdrDim', 'mdrItp'); if (paint) I.push('mdrPnt'); if (pack) I.push('mdrPack'); }
+  I.push('cons'); if (pack) I.push('pack'); if (deliv) I.push('deliv'); if (site) I.push('site');
+  if (!eng && !fea) E.push('xEng'); if (!tp) E.push('x3p'); if (!mach && !bore) E.push('xMach'); if (!blast && !paint) E.push('xPaint');
+  if (!site) E.push('xSite'); E.push('xFreight'); if (weld && !bend) E.push('xBend'); E.push('xScope');
+  const tr = a => a.map(k => QF_CL[k][MN ? 1 : 0]); return { incl: tr(I).join('\n'), excl: tr(E).join('\n') };
 }
 /* while «auto» is on (new quotes), the clauses follow the job; any hand edit turns it off */
 function qfClAuto(job) { const f = job.quote && job.quote.qf; if (!f || !f.clAuto) return false; const n = qfStdClauses(job); if (f.incl === n.incl && f.excl === n.excl) return false; f.incl = n.incl; f.excl = n.excl; return true; }
+QF_CLAUSES.incl = ['eng','fea','matL','mat','dt','fab','weld','bend','mach','bore','rep','ndt','vt','mt','ut','load','blast','paint','mdr','mdrMat','mdrMap','mdrWps','mdrWq','mdrNdt','mdrDim','mdrItp','mdrPnt','mdrPack','cons','pack','deliv','site'].map(k => QF_CL[k][0]).concat(QF_CLAUSES.incl.filter(t => !/^(Engineering drawing|Material|Steel fabrication|Fabrication welding|Internal Non-Destructive|- Visual Inspection|- Magnetic particle|- Ultrasonic|Sandblasting is|Painting|Manufacturers Data|- Material certificates|- Weld traceability|- Welding procedures|- Welder qualifications|- Dimensional|- Inspection Test|- Painting reports|- Packing list|All consumables|Packing \(|Delivery to|Bending|Machining|Line boring|Repair work|Site installation|Proof load)/.test(t)));
+QF_CLAUSES.excl = ['xEng','x3p','xMach','xPaint','xSite','xFreight','xBend','xScope'].map(k => QF_CL[k][0]).concat(['Customer-supplied materials and parts', 'Overtime and weekend work', 'Heat treatment (PWHT)']);
 const qfClauses = () => (S.qfClauses = S.qfClauses || { incl: [], excl: [] });
 const company = () => (S.company = Object.assign({}, CO_DEF, S.company || {}));
 const QFS = { fill: '#d9e1f2', line: '#000', purple: '#7030a0', blue: '#4472c4', link: '#0563c1', F: '"Times New Roman", Times, "Liberation Serif", serif' };
@@ -10082,7 +10120,7 @@ const n0 = v => Math.round(+v || 0).toLocaleString('en-US');
 function qfDefaults(job) {
   if (!job._nest) jx(job); const q = job.quote, sc = job.scope || { incl: '', excl: '' };
   if (q.qf) return q.qf;
-  q.qf = { custId: '', rfqName: job.title || '', rfqNo: 'N/A', person: '', email: '', phone: '', address: '', lead: '', delivery: "Kh will delivery customer's WHS", pay: '100% after work completion', discount: 0, mode: 'single', note: QF_NOTE,
+  q.qf = { custId: '', rfqName: job.title || '', rfqNo: 'N/A', person: '', email: '', phone: '', address: '', lead: '', delivery: "Delivered to customer's warehouse in Ulaanbaatar (UB)", pay: '100% after work completion', discount: 0, mode: 'single', note: QF_NOTE,
     incl: (sc.incl ? sc.incl.split(/\n|;/) : []).map(s => s.trim()).filter(Boolean).join('\n') || 'All consumables required for the work are included in the quoted price.', excl: (sc.excl || '').split(/\n|;/).map(s => s.trim()).filter(Boolean).join('\n'), title: job.title || '' };
   if (job.customer) formAuto(q.qf, job.customer);
   q.qf.clAuto = true; { const n = qfStdClauses(job); q.qf.incl = n.incl; q.qf.excl = n.excl; }   // by the standard, from this job — not the template's full process list
@@ -10201,7 +10239,9 @@ async function quoteFormImgs(job, KK) {
   nl.forEach((l, i) => { const Y = y + 1.3 + 2.75 * (i + 0.5); if (i === 0) { x.font = `700 ${2.3 * 1.08}px ${QFS.F}`; const lw = x.measureText(SN).width, rest = l.slice(SN.length); x.font = noteF; const tw = lw + x.measureText(rest).width, X0 = (L0 + 157.1) / 2 - tw / 2; T(SN, X0, Y, { b: 1, s: 2.3 }); T(rest, X0 + lw, Y, { s: 2.3 }); } else T(l, (L0 + 157.1) / 2, Y, { s: 2.3, a: 'center' }); });
   y += nh;
   T(Lb('Quote included:'), 27.0, y + 3.2, { b: 1, s: 2.45 }); y += 6.2;
-  const clause = (arr, dy) => { let n = 0; arr.forEach(t => { const sub = /^\s*[-–•]\s*/.test(t), v = t.replace(/^\s*[-–•]\s*/, ''); if (sub) T('• ' + v, 41.0, y + dy, { s: 2.2, w: 157.1 - 43 }); else T(`${++n}. ${v}`, 34.8, y + dy, { s: 2.3, w: 157.1 - 37 }); y += sub ? 3.5 : 4.1; }); };
+  /* a long clause wraps onto the next lines (indented under its own text), never cut with «…» */
+  const clause = (arr, dy) => { let n = 0; arr.forEach(t => { const sub = /^\s*[-–•]\s*/.test(t), v = t.replace(/^\s*[-–•]\s*/, ''), sz = sub ? 2.2 : 2.3, X = sub ? 41.0 : 34.8, pre = sub ? '• ' : `${++n}. `, ind = sub ? 2.2 : 3.6, ls = wrap(v, 157.1 - X - ind - 2, `400 ${sz * 1.08}px ${QFS.F}`);
+    ls.forEach((l, k) => { T(k ? l : pre + l, k ? X + ind : X, y + dy, { s: sz }); y += k < ls.length - 1 ? 3.1 : (sub ? 3.5 : 4.1); }); }); };
   clause(inc, 0);
   T(Lb('Quote excluded:'), 27.0, y + 1.2, { b: 1, s: 2.45 }); y += 3.4;
   clause(exc, 1.2);
@@ -10380,7 +10420,7 @@ function clauseBox(box, f, k, refresh) {
 }
 /* Nesting → «Үнийн санал» tab: same company form from the nesting result */
 function nestQuoteJob() {
-  const q = S.quote; if (!q.qf) q.qf = { custId: '', rfqName: S.jobName || '', rfqNo: 'N/A', person: '', email: '', phone: '', address: '', lead: '', delivery: "Kh will delivery customer's WHS", pay: '100% after work completion', discount: 0, mode: 'detail', note: QF_NOTE, incl: 'Material and laser cutting are included in the quoted price.', excl: 'Bending, welding and painting are not included.', title: S.jobName || '' };
+  const q = S.quote; if (!q.qf) q.qf = { custId: '', rfqName: S.jobName || '', rfqNo: 'N/A', person: '', email: '', phone: '', address: '', lead: '', delivery: "Delivered to customer's warehouse in Ulaanbaatar (UB)", pay: '100% after work completion', discount: 0, mode: 'detail', note: QF_NOTE, incl: 'Material and laser cutting are included in the quoted price.', excl: 'Bending, welding and painting are not included.', title: S.jobName || '' };
   if (q.customer) formAuto(q.qf, q.customer);
   const fn = () => { const d = quoteData(); if (q.qf.mode === 'single') return [{ d: q.qf.title || S.jobName || 'Laser cutting', u: 'set', q: 1, p: d.sub }];
     const lines = d.lines.map(l => ({ d: `${l.p.name} — ${l.g.label}, ${nf(l.p.info.w, 0)}×${nf(l.p.info.h, 0)} mm`, u: 'pcs', q: l.n, p: l.unit }));
@@ -10506,7 +10546,7 @@ const formById = id => forms().find(f => f.id === id) || null;
 const formNo = () => 'MF-' + String(S.formSeq = (S.formSeq || 0) + 1).padStart(3, '0');
 function formNew(org, from, name) {
   const d = {}; FORM_K.forEach(k => d[k] = from && from[k] != null ? from[k] : '');
-  if (!from) Object.assign(d, { delivery: "Kh will delivery customer's WHS", pay: '100% after work completion', mode: 'single', note: QF_NOTE, incl: 'All consumables required for the work are included in the quoted price.' });
+  if (!from) Object.assign(d, { delivery: "Delivered to customer's warehouse in Ulaanbaatar (UB)", pay: '100% after work completion', mode: 'single', note: QF_NOTE, incl: 'All consumables required for the work are included in the quoted price.' });
   const f = { id: uid(), no: formNo(), org: String(org || '').trim(), name: name || 'Үндсэн маягт', def: !formsOf(org).length, d, created: today(), updated: today(), uses: 0, log: [{ t: today(), m: from ? 'Үнийн саналаас үүсгэсэн' : 'Шинээр үүсгэсэн' }] };
   forms().push(f); save(); return f;
 }
@@ -10744,7 +10784,7 @@ async function fxImportFiles(files) {
 function docSampleJob() {
   const j = { id: 'sample', no: 'KH-2026-000', short: '000', title: 'Жишээ ажил — AXLE STAND', customer: 'Sample LLC', due: '', status: 'new', note: '', items: [], extra: [], est: null, act: { hours: '', kg: '', other: '' }, trace: [], log: [], created: today() };
   jx(j); const q = j.quote; q.no = 'SQ0000'; q.mats = [{ name: 'Ган хавтан S355 10мм', qty: 120, unit: 'кг', price: 4500 }, { name: 'Труба 89×5', qty: 6, unit: 'м', price: 38000 }]; q.cons = [{ name: 'Гагнуурын утас 1.2мм', qty: 5, unit: 'кг', price: 15000 }];
-  q.qf = { custId: 'S01', rfqName: 'Sample RFQ', rfqNo: 'N/A', person: 'Contact Person', email: 'contact@sample.mn', phone: '(976) 9900 0000', address: 'Ulaanbaatar, Mongolia', lead: '10 business days', delivery: "Kh will delivery customer's WHS", pay: '100% after work completion', discount: 0, mode: 'single', note: QF_NOTE, incl: 'Engineering drawing\nMaterial (Fiber laser cutting for preparation)\nFabrication welding and cleaning', excl: '3rd party NDT / inspection', title: 'AXLE STAND - 2', formId: '', _formOff: 1 };
+  q.qf = { custId: 'S01', rfqName: 'Sample RFQ', rfqNo: 'N/A', person: 'Contact Person', email: 'contact@sample.mn', phone: '(976) 9900 0000', address: 'Ulaanbaatar, Mongolia', lead: '10 business days', delivery: "Delivered to customer's warehouse in Ulaanbaatar (UB)", pay: '100% after work completion', discount: 0, mode: 'single', note: QF_NOTE, incl: 'Engineering drawing\nMaterial (Fiber laser cutting for preparation)\nFabrication welding and cleaning', excl: '3rd party NDT / inspection', title: 'AXLE STAND - 2', formId: '', _formOff: 1 };
   j.dock = { no: '0000', date: today(), to: 'Sample LLC', supplied: 'Kh International', po: 'PO-0000', orderDate: today(), delDate: today(), phone: '(976) 9900 0000', contact: 'Contact Person', address: 'Ulaanbaatar', items: [{ desc: 'AXLE STAND', ordered: 2, shipped: 2, pk: 1, kg: 240 }], photos: [], delivered: '', received: '', note: '', tagsPer: 4 };
   return j;
 }

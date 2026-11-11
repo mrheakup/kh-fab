@@ -12,7 +12,7 @@ const formById = id => forms().find(f => f.id === id) || null;
 const formNo = () => 'MF-' + String(S.formSeq = (S.formSeq || 0) + 1).padStart(3, '0');
 function formNew(org, from, name) {
   const d = {}; FORM_K.forEach(k => d[k] = from && from[k] != null ? from[k] : '');
-  if (!from) Object.assign(d, { delivery: "Kh will delivery customer's WHS", pay: '100% after work completion', mode: 'single', note: QF_NOTE, incl: 'All consumables required for the work are included in the quoted price.' });
+  if (!from) Object.assign(d, { delivery: "Delivered to customer's warehouse in Ulaanbaatar (UB)", pay: '100% after work completion', mode: 'single', note: QF_NOTE, incl: 'All consumables required for the work are included in the quoted price.' });
   const f = { id: uid(), no: formNo(), org: String(org || '').trim(), name: name || 'Үндсэн маягт', def: !formsOf(org).length, d, created: today(), updated: today(), uses: 0, log: [{ t: today(), m: from ? 'Үнийн саналаас үүсгэсэн' : 'Шинээр үүсгэсэн' }] };
   forms().push(f); save(); return f;
 }
@@ -250,7 +250,7 @@ async function fxImportFiles(files) {
 function docSampleJob() {
   const j = { id: 'sample', no: 'KH-2026-000', short: '000', title: 'Жишээ ажил — AXLE STAND', customer: 'Sample LLC', due: '', status: 'new', note: '', items: [], extra: [], est: null, act: { hours: '', kg: '', other: '' }, trace: [], log: [], created: today() };
   jx(j); const q = j.quote; q.no = 'SQ0000'; q.mats = [{ name: 'Ган хавтан S355 10мм', qty: 120, unit: 'кг', price: 4500 }, { name: 'Труба 89×5', qty: 6, unit: 'м', price: 38000 }]; q.cons = [{ name: 'Гагнуурын утас 1.2мм', qty: 5, unit: 'кг', price: 15000 }];
-  q.qf = { custId: 'S01', rfqName: 'Sample RFQ', rfqNo: 'N/A', person: 'Contact Person', email: 'contact@sample.mn', phone: '(976) 9900 0000', address: 'Ulaanbaatar, Mongolia', lead: '10 business days', delivery: "Kh will delivery customer's WHS", pay: '100% after work completion', discount: 0, mode: 'single', note: QF_NOTE, incl: 'Engineering drawing\nMaterial (Fiber laser cutting for preparation)\nFabrication welding and cleaning', excl: '3rd party NDT / inspection', title: 'AXLE STAND - 2', formId: '', _formOff: 1 };
+  q.qf = { custId: 'S01', rfqName: 'Sample RFQ', rfqNo: 'N/A', person: 'Contact Person', email: 'contact@sample.mn', phone: '(976) 9900 0000', address: 'Ulaanbaatar, Mongolia', lead: '10 business days', delivery: "Delivered to customer's warehouse in Ulaanbaatar (UB)", pay: '100% after work completion', discount: 0, mode: 'single', note: QF_NOTE, incl: 'Engineering drawing\nMaterial (Fiber laser cutting for preparation)\nFabrication welding and cleaning', excl: '3rd party NDT / inspection', title: 'AXLE STAND - 2', formId: '', _formOff: 1 };
   j.dock = { no: '0000', date: today(), to: 'Sample LLC', supplied: 'Kh International', po: 'PO-0000', orderDate: today(), delDate: today(), phone: '(976) 9900 0000', contact: 'Contact Person', address: 'Ulaanbaatar', items: [{ desc: 'AXLE STAND', ordered: 2, shipped: 2, pk: 1, kg: 240 }], photos: [], delivered: '', received: '', note: '', tagsPer: 4 };
   return j;
 }
