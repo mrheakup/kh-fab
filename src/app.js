@@ -21,7 +21,7 @@ function defaults() {
     remnants: [{ id: uid(), mat: 'Ст3 / S235', thk: 6, L: 1500, W: 1200, qty: 1 }],
     useRem: true,
     s: { gap: 6, margin: 10, rot: 90, prec: 'normal', opt: 6, sag: 0.05, keep: true, pip: true, mir: false, cl: true, trim: true, trimScope: 'last', trimStep: 50, minRem: 300, dxfSheet: 1, dxfBend: 0, leadIn: 0, rapid: 20000 },
-    quote: { customer: '', no: 'ҮС-001', valid: 7, markup: 20, setup: 0, vat: true, by: 'Х. Очирбат', contact: '', note: 'Үнэд материал болон лазер зүсэлт багтсан. Гулзайлт, гагнуур, будаг ороогүй.' },
+    quote: { customer: '', no: 'ҮС-001', valid: 7, margin: 20, setup: 0, vat: true, by: 'Х. Очирбат', contact: '', note: 'Үнэд материал болон лазер зүсэлт багтсан. Гулзайлт, гагнуур, будаг ороогүй.' },
     cut: { kW: 3, src: 'auto', speeds: [[1, 20000, 0.3], [2, 9000, 0.5], [3, 5000, 0.8], [4, 3800, 1], [5, 3000, 1.2], [6, 2500, 1.5], [8, 1800, 2], [10, 1300, 2.5], [12, 1000, 3], [16, 700, 4], [20, 500, 6]], cutPrice: 1200, piercePrice: 100 },
     defMat: 'Ст3 / S235', defThk: 6,
     laser: laserDefaults(),
@@ -1353,19 +1353,22 @@ $('#xPdf').addEventListener('click', async () => {
 /* ---------- quote ---------- */
 function quoteData() {
   const q = S.quote, lines = [];
+  /* profit is set as a margin (share of the price), like everywhere else; an old markup is converted so prices stay the same */
+  if (q.markup != null && !q._mg) { q.margin = Math.round(+q.markup / (1 + +q.markup / 100) * 10) / 10; q._mg = 1; } if (q.margin == null) q.margin = 20;
+  const mF = 1 / (1 - Math.min(95, Math.max(0, +q.margin || 0)) / 100);
   R.groups.forEach(g => {
     const parts = [...R.parts.values()].filter(p => (g.placed[p.id] || 0) > 0 && (p.mat + '|' + p.thk) === g.key);
     const sa = parts.reduce((a, p) => a + p.info.area * g.placed[p.id], 0) || 1, sc = parts.reduce((a, p) => a + p.info.cut * g.placed[p.id], 0) || 1;
     parts.forEach(p => {
       const n = g.placed[p.id], cost = g.tot.matCost * p.info.area * n / sa + g.tot.cutCost * p.info.cut * n / sc;
-      const unit = Math.ceil(cost / n * (1 + (+q.markup || 0) / 100) / 10) * 10;
+      const unit = Math.ceil(cost / n * mF / 10) * 10;
       lines.push({ p, g, n, unit, sum: unit * n, cost });
     });
   });
   const setup = +q.setup || 0, sub = lines.reduce((a, l) => a + l.sum, 0) + setup, vat = q.vat ? Math.round(sub * 0.1) : 0;
   return { lines, setup, sub, vat, total: sub + vat, cost: lines.reduce((a, l) => a + l.cost, 0) };
 }
-const QF = [['customer', 'Захиалагч', 'text'], ['no', 'Саналын дугаар', 'text'], ['valid', 'Хүчинтэй хугацаа, хоног', 'number'], ['markup', 'Ашгийн хувь, %', 'number'], ['setup', 'Бэлтгэл ажлын төлбөр, ₮', 'number'], ['by', 'Бэлтгэсэн', 'text'], ['contact', 'Холбоо барих (утас, и-мэйл)', 'text']];
+const QF = [['customer', 'Захиалагч', 'text'], ['no', 'Саналын дугаар', 'text'], ['valid', 'Хүчинтэй хугацаа, хоног', 'number'], ['margin', 'Margin (үнээс), %', 'number'], ['setup', 'Бэлтгэл ажлын төлбөр, ₮', 'number'], ['by', 'Бэлтгэсэн', 'text'], ['contact', 'Холбоо барих (утас, и-мэйл)', 'text']];
 function renderQuote(el) {
   const q = S.quote, d = quoteData();
   el.innerHTML = `<div class="qgrid">${QF.map(([k, l, t]) => `<label class="fld">${l}<input id="q_${k}" type="${t}" value="${esc(q[k])}"${k === 'customer' ? ' list="dl-org"' : ''}></label>`).join('')}

@@ -3086,5 +3086,6 @@
 "ҮНИЙН САНАЛЫН НИЙТ ДҮН (НӨАТ-тай)": "QUOTATION TOTAL (incl. VAT)",
 "Ашгийн хувь (өртгөөс, markup)": "Profit % (on cost, markup)",
 "Margin (саналаас)": "Margin (of offer)",
-"Ажиллах хүчний зардал": "Labour cost"
+"Ажиллах хүчний зардал": "Labour cost",
+"Margin (үнээс), %": "Margin (of price), %"
 }
