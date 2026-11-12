@@ -3074,5 +3074,17 @@
 "хулганы дугуйгаар томруулна/жижигрүүлнэ": "mouse wheel to resize",
 "Стандартаар бөглөх": "Fill by the standard",
 "Автомат — ажил өөрчлөгдөхөд дагаж шинэчлэгдэнэ": "Auto — follows the job when it changes",
-"Included / Excluded стандартаар бөглөгдлөө": "Included / Excluded filled by the standard"
+"Included / Excluded стандартаар бөглөгдлөө": "Included / Excluded filled by the standard",
+"Материалын зардал": "Material cost",
+"Consumable (туслах материал)": "Consumables",
+"Consumable нийт дүн": "Total consumables",
+"Тоног төхөөрөмжийн зардал": "Equipment cost",
+"ӨРТӨГ (НӨАТ-гүй)": "COST (excl. VAT)",
+"+ Ашиг": "+ Profit",
+"(хөнгөлөлт хасагдсан)": "(less discount)",
+"ҮНИЙН САНАЛ (НӨАТ-гүй)": "QUOTATION (excl. VAT)",
+"ҮНИЙН САНАЛЫН НИЙТ ДҮН (НӨАТ-тай)": "QUOTATION TOTAL (incl. VAT)",
+"Ашгийн хувь (өртгөөс, markup)": "Profit % (on cost, markup)",
+"Margin (саналаас)": "Margin (of offer)",
+"Ажиллах хүчний зардал": "Labour cost"
 }
