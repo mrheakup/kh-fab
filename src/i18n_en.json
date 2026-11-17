@@ -3087,5 +3087,22 @@
 "Ашгийн хувь (өртгөөс, markup)": "Profit % (on cost, markup)",
 "Margin (саналаас)": "Margin (of offer)",
 "Ажиллах хүчний зардал": "Labour cost",
-"Margin (үнээс), %": "Margin (of price), %"
+"Margin (үнээс), %": "Margin (of price), %",
+"Нэг хэмжээ": "One size",
+"— доорх жагсаалтаас дарж сонгосон ганц листээр өрнө": "— nests on the single sheet you click in the list below",
+"— чагтласан хэмжээнүүдээс хамгийн бага материал зарцуулахыг програм сонгоно": "— the program picks, from the ticked sizes, the one using the least material",
+"Нэмээд сонгох": "Add & select",
+"Сонгогдсон": "Selected",
+"сүүлийн өрөлтөд": "in last nesting",
+"Өрөлтөд ашиглах лист": "Sheet used for nesting",
+"(нэг хэмжээ)": "(one size)",
+"хэмжээнээс": "sizes",
+"Сүүлийн өрөлт": "Last nesting",
+"Лист сонгоогүй байна": "No sheet selected",
+"Доорх жагсаалтаас нэгийг дарж сонгоно уу.": "Click one in the list below.",
+"Сонгогдсон лист": "Selected sheet",
+"идэвхжлээ": "activated",
+"Дарж энэ листийг сонгоно": "Click to select this sheet",
+"Чагтлаж авто сонголтод оруулна": "Tick to include in auto",
+"Сонголт өөрчлөгдсөн — «Өрөх»-ийг дахин дарна уу": "Selection changed — press «Nest» again"
 }

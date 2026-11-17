@@ -237,17 +237,33 @@ $('#dlgOk').addEventListener('click', () => {
 });
 
 /* ---------- stock tab ---------- */
+/* which sheet sizes the nesting really uses: the chosen one (one size) or the ticked ones (auto) — and what the last run used */
+function sheetUsed() { const u = {}; (R && R.groups || []).forEach(g => g.sheets.forEach(s => { if (s.kind === 'rem') return; const k = Math.max(s.L, s.W) + '×' + Math.min(s.L, s.W); u[k] = (u[k] || 0) + 1; })); return u; }
 function renderStock() {
-  $('#stdList').innerHTML = S.std.map((s, i) => `<div class="srow" data-i="${i}"><input type="checkbox" ${s.on ? 'checked' : ''} aria-label="Идэвхтэй"><span class="mono">${nf(s.L)} × ${nf(s.W)}</span><span class="muted" style="font-size:12px">${nf(s.L * s.W / 1e6, 2)} м²</span><button class="x" aria-label="Устгах">×</button></div>`).join('');
+  const fixed = S.sheetMode === 'fixed', used = sheetUsed(), act = stockStd(), F = S.std[S.fixedIdx];
+  $('#stdList').innerHTML = S.std.map((s, i) => { const on = fixed ? i === S.fixedIdx : s.on, k = Math.max(s.L, s.W) + '×' + Math.min(s.L, s.W);
+    return `<div class="srow ${on ? 'on' : 'off'}" data-i="${i}" title="${fixed ? 'Дарж энэ листийг сонгоно' : 'Чагтлаж авто сонголтод оруулна'}"><input type="${fixed ? 'radio' : 'checkbox'}" name="stdpick" ${on ? 'checked' : ''} aria-label="Сонгох"><span class="mono">${nf(s.L)} × ${nf(s.W)}${on ? `<span class="tag">${fixed ? 'Сонгогдсон' : 'Идэвхтэй'}</span>` : ''}${used[k] ? `<span class="used">✓ сүүлийн өрөлтөд ${used[k]} ш</span>` : ''}</span><span class="muted" style="font-size:12px">${nf(s.L * s.W / 1e6, 2)} м²</span><button class="x" aria-label="Устгах">×</button></div>`; }).join('');
+  const uk = Object.entries(used);
+  $('#sheetNow').className = 'shnow' + (act.length ? '' : ' warn');
+  $('#sheetNow').innerHTML = !act.length ? '<div class="v">⚠ Лист сонгоогүй байна</div><div class="u">Доорх жагсаалтаас нэгийг дарж сонгоно уу.</div>'
+    : `<div class="k">Өрөлтөд ашиглах лист ${fixed ? '(нэг хэмжээ)' : `(авто — ${act.length} хэмжээнээс)`}</div><div class="v">${fixed && F ? `${nf(F.L)} × ${nf(F.W)} мм` : act.map(s => `${nf(s.L)}×${nf(s.W)}`).join(' · ')}</div>${uk.length ? `<div class="u">Сүүлийн өрөлт: ${uk.map(([k, n]) => `<b class="mono">${k}</b> × ${n} ш`).join(', ')}${uk.some(([k]) => !act.some(x => Math.max(x.L, x.W) + '×' + Math.min(x.L, x.W) === k)) ? '<br><span style="color:#b45309">⚠ Сонголт өөрчлөгдсөн — «Өрөх»-ийг дахин дарна уу</span>' : ''}</div>` : ''}`;
   $('#stdFixed').innerHTML = S.std.map((s, i) => `<option value="${i}"${i === S.fixedIdx ? ' selected' : ''}>${s.L}×${s.W}</option>`).join('');
   $$('input[name=smode]').forEach(r => r.checked = r.value === S.sheetMode);
   $('#useRem').checked = S.useRem;
   $('#remMat').innerHTML = matOptions(S.defMat); $('#remThk').value = S.defThk;
   $('#remList').innerHTML = S.remnants.length ? S.remnants.map(r => `<div class="srow" data-id="${r.id}" style="grid-template-columns:minmax(0,1fr) auto 24px"><span><span class="pill">${esc(r.no || '')}</span> <b class="mono">${nf(r.L)} × ${nf(r.W)}</b> <span class="muted">· ${esc(r.mat)} · ${r.thk} мм${r.loc ? ' · ' + esc(r.loc) : ''}${r.src ? ' · ' + esc(r.src) : ''}</span>${r.shape ? ' <span class="pill rem">хэлбэртэй</span>' : ''}</span><span class="mono">${r.qty} ш</span><button class="x" aria-label="Устгах">×</button></div>`).join('') : '<div class="note">Бүртгэлтэй үлдэгдэл алга.</div>';
 }
-$('#stdList').addEventListener('click', e => { const row = e.target.closest('.srow'); if (!row) return; const i = +row.dataset.i; if (e.target.matches('.x')) { S.std.splice(i, 1); if (S.fixedIdx >= S.std.length) S.fixedIdx = 0; } else if (e.target.matches('input')) S.std[i].on = e.target.checked; else return; save(); renderStock(); });
-$('#stdAdd').addEventListener('click', () => { const L = +$('#stdL').value, W = +$('#stdW').value; if (!(L > 0 && W > 0)) { toast('Урт, өргөнийг оруулна уу'); return; } S.std.push({ L: Math.max(L, W), W: Math.min(L, W), on: true }); $('#stdL').value = $('#stdW').value = ''; save(); renderStock(); });
-$$('input[name=smode]').forEach(r => r.addEventListener('change', () => { S.sheetMode = r.value; save(); }));
+/* a click anywhere on a row: one-size mode → that sheet is chosen; auto → it is ticked on / off */
+$('#stdList').addEventListener('click', e => { const row = e.target.closest('.srow'); if (!row) return; const i = +row.dataset.i;
+  if (e.target.matches('.x')) { S.std.splice(i, 1); if (S.fixedIdx > i || S.fixedIdx >= S.std.length) S.fixedIdx = Math.max(0, S.fixedIdx - 1); }
+  else if (S.sheetMode === 'fixed') { S.fixedIdx = i; S.std[i].on = true; toast(`Сонгогдсон лист: ${S.std[i].L}×${S.std[i].W}`); }
+  else { S.std[i].on = e.target.matches('input') ? e.target.checked : !S.std[i].on; }
+  save(); renderStock(); });
+const stdAddNow = () => { const L = +$('#stdL').value, W = +$('#stdW').value; if (!(L > 0 && W > 0)) { toast('Урт, өргөнийг оруулна уу'); return; }
+  const a = Math.max(L, W), b = Math.min(L, W); let i = S.std.findIndex(s => s.L === a && s.W === b); if (i < 0) { S.std.push({ L: a, W: b, on: true }); i = S.std.length - 1; } else S.std[i].on = true;
+  if (S.sheetMode === 'fixed') S.fixedIdx = i; $('#stdL').value = $('#stdW').value = ''; save(); renderStock(); toast(`${a}×${b} ${S.sheetMode === 'fixed' ? 'сонгогдлоо' : 'идэвхжлээ'}`); };
+$('#stdAdd').addEventListener('click', stdAddNow); ['#stdL', '#stdW'].forEach(s => $(s).addEventListener('keydown', e => { if (e.key === 'Enter') stdAddNow(); }));
+$$('input[name=smode]').forEach(r => r.addEventListener('change', () => { S.sheetMode = r.value; if (r.value === 'fixed' && !S.std[S.fixedIdx]) S.fixedIdx = Math.max(0, S.std.findIndex(s => s.on)); save(); renderStock(); }));
 $('#stdFixed').addEventListener('change', e => { S.fixedIdx = +e.target.value; S.sheetMode = 'fixed'; save(); renderStock(); });
 $('#useRem').addEventListener('change', e => { S.useRem = e.target.checked; save(); });
 $('#remDxf').addEventListener('change', async e => {
@@ -660,7 +676,7 @@ function recomputeResult() {
   if (V.g >= R.groups.length) V.g = 0;
   if (R.groups[V.g] && V.l >= R.groups[V.g].lays.length) V.l = 0;
   EX = null;
-  renderResults();
+  renderResults(); try { renderStock(); } catch (e) { }
   if (typeof jobsOnResult === 'function') jobsOnResult();
 }
 

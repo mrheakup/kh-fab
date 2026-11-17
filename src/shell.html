@@ -112,6 +112,8 @@ label.fld{display:grid;gap:3px;font-size:12px;color:var(--ink-2)}
 .emptyp{border:1px dashed var(--line);border-radius:var(--r);padding:22px;text-align:center;color:var(--ink-2)}
 
 .stk{display:grid;gap:6px}
+.shnow{border:2px solid var(--acc,#e0650f);border-radius:var(--r);padding:8px 10px;margin:4px 0 10px;background:color-mix(in srgb,var(--acc,#e0650f) 7%,transparent)}.shnow .k{font-size:11.5px;color:var(--muted,#6b7280)}.shnow .v{font-family:var(--mono,monospace);font-size:15px;font-weight:700}.shnow .u{font-size:12px;margin-top:4px}.shnow.warn{border-color:#dc2626;background:#fde7e7}
+.srow.on{border-color:var(--acc,#e0650f);background:color-mix(in srgb,var(--acc,#e0650f) 9%,transparent)}.srow.on .mono{font-weight:700}.srow.off{opacity:.55}.srow{cursor:pointer}.srow .tag{font-size:11px;padding:1px 6px;border-radius:9px;background:var(--acc,#e0650f);color:#fff;margin-left:6px;font-family:inherit;font-weight:600}.srow .used{font-size:11px;color:#15803d;margin-left:6px;font-family:inherit}
 .srow{display:grid;grid-template-columns:22px minmax(0,1fr) auto 24px;gap:8px;align-items:center;padding:6px 8px;border:1px solid var(--line-2);border-radius:var(--r)}
 .addrow{display:flex;gap:6px;align-items:center;margin-top:8px;flex-wrap:wrap}
 .addrow .inp{width:84px}
@@ -789,12 +791,14 @@ label.fld,.fld>.flab{font-size:11.5px;font-weight:600;color:var(--ink-3);letter-
       </section>
 
       <section id="tab-stock" hidden>
+        <div id="sheetNow" class="shnow"></div>
+        <h3>Листийн сонголт</h3>
+        <label class="radio"><input type="radio" name="smode" value="fixed"><span><b>Нэг хэмжээ</b> — доорх жагсаалтаас дарж сонгосон ганц листээр өрнө</span></label>
+        <label class="radio"><input type="radio" name="smode" value="auto"><span><b>Авто</b> — чагтласан хэмжээнүүдээс хамгийн бага материал зарцуулахыг програм сонгоно</span></label>
+        <select id="stdFixed" hidden></select>
         <h3>Стандарт листүүд, мм</h3>
         <div id="stdList" class="stk"></div>
-        <div class="addrow"><input class="inp" id="stdL" type="number" placeholder="Урт"> × <input class="inp" id="stdW" type="number" placeholder="Өргөн"><button class="btn sm" id="stdAdd">Нэмэх</button></div>
-        <h3>Листийн сонголт</h3>
-        <label class="radio"><input type="radio" name="smode" value="auto"><span>Авто — идэвхтэй хэмжээнүүдээс хамгийн бага материал зарцуулахыг сонгоно</span></label>
-        <label class="radio"><input type="radio" name="smode" value="fixed"><span>Тогтмол хэмжээ: <select id="stdFixed" class="inp" style="width:auto;display:inline-block;padding:3px 6px"></select></span></label>
+        <div class="addrow"><input class="inp" id="stdL" type="number" placeholder="Урт"> × <input class="inp" id="stdW" type="number" placeholder="Өргөн"><button class="btn sm" id="stdAdd">Нэмээд сонгох</button></div>
         <h3>Үлдэгдэл (remnant)</h3>
         <label class="check"><input type="checkbox" id="useRem"><span>Үлдэгдлийг стандарт листээс өмнө ашиглах</span></label>
         <div id="remList" class="stk"></div>
