@@ -125,12 +125,14 @@ function qLockPrice(child) { const P = child && child.parent ? findJob(child.par
 function qLineP(l) { const ch = qChild(l); if (!ch) return +l.p || 0; if (+l.p > 0 && qLocked(findJob(ch.parent))) return +l.p; let n = 0; try { n = quoteCalc(ch).net; } catch (e) { } return Math.round(n); }
 function quoteCalc(job) {
   jx(job); const q = job.quote, sc = job.scope, rate = (+q.rate || 0) * (+q.rateK || 1);
-  const matKg = (q.mats || []).reduce((a, r) => a + (+r.qty || 0) * (+r.kgu || 0), 0), mat = qline(q.mats), scrap = mat * (+q.scrapPct || 0) / 100, trans = +q.trans || 0, cons = qline(q.cons);
+  /* «Хийх тоо»: the sheet below is ONE piece; material, consumables, labour, equipment and other are × N (transport stays one delivery) */
+  const N = job.parent ? 1 : Math.max(1, Math.round(+q.units || 1));
+  const matKg = (q.mats || []).reduce((a, r) => a + (+r.qty || 0) * (+r.kgu || 0), 0) * N, mat = qline(q.mats) * N, scrap = mat * (+q.scrapPct || 0) / 100, trans = +q.trans || 0, cons = qline(q.cons) * N;
   const matTotal = mat + scrap + trans + cons;
   const rateOf = s => (s.rt && q.rates && +q.rates[s.rt] ? +q.rates[s.rt] : +q.rate || 0) * (+q.rateK || 1);
-  const labor = sc.stages.map(s => { const r = rateOf(s), h = (+s.people || 0) * (+s.hours || 0); return { name: s.name, en: s.en || '', rt: s.rt || '', sep: s.sep ?? BD_SEP.includes(s.rt), people: +s.people || 0, hours: +s.hours || 0, h, rate: r, cost: h * r }; });
+  const labor = sc.stages.map(s => { const r = rateOf(s), h = (+s.people || 0) * (+s.hours || 0) * N; return { name: s.name, en: s.en || '', rt: s.rt || '', sep: s.sep ?? BD_SEP.includes(s.rt), people: +s.people || 0, hours: +s.hours || 0, h, rate: r, cost: h * r }; });
   const laborTotal = labor.reduce((a, l) => a + l.cost, 0), laborH = labor.reduce((a, l) => a + l.h, 0);
-  const equipRows = qline(q.equipRows), equipPctV = matTotal * (+q.equipPct || 0) / 100, equip = equipRows + equipPctV, other = qline(q.other);
+  const equipRows = qline(q.equipRows) * N, equipPctV = matTotal * (+q.equipPct || 0) / 100, equip = equipRows + equipPctV, other = qline(q.other) * N;
   let cost = matTotal + laborTotal + equip + other;
   const cat = { mat: mat + scrap + trans, cons, labor: laborTotal, equip, other }, mc = q.mc || {}, kc = {}, price = {};
   Object.keys(cat).forEach(k => { kc[k] = mFac(mc[k] ?? q.margin); price[k] = cat[k] * kc[k]; });
@@ -147,7 +149,7 @@ function quoteCalc(job) {
   const vat = net * (+q.vat || 0) / 100, total = net + vat, k = cost > 0 ? net / cost : 1, marginPct = net ? profit / net * 100 : 0;
   const chg = (job.acc ? job.acc.changes : []).filter(c => c.ok).reduce((a, c) => a + (+c.cost || 0), 0);
   const budget = { mat: mat + scrap, cons, labor: laborTotal, equip, trans, other };
-  return { rate, matKg, mat, scrap, trans, cons, matTotal, labor, laborTotal, laborH, equipRows, equipPctV, equip, other, cost, net, profit, vat, total, k, kc, cat, price, marginPct, byCat, kids: kids.length, chg, budget, linesSum, gross, disc, locked: lockP != null || qLocked(job) };
+  return { rate, matKg, mat, scrap, trans, cons, matTotal, labor, laborTotal, laborH, equipRows, equipPctV, equip, other, cost, net, profit, vat, total, k, kc, cat, price, marginPct, byCat, kids: kids.length, chg, budget, linesSum, gross, disc, locked: lockP != null || qLocked(job), units: N, unitCost: cost / N, unitNet: net / N };
 }
 function progCalc(job) {
   jx(job); const sc = job.scope, c = quoteCalc(job), exp = job.prog.exp;
@@ -311,6 +313,7 @@ function renderJQuote(el, job) {
   const sumRow = (label, v, ex = 0) => `<tr class="tot"><td></td><td colspan="${4 + ex}">${label}</td><td class="r num">${money(v)}</td><td colspan="2"></td></tr>`;
   el.innerHTML = `${jobSubBar(job)}${srcFolderHTML(job)}
     <div class="exports">${outBtns('quote', 'Дэлгэрэнгүй задаргаа')}${outBtns('cost', 'Дотоод тооцоо')}<span class="seg notr" id="qDocLang" title="Дэлгэрэнгүй задаргаа, дотоод тооцооны PDF-ийн хэл"><button type="button" data-dl="en"${qDocLang() === 'en' ? ' class="on"' : ''}>EN</button><button type="button" data-dl="mn"${qDocLang() === 'mn' ? ' class="on"' : ''}>МН</button></span><span class="sp" style="flex:1"></span><button class="btn" id="qFromNest"${job.est ? '' : ' disabled title="Ажлыг өрөлтөд ачаалж өрнө үү"'}>Өрөлтөөс материал, зүсэлт</button></div>
+    ${job.parent ? '' : `<div class="unitsbar"><label for="q_units"><b>Хийх тоо</b></label><input id="q_units" class="inp mono" type="number" min="1" step="1" value="${c.units}"><span>ш</span><span class="note">Доорх материал, consumable, ажиллах хүч, тоног төхөөрөмжийг <b>1 ширхэгт</b> оруулна — бүгд автоматаар × ${c.units}${+q.trans ? ' (тээвэр нийтдээ)' : ''}.</span>${c.units > 1 ? `<span class="unitsum">1 ш: өртөг <b>${money(c.unitCost)}</b> · санал <b>${money(c.unitNet)}</b> ₮</span>` : ''}</div>`}
     <div class="summary">${[['Материал', money(c.matTotal - c.cons)], ['Consumable', money(c.cons)], ['Ажиллах хүч', money(c.laborTotal), `${nf(c.laborH, 0)} цаг × ${money(c.rate)}`], ['Тоног, үйлчилгээ', money(c.equip)], ['Өртөг', money(c.cost)], (q.noCost && !c.cost ? ['Ашиг', '—', 'Excel-ээс оруулсан — өртөг оруулаагүй'] : ['Ашиг', money(c.profit), c.net ? nf(c.profit / c.net * 100, 1) + '%' : '']), ['Санал (НӨАТ-гүй)', money(c.net)], ['Нийт (НӨАТ-тай)', money(c.total)]].map(s => `<div class="stat"><div class="k">${s[0]}</div><div class="v">${s[1]}<small>₮</small></div><div class="s">${s[2] || ''}</div></div>`).join('')}</div>
     ${job.parent ? qChildCardHTML(job) : qfCardHTML(job)}
     <div class="jcard"><div class="bcard-h">Саналын мэдээлэл</div><div class="jbody"><div class="jgrid">
@@ -360,6 +363,7 @@ function renderJQuote(el, job) {
     if (!['no', 'date', 'delivery', 'pay', 'contact', 'note'].includes(k)) re();
   });
   el.querySelector('#q_spread').addEventListener('change', e => { q.spread = e.target.checked; save(); });
+  { const u = el.querySelector('#q_units'); if (u) u.addEventListener('change', () => { const v = Math.max(1, Math.round(+u.value || 1)); if (v !== (+q.units || 1)) jobLog(`Хийх тоо: ${+q.units || 1} → ${v} ш`, job); q.units = v; save(); re(); }); }
   { const lk = el.querySelector('#q_lock'); if (lk) lk.addEventListener('change', () => { const c0 = quoteCalc(job); q.lock = lk.checked; if (q.lock && !(c0.linesSum > 0) && !(+q.fixedNet > 0)) { q.fixedNet = Math.round(c0.gross); q._lockFN = 1; } if (!q.lock && q._lockFN) { q.fixedNet = 0; delete q._lockFN; } if (q.lock) (q.lines || []).forEach(l => { if (qChild(l) && !(+l.p > 0)) l.p = qLineP(l); }); jobLog(q.lock ? `Саналын дүн түгжсэн: ${money(quoteCalc(job).net)} ₮` : 'Саналын дүнгийн түгжээ авсан', job); save(); re(); }); }
   { const ma = el.querySelector('#q_mall'); if (ma) ma.addEventListener('change', () => { if (ma.value === '') return; const v = +ma.value || 0; q.mc = q.mc || {}; MCATS.forEach(([k]) => q.mc[k] = v); q.margin = v; Object.assign(costDef(), { margin: v }); save(); re(); }); }
   el.querySelectorAll('[data-mc]').forEach(i => i.addEventListener('change', () => { q.mc = q.mc || {}; q.mc[i.dataset.mc] = +i.value || 0; save(); re(); }));
@@ -492,20 +496,20 @@ async function scopeDoc(job) {
 }
 /* customer quotation — detailed: materials, consumables, labour, equipment */
 async function quoteDoc(job) {
-  jx(job); const q = job.quote, c = quoteCalc(job), sc = job.scope, K = cat => q.spread ? c.kc[cat] : 1, P = progCalc(job); let k = K('mat');
+  jx(job); const q = job.quote, c = quoteCalc(job), N = c.units || 1, sc = job.scope, K = cat => q.spread ? c.kc[cat] : 1, P = progCalc(job); let k = K('mat');
   const D = await kdoc({ title: 'ҮНИЙН САНАЛ', sub: `№ ${q.no || job.no} · ${q.date || today()}`, code: S.iso.formQuote || '' });
   const until = q.date ? addDays(q.date, +q.valid || 0) : '';
-  D.kv([['Захиалагч', job.customer || '—'], ['Саналын дугаар', q.no || job.no], ['Ажлын нэр', job.title || '—'], ['Огноо', q.date || today()], ['Гүйцэтгэгч', 'Kh International · ISO 9001'], ['Хүчинтэй', until ? `${until} хүртэл (${q.valid} хоног)` : '—'], ['Хийж дуусгах хугацаа', q.delivery || `${P.end} хоног`], ['Холбоо барих', q.contact || '—']], 2, { kw: 34 });
+  D.kv([['Захиалагч', job.customer || '—'], ['Саналын дугаар', q.no || job.no], ['Ажлын нэр', job.title || '—'], ...(N > 1 ? [['Тоо ширхэг', `${N} ш`]] : []), ['Огноо', q.date || today()], ['Гүйцэтгэгч', 'Kh International · ISO 9001'], ['Хүчинтэй', until ? `${until} хүртэл (${q.valid} хоног)` : '—'], ['Хийж дуусгах хугацаа', q.delivery || `${P.end} хоног`], ['Холбоо барих', q.contact || '—']], 2, { kw: 34 });
   if (sc.desc) { D.h2('Ажлын тайлбар'); D.para(sc.desc); }
   const lineCols = [{ t: '№', w: 8, m: 1 }, { t: 'Нэр' }, { t: 'Тоо', w: 18, a: 'r', m: 1 }, { t: 'Нэгж', w: 14 }, { t: 'Нэгж үнэ, ₮', w: 26, a: 'r', m: 1 }, { t: 'Нийт, ₮', w: 28, a: 'r', m: 1 }];
-  const lineRows = (arr, extra = []) => arr.filter(r => r.name || +r.price).map((r, i) => [i + 1, r.name, nf(+r.qty || 0, 2).replace(/[.,]00$/, ''), r.unit, money((+r.price || 0) * k), money((+r.qty || 0) * (+r.price || 0) * k)]).concat(extra);
+  const lineRows = (arr, extra = []) => arr.filter(r => r.name || +r.price).map((r, i) => [i + 1, r.name, nf(+r.qty || 0, 2).replace(/[.,]00$/, ''), r.unit, money((+r.price || 0) * k), money((+r.qty || 0) * N * (+r.price || 0) * k)]).concat(extra);
   const tot = (label, v) => ({ bold: 1, fill: DC.soft, cells: ['', label, '', '', '', money(v * k)] });
   let n = 0; const sec = t => `${String.fromCharCode(65 + n++)}. ${t}`;
   const mrows = lineRows(q.mats); if (c.scrap) mrows.push(['', `Хаягдал нөөц (${q.scrapPct}%)`, '', '', '', money(c.scrap * k)]); if (c.trans) mrows.push(['', 'Тээвэр / хүргэлт', '', '', '', money(c.trans * k)]);
   if (mrows.length) {
     D.h2(sec('Материал & худалдан авалт'), c.matKg ? `нийт ${nf(c.matKg, 1)} кг` : '');
     if (c.matKg) { const mc = [{ t: '№', w: 8, m: 1 }, { t: 'Нэр' }, { t: 'Тоо', w: 16, a: 'r', m: 1 }, { t: 'Нэгж', w: 12 }, { t: 'Жин, кг', w: 18, a: 'r', m: 1 }, { t: 'Нэгж үнэ, ₮', w: 24, a: 'r', m: 1 }, { t: 'Нийт, ₮', w: 26, a: 'r', m: 1 }];
-      const rr2 = q.mats.filter(r => r.name || +r.price).map((r, i) => [i + 1, r.name, nf(+r.qty || 0, 2).replace(/[.,]00$/, ''), r.unit, r.kgu ? nf((+r.qty || 0) * r.kgu, 1) : '', money((+r.price || 0) * k), money((+r.qty || 0) * (+r.price || 0) * k)]);
+      const rr2 = q.mats.filter(r => r.name || +r.price).map((r, i) => [i + 1, r.name, nf(+r.qty || 0, 2).replace(/[.,]00$/, ''), r.unit, r.kgu ? nf((+r.qty || 0) * N * r.kgu, 1) : '', money((+r.price || 0) * k), money((+r.qty || 0) * N * (+r.price || 0) * k)]);
       if (c.scrap) rr2.push(['', `Хаягдал нөөц (${q.scrapPct}%)`, '', '', '', '', money(c.scrap * k)]); if (c.trans) rr2.push(['', 'Тээвэр / хүргэлт', '', '', '', '', money(c.trans * k)]);
       D.table(mc, rr2.concat([{ bold: 1, fill: DC.soft, cells: ['', 'Материалын дүн', '', '', nf(c.matKg, 1), '', money((c.mat + c.scrap + c.trans) * k)] }])); }
     else D.table(lineCols, mrows.concat([tot('Материалын дүн', c.mat + c.scrap + c.trans)]));
@@ -530,18 +534,18 @@ async function quoteDoc(job) {
 }
 /* internal costing — the «Зардал & хүчин» sheet */
 async function costDoc(job) {
-  jx(job); const q = job.quote, c = quoteCalc(job);
+  jx(job); const q = job.quote, c = quoteCalc(job), N = c.units || 1;
   const D = await kdoc({ title: 'ЗАРДАЛ & АЖИЛЛАХ ХҮЧНИЙ ТООЦООЛОЛ', sub: `${job.no} · дотоод · ${today()}` });
-  D.kv(docHeadKV(job).slice(0, 4), 2);
+  D.kv(docHeadKV(job).slice(0, 4).concat(N > 1 ? [['Хийх тоо', `${N} ш`], ['1 ширхэгт (өртөг / санал)', `${money(c.unitCost)} / ${money(c.unitNet)} ₮`]] : []), 2);
   const cols = [{ t: '№', w: 8, m: 1 }, { t: 'Нэр' }, { t: 'Тоо', w: 16, a: 'r', m: 1 }, { t: 'Нэгж', w: 14 }, { t: 'Нэгж үнэ, ₮', w: 24, a: 'r', m: 1 }, { t: 'Нийт, ₮', w: 26, a: 'r', m: 1 }, { t: 'Тайлбар', w: 36 }];
-  const rows = arr => arr.map((r, i) => [i + 1, r.name, r.qty, r.unit, money(r.price), money((+r.qty || 0) * (+r.price || 0)), r.note || '']);
+  const rows = arr => arr.map((r, i) => [i + 1, r.name, N > 1 ? `${nf(+r.qty || 0, 2).replace(/[.,]00$/, '')} × ${N}` : r.qty, r.unit, money(r.price), money((+r.qty || 0) * N * (+r.price || 0)), r.note || '']);
   const T = (l, v) => ({ bold: 1, fill: DC.soft, cells: ['', l, '', '', '', money(v), ''] });
   D.h2('A. Материал & худалдан авалт');
   D.table(cols, rows(q.mats).concat([T('Материалын дүн', c.mat), ['', '+ Тээвэр / хүргэлт', '', '', '', money(c.trans), ''], ['', `+ Хаягдал нөөц (${q.scrapPct}%)`, '', '', '', money(c.scrap), ''], T('Материалын нийт дүн', c.matTotal - c.cons)]));
   if (q.cons.length || c.cons) { D.h2('Consumable (туслах материал)'); D.table(cols, rows(q.cons).concat([T('Consumable нийт дүн', c.cons)])); }
   D.h2('B. Ажиллах хүчний тооцоолол', (window.__docEn ? `base hourly rate ${money(q.rate)} × ${q.rateK} = ${money(c.rate)} ₮ · each labour type at its own rate` : `үндсэн цагийн хөлс ${money(q.rate)} × ${q.rateK} = ${money(c.rate)} ₮ · төрөл бүрийн хөлс мөр бүрт`));
   D.table([{ t: '№', w: 8, m: 1 }, { t: 'Үе шатны нэр' }, { t: 'Хүн', w: 14, a: 'r', m: 1 }, { t: 'Нэг хүний цаг', w: 22, a: 'r', m: 1 }, { t: 'Нийт цаг', w: 18, a: 'r', m: 1 }, { t: 'Ц/х, ₮', w: 22, a: 'r', m: 1 }, { t: 'Нийт цалин, ₮', w: 28, a: 'r', m: 1 }],
-    c.labor.map((l, i) => [i + 1, docNm(l) + (l.rt ? ' · ' + (window.__docEn ? (LAB_TYPES.find(t => t[0] === l.rt) || [, , ''])[2] : labTypeName(l.rt)) : ''), l.people, l.hours, nf(l.h, 1), money(l.rate), money(l.cost)]).concat([{ bold: 1, fill: DC.soft, cells: ['', 'Хүчний нийт дүн', '', '', nf(c.laborH, 1), '', money(c.laborTotal)] }]));
+    c.labor.map((l, i) => [i + 1, docNm(l) + (l.rt ? ' · ' + (window.__docEn ? (LAB_TYPES.find(t => t[0] === l.rt) || [, , ''])[2] : labTypeName(l.rt)) : ''), l.people, N > 1 ? `${l.hours} × ${N}` : l.hours, nf(l.h, 1), money(l.rate), money(l.cost)]).concat([{ bold: 1, fill: DC.soft, cells: ['', 'Хүчний нийт дүн', '', '', nf(c.laborH, 1), '', money(c.laborTotal)] }]));
   if (q.equipRows.length || c.equipPctV) { D.h2('Тоног төхөөрөмж, үйлчилгээ'); D.table(cols, rows(q.equipRows).concat([['', `Элэгдэл (${q.equipPct}% материалаас)`, '', '', '', money(c.equipPctV), ''], T('Тоног, үйлчилгээний дүн', c.equip)])); }
   if (q.other.length) { D.h2('Бусад зардал'); D.table(cols, rows(q.other).concat([T('Бусад дүн', c.other)])); }
   D.h2('Margin ангиллаар');

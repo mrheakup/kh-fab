@@ -130,7 +130,7 @@ function qfLines(job) {
   if (job._linesFn) return job._linesFn();
   const q = job.quote, c = quoteCalc(job), f = qfDefaults(job), kc = c.kc || {}, K = cat => kc[cat] || c.k, MN = f.lang === 'mn';
   if (f.mode === 'fixed' && Array.isArray(q.lines) && q.lines.length) return q.lines.map(l => { const ch = qChild(l), o = { d: l.d, u: l.u || 'ea', q: +l.q || 1, p: qLineP(l) }; if (ch && f.showBd) { try { o.sub = qfBreakdown(ch).map(b => ({ d: b.d, p: b.p })); } catch (e) { } } return o; });
-  if (f.mode === 'single') return [{ d: f.title || job.title || 'Fabrication work', u: 'set', q: 1, p: c.gross, b: 1 }];
+  if (f.mode === 'single') return c.units > 1 ? [{ d: f.title || job.title || 'Fabrication work', u: 'ea', q: c.units, p: c.gross / c.units, b: 1 }] : [{ d: f.title || job.title || 'Fabrication work', u: 'set', q: 1, p: c.gross, b: 1 }];
   if (f.mode === 'sections') {   // coarse groups; labour rows marked «Тусдаа мөр» still get their own line
     const kl = K('labor'), L = c.labor.filter(l => l.cost), sep = L.filter(l => l.sep), rest = L.reduce((a, l) => a + (l.sep ? 0 : l.cost), 0), out = [];
     const add = (d, v, k) => { if (v > 0) out.push({ d, u: 'lot', q: 1, p: v * k }); };
@@ -140,7 +140,7 @@ function qfLines(job) {
     return out;
   }
   if (f.mode === 'breakdown') return qfBreakdown(job);
-  const L = []; const add = (arr, cat) => arr.filter(r => r.name && +r.qty).forEach(r => L.push({ d: r.name, u: r.unit || 'pcs', q: +r.qty, p: (+r.price || 0) * K(cat) }));
+  const L = []; const add = (arr, cat) => arr.filter(r => r.name && +r.qty).forEach(r => L.push({ d: r.name, u: r.unit || 'pcs', q: +r.qty * (c.units || 1), p: (+r.price || 0) * K(cat) }));
   add(q.mats, 'mat'); if (c.scrap) L.push({ d: MN ? `Хаягдал нөөц (${q.scrapPct}%)` : `Scrap allowance (${q.scrapPct}%)`, u: 'lot', q: 1, p: c.scrap * K('mat') }); if (c.trans) L.push({ d: MN ? 'Тээвэр, хүргэлт' : 'Transport / delivery', u: 'lot', q: 1, p: c.trans * K('mat') });
   add(q.cons, 'cons'); c.labor.filter(l => l.cost).forEach(l => L.push({ d: MN ? l.name : (l.en || `Labour — ${l.name}`), u: 'h', q: l.h, p: l.rate * K('labor') }));
   add(q.equipRows, 'equip'); if (c.equipPctV) L.push({ d: MN ? 'Тоног төхөөрөмжийн элэгдэл' : 'Equipment wear', u: 'lot', q: 1, p: c.equipPctV * K('equip') }); add(q.other, 'other');

@@ -3104,5 +3104,11 @@
 "идэвхжлээ": "activated",
 "Дарж энэ листийг сонгоно": "Click to select this sheet",
 "Чагтлаж авто сонголтод оруулна": "Tick to include in auto",
-"Сонголт өөрчлөгдсөн — «Өрөх»-ийг дахин дарна уу": "Selection changed — press «Nest» again"
+"Сонголт өөрчлөгдсөн — «Өрөх»-ийг дахин дарна уу": "Selection changed — press «Nest» again",
+"Хийх тоо": "Quantity to make",
+"1 ширхэгт": "one piece",
+"(тээвэр нийтдээ)": "(transport is for the whole order)",
+"1 ш: өртөг": "1 pc: cost",
+"1 ширхэгийн өртөг": "cost per piece",
+"1 ширхэгт (өртөг / санал)": "Per piece (cost / offer)"
 }
