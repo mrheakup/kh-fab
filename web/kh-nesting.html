@@ -537,6 +537,214 @@ label.fld,.fld>.flab{font-size:11.5px;font-weight:600;color:var(--ink-3);letter-
 .savebtn.ok{background:#16a34a!important;color:#fff!important;border-color:#16a34a!important}
 .fmorg{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);margin:12px 2px 4px}
 .fmlog{margin:0;padding-left:18px;display:grid;gap:3px;font-size:12.5px;max-height:260px;overflow:auto}
+/* ================= ERP look (default): Odoo-style shell — top app menu, control panel, list/kanban, form with
+   status bar, smart buttons and chatter. Clean white surfaces, one accent: Kh International orange. ================= */
+html[data-var="erp"]:not([data-theme="dark"]){--bg:#f3f4f6;--surface:#fff;--surface-2:#f8f9fa;--line:#dfe3e8;--line-2:#edf0f3;--ink:#1f2328;--ink-2:#4b5563;--ink-3:#8a94a3;--accent:#e0650f;--accent-ink:#fff;--accent-soft:#fdf0e6;--acc:#e0650f;--ok:#15803d;--warn:#b45309;--bad:#c62828}
+html[data-var="erp"][data-theme="dark"]{--accent:#ff8a3d;--accent-soft:#3a2216;--acc:#ff8a3d}
+html[data-var="erp"]{--r:6px;--nav-h:48px}
+html[data-var="erp"] body{font-size:13.5px;background:var(--bg)}
+/* ---- frame: navbar on top, then (side list) + main ---- */
+html[data-var="erp"] .app{grid-template-columns:320px minmax(0,1fr)!important;grid-template-rows:var(--nav-h) minmax(0,1fr)!important}
+html[data-var="erp"] .top{grid-column:1/-1!important;grid-row:1!important;flex-direction:row!important;align-items:center!important;flex-wrap:nowrap!important;gap:0!important;padding:0 10px!important;border:0!important;border-bottom:1px solid var(--line)!important;background:var(--surface)!important;overflow:visible!important;height:var(--nav-h);min-height:0;position:relative;z-index:30}
+html[data-var="erp"] .top>.brand,html[data-var="erp"] .top>.modtabs,html[data-var="erp"] .top .mco{display:none!important}
+html[data-var="erp"] .side{grid-column:1!important;grid-row:2!important;border-right:1px solid var(--line)!important;background:var(--surface)!important}
+html[data-var="erp"] .main{grid-column:2!important;grid-row:2!important;padding:18px 24px!important;gap:14px!important;background:var(--bg)}
+html[data-var="erp"][data-erpfull] .side{display:none!important}
+html[data-var="erp"][data-erpfull] .main{grid-column:1/-1!important}
+html[data-var="erp"] .main:has(>.erp-cp),html[data-var="erp"] .main:has(>.erp-form),html[data-var="erp"] .main:has(>.erp-home){padding:0!important;gap:0!important}
+html[data-var="erp"] .ptitle{font-size:18px!important;padding:16px 18px 4px!important}
+/* navbar */
+.erp-nav{display:flex;align-items:center;gap:4px;min-width:0;flex:1;height:100%}
+.erp-apps{width:36px;height:36px;border-radius:8px;border:0;background:transparent;display:grid;place-items:center;cursor:pointer;color:var(--ink-2)}
+.erp-apps:hover{background:var(--surface-2);color:var(--ink)}
+.erp-logo{height:24px;margin:0 6px 0 2px;cursor:pointer}
+.erp-appname{font-weight:700;font-size:15px;padding:0 10px 0 4px;white-space:nowrap;cursor:pointer;color:var(--ink)}
+.erp-menu{display:flex;align-items:stretch;height:100%;gap:2px;min-width:0;overflow-x:auto;scrollbar-width:none}
+.erp-menu::-webkit-scrollbar{display:none}
+.erp-menu button{border:0;background:transparent;padding:0 12px;font-weight:500;color:var(--ink-2);cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;border-top:2px solid transparent;font-size:13.5px}
+.erp-menu button:hover{color:var(--ink);background:var(--surface-2)}
+.erp-menu button.on{color:var(--ink);border-bottom-color:var(--accent);font-weight:600}
+html[data-var="erp"] .top-actions{display:flex!important;flex-direction:row!important;align-items:center!important;gap:6px!important;margin:0 0 0 auto!important;padding:0!important;border:0!important;flex:none}
+html[data-var="erp"] .top-actions>*{width:auto!important}
+html[data-var="erp"] .top-actions .btn{padding:6px 10px!important;box-shadow:none!important}
+html[data-var="erp"] #updBadge{margin:0 8px}
+.erp-more{position:relative}
+.erp-dd{position:absolute;right:0;top:calc(100% + 6px);background:var(--surface);border:1px solid var(--line);border-radius:8px;box-shadow:0 10px 30px rgba(16,24,40,.16);padding:10px;display:grid;gap:8px;min-width:270px;z-index:80}
+.erp-dd>*{width:100%!important}
+.erp-dd .ddh{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.erp-user{width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-weight:700;font-size:12px;border:0;cursor:pointer}
+/* app switcher (home menu) */
+.erp-launch{position:fixed;inset:var(--nav-h) 0 0 0;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(6px);z-index:70;display:flex;justify-content:center;padding:48px 20px;overflow:auto}
+.erp-launch .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:22px 18px;width:min(820px,100%);align-content:start}
+.erp-tile{border:0;background:transparent;display:grid;justify-items:center;gap:8px;cursor:pointer;padding:8px;border-radius:12px;color:var(--ink)}
+.erp-tile:hover{background:var(--surface)}
+.erp-tile i{width:64px;height:64px;border-radius:14px;display:grid;place-items:center;color:#fff;font-style:normal;box-shadow:0 2px 6px rgba(16,24,40,.12)}
+.erp-tile i svg{width:30px;height:30px}
+.erp-tile b{font-size:13.5px;font-weight:600}.erp-tile small{color:var(--ink-3);font-size:11.5px;margin-top:-6px}
+/* ---- control panel: breadcrumb + actions | search + filters + views ---- */
+.erp-cp{background:var(--surface);border-bottom:1px solid var(--line);padding:10px 24px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 16px;align-items:center;position:sticky;top:0;z-index:20}
+.erp-crumbs{display:flex;align-items:center;gap:6px;min-width:0;font-size:17px;flex-wrap:wrap}
+.erp-crumbs a{color:var(--accent);cursor:pointer;text-decoration:none;font-weight:500}
+.erp-crumbs a:hover{text-decoration:underline}
+.erp-crumbs .sep{color:var(--ink-3)}
+.erp-crumbs b{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60vw}
+.erp-acts{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.erp-cp .row2{grid-column:1/-1;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.erp-search{flex:1 1 320px;max-width:560px;display:flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:6px;padding:0 8px;background:var(--surface);min-height:34px;flex-wrap:wrap}
+.erp-search:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.erp-search input{border:0!important;outline:0;flex:1;min-width:120px;background:transparent;padding:6px 2px;box-shadow:none!important}
+.erp-facet{display:inline-flex;align-items:center;gap:4px;background:var(--surface-2);border:1px solid var(--line);border-radius:4px;padding:1px 6px;font-size:12px;white-space:nowrap}
+.erp-facet b{font-weight:600;color:var(--accent)}.erp-facet button{border:0;background:transparent;cursor:pointer;color:var(--ink-3);padding:0 0 0 2px}
+.erp-filters{display:flex;gap:4px;flex-wrap:wrap;align-items:center}
+.erp-chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 10px;font-size:12.5px;cursor:pointer;color:var(--ink-2)}
+.erp-chip:hover{border-color:var(--ink-3)}.erp-chip.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:600}
+.erp-views{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden;margin-left:auto}
+.erp-views button{border:0;background:var(--surface);padding:6px 10px;cursor:pointer;color:var(--ink-3);display:grid;place-items:center}
+.erp-views button+button{border-left:1px solid var(--line)}.erp-views button.on{background:var(--accent-soft);color:var(--accent)}
+.erp-pager{display:flex;align-items:center;gap:4px;color:var(--ink-2);font-size:12.5px}
+.erp-pager button{border:1px solid var(--line);background:var(--surface);border-radius:6px;width:28px;height:28px;cursor:pointer}
+.erp-pager button:disabled{opacity:.4;cursor:default}
+html[data-var="erp"] .erp-gsel{width:auto;padding:5px 8px;font-size:12.5px}
+/* ---- list view ---- */
+.erp-view{padding:16px 24px 40px}
+.erp-list{background:var(--surface);border:1px solid var(--line);border-radius:8px;overflow:auto}
+.erp-list table{width:100%;border-collapse:collapse;font-size:13px}
+.erp-list th{position:sticky;top:0;background:var(--surface-2);text-align:left;font-weight:600;color:var(--ink-2);padding:9px 12px;border-bottom:1px solid var(--line);white-space:nowrap;font-size:12px;cursor:pointer;user-select:none}
+.erp-list th.r,.erp-list td.r{text-align:right}
+.erp-list th .so{color:var(--accent)}
+.erp-list td{padding:9px 12px;border-bottom:1px solid var(--line-2);vertical-align:middle}
+.erp-list tbody tr.rec{cursor:pointer}.erp-list tbody tr.rec:hover td{background:var(--surface-2)}
+.erp-list tr.grp td{background:color-mix(in srgb,var(--surface-2) 60%,var(--bg));font-weight:600;cursor:pointer;color:var(--ink)}
+.erp-list tr.grp td .cnt{color:var(--ink-3);font-weight:500;margin-left:6px}
+.erp-list tfoot td{font-weight:700;background:var(--surface-2);border-top:1px solid var(--line);border-bottom:0}
+.erp-list .no{font-family:var(--f-mono);font-size:12.5px;color:var(--ink)}
+.erp-list .sub{color:var(--ink-3);font-size:12px}
+.erp-list td.late{color:var(--bad);font-weight:600}
+.erp-prog{display:flex;align-items:center;gap:6px;min-width:90px}.erp-prog i{flex:1;height:6px;border-radius:3px;background:var(--line-2);overflow:hidden;display:block}.erp-prog i b{display:block;height:100%;background:var(--accent)}
+.erp-prog span{font-size:11.5px;color:var(--ink-3);width:32px;text-align:right}
+.erp-empty{background:var(--surface);border:1px dashed var(--line);border-radius:8px;padding:48px 20px;text-align:center;color:var(--ink-2)}
+.erp-empty b{display:block;font-size:16px;color:var(--ink);margin-bottom:6px}
+/* status badges */
+.erp-b{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:2px 9px;font-size:11.5px;font-weight:600;white-space:nowrap;background:var(--surface-2);color:var(--ink-2);border:1px solid var(--line)}
+.erp-b::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.8}
+.erp-b.s-new,.erp-b.s-draft{color:#475467;background:#f2f4f7;border-color:#e4e7ec}
+.erp-b.s-nest,.erp-b.s-sent{color:#175cd3;background:#eff8ff;border-color:#d1e9ff}
+.erp-b.s-cut{color:#b54708;background:#fffaeb;border-color:#fedf89}
+.erp-b.s-weld{color:#6941c6;background:#f9f5ff;border-color:#e9d7fe}
+.erp-b.s-done,.erp-b.s-won,.erp-b.s-paid{color:#067647;background:#ecfdf3;border-color:#abefc6}
+.erp-b.s-given{color:#344054;background:#f2f4f7;border-color:#d0d5dd}
+.erp-b.s-lost,.erp-b.s-late{color:#b42318;background:#fef3f2;border-color:#fecdca}
+.erp-b.s-open,.erp-b.s-part{color:#b54708;background:#fffaeb;border-color:#fedf89}
+html[data-theme="dark"] .erp-b{background:var(--surface-2)!important;border-color:var(--line)!important}
+.erp-av{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;font-size:10.5px;font-weight:700;color:#fff;flex:none}
+.erp-own{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+/* ---- kanban ---- */
+.erp-kanban{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(260px,1fr);gap:12px;overflow-x:auto;padding-bottom:12px;align-items:start}
+.erp-kcol{background:color-mix(in srgb,var(--surface-2) 70%,var(--bg));border-radius:8px;padding:8px;min-height:120px;border:1px solid transparent}
+.erp-kcol.drop{border-color:var(--accent);background:var(--accent-soft)}
+.erp-kh{display:flex;align-items:center;gap:8px;padding:4px 4px 10px;font-weight:600}
+.erp-kh .cnt{color:var(--ink-3);font-weight:500}.erp-kh .sum{margin-left:auto;font-size:12px;color:var(--ink-2);font-family:var(--f-mono)}
+.erp-kh .bar{height:4px;border-radius:2px;background:var(--line);margin:0 4px 8px;display:block}
+.erp-card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin-bottom:8px;cursor:pointer;display:grid;gap:4px;box-shadow:0 1px 2px rgba(16,24,40,.04)}
+.erp-card:hover{border-color:var(--ink-3)}.erp-card.dragging{opacity:.5}
+.erp-card .t{font-weight:600;line-height:1.3}.erp-card .c{color:var(--ink-2);font-size:12.5px}
+.erp-card .ft{display:flex;align-items:center;gap:8px;margin-top:4px;font-size:12px;color:var(--ink-3)}
+.erp-card .ft .amt{margin-left:auto;font-family:var(--f-mono);color:var(--ink);font-weight:600}
+.erp-card .no{font-family:var(--f-mono);font-size:11.5px;color:var(--ink-3)}
+.erp-card .late{color:var(--bad);font-weight:600}
+/* ---- form: status bar, smart buttons, sheet, chatter ---- */
+.erp-form{padding:0 0 40px}
+.erp-sbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 24px;background:var(--surface);border-bottom:1px solid var(--line)}
+.erp-sbar .acts{display:flex;gap:6px;flex-wrap:wrap}
+.erp-stages{display:flex;margin-left:auto;border:1px solid var(--line);border-radius:6px;overflow:hidden;flex-wrap:wrap}
+.erp-stages button{border:0;background:var(--surface);padding:6px 14px 6px 20px;font-size:12.5px;color:var(--ink-2);cursor:pointer;position:relative;white-space:nowrap}
+.erp-stages button:first-child{padding-left:14px}
+.erp-stages button+button{border-left:1px solid var(--line)}
+.erp-stages button.on{background:var(--accent);color:#fff;font-weight:600}
+.erp-stages button.past{color:var(--ink)}
+.erp-stages button:hover:not(.on){background:var(--surface-2)}
+.erp-fgrid{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:0;align-items:start}
+html[data-erpnochat] .erp-fgrid{grid-template-columns:minmax(0,1fr)}
+html[data-erpnochat] .erp-chatter{display:none}
+@media (max-width:1280px){.erp-fgrid{grid-template-columns:minmax(0,1fr)}.erp-chatter{border-left:0!important;border-top:1px solid var(--line)}}
+.erp-fmain{min-width:0;padding:16px 24px;display:grid;gap:14px}
+.erp-fmain>.erp-sheet{display:grid;gap:14px;min-width:0}
+.erp-smart{display:flex;flex-wrap:wrap;justify-content:flex-end;background:var(--surface);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.erp-smart button{border:0;border-left:1px solid var(--line);background:transparent;display:flex;align-items:center;gap:10px;padding:8px 14px;cursor:pointer;min-width:132px;text-align:left;color:var(--ink)}
+.erp-smart button:first-child{border-left:0}
+.erp-smart button:hover{background:var(--surface-2)}
+.erp-smart svg{width:20px;height:20px;color:var(--ink-3);flex:none}
+.erp-smart .v{font-weight:700;font-size:14px;line-height:1.1;font-family:var(--f-mono)}.erp-smart .l{font-size:11.5px;color:var(--ink-2);line-height:1.2}
+.erp-rtitle{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.erp-rtitle h1{font-size:24px;margin:0;font-weight:700;letter-spacing:-.01em}
+.erp-rtitle .m{color:var(--ink-2)}
+.erp-chatter{border-left:1px solid var(--line);background:var(--surface);min-height:calc(100vh - 140px);position:sticky;top:0;display:flex;flex-direction:column;max-height:calc(100vh - var(--nav-h) - 60px)}
+.erp-chh{display:flex;gap:6px;padding:10px 14px;border-bottom:1px solid var(--line);align-items:center}
+.erp-chh button{border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:5px 10px;font-size:12.5px;cursor:pointer}
+.erp-chh button.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+.erp-chin{padding:10px 14px;border-bottom:1px solid var(--line);display:grid;gap:6px}
+.erp-chin textarea{width:100%;resize:vertical;min-height:58px}
+.erp-tl{overflow:auto;padding:6px 14px 14px;display:grid;gap:12px;align-content:start}
+.erp-tlday{font-size:11px;font-weight:700;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em;display:flex;align-items:center;gap:8px;margin-top:6px}
+.erp-tlday::after{content:"";flex:1;height:1px;background:var(--line-2)}
+.erp-msg{display:grid;grid-template-columns:30px minmax(0,1fr);gap:10px}
+.erp-msg .erp-av{width:30px;height:30px;font-size:11px}
+.erp-msg .h{font-size:12px;color:var(--ink-3)}.erp-msg .h b{color:var(--ink);font-weight:600;margin-right:6px}
+.erp-msg .b{font-size:13px;word-break:break-word;white-space:pre-wrap}
+.erp-msg.log .b{color:var(--ink-2)}
+.erp-msg.log .erp-av{background:var(--surface-2)!important;color:var(--ink-3);border:1px solid var(--line)}
+/* the old in-page status selects are replaced by the status bar */
+html[data-var="erp"] .erp-sheet #qb_st,html[data-var="erp"] .erp-sheet .jstat{display:none!important}
+html[data-var="erp"] .erp-sheet .rtabs.jsub{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:4px}
+/* ---- home / dashboard ---- */
+.erp-home{padding:22px 24px 48px;display:grid;gap:18px}
+.erp-hi{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}.erp-hi h1{margin:0;font-size:24px;letter-spacing:-.01em}.erp-hi span{color:var(--ink-3)}
+.erp-appsrow{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.erp-appsrow .erp-tile{background:var(--surface);border:1px solid var(--line);grid-template-columns:44px minmax(0,1fr);justify-items:start;align-items:center;text-align:left;gap:0 10px;padding:10px 12px}
+.erp-appsrow .erp-tile i{width:44px;height:44px;border-radius:10px;grid-row:span 2}.erp-appsrow .erp-tile i svg{width:22px;height:22px}
+.erp-appsrow .erp-tile small{margin:0}
+.erp-kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+.erp-kpi{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px 16px;cursor:pointer;display:grid;gap:4px;text-align:left;color:var(--ink)}
+.erp-kpi:hover{border-color:var(--accent)}
+.erp-kpi .k{font-size:12px;color:var(--ink-2);font-weight:500}.erp-kpi .v{font-size:24px;font-weight:700;letter-spacing:-.01em;font-family:var(--f-ui)}.erp-kpi .v small{font-size:13px;color:var(--ink-3);font-weight:500;margin-left:3px}
+.erp-kpi .s{font-size:12px;color:var(--ink-3)}.erp-kpi.bad .v{color:var(--bad)}.erp-kpi.good .v{color:var(--ok)}
+.erp-cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:14px;align-items:start}
+.erp-panel{background:var(--surface);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.erp-panel>h3{margin:0!important;padding:12px 16px;font-size:13px!important;text-transform:none!important;letter-spacing:0!important;color:var(--ink)!important;border-bottom:1px solid var(--line-2);display:flex;align-items:center;gap:8px}
+.erp-panel>h3 .cnt{margin-left:auto;color:var(--ink-3);font-weight:500}
+.erp-al{display:grid}.erp-al button{border:0;border-bottom:1px solid var(--line-2);background:transparent;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;text-align:left;padding:9px 16px;cursor:pointer;color:var(--ink)}
+.erp-al button:hover{background:var(--surface-2)}.erp-al button:last-child{border-bottom:0}
+.erp-al .t{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.erp-al .r{font-size:12px;color:var(--ink-3);white-space:nowrap}.erp-al .r.bad{color:var(--bad);font-weight:600}
+.erp-al .none{padding:14px 16px;color:var(--ink-3);font-size:12.5px}
+.erp-oldash{display:grid;gap:14px}
+/* settings dialog */
+.erp-modal{position:fixed;inset:0;background:rgba(15,20,30,.35);display:grid;place-items:center;z-index:120}
+.erp-modal>div{background:var(--surface);border-radius:10px;padding:18px;width:min(640px,94vw);max-height:88vh;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+/* buttons and fields: one consistent set */
+html[data-var="erp"] .btn{border-radius:6px!important;box-shadow:none!important;font-weight:500!important}
+html[data-var="erp"] .btn.primary{background:var(--accent)!important;border-color:var(--accent)!important;color:#fff!important;font-weight:600!important}
+html[data-var="erp"] .btn.primary:hover{filter:brightness(.95)}
+html[data-var="erp"] .jcard,html[data-var="erp"] .bcard,html[data-var="erp"] .summary>.stat{border-radius:8px!important;box-shadow:none!important}
+html[data-var="erp"] .fld input,html[data-var="erp"] .fld select,html[data-var="erp"] .inp,html[data-var="erp"] .dt input,html[data-var="erp"] .dt select{border-radius:6px!important}
+html[data-var="erp"] .jitem,html[data-var="erp"] .bitem{border-radius:6px!important}
+@media (max-width:1100px){.erp-menu button{padding:0 8px}.erp-appname{display:none}}
+/* duplicates of the status bar / navbar inside the old pages are hidden in this look */
+html[data-var="erp"] .erp-sheet .spipe,html[data-var="erp"] .erp-sheet #qb_won,html[data-var="erp"] .erp-sheet .jstate [data-chat]{display:none!important}
+html[data-var="erp"] #jobsSide>.ptitle,html[data-var="erp"] #jobsSide>.tabs{display:none!important}
+html[data-var="erp"] #jobsSide .panel-body{padding-top:14px}
+.erp-views svg,.erp-chh svg{width:16px;height:16px}
+.erp-smart{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+.erp-smart button{border-left:0!important;border-right:1px solid var(--line-2)!important;border-bottom:1px solid var(--line-2)!important}
+.erp-kanban{grid-auto-columns:minmax(232px,1fr)}
+html[data-var="erp"] .seg{border-radius:6px!important;padding:2px!important}
+html[data-var="erp"] .seg button{border-radius:4px!important}
+html[data-var="erp"] .seg button.on{background:var(--accent-soft)!important;color:var(--accent)!important;box-shadow:none!important}
+html[data-var="erp"] .tabs button.on{color:var(--accent)!important;border-color:var(--accent)!important}
+.erp-kpis{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media (max-width:1000px){.erp-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.erp-appsrow{grid-template-columns:repeat(6,minmax(0,1fr))}
+@media (max-width:1100px){.erp-appsrow{grid-template-columns:repeat(3,minmax(0,1fr))}}
+
 </style>
 
 <div class="app" id="app">
@@ -564,7 +772,7 @@ label.fld,.fld>.flab{font-size:11.5px;font-weight:600;color:var(--ink-3);letter-
     <div class="top-actions">
       <div class="mco"><b>Kh International</b><small>ISO 9001 · Know us, know the quality</small></div>
       <div class="seg notr" id="langSeg" role="group" aria-label="Language"><button data-lang="mn" title="Монгол">МН</button><button data-lang="en" title="English">EN</button></div>
-      <select id="skinSel" class="inp sm" aria-label="Загвар" title="Програмын загвар" style="width:auto;padding:5px 8px"><option value="modern">Загвар: Орчин үеийн</option><option value="calm">Загвар: Тайван (Linear)</option><option value="dark">Загвар: Харанхуй (Supabase)</option><option value="fintech">Загвар: Fintech (Stripe)</option><option value="bento">Загвар: Bento (улбар шар)</option></select>
+      <select id="skinSel" class="inp sm" aria-label="Загвар" title="Програмын загвар" style="width:auto;padding:5px 8px"><option value="erp">Загвар: ERP (Odoo маягийн)</option><option value="modern">Загвар: Орчин үеийн</option><option value="calm">Загвар: Тайван (Linear)</option><option value="dark">Загвар: Харанхуй (Supabase)</option><option value="fintech">Загвар: Fintech (Stripe)</option><option value="bento">Загвар: Bento (улбар шар)</option></select>
       <button class="btn sm ghost" id="btnChat" type="button" title="Оффис, үйлдвэрийн дотоод чат — ерөнхий суваг, ажил бүрийн чат">💬 Чат</button>
       <button class="btn sm ghost" id="btnLink" type="button" title="Нөөц (OneDrive), оффис ↔ үйлдвэр синк, утаснаас бүртгэх">🔗 Холболт</button>
       <button class="btn sm savebtn" type="button" title="Бүх өгөгдлийг одоо хадгалах (Ctrl+S). Програм өөрөө ч автоматаар хадгалдаг.">💾 Хадгалах</button>
@@ -4863,7 +5071,99 @@ const I18N_EN = {
 "(тээвэр нийтдээ)": "(transport is for the whole order)",
 "1 ш: өртөг": "1 pc: cost",
 "1 ширхэгийн өртөг": "cost per piece",
-"1 ширхэгт (өртөг / санал)": "Per piece (cost / offer)"
+"1 ширхэгт (өртөг / санал)": "Per piece (cost / offer)",
+"+ Шинэ": "+ New",
+"Илгээсэн гэж тэмдэглэх": "Mark as sent",
+"Дахин нээх": "Reopen",
+"ISO маягт, операторууд, лого": "ISO forms, operators, logo",
+"ISO маягтын код, операторууд, лого": "ISO form codes, operators, logo",
+"Одоогоор түүх алга.": "No history yet.",
+"Scope, үе шат": "Scope, stages",
+"Авлага алга": "No receivables",
+"Агуулахаас": "From stock",
+"Ажил олдсонгүй": "No jobs found",
+"Анхаарах: хугацаа хэтэрсэн ажил": "Attention: overdue jobs",
+"Баг": "Team",
+"Батлагдсан саналыг ажлаас буцаахгүй": "An accepted quote cannot be turned back from a job",
+"Борлуулалт": "Sales",
+"Бүлэг:": "Group:",
+"Бүлэглэхгүй": "No grouping",
+"Бүлэглэх…": "Group by…",
+"Доод үлдэгдлээс доош бараа алга": "No items below minimum",
+"Дотоод тэмдэглэл — түүхэнд хадгалагдана": "Internal note — kept in the history",
+"Дутуу бараа": "Low stock",
+"Дутуу бараа (агуулах)": "Low stock (warehouse)",
+"Дэлгэрэнгүй тойм — борлуулалт, авлага, ажлын төсөв": "Detailed overview — sales, receivables, job budgets",
+"Зүсэлт, нугалалт": "Cutting & bending",
+"Зөвхөн түүхэнд": "History only",
+"Лазер өрөлт": "Laser nesting",
+"Материалын гэрчилгээ": "Material certificates",
+"Мессеж илгээх": "Send message",
+"Миний": "Mine",
+"Мөрийн тооцоо": "Line costings",
+"Нэхэмжилсэн, ₮": "Invoiced, ₮",
+"Нээлттэй": "Open",
+"Нээлттэй даалгавар": "Open tasks",
+"Нээлттэй санал алга": "No open quotes",
+"Нээлттэй үнийн санал": "Open quotations",
+"Нүүр": "Home",
+"Оройн мэнд": "Good evening",
+"Оффис, үйлдвэр, утсанд харагдана": "Visible at office, factory and on phones",
+"Санал №": "Quote №",
+"Сараар": "By month",
+"Систем": "System",
+"Тэмдэглэх": "Log",
+"Төлбөр хүлээгдэж буй нэхэмжлэх": "Invoices awaiting payment",
+"Төлөвөөр": "By status",
+"Хавсралт": "Attachments",
+"Харагдах байдал": "Appearance",
+"Хариуцагчаар": "By owner",
+"Хуваарь, явц": "Schedule, progress",
+"Хугацаа хэтэрсэн авлага": "Overdue receivables",
+"Хугацаа хэтэрсэн ажил": "Overdue jobs",
+"Хуулах товч олдсонгүй": "Duplicate button not found",
+"Хүлээгдэж буй үнийн санал": "Pending quotations",
+"Шинэ үнийн санал": "New quotation",
+"Шүүлтүүрээ өөрчилж үзнэ үү, эсвэл": "Try other filters, or start with",
+"Энэ ажлын чат руу бичих… (Enter)": "Write to this job chat… (Enter)",
+"Энэ сард батлагдсан": "Accepted this month",
+"Энэ хэсэг одоо харагдах хуудсанд алга": "This section is not on the current page",
+"Эхлээд «💬 Чат» цэснээс нэрээ сонгоно уу": "First choose your name in «💬 Chat»",
+"Явц": "Progress",
+"бүгд хүрэлцээтэй": "all sufficient",
+"дутуу": "low",
+"сая ₮": "M ₮",
+"товчоор эхэлнэ.": "button.",
+"тойм": "overview",
+"төлсөн": "paid",
+"хугацаа дууссан": "expired",
+"хүчинтэй": "valid until",
+"Үнийн санал олдсонгүй": "No quotations found",
+"үнэ, стандарт": "prices, standards",
+"Өглөөний мэнд": "Good morning",
+"Өгөгдөл, төсөл": "Data, project",
+"Өдрийн мэнд": "Good afternoon",
+"өрөлт, G-code": "nesting, G-code",
+"— захиалагчгүй —": "— no customer —",
+"— огноогүй —": "— no date —",
+"— хариуцагчгүй —": "— no owner —",
+"⇪ Үнийн санал оруулах": "⇪ Import quotation",
+"✓ Батлах → Ажил болгох": "✓ Accept → Make job",
+"нээлттэй санал": "open quotes",
+"бараа дутуу": "items low",
+"нээлттэй даалгавар": "open tasks",
+"хийгдэж буй": "in progress",
+"нэхэмжлэх": "invoices",
+"гэрээ": "contract",
+"Хайх: дугаар, захиалагч, ажлын нэр, хүн…": "Search: number, customer, job name, person…",
+"мессеж": "messages",
+"Бүх програм": "All apps",
+"Тохиргоо, өгөгдөл": "Settings, data",
+"Өмнөх": "Previous",
+"Дараах": "Next",
+"Бүлэглэх": "Group by",
+"Хуваарь": "Schedule",
+"Ажил болгох": "Make job"
 };
 /* ================= KH Fab — language (МН / EN) and theme (Day / Night) =================
    The UI is written in Mongolian. In English mode every Mongolian fragment that reaches the
@@ -4962,9 +5262,9 @@ function i18nButtons() {
 }
 (() => {
   try { const t = localStorage.getItem(THEME_KEY); if (t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t); } catch (e) { }
-  { const V = ['modern', 'calm', 'dark', 'fintech', 'bento'], apply = k => { const h = document.documentElement; h.setAttribute('data-skin', 'modern'); if (k === 'modern') h.removeAttribute('data-var'); else h.setAttribute('data-var', k); if (k === 'dark') h.setAttribute('data-theme', 'dark'); else if (h.dataset.forcedDark) h.setAttribute('data-theme', 'light'); h.dataset.forcedDark = k === 'dark' ? '1' : ''; if (typeof i18nButtons === 'function') i18nButtons(); };
-    let k = 'modern'; try { k = localStorage.getItem('kh-skin') || 'modern'; } catch (e) { } if (!V.includes(k)) k = 'modern'; apply(k);
-    const sel = document.getElementById('skinSel'); if (sel) { sel.value = k; sel.addEventListener('change', () => { apply(sel.value); try { localStorage.setItem('kh-skin', sel.value); } catch (e) { } }); } }
+  { const V = ['erp', 'modern', 'calm', 'dark', 'fintech', 'bento'], apply = k => { const h = document.documentElement; h.setAttribute('data-skin', 'modern'); if (k === 'modern') h.removeAttribute('data-var'); else h.setAttribute('data-var', k); if (k === 'dark') h.setAttribute('data-theme', 'dark'); else if (h.dataset.forcedDark) h.setAttribute('data-theme', 'light'); h.dataset.forcedDark = k === 'dark' ? '1' : ''; if (typeof i18nButtons === 'function') i18nButtons(); };
+    let k = 'erp'; try { k = localStorage.getItem('kh-skin2') || 'erp'; } catch (e) { } if (!V.includes(k)) k = 'erp'; apply(k);
+    const sel = document.getElementById('skinSel'); if (sel) { sel.value = k; sel.addEventListener('change', () => { const was = document.documentElement.dataset.var === 'erp'; try { localStorage.setItem('kh-skin2', sel.value); } catch (e) { } if (was || sel.value === 'erp') { location.reload(); return; } apply(sel.value); }); } }
   document.documentElement.lang = LANG === 'en' ? 'en' : 'mn';
   trObs.observe(document.documentElement, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: TR_ATTRS });
   if (LANG === 'en') trWalk(document.body);
@@ -15119,4 +15419,384 @@ function renderLib(el) {
 try { const m0 = localStorage.getItem(KEY + ':mod'); if (['bend', 'jobs', 'info', 'insp', 'dash', 'quotes', 'docs', 'team', 'ideas', 'plan'].includes(m0)) setModule(m0); } catch (e) { }
 
 applyLogoUI(); contactLists();
+/* ================= Kh International — ERP shell (Odoo-style): apps & top menu, breadcrumbs, control panel,
+   list / kanban views, form status bar + smart buttons + chatter, home dashboard.
+   It sits on top of the existing modules: they still render their own content; this file arranges it. ================= */
+const erpOn = () => document.documentElement.dataset.var === 'erp';
+const ERP_IC = {
+  home: '<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/>',
+  sales: '<path d="M7 3h8l4 4v14H7z"/><path d="M15 3v4h4"/><path d="M10 12h6M10 16h6"/>',
+  mfg: '<path d="M3 21V10l6 4V10l6 4V6l6 4v11z"/><path d="M7 17h2M12 17h2M17 17h2"/>',
+  cut: '<rect x="3" y="5" width="18" height="14" rx="1"/><path d="M7 9h4v4H7zM14 9l3 6"/>',
+  stock: '<path d="M3 8l9-5 9 5v8l-9 5-9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/>',
+  team: '<circle cx="9" cy="8" r="3"/><path d="M3 20c0-3 3-5 6-5s6 2 6 5"/><circle cx="17" cy="9" r="2.5"/><path d="M16 15c3 0 5 2 5 5"/>',
+  lib: '<path d="M4 4h6a2 2 0 012 2v14a2 2 0 00-2-2H4zM20 4h-6a2 2 0 00-2 2v14a2 2 0 012-2h6z"/>',
+  grid: '<rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><rect x="14" y="14" width="6" height="6" rx="1"/>',
+  list: '<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',
+  kanban: '<rect x="3" y="4" width="5" height="16" rx="1"/><rect x="10" y="4" width="5" height="10" rx="1"/><rect x="17" y="4" width="4" height="13" rx="1"/>',
+  quote: '<path d="M7 3h8l4 4v14H7z"/><path d="M10 13h6M10 17h4"/>', inv: '<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/>',
+  box: '<path d="M3 8l9-5 9 5v8l-9 5-9-5z"/><path d="M3 8l9 5 9-5"/>', cal: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+  task: '<path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 01-2 2H6a2 2 0 01-2-2V5a2 2 0 012-2h9"/>', file: '<path d="M21 12l-9 9a5 5 0 01-7-7l9-9a3.5 3.5 0 015 5l-9 9a2 2 0 01-3-3l8-8"/>',
+  chat: '<path d="M21 12a8 8 0 01-11.6 7.1L4 20l1-4.6A8 8 0 1121 12z"/>', calc: '<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 12h2M12 12h2M16 12h0M8 16h2M12 16h2"/>',
+  search: '<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>',
+  truck: '<path d="M3 6h11v10H3zM14 9h4l3 3v4h-7"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/>'
+};
+const erpIcon = (k, cls = '') => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ERP_IC[k] || ''}</svg>`;
+/* apps and their menus: a route is a module, or module:tab */
+const ERP_APPS = [
+  { k: 'home', n: 'Нүүр', ic: 'home', c: '#344054', items: [['dash', 'Хяналтын самбар']] },
+  { k: 'sales', n: 'Борлуулалт', ic: 'sales', c: '#e0650f', items: [['quotes', 'Үнийн санал'], ['docs:invoices', 'Нэхэмжлэх'], ['info:org', 'Харилцагч'], ['docs:forms', 'Маягт']] },
+  { k: 'mfg', n: 'Үйлдвэрлэл', ic: 'mfg', c: '#1d4ed8', items: [['jobs', 'Ажил'], ['plan', 'Төлөвлөгөө'], ['docs:scopes', 'Scope'], ['docs:dockets', 'Packing list']] },
+  { k: 'cut', n: 'Зүсэлт, нугалалт', ic: 'cut', c: '#0e7490', items: [['nest', 'Лазер өрөлт'], ['bend', 'Нугалалт'], ['docs:kits', 'Иж бүрдэл']] },
+  { k: 'stock', n: 'Агуулах', ic: 'stock', c: '#15803d', items: [['stock', 'Агуулах'], ['docs:certs', 'Материалын гэрчилгээ']] },
+  { k: 'team', n: 'Баг', ic: 'team', c: '#7c3aed', items: [['team', 'Даалгавар'], ['ideas', 'Санаа, сайжруулалт'], ['insp', 'Үзлэг · ХАБ']] },
+  { k: 'lib', n: 'Сан', ic: 'lib', c: '#b45309', items: [['info:cat', 'Үнийн сан'], ['info:std', 'Стандарт'], ['info:tpl', 'Загвар'], ['info:mach', 'Техник']] }
+];
+const ERP = { route: 'dash', launch: false };
+const erpAppOf = r => ERP_APPS.find(a => a.items.some(i => i[0] === r)) || ERP_APPS.find(a => a.items.some(i => i[0].split(':')[0] === String(r).split(':')[0])) || ERP_APPS[0];
+const erpInit2 = s => String(s || '?').trim().split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase();
+const ERP_AVC = ['#e0650f', '#1d4ed8', '#0e7490', '#15803d', '#7c3aed', '#b45309', '#be123c', '#475467'];
+const erpAvColor = s => ERP_AVC[[...String(s || '')].reduce((a, ch) => a + ch.charCodeAt(0), 0) % ERP_AVC.length];
+const erpAv = (name, t) => `<span class="erp-av" style="background:${erpAvColor(name)}" title="${esc(t || name || '')}">${esc(erpInit2(name))}</span>`;
+const erpM = v => money(Math.round(+v || 0));
+
+/* ---------- navigation ---------- */
+function erpGo(route, o = {}) {
+  ERP.route = route; ERP.launch = false; const [m, t] = String(route).split(':');
+  if (m === 'docs') {
+    setModule('docs'); J.tab = t || 'dockets'; J.dash = false;
+    $$('[data-jtab]').forEach(x => x.classList.toggle('on', x.dataset.jtab === J.tab)); ['jobs', 'kits', 'certs', 'dockets', 'forms', 'scopes', 'invoices'].forEach(k => { const e = $('#jtab-' + k); if (e) e.hidden = k !== J.tab; });
+    renderJobs();
+  } else if (m === 'info') { setModule('info'); if (t && typeof IN !== 'undefined') { IN.tab = t; renderInfo(); } }
+  else if (m === 'jobs' || m === 'quotes') { setModule(m); if (!o.keep) { J.sel = null; J.sub = m === 'quotes' ? 'quote' : 'main'; } renderJobs(); }
+  else setModule(m);
+  try { localStorage.setItem('kh-erp-route', route); } catch (e) { }
+  erpNav(); const mm = $$('.main').find(x => !x.hidden); if (mm) mm.scrollTop = 0;
+}
+function erpCurRoute() {
+  const v = document.documentElement.dataset.jview, act = $$('.modtabs button.on')[0], m = act ? act.dataset.mod : 'nest';
+  if (v === 'docs' || (m === 'docs')) return 'docs:' + (J.tab || 'dockets');
+  if (m === 'info') return 'info:' + ((typeof IN !== 'undefined' && IN.tab) || 'cat');
+  return m;
+}
+function erpNav() {
+  const nav = $('#erpNav'); if (!nav) return; const r = erpCurRoute(); ERP.route = r; const app = erpAppOf(r);
+  nav.querySelector('.erp-appname').textContent = app.n;
+  nav.querySelector('.erp-menu').innerHTML = app.items.map(([k, n]) => `<button data-erp="${k}" class="${k === r || (k.split(':')[0] === r.split(':')[0] && !app.items.some(x => x[0] === r) && app.items.filter(x => x[0].split(':')[0] === r.split(':')[0]).length === 1) ? 'on' : ''}">${esc(n)}</button>`).join('');
+  const full = (r === 'dash' || r === 'jobs' || r === 'quotes');
+  document.documentElement.toggleAttribute('data-erpfull', full);
+  const ch = $('#btnChat'); if (ch && typeof chatBadge === 'function') chatBadge();
+}
+function erpLaunch(open) {
+  ERP.launch = open == null ? !ERP.launch : open; let L = $('#erpLaunch');
+  if (!ERP.launch) { if (L) L.remove(); return; }
+  if (!L) { L = document.createElement('div'); L.id = 'erpLaunch'; L.className = 'erp-launch'; document.body.appendChild(L); }
+  const cnt = erpCounts();
+  L.innerHTML = `<div class="grid">${ERP_APPS.map(a => `<button class="erp-tile" data-app="${a.k}"><i style="background:${a.c}">${erpIcon(a.ic)}</i><b>${esc(a.n)}</b><small>${esc(cnt[a.k] || '')}</small></button>`).join('')}</div>`;
+  L.addEventListener('click', e => { const b = e.target.closest('[data-app]'); if (!b) { if (e.target === L) erpLaunch(false); return; } const a = ERP_APPS.find(x => x.k === b.dataset.app); erpGo(a.items[0][0]); });
+}
+function erpCounts() {
+  const JB = topJobs().filter(j => !isQ(j)), act = JB.filter(j => !['done', 'given'].includes(j.status)), Q = topJobs().filter(j => isQ(j) && ['draft', 'sent'].includes(j.qst || 'draft'));
+  const low = (typeof stk === 'function' ? stk() : []).filter(it => it.min > 0 && +it.qty <= +it.min).length, tk = (typeof tasks === 'function' ? tasks() : []).filter(t => t.status !== 'done').length;
+  return { home: 'тойм', sales: `${Q.length} нээлттэй санал`, mfg: `${act.length} идэвхтэй ажил`, cut: 'өрөлт, G-code', stock: low ? `${low} бараа дутуу` : 'үлдэгдэл', team: `${tk} нээлттэй даалгавар`, lib: 'үнэ, стандарт' };
+}
+
+/* ---------- control panel ---------- */
+const EV = (() => { let s = {}; try { s = JSON.parse(localStorage.getItem('kh-erp-views') || '{}'); } catch (e) { } return Object.assign({ jobs: { view: 'list', f: ['active'], g: '', q: '', sort: '' }, quotes: { view: 'list', f: ['open'], g: '', q: '', sort: '' } }, s); })();
+const evSave = () => { try { localStorage.setItem('kh-erp-views', JSON.stringify({ jobs: Object.assign({}, EV.jobs, { q: '' }), quotes: Object.assign({}, EV.quotes, { q: '' }) })); } catch (e) { } };
+const ERP_F = {
+  jobs: [['active', 'Идэвхтэй', j => !['done', 'given'].includes(j.status)], ['late', 'Хугацаа хэтэрсэн', j => !['done', 'given'].includes(j.status) && j.due && j.due < today()], ['mine', 'Миний', j => S.me && j.owner === S.me], ['done', 'Дууссан', j => ['done', 'given'].includes(j.status)]],
+  quotes: [['open', 'Нээлттэй', j => ['draft', 'sent'].includes(j.qst || 'draft') && isQ(j)], ['sent', 'Илгээсэн', j => j.qst === 'sent' && isQ(j)], ['won', 'Батлагдсан', j => j.qst === 'won'], ['lost', 'Татгалзсан', j => j.qst === 'lost'], ['mine', 'Миний', j => S.me && j.owner === S.me]]
+};
+const ERP_G = { jobs: [['', 'Бүлэглэхгүй'], ['status', 'Төлөвөөр'], ['customer', 'Захиалагчаар'], ['owner', 'Хариуцагчаар'], ['month', 'Сараар']], quotes: [['', 'Бүлэглэхгүй'], ['qst', 'Төлөвөөр'], ['customer', 'Захиалагчаар'], ['owner', 'Хариуцагчаар'], ['month', 'Сараар']] };
+function erpRecs(v) {
+  const st = EV[v], q = lc(st.q || '');
+  let L = topJobs().filter(j => v === 'quotes' ? (isQ(j) || j.qst === 'won') : !isQ(j));
+  const F = ERP_F[v].filter(f => st.f.includes(f[0]));
+  if (F.length) { const state = F.filter(f => f[0] !== 'mine' && f[0] !== 'late'), other = F.filter(f => f[0] === 'mine' || f[0] === 'late'); L = L.filter(j => (!state.length || state.some(f => f[2](j))) && other.every(f => f[2](j))); }
+  else if (v === 'quotes') L = L.filter(j => isQ(j));
+  if (q) L = L.filter(j => lc([j.no, j.title, j.customer, pName(j.owner), j.quote && j.quote.no, j.note].join(' ')).includes(q));
+  const R = L.map(j => erpRow(j, v));
+  const so = st.sort || (v === 'quotes' ? '-date' : 'due'), d = so[0] === '-' ? -1 : 1, k = so.replace(/^-/, '');
+  R.sort((a, b) => { const x = a[k] ?? '', y = b[k] ?? ''; return (typeof x === 'number' && typeof y === 'number' ? x - y : String(x || (d > 0 ? '￿' : '')).localeCompare(String(y || (d > 0 ? '￿' : '')))) * d; });
+  return R;
+}
+function erpRow(j, v) {
+  if (v === 'quotes') { let c = null; try { c = quoteCalc(j); } catch (e) { } const q = j.quote || {}; const until = q.date ? addDays(q.date, +q.valid || 0) : '';
+    return { j, no: (q.no || j.no), date: q.date || j.created || '', customer: j.customer || '', title: j.title || '', owner: pName(j.owner), until, amount: c ? c.net : 0, margin: c && c.net && c.cost ? c.marginPct : null, st: j.qst || 'draft', stn: (QST.find(x => x[0] === (j.qst || 'draft')) || [, ''])[1] }; }
+  const m = jobMoney(j); let pct = 0; try { pct = progCalc(j).pct * 100; } catch (e) { }
+  const inv = (j.inv || []).reduce((a, i) => a + (+i.amount || 0), 0), paid = (j.inv || []).reduce((a, i) => a + invPaid(i), 0);
+  return { j, no: j.no, date: j.created || '', customer: j.customer || '', title: j.title || '', owner: pName(j.owner), due: j.due || '', pct, amount: m.price || 0, inv, paid, st: j.status || 'new', stn: (JST.find(x => x[0] === j.status) || [, 'Шинэ'])[1] };
+}
+function erpCP(o) {
+  const crumbs = o.crumbs.map((c, i) => i < o.crumbs.length - 1 ? `<a data-crumb="${i}">${esc(c[0])}</a><span class="sep">/</span>` : `<b title="${esc(c[0])}">${esc(c[0])}</b>`).join('');
+  return `<div class="erp-cp"><div class="erp-crumbs">${crumbs}</div><div class="erp-acts">${o.right || ''}</div>${o.row2 ? `<div class="row2">${o.row2}</div>` : ''}</div>`;
+}
+function erpBindCrumbs(el, crumbs) { el.querySelectorAll('[data-crumb]').forEach(a => a.addEventListener('click', () => { const f = crumbs[+a.dataset.crumb][1]; if (f) f(); })); }
+
+/* ---------- list & kanban (jobs, quotes) ---------- */
+function erpList(el, v) {
+  const st = EV[v], R = erpRecs(v), isJ = v === 'jobs', title = isJ ? 'Ажил' : 'Үнийн санал';
+  const facets = st.f.map(k => { const f = ERP_F[v].find(x => x[0] === k); return f ? `<span class="erp-facet">${esc(f[1])}<button data-unf="${k}" title="Хасах">×</button></span>` : ''; }).join('') + (st.g ? `<span class="erp-facet"><b>Бүлэг:</b> ${esc((ERP_G[v].find(g => g[0] === st.g) || [, ''])[1])}<button data-ung="1">×</button></span>` : '');
+  el.innerHTML = erpCP({ crumbs: [[title]],
+    right: `<button class="btn primary" id="erpNew">+ ${isJ ? 'Шинэ ажил' : 'Шинэ үнийн санал'}</button><button class="btn" id="erpImp">⇪ Үнийн санал оруулах</button>`,
+    row2: `<div class="erp-search">${erpIcon('search').replace('<svg', '<svg width="16" height="16" style="color:var(--ink-3);flex:none"')}${facets}<input id="erpQ" placeholder="Хайх: дугаар, захиалагч, ажлын нэр, хүн…" value="${esc(st.q || '')}"></div>
+      <div class="erp-filters">${ERP_F[v].map(([k, n]) => `<button class="erp-chip${st.f.includes(k) ? ' on' : ''}" data-f="${k}">${esc(n)}</button>`).join('')}</div>
+      <select class="inp erp-gsel" id="erpG" title="Бүлэглэх">${ERP_G[v].map(([k, n]) => `<option value="${k}"${st.g === k ? ' selected' : ''}>${k ? n : 'Бүлэглэх…'}</option>`).join('')}</select>
+      <span class="erp-pager">${R.length} бичлэг</span>
+      <span class="erp-views"><button data-view="list" class="${st.view === 'list' ? 'on' : ''}" title="Жагсаалт">${erpIcon('list')}</button><button data-view="kanban" class="${st.view === 'kanban' ? 'on' : ''}" title="Kanban">${erpIcon('kanban')}</button></span>` }) +
+    `<div class="erp-view">${!R.length ? `<div class="erp-empty"><b>${isJ ? 'Ажил олдсонгүй' : 'Үнийн санал олдсонгүй'}</b>${st.q || st.f.length ? 'Шүүлтүүрээ өөрчилж үзнэ үү, эсвэл ' : ''}<b style="display:inline">+ ${isJ ? 'Шинэ ажил' : 'Шинэ үнийн санал'}</b> товчоор эхэлнэ.</div>` : st.view === 'kanban' ? erpKanban(R, v) : erpTable(R, v)}</div>`;
+  /* bindings */
+  const go = j => { J.sel = j.id; J.sub = isQ(j) ? 'quote' : 'main'; if (!isQ(j) && v === 'quotes') { setModule('jobs'); J.sel = j.id; } renderJobs(); const m = $('#jobsMain'); if (m) m.scrollTop = 0; erpNav(); };
+  el.querySelector('#erpNew').addEventListener('click', () => { const j = isJ ? newJob() : newQuote(); J.sel = j.id; J.sub = isJ ? 'main' : 'quote'; save(); renderJobs(); });
+  el.querySelector('#erpImp').addEventListener('click', () => { const f = $('#qImpIn'); if (f) f.click(); });
+  const qi = el.querySelector('#erpQ'); let tm; qi.addEventListener('input', () => { clearTimeout(tm); tm = setTimeout(() => { st.q = qi.value; erpList(el, v); const n = el.querySelector('#erpQ'); n.focus(); n.setSelectionRange(n.value.length, n.value.length); }, 220); });
+  qi.addEventListener('keydown', e => { if (e.key === 'Backspace' && !qi.value && st.f.length) { st.f.pop(); evSave(); erpList(el, v); el.querySelector('#erpQ').focus(); } });
+  el.querySelectorAll('[data-f]').forEach(b => b.addEventListener('click', () => { const k = b.dataset.f, i = st.f.indexOf(k); if (i >= 0) st.f.splice(i, 1); else st.f.push(k); evSave(); erpList(el, v); }));
+  el.querySelectorAll('[data-unf]').forEach(b => b.addEventListener('click', () => { st.f = st.f.filter(k => k !== b.dataset.unf); evSave(); erpList(el, v); }));
+  el.querySelectorAll('[data-ung]').forEach(b => b.addEventListener('click', () => { st.g = ''; evSave(); erpList(el, v); }));
+  el.querySelector('#erpG').addEventListener('change', e => { st.g = e.target.value; evSave(); erpList(el, v); });
+  el.querySelectorAll('[data-view]').forEach(b => b.addEventListener('click', () => { st.view = b.dataset.view; evSave(); erpList(el, v); }));
+  el.querySelectorAll('[data-sort]').forEach(th => th.addEventListener('click', () => { const k = th.dataset.sort; st.sort = st.sort === k ? '-' + k : k; evSave(); erpList(el, v); }));
+  el.querySelectorAll('tr.grp').forEach(tr => tr.addEventListener('click', () => { ERP.fold = ERP.fold || {}; ERP.fold[tr.dataset.gk] = !ERP.fold[tr.dataset.gk]; erpList(el, v); }));
+  el.querySelectorAll('[data-rec]').forEach(r => r.addEventListener('click', () => go(findJob(r.dataset.rec))));
+  /* kanban drag → status */
+  el.querySelectorAll('.erp-card').forEach(c => { c.draggable = true; c.addEventListener('dragstart', e => { e.dataTransfer.setData('text/plain', c.dataset.rec); c.classList.add('dragging'); }); c.addEventListener('dragend', () => c.classList.remove('dragging')); });
+  el.querySelectorAll('.erp-kcol').forEach(col => { col.addEventListener('dragover', e => { e.preventDefault(); col.classList.add('drop'); }); col.addEventListener('dragleave', () => col.classList.remove('drop'));
+    col.addEventListener('drop', e => { e.preventDefault(); col.classList.remove('drop'); const j = findJob(e.dataTransfer.getData('text/plain')); if (!j) return; erpSetStage(j, col.dataset.col, () => erpList(el, v)); }); });
+  ERP.order = R.map(r => r.j.id); ERP.orderV = v;
+}
+const ERP_COLS = {
+  jobs: [['no', 'Дугаар'], ['title', 'Ажлын нэр'], ['customer', 'Захиалагч'], ['owner', 'Хариуцагч'], ['due', 'Хугацаа'], ['pct', 'Явц', 'r'], ['amount', 'Гэрээ, ₮', 'r'], ['inv', 'Нэхэмжилсэн, ₮', 'r'], ['st', 'Төлөв']],
+  quotes: [['no', 'Санал №'], ['date', 'Огноо'], ['customer', 'Захиалагч'], ['title', 'Ажлын нэр'], ['owner', 'Хариуцагч'], ['until', 'Хүчинтэй'], ['amount', 'Дүн (НӨАТ-гүй), ₮', 'r'], ['margin', 'Margin', 'r'], ['st', 'Төлөв']]
+};
+function erpGroupKey(r, g) { if (g === 'status' || g === 'qst') return r.stn; if (g === 'customer') return r.customer || '— захиалагчгүй —'; if (g === 'owner') return r.owner || '— хариуцагчгүй —'; if (g === 'month') return String(r.date || '').slice(0, 7) || '— огноогүй —'; return ''; }
+function erpTable(R, v) {
+  const st = EV[v], C = ERP_COLS[v], so = st.sort || '', sk = so.replace(/^-/, '');
+  const cell = (r, k) => {
+    if (k === 'no') return `<td class="no">${esc(r.no)}</td>`;
+    if (k === 'title') return `<td><div>${esc(r.title || '—')}</div></td>`;
+    if (k === 'owner') return `<td>${r.owner ? `<span class="erp-own">${erpAv(r.owner)}${esc(r.owner)}</span>` : '<span class="sub">—</span>'}</td>`;
+    if (k === 'due') { const lt = r.due && r.due < today() && !['done', 'given'].includes(r.st); return `<td class="num${lt ? ' late' : ''}">${esc(r.due || '')}</td>`; }
+    if (k === 'until') { const lt = r.until && r.until < today() && ['draft', 'sent'].includes(r.st); return `<td class="num${lt ? ' late' : ''}">${esc(r.until || '')}</td>`; }
+    if (k === 'pct') return `<td class="r"><div class="erp-prog"><i><b style="width:${Math.round(r.pct)}%"></b></i><span>${Math.round(r.pct)}%</span></div></td>`;
+    if (k === 'amount') return `<td class="r num">${r.amount ? erpM(r.amount) : ''}</td>`;
+    if (k === 'inv') return `<td class="r num">${r.inv ? erpM(r.inv) : ''}${r.inv ? `<div class="sub">${r.paid >= r.inv ? 'төлсөн' : `төлсөн ${erpM(r.paid)}`}</div>` : ''}</td>`;
+    if (k === 'margin') return `<td class="r num">${r.margin == null ? '' : nf(r.margin, 1) + '%'}</td>`;
+    if (k === 'st') return `<td><span class="erp-b s-${r.st}">${esc(r.stn)}</span></td>`;
+    if (k === 'date') return `<td class="num">${esc(r.date || '')}</td>`;
+    return `<td>${esc(r[k] || '')}</td>`;
+  };
+  const row = r => `<tr class="rec" data-rec="${r.j.id}">${C.map(([k]) => cell(r, k)).join('')}</tr>`;
+  const sum = A => A.reduce((a, r) => a + (+r.amount || 0), 0);
+  let body = '';
+  if (st.g) { const G = new Map(); R.forEach(r => { const k = erpGroupKey(r, st.g); if (!G.has(k)) G.set(k, []); G.get(k).push(r); });
+    const order = st.g === 'status' ? JST.map(x => x[1]) : st.g === 'qst' ? QST.map(x => x[1]) : [...G.keys()].sort();
+    order.filter(k => G.has(k)).forEach(k => { const A = G.get(k), fold = ERP.fold && ERP.fold[k]; body += `<tr class="grp" data-gk="${esc(k)}"><td colspan="${C.length - 3}">${fold ? '▸' : '▾'} ${esc(k)}<span class="cnt">(${A.length})</span></td><td colspan="3" class="r num">${erpM(sum(A))}</td></tr>` + (fold ? '' : A.map(row).join('')); });
+  } else body = R.map(row).join('');
+  return `<div class="erp-list"><table><thead><tr>${C.map(([k, n, a]) => `<th class="${a || ''}" data-sort="${k}">${esc(n)}${sk === k ? `<span class="so"> ${so[0] === '-' ? '↓' : '↑'}</span>` : ''}</th>`).join('')}</tr></thead><tbody>${body}</tbody>
+    <tfoot><tr>${C.map(([k, , al], i) => `<td class="${al || ''}${k === 'amount' || k === 'inv' ? ' num' : ''}">${i === 0 ? R.length + ' бичлэг' : k === 'amount' ? erpM(sum(R)) : k === 'inv' ? erpM(R.reduce((a, r) => a + r.inv, 0)) : ''}</td>`).join('')}</tr></tfoot></table></div>`;
+}
+function erpKanban(R, v) {
+  const cols = v === 'jobs' ? JST.map(([k, n]) => [k, n]) : QST.map(([k, n]) => [k, n]);
+  const colC = { new: '#98a2b3', nest: '#2e90fa', cut: '#f79009', weld: '#7a5af8', done: '#12b76a', given: '#667085', draft: '#98a2b3', sent: '#2e90fa', won: '#12b76a', lost: '#f04438' };
+  return `<div class="erp-kanban">${cols.map(([k, n]) => { const A = R.filter(r => r.st === k); return `<div class="erp-kcol" data-col="${k}"><div class="erp-kh"><span>${esc(n)}</span><span class="cnt">${A.length}</span><span class="sum">${A.length ? erpM(A.reduce((a, r) => a + r.amount, 0)) : ''}</span></div><span class="erp-kh bar" style="background:${colC[k] || '#98a2b3'}"></span>
+    ${A.map(r => { const lt = (r.due && r.due < today() && !['done', 'given'].includes(r.st)) || (r.until && r.until < today() && ['draft', 'sent'].includes(r.st));
+      return `<div class="erp-card" data-rec="${r.j.id}"><span class="no">${esc(r.no)}</span><div class="t">${esc(r.title || '—')}</div><div class="c">${esc(r.customer || '')}</div>${v === 'jobs' ? `<div class="erp-prog"><i><b style="width:${Math.round(r.pct)}%"></b></i><span>${Math.round(r.pct)}%</span></div>` : ''}
+        <div class="ft">${r.owner ? erpAv(r.owner) : ''}<span class="${lt ? 'late' : ''}">${esc(v === 'jobs' ? (r.due ? '⏱ ' + r.due : '') : (r.until ? 'хүчинтэй ' + r.until : ''))}</span><span class="amt">${r.amount ? erpM(r.amount) : ''}</span></div></div>`; }).join('')}</div>`; }).join('')}</div>`;
+}
+/* change a quote / job stage from the status bar or a kanban drop */
+function erpSetStage(j, k, after) {
+  if (isQ(j) || (j.qst && ['draft', 'sent', 'won', 'lost'].includes(k) && !JST.some(s => s[0] === k))) {
+    if (k === (j.qst || 'draft')) return;
+    if (k === 'won') { if (!isQ(j)) return; if (!confirm(`${j.quote.no || j.no} саналыг баталж ажил болгох уу? Бүх мэдээлэл хадгалагдана.`)) return; quoteToJob(j); save(); toast('Ажил боллоо: ' + j.no); after && after(); return; }
+    if (!isQ(j)) { toast('Батлагдсан саналыг ажлаас буцаахгүй'); return; }
+    const o = (QST.find(x => x[0] === (j.qst || 'draft')) || [, ''])[1]; j.qst = k; jobLog(`Үнийн саналын төлөв: ${o} → ${(QST.find(x => x[0] === k) || [, k])[1]}`, j); save(); after && after(); return;
+  }
+  if (k === j.status) return; const o = jstName(j.status); j.status = k; jobLog(`Төлөв: ${o} → ${jstName(k)}`, j); save(); after && after();
+}
+
+/* ---------- form: breadcrumb, status bar, smart buttons, chatter ---------- */
+function erpDecorate(el, job, v) {
+  const P = job.parent ? findJob(job.parent) : null, isQt = isQ(job) || (P && isQ(P));
+  const listName = isQt ? 'Үнийн санал' : 'Ажил', listV = isQt ? 'quotes' : 'jobs';
+  const back = () => { setModule(listV); J.sel = null; renderJobs(); erpNav(); };
+  const crumbs = [[listName, back]]; if (P) crumbs.push([`${P.quote && P.quote.no || P.no}`, () => { J.sel = P.id; J.sub = isQ(P) ? 'quote' : 'main'; renderJobs(); }]);
+  crumbs.push([`${(isQ(job) ? (job.quote.no || job.no) : job.no)}${job.title ? ' — ' + job.title : ''}`]);
+  const ord = ERP.orderV === listV && ERP.order ? ERP.order : erpRecs(listV).map(r => r.j.id), idx = ord.indexOf(job.id);
+  const pager = idx >= 0 ? `<span class="erp-pager"><span>${idx + 1} / ${ord.length}</span><button data-pg="-1"${idx <= 0 ? ' disabled' : ''} title="Өмнөх">‹</button><button data-pg="1"${idx >= ord.length - 1 ? ' disabled' : ''} title="Дараах">›</button></span>` : '';
+  const chatOff = document.documentElement.hasAttribute('data-erpnochat');
+  const cp = erpCP({ crumbs, right: `${pager}<button class="btn" id="erpChatT" title="Чат, түүх харуулах/нуух">${erpIcon('chat').replace('<svg', '<svg width="16" height="16"')} ${chatOff ? 'Чат' : ''}</button><button class="btn primary" id="erpNew2">+ Шинэ</button>` });
+  /* status bar */
+  let acts = '', stages = '';
+  if (job.parent) { acts = `<span class="muted">Мөрийн тусдаа тооцоо — ${esc((P && (P.quote.no || P.no)) || '')}</span>`; }
+  else if (isQ(job)) {
+    const q = job.qst || 'draft';
+    acts = `${q === 'draft' ? '<button class="btn primary" data-stage="sent">Илгээсэн гэж тэмдэглэх</button>' : ''}<button class="btn${q === 'sent' ? ' primary' : ''}" data-stage="won">✓ Батлах → Ажил болгох</button>${q !== 'lost' ? '<button class="btn" data-stage="lost">Татгалзсан</button>' : '<button class="btn" data-stage="draft">Дахин нээх</button>'}`;
+    const S2 = q === 'lost' ? [['draft', 'Ноорог'], ['sent', 'Илгээсэн'], ['lost', 'Татгалзсан']] : [['draft', 'Ноорог'], ['sent', 'Илгээсэн'], ['won', 'Батлагдсан']], ci = S2.findIndex(s => s[0] === q);
+    stages = S2.map(([k, n], i) => `<button data-stage="${k}" class="${k === q ? 'on' : i < ci ? 'past' : ''}">${esc(n)}</button>`).join('');
+  } else {
+    const ci = JST.findIndex(s => s[0] === job.status), nx = JST[ci + 1];
+    acts = `${nx ? `<button class="btn primary" data-stage="${nx[0]}">→ ${esc(nx[1])}</button>` : ''}<button class="btn" id="erpDup">⧉ Хуулбар</button>`;
+    stages = JST.map(([k, n], i) => `<button data-stage="${k}" class="${k === job.status ? 'on' : i < ci ? 'past' : ''}">${esc(n)}</button>`).join('');
+  }
+  const sbar = `<div class="erp-sbar"><div class="acts">${acts}</div>${stages ? `<div class="erp-stages">${stages}</div>` : ''}</div>`;
+  /* smart buttons */
+  const sb = [];
+  const add = (k, ic, v2, l, t) => sb.push(`<button data-sm="${k}" title="${esc(t || l)}">${erpIcon(ic)}<span><div class="v">${v2}</div><div class="l">${esc(l)}</div></span></button>`);
+  let c = null; try { c = quoteCalc(job); } catch (e) { }
+  const kids = (S.jobs || []).filter(j => j.parent === job.id).length, files = (job.files || []).length, msgs = typeof chatMsgs === 'function' ? chatMsgs().filter(m => m.ch === job.id).length : 0;
+  if (!job.parent) {
+    if (!isQ(job)) {
+      const inv = job.inv || [], invT = inv.reduce((a, i) => a + (+i.amount || 0), 0), paid = inv.reduce((a, i) => a + invPaid(i), 0);
+      let pg = 0; try { pg = progCalc(job).pct * 100; } catch (e) { }
+      add('quote', 'quote', c ? nf(c.net / 1e6, 1) + 'М' : '—', 'Үнийн санал', c ? `${erpM(c.net)} ₮ НӨАТ-гүй` : '');
+      add('scope', 'cal', Math.round(pg) + '%', 'Хуваарь, явц');
+      add('inv', 'inv', inv.length ? `${inv.length}` : '0', invT ? `Нэхэмжлэх · ${invT ? Math.round(paid / invT * 100) : 0}% төлсөн` : 'Нэхэмжлэх', invT ? `${erpM(invT)} ₮ нэхэмжилсэн, ${erpM(paid)} ₮ төлсөн` : '');
+      add('acc', 'truck', job.dock && job.dock.issued ? '✓' : '—', 'Packing list');
+      const tk = (typeof tasks === 'function' ? tasks() : []).filter(t => t.jobId === job.id), tko = tk.filter(t => t.status !== 'done').length; add('tasks', 'task', `${tko}/${tk.length}`, 'Даалгавар');
+      const mv = (typeof stkMoves === 'function' ? stkMoves() : []).filter(m => m.job === job.id).length; add('stock', 'box', `${mv}`, 'Агуулахаас');
+    } else { add('scope', 'cal', (job.scope && job.scope.stages || []).filter(s => s.name).length + '', 'Scope, үе шат'); if (kids) add('kids', 'calc', `${kids}`, 'Мөрийн тооцоо'); }
+    add('files', 'file', `${files}`, 'Хавсралт');
+  }
+  add('chat', 'chat', `${msgs}`, 'Чат');
+  const smart = `<div class="erp-smart">${sb.join('')}</div>`;
+  /* arrange: cp + status bar on top; left = smart buttons + the page itself; right = chatter */
+  const sheet = document.createElement('div'); sheet.className = 'erp-sheet'; while (el.firstChild) sheet.appendChild(el.firstChild);
+  const top = document.createElement('div'); top.innerHTML = cp + sbar; const form = document.createElement('div'); form.className = 'erp-form';
+  const grid = document.createElement('div'); grid.className = 'erp-fgrid'; const left = document.createElement('div'); left.className = 'erp-fmain'; left.innerHTML = smart; left.appendChild(sheet);
+  const chat = document.createElement('aside'); chat.className = 'erp-chatter'; grid.append(left, chat); form.append(...top.childNodes, grid); el.appendChild(form);
+  erpChatter(chat, job);
+  /* bindings */
+  erpBindCrumbs(form, crumbs);
+  form.querySelectorAll('[data-pg]').forEach(b => b.addEventListener('click', () => { const n = ord[idx + +b.dataset.pg]; if (!n) return; const j2 = findJob(n); J.sel = n; J.sub = isQ(j2) ? 'quote' : (J.sub && !isQ(j2) && J.sub !== 'quote' ? J.sub : 'main'); renderJobs(); }));
+  form.querySelector('#erpNew2').addEventListener('click', () => { const j = isQt ? newQuote() : newJob(); J.sel = j.id; J.sub = isQt ? 'quote' : 'main'; save(); renderJobs(); });
+  form.querySelector('#erpChatT').addEventListener('click', () => { document.documentElement.toggleAttribute('data-erpnochat'); try { localStorage.setItem('kh-erp-nochat', document.documentElement.hasAttribute('data-erpnochat') ? '1' : ''); } catch (e) { } renderJobMain(); });
+  form.querySelectorAll('.erp-sbar [data-stage]').forEach(b => b.addEventListener('click', () => erpSetStage(job, b.dataset.stage, () => { if (!isQ(job) && listV === 'quotes') { setModule('jobs'); J.sel = job.id; J.sub = 'main'; } renderJobs(); erpNav(); })));
+  const dp = form.querySelector('#erpDup'); if (dp) dp.addEventListener('click', () => { const b = sheet.querySelector('#jb_dup'); if (b) b.click(); else toast('Хуулах товч олдсонгүй'); });
+  const scrollTo = re => { const h = [...sheet.querySelectorAll('.bcard-h,h3,.jcard>.bcard-h')].find(x => re.test(x.textContent)); if (h) h.scrollIntoView({ behavior: 'smooth', block: 'start' }); else toast('Энэ хэсэг одоо харагдах хуудсанд алга'); };
+  form.querySelectorAll('[data-sm]').forEach(b => b.addEventListener('click', () => { const k = b.dataset.sm;
+    if (k === 'quote') { J.sub = 'quote'; renderJobs(); } else if (k === 'scope') { J.sub = 'scope'; renderJobs(); } else if (k === 'acc') { J.sub = 'acc'; renderJobs(); }
+    else if (k === 'inv') { if (J.sub !== 'main') { J.sub = 'main'; renderJobs(); } setTimeout(() => scrollTo(/Нэхэмжл|Санхүү/), 60); }
+    else if (k === 'files') { if (!isQ(job) && J.sub !== 'main') { J.sub = 'main'; renderJobs(); } setTimeout(() => scrollTo(/Хавсралт|Файл/), 60); }
+    else if (k === 'tasks') erpGo('team'); else if (k === 'stock') erpGo('stock');
+    else if (k === 'kids') { J.sub = 'quote'; renderJobs(); setTimeout(() => scrollTo(/Мөр|мөр/), 60); }
+    else if (k === 'chat') { document.documentElement.removeAttribute('data-erpnochat'); const t = $('.erp-chatter textarea'); if (t) t.focus(); else renderJobMain(); } }));
+}
+function erpChatter(box, job) {
+  const mode = ERP.chMode || 'msg';
+  const M = (typeof chatMsgs === 'function' ? chatMsgs() : []).filter(m => m.ch === job.id).map(m => ({ t: m.t, who: m.who, b: m.text, kind: 'msg', ph: !!m.src }));
+  const L = (job.log || []).map(l => ({ t: String(l.t || '').replace(' ', 'T'), who: 'Систем', b: l.m, kind: 'log' }));
+  const all = M.concat(L).sort((a, b) => String(b.t).localeCompare(String(a.t))).slice(0, 200);
+  let day = '', tl = '';
+  all.forEach(e => { const d = String(e.t).slice(0, 10); if (d !== day) { day = d; tl += `<div class="erp-tlday">${d === today() ? 'Өнөөдөр' : esc(d)}</div>`; } const tm = String(e.t).slice(11, 16);
+    tl += `<div class="erp-msg ${e.kind}">${e.kind === 'log' ? '<span class="erp-av">⚙</span>' : erpAv(e.who)}<div><div class="h"><b>${esc(e.who)}</b>${e.ph ? '📱 ' : ''}${esc(tm)}</div><div class="b">${esc(e.b)}</div></div></div>`; });
+  const me = typeof chatMe === 'function' ? chatMe() : '';
+  box.innerHTML = `<div class="erp-chh"><button data-chm="msg" class="${mode === 'msg' ? 'on' : ''}">Мессеж илгээх</button><button data-chm="note" class="${mode === 'note' ? 'on' : ''}">Тэмдэглэл</button><span class="sp" style="flex:1"></span><span class="muted" style="font-size:12px">${M.length} мессеж</span></div>
+    <div class="erp-chin"><textarea class="inp" id="erpChTxt" placeholder="${mode === 'msg' ? (me ? 'Энэ ажлын чат руу бичих… (Enter)' : 'Эхлээд «💬 Чат» цэснээс нэрээ сонгоно уу') : 'Дотоод тэмдэглэл — түүхэнд хадгалагдана'}"></textarea><div style="display:flex;gap:6px"><button class="btn primary sm" id="erpChSend">${mode === 'msg' ? 'Илгээх' : 'Тэмдэглэх'}</button><span class="muted" style="font-size:11.5px;align-self:center">${mode === 'msg' ? 'Оффис, үйлдвэр, утсанд харагдана' : 'Зөвхөн түүхэнд'}</span></div></div>
+    <div class="erp-tl">${tl || '<p class="muted" style="font-size:12.5px">Одоогоор түүх алга.</p>'}</div>`;
+  box.querySelectorAll('[data-chm]').forEach(b => b.addEventListener('click', () => { ERP.chMode = b.dataset.chm; erpChatter(box, job); }));
+  const tx = box.querySelector('#erpChTxt'), send = () => { const v2 = tx.value.trim(); if (!v2) return;
+    if (ERP.chMode === 'note') jobLog('📝 ' + v2, job); else { if (!me) { toast('Эхлээд «💬 Чат» цэснээс нэрээ сонгоно уу'); if (typeof chatOpen === 'function') chatOpen('general'); return; } chatPost(job.id, v2); }
+    erpChatter(box, job); const t2 = box.querySelector('#erpChTxt'); if (t2) t2.focus(); };
+  tx.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } });
+  box.querySelector('#erpChSend').addEventListener('click', send);
+}
+
+/* ---------- home ---------- */
+function erpHome(el) {
+  const JB = topJobs().filter(j => !isQ(j)), act = JB.filter(j => !['done', 'given'].includes(j.status)), late = act.filter(j => j.due && j.due < today());
+  const QO = topJobs().filter(j => isQ(j) && ['draft', 'sent'].includes(j.qst || 'draft')), qv = j => { try { return quoteCalc(j).net; } catch (e) { return 0; } };
+  const m0 = today().slice(0, 7), wonM = JB.filter(j => j.qst === 'won' && String((j.log || []).find(l => /Ажил боллоо|ажил болгосон|Батлагдсан/.test(l.m))?.t || j.created || '').slice(0, 7) === m0);
+  const RC = typeof receivables === 'function' ? receivables() : [], rcSum = RC.reduce((a, r) => a + r.left, 0), rcLate = RC.filter(r => r.st[0] === 'late');
+  const low = (typeof stk === 'function' ? stk() : []).filter(it => it.min > 0 && +it.qty <= +it.min), TK = (typeof tasks === 'function' ? tasks() : []).filter(t => t.status !== 'done');
+  const expQ = QO.filter(j => j.quote.date && addDays(j.quote.date, +j.quote.valid || 0) < today());
+  const me = pName(S.me), h = new Date().getHours(), greet = h < 12 ? 'Өглөөний мэнд' : h < 18 ? 'Өдрийн мэнд' : 'Оройн мэнд', cnt = erpCounts();
+  const kpi = (k, v2, s, go, cls = '') => `<button class="erp-kpi ${cls}" data-go="${go}"><span class="k">${k}</span><span class="v">${v2}</span><span class="s">${s}</span></button>`;
+  const al = (arr, f, empty) => `<div class="erp-al">${arr.length ? arr.slice(0, 8).map(f).join('') : `<div class="none">${empty}</div>`}</div>`;
+  el.innerHTML = `<div class="erp-home">
+    <div class="erp-hi"><h1>${greet}${me ? ', ' + esc(me) : ''}</h1><span>${today()} · Kh International</span></div>
+    <div class="erp-appsrow">${ERP_APPS.filter(a => a.k !== 'home').map(a => `<button class="erp-tile" data-app="${a.k}"><i style="background:${a.c}">${erpIcon(a.ic)}</i><b>${esc(a.n)}</b><small>${esc(cnt[a.k] || '')}</small></button>`).join('')}</div>
+    <div class="erp-kpis">
+      ${kpi('Нээлттэй үнийн санал', `${QO.length}`, `${erpM(QO.reduce((a, j) => a + qv(j), 0))} ₮ нийт`, 'quotes')}
+      ${kpi('Энэ сард батлагдсан', `${wonM.length}`, `${erpM(wonM.reduce((a, j) => a + (jobMoney(j).price || 0), 0))} ₮`, 'jobs', 'good')}
+      ${kpi('Идэвхтэй ажил', `${act.length}`, `${erpM(act.reduce((a, j) => a + (jobMoney(j).price || 0), 0))} ₮ гэрээ`, 'jobs')}
+      ${kpi('Хугацаа хэтэрсэн ажил', `${late.length}`, late.slice(0, 3).map(j => j.no).join(', ') || 'алга', 'jobs:late', late.length ? 'bad' : '')}
+      ${kpi('Авлага', `${nf(rcSum / 1e6, 1)}<small>сая ₮</small>`, `${RC.length} нэхэмжлэх`, 'docs:invoices')}
+      ${kpi('Хугацаа хэтэрсэн авлага', `${nf(rcLate.reduce((a, r) => a + r.left, 0) / 1e6, 1)}<small>сая ₮</small>`, `${rcLate.length} нэхэмжлэх`, 'docs:invoices', rcLate.length ? 'bad' : '')}
+      ${kpi('Дутуу бараа', `${low.length}`, low.slice(0, 3).map(i => i.name).join(', ') || 'бүгд хүрэлцээтэй', 'stock', low.length ? 'bad' : '')}
+      ${kpi('Нээлттэй даалгавар', `${TK.length}`, `${TK.filter(t => t.status === 'doing').length} хийгдэж буй`, 'team')}
+    </div>
+    <div class="erp-cols">
+      <div class="erp-panel"><h3>Анхаарах: хугацаа хэтэрсэн ажил<span class="cnt">${late.length}</span></h3>${al(late.sort((a, b) => a.due.localeCompare(b.due)), j => `<button data-job="${j.id}"><span class="erp-b s-${j.status}">${esc(jstName(j.status))}</span><span class="t"><b class="mono">${esc(j.no)}</b> ${esc(j.title || '')} <span class="muted">· ${esc(j.customer || '')}</span></span><span class="r bad">${-daysLeft(j.due)} хоног</span></button>`, 'Хугацаа хэтэрсэн ажил алга 👍')}</div>
+      <div class="erp-panel"><h3>Төлбөр хүлээгдэж буй нэхэмжлэх<span class="cnt">${RC.length}</span></h3>${al(RC.slice().sort((a, b) => (b.st[0] === 'late') - (a.st[0] === 'late') || String(a.i.due || '').localeCompare(String(b.i.due || ''))), r => `<button data-inv="${r.i.id}"><span class="erp-b s-${r.st[0]}">${esc(r.st[1])}</span><span class="t"><b class="mono">${esc(r.i.no || '')}</b> ${esc((r.job && r.job.customer) || (r.i.bill && r.i.bill.company) || '')}</span><span class="r${r.st[0] === 'late' ? ' bad' : ''}">${erpM(r.left)} ₮</span></button>`, 'Авлага алга')}</div>
+      <div class="erp-panel"><h3>Хүлээгдэж буй үнийн санал<span class="cnt">${QO.length}</span></h3>${al(QO.slice().sort((a, b) => String(b.quote.date || '').localeCompare(String(a.quote.date || ''))), j => { const ex = expQ.includes(j); return `<button data-job="${j.id}"><span class="erp-b s-${j.qst || 'draft'}">${esc((QST.find(x => x[0] === (j.qst || 'draft')) || [, ''])[1])}</span><span class="t"><b class="mono">${esc(j.quote.no || j.no)}</b> ${esc(j.title || '')} <span class="muted">· ${esc(j.customer || '')}</span></span><span class="r${ex ? ' bad' : ''}">${ex ? 'хугацаа дууссан' : erpM(qv(j)) + ' ₮'}</span></button>`; }, 'Нээлттэй санал алга')}</div>
+      <div class="erp-panel"><h3>Дутуу бараа (агуулах)<span class="cnt">${low.length}</span></h3>${al(low, i => `<button data-go="stock"><span class="erp-b s-late">дутуу</span><span class="t">${esc(i.name || '')}</span><span class="r bad">${nf(+i.qty || 0, 1)} / ${nf(+i.min || 0, 1)} ${esc(i.unit || '')}</span></button>`, 'Доод үлдэгдлээс доош бараа алга')}</div>
+    </div>
+    <details class="erp-panel" style="padding:0 16px 16px"><summary style="padding:12px 0;cursor:pointer;font-weight:600">Дэлгэрэнгүй тойм — борлуулалт, авлага, ажлын төсөв</summary><div class="erp-oldash" id="erpOldDash"></div></details>
+  </div>`;
+  el.querySelectorAll('[data-app]').forEach(b => b.addEventListener('click', () => { const a = ERP_APPS.find(x => x.k === b.dataset.app); erpGo(a.items[0][0]); }));
+  el.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => { const g = b.dataset.go; if (g === 'jobs:late') { EV.jobs.f = ['active', 'late']; EV.jobs.view = 'list'; evSave(); erpGo('jobs'); } else erpGo(g); }));
+  el.querySelectorAll('[data-job]').forEach(b => b.addEventListener('click', () => { const j = findJob(b.dataset.job); setModule(isQ(j) ? 'quotes' : 'jobs'); J.sel = j.id; J.sub = isQ(j) ? 'quote' : 'main'; renderJobs(); erpNav(); }));
+  el.querySelectorAll('[data-inv]').forEach(b => b.addEventListener('click', () => { if (typeof openInvoice === 'function') openInvoice(b.dataset.inv); erpNav(); }));
+  const od = el.querySelector('details'); od.addEventListener('toggle', () => { if (od.open && !od.dataset.done) { od.dataset.done = 1; try { renderDash(el.querySelector('#erpOldDash')); } catch (e) { } } });
+}
+
+/* ---------- build the navbar, hook the renderers ---------- */
+function erpBuild() {
+  if (!erpOn() || $('#erpNav')) return;
+  const top = $('.top'), acts = top.querySelector('.top-actions');
+  const nav = document.createElement('div'); nav.id = 'erpNav'; nav.className = 'erp-nav';
+  const logo = (top.querySelector('.brand-logo') || {}).src || '';
+  nav.innerHTML = `<button class="erp-apps" id="erpAppsBtn" title="Бүх програм">${erpIcon('grid').replace('<svg', '<svg width="20" height="20"')}</button>${logo ? `<img class="erp-logo" id="erpLogo" src="${logo}" alt="Kh International">` : ''}<span class="erp-appname" id="erpAppName"></span><nav class="erp-menu"></nav>`;
+  top.insertBefore(nav, acts);
+  /* rarely used tools go into the ⚙ menu */
+  const more = document.createElement('div'); more.className = 'erp-more';
+  more.innerHTML = `<button class="btn ghost" id="erpMoreBtn" title="Тохиргоо, өгөгдөл">⚙</button><div class="erp-dd" id="erpDD" hidden><div class="ddh">Харагдах байдал</div></div>`;
+  const dd = more.querySelector('#erpDD');
+  ['#skinSel', '#btnTheme'].forEach(s => { const n = $(s); if (n) dd.appendChild(n); });
+  const h2 = document.createElement('div'); h2.className = 'ddh'; h2.textContent = 'Өгөгдөл, төсөл'; dd.appendChild(h2);
+  ['#btnDataDir', '#jobName', '#btnOpenProj', '#btnSaveProj'].forEach(s => { const n = $(s); if (n) dd.appendChild(n); });
+  const iso = document.createElement('button'); iso.className = 'btn ghost'; iso.textContent = 'ISO маягтын код, операторууд, лого'; iso.addEventListener('click', erpIsoDlg); dd.appendChild(iso);
+  acts.appendChild(more);
+  const user = document.createElement('button'); user.className = 'erp-user'; user.id = 'erpUser'; acts.appendChild(user);
+  const upUser = () => { const n = pName(S.me); user.textContent = erpInit2(n || 'KH'); user.title = n ? `${n} — солих` : 'Би хэн бэ? — Баг хэсгээс нэрээ сонгоно'; user.style.background = n ? erpAvColor(n) : ''; };
+  upUser(); user.addEventListener('click', () => { if (typeof chatOpen === 'function') { S.me = ''; chatOpen('general'); setTimeout(upUser, 4000); } });
+  more.querySelector('#erpMoreBtn').addEventListener('click', e => { e.stopPropagation(); dd.hidden = !dd.hidden; });
+  document.addEventListener('click', e => { if (!more.contains(e.target)) dd.hidden = true; });
+  nav.querySelector('#erpAppsBtn').addEventListener('click', () => erpLaunch());
+  nav.querySelector('.erp-appname').addEventListener('click', () => { const a = erpAppOf(ERP.route); erpGo(a.items[0][0]); });
+  const lg = nav.querySelector('#erpLogo'); if (lg) lg.addEventListener('click', () => erpGo('dash'));
+  nav.querySelector('.erp-menu').addEventListener('click', e => { const b = e.target.closest('[data-erp]'); if (b) erpGo(b.dataset.erp); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && ERP.launch) erpLaunch(false); });
+  try { if (localStorage.getItem('kh-erp-nochat') === '1') document.documentElement.setAttribute('data-erpnochat', ''); } catch (e) { }
+  /* hooks */
+  const _rjm = renderJobMain;
+  renderJobMain = function () {
+    if (!erpOn()) return _rjm();
+    const el = $('#jobsMain'), v = document.documentElement.dataset.jview;
+    if (J.tab === 'jobs' && (J.dash || v === 'dash')) { erpHome(el); return; }
+    if (J.tab === 'jobs' && (v === 'jobs' || v === 'quotes') && !findJob(J.sel)) { erpList(el, v); return; }
+    _rjm();
+    const job = findJob(J.sel); if (J.tab === 'jobs' && job && (v === 'jobs' || v === 'quotes')) erpDecorate(el, job, v);
+  };
+  const _sm = setModule;
+  setModule = function (v) { _sm(v); if (erpOn()) erpNav(); };
+}
+function erpIsoDlg() {
+  const det = $('details.jset'); if (!det) return; const ph = document.createComment('jset'); det.parentNode.insertBefore(ph, det);
+  const m = document.createElement('div'); m.className = 'erp-modal'; const box = document.createElement('div'); m.appendChild(box);
+  box.innerHTML = '<div style="display:flex;align-items:center;margin-bottom:8px"><b style="font-size:16px">ISO маягт, операторууд, лого</b><span style="flex:1"></span><button class="btn ghost" id="erpIsoX">✕</button></div>';
+  det.open = true; box.appendChild(det); document.body.appendChild(m);
+  const close = () => { ph.parentNode.insertBefore(det, ph); ph.remove(); m.remove(); };
+  box.querySelector('#erpIsoX').addEventListener('click', close); m.addEventListener('click', e => { if (e.target === m) close(); });
+}
+(() => {
+  if (!erpOn()) return;
+  erpBuild();
+  let r = 'dash'; try { r = localStorage.getItem('kh-erp-route') || ''; } catch (e) { }
+  if (!r) { try { const m0 = localStorage.getItem(KEY + ':mod'); r = m0 && m0 !== 'docs' ? m0 : 'dash'; } catch (e) { r = 'dash'; } }
+  try { erpGo(r); } catch (e) { erpGo('dash'); }
+})();
+
 </script>

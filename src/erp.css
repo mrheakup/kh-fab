@@ -1,0 +1,207 @@
+/* ================= ERP look (default): Odoo-style shell — top app menu, control panel, list/kanban, form with
+   status bar, smart buttons and chatter. Clean white surfaces, one accent: Kh International orange. ================= */
+html[data-var="erp"]:not([data-theme="dark"]){--bg:#f3f4f6;--surface:#fff;--surface-2:#f8f9fa;--line:#dfe3e8;--line-2:#edf0f3;--ink:#1f2328;--ink-2:#4b5563;--ink-3:#8a94a3;--accent:#e0650f;--accent-ink:#fff;--accent-soft:#fdf0e6;--acc:#e0650f;--ok:#15803d;--warn:#b45309;--bad:#c62828}
+html[data-var="erp"][data-theme="dark"]{--accent:#ff8a3d;--accent-soft:#3a2216;--acc:#ff8a3d}
+html[data-var="erp"]{--r:6px;--nav-h:48px}
+html[data-var="erp"] body{font-size:13.5px;background:var(--bg)}
+/* ---- frame: navbar on top, then (side list) + main ---- */
+html[data-var="erp"] .app{grid-template-columns:320px minmax(0,1fr)!important;grid-template-rows:var(--nav-h) minmax(0,1fr)!important}
+html[data-var="erp"] .top{grid-column:1/-1!important;grid-row:1!important;flex-direction:row!important;align-items:center!important;flex-wrap:nowrap!important;gap:0!important;padding:0 10px!important;border:0!important;border-bottom:1px solid var(--line)!important;background:var(--surface)!important;overflow:visible!important;height:var(--nav-h);min-height:0;position:relative;z-index:30}
+html[data-var="erp"] .top>.brand,html[data-var="erp"] .top>.modtabs,html[data-var="erp"] .top .mco{display:none!important}
+html[data-var="erp"] .side{grid-column:1!important;grid-row:2!important;border-right:1px solid var(--line)!important;background:var(--surface)!important}
+html[data-var="erp"] .main{grid-column:2!important;grid-row:2!important;padding:18px 24px!important;gap:14px!important;background:var(--bg)}
+html[data-var="erp"][data-erpfull] .side{display:none!important}
+html[data-var="erp"][data-erpfull] .main{grid-column:1/-1!important}
+html[data-var="erp"] .main:has(>.erp-cp),html[data-var="erp"] .main:has(>.erp-form),html[data-var="erp"] .main:has(>.erp-home){padding:0!important;gap:0!important}
+html[data-var="erp"] .ptitle{font-size:18px!important;padding:16px 18px 4px!important}
+/* navbar */
+.erp-nav{display:flex;align-items:center;gap:4px;min-width:0;flex:1;height:100%}
+.erp-apps{width:36px;height:36px;border-radius:8px;border:0;background:transparent;display:grid;place-items:center;cursor:pointer;color:var(--ink-2)}
+.erp-apps:hover{background:var(--surface-2);color:var(--ink)}
+.erp-logo{height:24px;margin:0 6px 0 2px;cursor:pointer}
+.erp-appname{font-weight:700;font-size:15px;padding:0 10px 0 4px;white-space:nowrap;cursor:pointer;color:var(--ink)}
+.erp-menu{display:flex;align-items:stretch;height:100%;gap:2px;min-width:0;overflow-x:auto;scrollbar-width:none}
+.erp-menu::-webkit-scrollbar{display:none}
+.erp-menu button{border:0;background:transparent;padding:0 12px;font-weight:500;color:var(--ink-2);cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;border-top:2px solid transparent;font-size:13.5px}
+.erp-menu button:hover{color:var(--ink);background:var(--surface-2)}
+.erp-menu button.on{color:var(--ink);border-bottom-color:var(--accent);font-weight:600}
+html[data-var="erp"] .top-actions{display:flex!important;flex-direction:row!important;align-items:center!important;gap:6px!important;margin:0 0 0 auto!important;padding:0!important;border:0!important;flex:none}
+html[data-var="erp"] .top-actions>*{width:auto!important}
+html[data-var="erp"] .top-actions .btn{padding:6px 10px!important;box-shadow:none!important}
+html[data-var="erp"] #updBadge{margin:0 8px}
+.erp-more{position:relative}
+.erp-dd{position:absolute;right:0;top:calc(100% + 6px);background:var(--surface);border:1px solid var(--line);border-radius:8px;box-shadow:0 10px 30px rgba(16,24,40,.16);padding:10px;display:grid;gap:8px;min-width:270px;z-index:80}
+.erp-dd>*{width:100%!important}
+.erp-dd .ddh{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.erp-user{width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-weight:700;font-size:12px;border:0;cursor:pointer}
+/* app switcher (home menu) */
+.erp-launch{position:fixed;inset:var(--nav-h) 0 0 0;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(6px);z-index:70;display:flex;justify-content:center;padding:48px 20px;overflow:auto}
+.erp-launch .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:22px 18px;width:min(820px,100%);align-content:start}
+.erp-tile{border:0;background:transparent;display:grid;justify-items:center;gap:8px;cursor:pointer;padding:8px;border-radius:12px;color:var(--ink)}
+.erp-tile:hover{background:var(--surface)}
+.erp-tile i{width:64px;height:64px;border-radius:14px;display:grid;place-items:center;color:#fff;font-style:normal;box-shadow:0 2px 6px rgba(16,24,40,.12)}
+.erp-tile i svg{width:30px;height:30px}
+.erp-tile b{font-size:13.5px;font-weight:600}.erp-tile small{color:var(--ink-3);font-size:11.5px;margin-top:-6px}
+/* ---- control panel: breadcrumb + actions | search + filters + views ---- */
+.erp-cp{background:var(--surface);border-bottom:1px solid var(--line);padding:10px 24px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 16px;align-items:center;position:sticky;top:0;z-index:20}
+.erp-crumbs{display:flex;align-items:center;gap:6px;min-width:0;font-size:17px;flex-wrap:wrap}
+.erp-crumbs a{color:var(--accent);cursor:pointer;text-decoration:none;font-weight:500}
+.erp-crumbs a:hover{text-decoration:underline}
+.erp-crumbs .sep{color:var(--ink-3)}
+.erp-crumbs b{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60vw}
+.erp-acts{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.erp-cp .row2{grid-column:1/-1;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.erp-search{flex:1 1 320px;max-width:560px;display:flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:6px;padding:0 8px;background:var(--surface);min-height:34px;flex-wrap:wrap}
+.erp-search:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.erp-search input{border:0!important;outline:0;flex:1;min-width:120px;background:transparent;padding:6px 2px;box-shadow:none!important}
+.erp-facet{display:inline-flex;align-items:center;gap:4px;background:var(--surface-2);border:1px solid var(--line);border-radius:4px;padding:1px 6px;font-size:12px;white-space:nowrap}
+.erp-facet b{font-weight:600;color:var(--accent)}.erp-facet button{border:0;background:transparent;cursor:pointer;color:var(--ink-3);padding:0 0 0 2px}
+.erp-filters{display:flex;gap:4px;flex-wrap:wrap;align-items:center}
+.erp-chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 10px;font-size:12.5px;cursor:pointer;color:var(--ink-2)}
+.erp-chip:hover{border-color:var(--ink-3)}.erp-chip.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:600}
+.erp-views{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden;margin-left:auto}
+.erp-views button{border:0;background:var(--surface);padding:6px 10px;cursor:pointer;color:var(--ink-3);display:grid;place-items:center}
+.erp-views button+button{border-left:1px solid var(--line)}.erp-views button.on{background:var(--accent-soft);color:var(--accent)}
+.erp-pager{display:flex;align-items:center;gap:4px;color:var(--ink-2);font-size:12.5px}
+.erp-pager button{border:1px solid var(--line);background:var(--surface);border-radius:6px;width:28px;height:28px;cursor:pointer}
+.erp-pager button:disabled{opacity:.4;cursor:default}
+html[data-var="erp"] .erp-gsel{width:auto;padding:5px 8px;font-size:12.5px}
+/* ---- list view ---- */
+.erp-view{padding:16px 24px 40px}
+.erp-list{background:var(--surface);border:1px solid var(--line);border-radius:8px;overflow:auto}
+.erp-list table{width:100%;border-collapse:collapse;font-size:13px}
+.erp-list th{position:sticky;top:0;background:var(--surface-2);text-align:left;font-weight:600;color:var(--ink-2);padding:9px 12px;border-bottom:1px solid var(--line);white-space:nowrap;font-size:12px;cursor:pointer;user-select:none}
+.erp-list th.r,.erp-list td.r{text-align:right}
+.erp-list th .so{color:var(--accent)}
+.erp-list td{padding:9px 12px;border-bottom:1px solid var(--line-2);vertical-align:middle}
+.erp-list tbody tr.rec{cursor:pointer}.erp-list tbody tr.rec:hover td{background:var(--surface-2)}
+.erp-list tr.grp td{background:color-mix(in srgb,var(--surface-2) 60%,var(--bg));font-weight:600;cursor:pointer;color:var(--ink)}
+.erp-list tr.grp td .cnt{color:var(--ink-3);font-weight:500;margin-left:6px}
+.erp-list tfoot td{font-weight:700;background:var(--surface-2);border-top:1px solid var(--line);border-bottom:0}
+.erp-list .no{font-family:var(--f-mono);font-size:12.5px;color:var(--ink)}
+.erp-list .sub{color:var(--ink-3);font-size:12px}
+.erp-list td.late{color:var(--bad);font-weight:600}
+.erp-prog{display:flex;align-items:center;gap:6px;min-width:90px}.erp-prog i{flex:1;height:6px;border-radius:3px;background:var(--line-2);overflow:hidden;display:block}.erp-prog i b{display:block;height:100%;background:var(--accent)}
+.erp-prog span{font-size:11.5px;color:var(--ink-3);width:32px;text-align:right}
+.erp-empty{background:var(--surface);border:1px dashed var(--line);border-radius:8px;padding:48px 20px;text-align:center;color:var(--ink-2)}
+.erp-empty b{display:block;font-size:16px;color:var(--ink);margin-bottom:6px}
+/* status badges */
+.erp-b{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:2px 9px;font-size:11.5px;font-weight:600;white-space:nowrap;background:var(--surface-2);color:var(--ink-2);border:1px solid var(--line)}
+.erp-b::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.8}
+.erp-b.s-new,.erp-b.s-draft{color:#475467;background:#f2f4f7;border-color:#e4e7ec}
+.erp-b.s-nest,.erp-b.s-sent{color:#175cd3;background:#eff8ff;border-color:#d1e9ff}
+.erp-b.s-cut{color:#b54708;background:#fffaeb;border-color:#fedf89}
+.erp-b.s-weld{color:#6941c6;background:#f9f5ff;border-color:#e9d7fe}
+.erp-b.s-done,.erp-b.s-won,.erp-b.s-paid{color:#067647;background:#ecfdf3;border-color:#abefc6}
+.erp-b.s-given{color:#344054;background:#f2f4f7;border-color:#d0d5dd}
+.erp-b.s-lost,.erp-b.s-late{color:#b42318;background:#fef3f2;border-color:#fecdca}
+.erp-b.s-open,.erp-b.s-part{color:#b54708;background:#fffaeb;border-color:#fedf89}
+html[data-theme="dark"] .erp-b{background:var(--surface-2)!important;border-color:var(--line)!important}
+.erp-av{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;font-size:10.5px;font-weight:700;color:#fff;flex:none}
+.erp-own{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+/* ---- kanban ---- */
+.erp-kanban{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(260px,1fr);gap:12px;overflow-x:auto;padding-bottom:12px;align-items:start}
+.erp-kcol{background:color-mix(in srgb,var(--surface-2) 70%,var(--bg));border-radius:8px;padding:8px;min-height:120px;border:1px solid transparent}
+.erp-kcol.drop{border-color:var(--accent);background:var(--accent-soft)}
+.erp-kh{display:flex;align-items:center;gap:8px;padding:4px 4px 10px;font-weight:600}
+.erp-kh .cnt{color:var(--ink-3);font-weight:500}.erp-kh .sum{margin-left:auto;font-size:12px;color:var(--ink-2);font-family:var(--f-mono)}
+.erp-kh .bar{height:4px;border-radius:2px;background:var(--line);margin:0 4px 8px;display:block}
+.erp-card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin-bottom:8px;cursor:pointer;display:grid;gap:4px;box-shadow:0 1px 2px rgba(16,24,40,.04)}
+.erp-card:hover{border-color:var(--ink-3)}.erp-card.dragging{opacity:.5}
+.erp-card .t{font-weight:600;line-height:1.3}.erp-card .c{color:var(--ink-2);font-size:12.5px}
+.erp-card .ft{display:flex;align-items:center;gap:8px;margin-top:4px;font-size:12px;color:var(--ink-3)}
+.erp-card .ft .amt{margin-left:auto;font-family:var(--f-mono);color:var(--ink);font-weight:600}
+.erp-card .no{font-family:var(--f-mono);font-size:11.5px;color:var(--ink-3)}
+.erp-card .late{color:var(--bad);font-weight:600}
+/* ---- form: status bar, smart buttons, sheet, chatter ---- */
+.erp-form{padding:0 0 40px}
+.erp-sbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 24px;background:var(--surface);border-bottom:1px solid var(--line)}
+.erp-sbar .acts{display:flex;gap:6px;flex-wrap:wrap}
+.erp-stages{display:flex;margin-left:auto;border:1px solid var(--line);border-radius:6px;overflow:hidden;flex-wrap:wrap}
+.erp-stages button{border:0;background:var(--surface);padding:6px 14px 6px 20px;font-size:12.5px;color:var(--ink-2);cursor:pointer;position:relative;white-space:nowrap}
+.erp-stages button:first-child{padding-left:14px}
+.erp-stages button+button{border-left:1px solid var(--line)}
+.erp-stages button.on{background:var(--accent);color:#fff;font-weight:600}
+.erp-stages button.past{color:var(--ink)}
+.erp-stages button:hover:not(.on){background:var(--surface-2)}
+.erp-fgrid{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:0;align-items:start}
+html[data-erpnochat] .erp-fgrid{grid-template-columns:minmax(0,1fr)}
+html[data-erpnochat] .erp-chatter{display:none}
+@media (max-width:1280px){.erp-fgrid{grid-template-columns:minmax(0,1fr)}.erp-chatter{border-left:0!important;border-top:1px solid var(--line)}}
+.erp-fmain{min-width:0;padding:16px 24px;display:grid;gap:14px}
+.erp-fmain>.erp-sheet{display:grid;gap:14px;min-width:0}
+.erp-smart{display:flex;flex-wrap:wrap;justify-content:flex-end;background:var(--surface);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.erp-smart button{border:0;border-left:1px solid var(--line);background:transparent;display:flex;align-items:center;gap:10px;padding:8px 14px;cursor:pointer;min-width:132px;text-align:left;color:var(--ink)}
+.erp-smart button:first-child{border-left:0}
+.erp-smart button:hover{background:var(--surface-2)}
+.erp-smart svg{width:20px;height:20px;color:var(--ink-3);flex:none}
+.erp-smart .v{font-weight:700;font-size:14px;line-height:1.1;font-family:var(--f-mono)}.erp-smart .l{font-size:11.5px;color:var(--ink-2);line-height:1.2}
+.erp-rtitle{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.erp-rtitle h1{font-size:24px;margin:0;font-weight:700;letter-spacing:-.01em}
+.erp-rtitle .m{color:var(--ink-2)}
+.erp-chatter{border-left:1px solid var(--line);background:var(--surface);min-height:calc(100vh - 140px);position:sticky;top:0;display:flex;flex-direction:column;max-height:calc(100vh - var(--nav-h) - 60px)}
+.erp-chh{display:flex;gap:6px;padding:10px 14px;border-bottom:1px solid var(--line);align-items:center}
+.erp-chh button{border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:5px 10px;font-size:12.5px;cursor:pointer}
+.erp-chh button.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+.erp-chin{padding:10px 14px;border-bottom:1px solid var(--line);display:grid;gap:6px}
+.erp-chin textarea{width:100%;resize:vertical;min-height:58px}
+.erp-tl{overflow:auto;padding:6px 14px 14px;display:grid;gap:12px;align-content:start}
+.erp-tlday{font-size:11px;font-weight:700;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em;display:flex;align-items:center;gap:8px;margin-top:6px}
+.erp-tlday::after{content:"";flex:1;height:1px;background:var(--line-2)}
+.erp-msg{display:grid;grid-template-columns:30px minmax(0,1fr);gap:10px}
+.erp-msg .erp-av{width:30px;height:30px;font-size:11px}
+.erp-msg .h{font-size:12px;color:var(--ink-3)}.erp-msg .h b{color:var(--ink);font-weight:600;margin-right:6px}
+.erp-msg .b{font-size:13px;word-break:break-word;white-space:pre-wrap}
+.erp-msg.log .b{color:var(--ink-2)}
+.erp-msg.log .erp-av{background:var(--surface-2)!important;color:var(--ink-3);border:1px solid var(--line)}
+/* the old in-page status selects are replaced by the status bar */
+html[data-var="erp"] .erp-sheet #qb_st,html[data-var="erp"] .erp-sheet .jstat{display:none!important}
+html[data-var="erp"] .erp-sheet .rtabs.jsub{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:4px}
+/* ---- home / dashboard ---- */
+.erp-home{padding:22px 24px 48px;display:grid;gap:18px}
+.erp-hi{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}.erp-hi h1{margin:0;font-size:24px;letter-spacing:-.01em}.erp-hi span{color:var(--ink-3)}
+.erp-appsrow{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.erp-appsrow .erp-tile{background:var(--surface);border:1px solid var(--line);grid-template-columns:44px minmax(0,1fr);justify-items:start;align-items:center;text-align:left;gap:0 10px;padding:10px 12px}
+.erp-appsrow .erp-tile i{width:44px;height:44px;border-radius:10px;grid-row:span 2}.erp-appsrow .erp-tile i svg{width:22px;height:22px}
+.erp-appsrow .erp-tile small{margin:0}
+.erp-kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+.erp-kpi{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px 16px;cursor:pointer;display:grid;gap:4px;text-align:left;color:var(--ink)}
+.erp-kpi:hover{border-color:var(--accent)}
+.erp-kpi .k{font-size:12px;color:var(--ink-2);font-weight:500}.erp-kpi .v{font-size:24px;font-weight:700;letter-spacing:-.01em;font-family:var(--f-ui)}.erp-kpi .v small{font-size:13px;color:var(--ink-3);font-weight:500;margin-left:3px}
+.erp-kpi .s{font-size:12px;color:var(--ink-3)}.erp-kpi.bad .v{color:var(--bad)}.erp-kpi.good .v{color:var(--ok)}
+.erp-cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:14px;align-items:start}
+.erp-panel{background:var(--surface);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.erp-panel>h3{margin:0!important;padding:12px 16px;font-size:13px!important;text-transform:none!important;letter-spacing:0!important;color:var(--ink)!important;border-bottom:1px solid var(--line-2);display:flex;align-items:center;gap:8px}
+.erp-panel>h3 .cnt{margin-left:auto;color:var(--ink-3);font-weight:500}
+.erp-al{display:grid}.erp-al button{border:0;border-bottom:1px solid var(--line-2);background:transparent;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;text-align:left;padding:9px 16px;cursor:pointer;color:var(--ink)}
+.erp-al button:hover{background:var(--surface-2)}.erp-al button:last-child{border-bottom:0}
+.erp-al .t{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.erp-al .r{font-size:12px;color:var(--ink-3);white-space:nowrap}.erp-al .r.bad{color:var(--bad);font-weight:600}
+.erp-al .none{padding:14px 16px;color:var(--ink-3);font-size:12.5px}
+.erp-oldash{display:grid;gap:14px}
+/* settings dialog */
+.erp-modal{position:fixed;inset:0;background:rgba(15,20,30,.35);display:grid;place-items:center;z-index:120}
+.erp-modal>div{background:var(--surface);border-radius:10px;padding:18px;width:min(640px,94vw);max-height:88vh;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+/* buttons and fields: one consistent set */
+html[data-var="erp"] .btn{border-radius:6px!important;box-shadow:none!important;font-weight:500!important}
+html[data-var="erp"] .btn.primary{background:var(--accent)!important;border-color:var(--accent)!important;color:#fff!important;font-weight:600!important}
+html[data-var="erp"] .btn.primary:hover{filter:brightness(.95)}
+html[data-var="erp"] .jcard,html[data-var="erp"] .bcard,html[data-var="erp"] .summary>.stat{border-radius:8px!important;box-shadow:none!important}
+html[data-var="erp"] .fld input,html[data-var="erp"] .fld select,html[data-var="erp"] .inp,html[data-var="erp"] .dt input,html[data-var="erp"] .dt select{border-radius:6px!important}
+html[data-var="erp"] .jitem,html[data-var="erp"] .bitem{border-radius:6px!important}
+@media (max-width:1100px){.erp-menu button{padding:0 8px}.erp-appname{display:none}}
+/* duplicates of the status bar / navbar inside the old pages are hidden in this look */
+html[data-var="erp"] .erp-sheet .spipe,html[data-var="erp"] .erp-sheet #qb_won,html[data-var="erp"] .erp-sheet .jstate [data-chat]{display:none!important}
+html[data-var="erp"] #jobsSide>.ptitle,html[data-var="erp"] #jobsSide>.tabs{display:none!important}
+html[data-var="erp"] #jobsSide .panel-body{padding-top:14px}
+.erp-views svg,.erp-chh svg{width:16px;height:16px}
+.erp-smart{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+.erp-smart button{border-left:0!important;border-right:1px solid var(--line-2)!important;border-bottom:1px solid var(--line-2)!important}
+.erp-kanban{grid-auto-columns:minmax(232px,1fr)}
+html[data-var="erp"] .seg{border-radius:6px!important;padding:2px!important}
+html[data-var="erp"] .seg button{border-radius:4px!important}
+html[data-var="erp"] .seg button.on{background:var(--accent-soft)!important;color:var(--accent)!important;box-shadow:none!important}
+html[data-var="erp"] .tabs button.on{color:var(--accent)!important;border-color:var(--accent)!important}
+.erp-kpis{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media (max-width:1000px){.erp-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.erp-appsrow{grid-template-columns:repeat(6,minmax(0,1fr))}
+@media (max-width:1100px){.erp-appsrow{grid-template-columns:repeat(3,minmax(0,1fr))}}
