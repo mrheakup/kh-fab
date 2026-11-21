@@ -3,9 +3,13 @@
 const ENG = { tool: 'beam', v: {} };
 try { Object.assign(ENG, JSON.parse(localStorage.getItem('kh-eng') || '{}')); } catch (e) { }
 const engSave = () => { try { localStorage.setItem('kh-eng', JSON.stringify(ENG)); } catch (e) { } };
-const ENG_MAT = [ // name, yield Fy MPa, ultimate fu MPa, E MPa, density kg/m³
-  ['S235', 235, 360, 200000, 7850], ['S275', 275, 430, 200000, 7850], ['S355', 355, 490, 200000, 7850], ['Ст3 (St3sp)', 245, 370, 200000, 7850],
-  ['09Г2С', 345, 490, 200000, 7850], ['Hardox 450', 1200, 1400, 205000, 7850], ['AISI 304', 205, 515, 193000, 7930], ['Al 6061-T6', 276, 310, 69000, 2700]];
+const ENG_MAT = [ // GB/T 700, GB/T 1591 (t ≤ 16 mm) and SSAB Hardox typical values: name, yield Fy MPa, tensile fu MPa, E MPa, density kg/m³
+  ['Q235B', 235, 370, 206000, 7850], ['Q345B', 345, 470, 206000, 7850], ['Q355B', 355, 470, 206000, 7850], ['Q390B', 390, 490, 206000, 7850], ['Q420B', 420, 520, 206000, 7850], ['Q460C', 460, 550, 206000, 7850],
+  ['45# (GB/T 699)', 355, 600, 206000, 7850], ['40Cr (сайжруулсан)', 785, 980, 206000, 7850],
+  ['Hardox 400', 1000, 1250, 205000, 7850], ['Hardox 450', 1200, 1400, 205000, 7850], ['Hardox 500', 1400, 1550, 205000, 7850],
+  ['AISI 304', 205, 515, 193000, 7930], ['Al 6061-T6', 276, 310, 69000, 2700]];
+/* the nesting material list gets the Chinese grades too (existing names stay, parts keep pointing at them) */
+(() => { try { if (Array.isArray(S.materials) && !S._matGB) { [['Q235B', 3800], ['Q345B', 4300], ['Q355B', 4300], ['Hardox 400', 13000], ['Hardox 450', 14000], ['Hardox 500', 15000]].forEach(([n, p]) => { if (!S.materials.some(m => m.name === n)) S.materials.push({ name: n, rho: 7.85, price: p }); }); S._matGB = 1; save(); } } catch (e) { } })();
 const ENG_TOOLS = [
   ['beam', 'Даацын тооцоо — дам нуруу', 'Хүчдэл, нугаралт, зөвшөөрөгдөх ачаалал'],
   ['bolt', 'Боолт — эрэг чангалах момент', 'Эхний таталт, момент, зүсэлт, суналтын даац, нүх'],
@@ -51,7 +55,7 @@ const BFRIC = [['0.20', 'Хуурай, ган (K = 0.20)'], ['0.17', 'Цайрд
 function boltRow(b, cls, K, pct) { const [d, p, As, s, h] = b, [Sp, fu, av] = bclsProps(cls, d), F = Sp * As * pct / 100, T = K * F * d / 1000; const fub = { '4.6': 400, '5.6': 500, '8.8': 800, '10.9': 1000, '12.9': 1200 }[cls];   // EN 1993-1-8 Table 3.1 nominal fub
   return { d, p, As, s, h, tap: d - p, F, T, Fv: av * fub * As / 1.25, Ft: .9 * fub * As / 1.25, Sp, fu }; }
 /* ---------- fillet weld EN 1993-1-8 simplified method ---------- */
-const WELD_BW = { 'S235': .8, 'S275': .85, 'S355': .9, 'Ст3 (St3sp)': .8, '09Г2С': .9 };
+const WELD_BW = { 'Q235B': .8, 'Q345B': .9, 'Q355B': .9, 'Q390B': 1, 'Q420B': 1, 'Q460C': 1 };   // correlation factor βw as for the EN grade of the same strength
 /* ---------- units ---------- */
 const UNITS = {
   len: ['Урт', [['mm', 1e-3], ['cm', 1e-2], ['m', 1], ['km', 1e3], ['in', .0254], ['ft', .3048], ['yd', .9144], ['mile', 1609.344]]],
@@ -77,7 +81,7 @@ function renderEngSide() {
   el.querySelectorAll('[data-et]').forEach(b => b.addEventListener('click', () => { ENG.tool = b.dataset.et; engSave(); renderEng(); }));
 }
 const EV0 = { beam: { case: 'ss_p', sec: 'rhs', mat: 2, L: 2000, P: 10, B: 100, H: 200, t: 6, b: 50, h: 100, d: 60, D: 114, tw: 8, tf: 12, I: 1000, W: 100, sf: 1.5, self: 1, dlim: 250 },
-  bolt: { cls: '8.8', K: '0.20', pct: 75, d: 20, n: 4 }, weld: { mat: 'S355', leg: 8, L: 200, F: 100, sides: 1 }, lug: { mat: 2, t: 20, w: 120, R: 60, dh: 42, dp: 40, P: 5, dyn: 1.25, sf: 3 },
+  bolt: { cls: '8.8', K: '0.20', pct: 75, d: 20, n: 4 }, weld: { mat: 'Q355B', leg: 8, L: 200, F: 100, sides: 1 }, lug: { mat: 2, t: 20, w: 120, R: 60, dh: 42, dp: 40, P: 5, dyn: 1.25, sf: 3 },
   weight: { shape: 'plate', mat: 0, a: 1000, b: 2000, t: 10, d: 50, D: 114, L: 6000, q: 1 }, units: { cat: 'force', v: 1, a: 'tf (тонн-хүч)', b: 'kN' }, hard: { v: 40, k: 'HRC' } };
 const ev = t => { const o = ENG.v[t] = ENG.v[t] || {}; Object.keys(EV0[t]).forEach(k => { if (o[k] === undefined) o[k] = EV0[t][k]; }); return o; };   // one object per tool, defaults filled in
 function engIn(t, k, l, o = {}) { const v = ev(t)[k]; if (o.sel) return `<label class="fld">${l}<select data-ek="${k}" class="inp">${o.sel.map(([a, b]) => `<option value="${esc(a)}"${String(a) === String(v) ? ' selected' : ''}>${esc(b)}</option>`).join('')}</select></label>`;
@@ -132,7 +136,7 @@ function renderEng() {
     const lab = { a: sh === 'plate' ? 'Урт a, мм' : 'Тал a, мм', b: sh === 'plate' ? 'Өргөн b, мм' : 'Тал b, мм', t: 'Зузаан t, мм', d: sh === 'hex' ? 'Түлхүүрийн хэмжээ S, мм' : 'Диаметр d, мм', D: 'Гадна диаметр D, мм', L: 'Урт L, мм' };
     form = `${engIn(t, 'shape', 'Хэлбэр', { sel: SH })}${engIn(t, 'mat', 'Материал', { sel: ENG_MAT.map((x, i) => [i, `${x[0]} · ${x[4]} кг/м³`]) })}${fl.map(k => engIn(t, k, lab[k])).join('')}${engIn(t, 'q', 'Тоо, ш')}`;
     res = engRes([['Нэг ширхэгийн жин', `<span style="font-size:18px">${ef(kg, 2)} кг</span>`], ['Нийт жин', `${ef(kg * v('q'), 2)} кг`], ...(A ? [['Нэг метрийн жин', `${ef(A * 1e-6 * rho, 2)} кг/м`], ['Огтлолын талбай', `${ef(A / 100, 2)} см²`]] : [['Нэг м²-ийн жин', `${ef(v('t') * 1e-3 * rho, 2)} кг/м²`]])]);
-    note = 'Нягт: ган 7850, зэвэрдэггүй 7930, хөнгөн цагаан 2700 кг/м³. Профилийн булангийн радиусыг тооцоогүй (бодит жин 1–3% бага).';
+    note = 'Ган: GB/T 700 (Q235), GB/T 1591 (Q345/Q355…), утга нь t ≤ 16 мм; Hardox — SSAB-ийн ердийн утга. Нягт: ган 7850, зэвэрдэггүй 7930, хөнгөн цагаан 2700 кг/м³. Профилийн булангийн радиусыг тооцоогүй (бодит жин 1–3% бага).';
   } else if (t === 'units') {
     const C = UNITS[o.cat] || UNITS.force, U = C[1]; if (!U.some(u => u[0] === o.a)) o.a = U[0][0]; if (!U.some(u => u[0] === o.b)) o.b = U[1][0];
     const conv = (val, a, b) => o.cat === 'temp' ? tConv(val, a, b) : val * U.find(u => u[0] === a)[1] / U.find(u => u[0] === b)[1];

@@ -12,18 +12,18 @@ function defaults() {
   return {
     v: 1, jobName: 'Ажил-001',
     materials: [
-      { name: 'Ст3 / S235', rho: 7.85, price: 3800 }, { name: 'S355 / 09Г2С', rho: 7.85, price: 4300 },
-      { name: 'Hardox 450', rho: 7.85, price: 14000 }, { name: 'Зэвэрдэггүй 304', rho: 7.93, price: 16000 },
+      { name: 'Q235B', rho: 7.85, price: 3800 }, { name: 'Q345B', rho: 7.85, price: 4300 }, { name: 'Q355B', rho: 7.85, price: 4300 },
+      { name: 'Hardox 400', rho: 7.85, price: 13000 }, { name: 'Hardox 450', rho: 7.85, price: 14000 }, { name: 'Hardox 500', rho: 7.85, price: 15000 }, { name: 'Зэвэрдэггүй 304', rho: 7.93, price: 16000 },
       { name: 'Хөнгөн цагаан 5083', rho: 2.66, price: 18000 }, { name: 'Цайрдсан', rho: 7.85, price: 4500 }
     ],
     std: [{ L: 2500, W: 1250, on: true }, { L: 3000, W: 1500, on: true }, { L: 6000, W: 1500, on: true }, { L: 6000, W: 2000, on: false }, { L: 2000, W: 1000, on: false }],
     sheetMode: 'auto', fixedIdx: 1,
-    remnants: [{ id: uid(), mat: 'Ст3 / S235', thk: 6, L: 1500, W: 1200, qty: 1 }],
+    remnants: [{ id: uid(), mat: 'Q235B', thk: 6, L: 1500, W: 1200, qty: 1 }],
     useRem: true,
     s: { gap: 6, margin: 10, rot: 90, prec: 'normal', opt: 6, sag: 0.05, keep: true, pip: true, mir: false, cl: true, trim: true, trimScope: 'last', trimStep: 50, minRem: 300, dxfSheet: 1, dxfBend: 0, leadIn: 0, rapid: 20000 },
     quote: { customer: '', no: 'ҮС-001', valid: 7, margin: 20, setup: 0, vat: true, by: 'Х. Очирбат', contact: '', note: 'Үнэд материал болон лазер зүсэлт багтсан. Гулзайлт, гагнуур, будаг ороогүй.' },
     cut: { kW: 3, src: 'auto', speeds: [[1, 20000, 0.3], [2, 9000, 0.5], [3, 5000, 0.8], [4, 3800, 1], [5, 3000, 1.2], [6, 2500, 1.5], [8, 1800, 2], [10, 1300, 2.5], [12, 1000, 3], [16, 700, 4], [20, 500, 6]], cutPrice: 1200, piercePrice: 100 },
-    defMat: 'Ст3 / S235', defThk: 6,
+    defMat: 'Q235B', defThk: 6,
     laser: laserDefaults(),
     mark: { on: false, h: 6, minH: 3, clear: 1.5, fmt: '{short}-{p}' },
     iso: { formTrace: 'KH-F-', formLabel: '', rev: '01', operators: '' },
@@ -32,8 +32,8 @@ function defaults() {
   };
 }
 function sampleParts() {
-  const mk = (name, type, vals, qty, thk = 6, mat = 'Ст3 / S235') => { const g = SHAPES[type].build(vals); return { id: uid(), name, qty, mat, thk, rot: true, mir: false, prio: 0, outer: g.outer, holes: g.holes }; };
-  const bracket = { id: uid(), name: 'Тулгуур L 200×180', qty: 12, mat: 'Ст3 / S235', thk: 6, rot: true, mir: false, prio: 0,
+  const mk = (name, type, vals, qty, thk = 6, mat = 'Q235B') => { const g = SHAPES[type].build(vals); return { id: uid(), name, qty, mat, thk, rot: true, mir: false, prio: 0, outer: g.outer, holes: g.holes }; };
+  const bracket = { id: uid(), name: 'Тулгуур L 200×180', qty: 12, mat: 'Q235B', thk: 6, rot: true, mir: false, prio: 0,
     outer: [{ x: 0, y: 0, b: 0 }, { x: 200, y: 0, b: 0 }, { x: 200, y: 50, b: 0 }, { x: 70, y: 50, b: -BQ }, { x: 50, y: 70, b: 0 }, { x: 50, y: 180, b: 0 }, { x: 0, y: 180, b: 0 }],
     holes: [circleLoop(170, 25, 7), circleLoop(25, 150, 7)] };
   return [

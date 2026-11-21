@@ -6790,18 +6790,18 @@ function defaults() {
   return {
     v: 1, jobName: 'Ажил-001',
     materials: [
-      { name: 'Ст3 / S235', rho: 7.85, price: 3800 }, { name: 'S355 / 09Г2С', rho: 7.85, price: 4300 },
-      { name: 'Hardox 450', rho: 7.85, price: 14000 }, { name: 'Зэвэрдэггүй 304', rho: 7.93, price: 16000 },
+      { name: 'Q235B', rho: 7.85, price: 3800 }, { name: 'Q345B', rho: 7.85, price: 4300 }, { name: 'Q355B', rho: 7.85, price: 4300 },
+      { name: 'Hardox 400', rho: 7.85, price: 13000 }, { name: 'Hardox 450', rho: 7.85, price: 14000 }, { name: 'Hardox 500', rho: 7.85, price: 15000 }, { name: 'Зэвэрдэггүй 304', rho: 7.93, price: 16000 },
       { name: 'Хөнгөн цагаан 5083', rho: 2.66, price: 18000 }, { name: 'Цайрдсан', rho: 7.85, price: 4500 }
     ],
     std: [{ L: 2500, W: 1250, on: true }, { L: 3000, W: 1500, on: true }, { L: 6000, W: 1500, on: true }, { L: 6000, W: 2000, on: false }, { L: 2000, W: 1000, on: false }],
     sheetMode: 'auto', fixedIdx: 1,
-    remnants: [{ id: uid(), mat: 'Ст3 / S235', thk: 6, L: 1500, W: 1200, qty: 1 }],
+    remnants: [{ id: uid(), mat: 'Q235B', thk: 6, L: 1500, W: 1200, qty: 1 }],
     useRem: true,
     s: { gap: 6, margin: 10, rot: 90, prec: 'normal', opt: 6, sag: 0.05, keep: true, pip: true, mir: false, cl: true, trim: true, trimScope: 'last', trimStep: 50, minRem: 300, dxfSheet: 1, dxfBend: 0, leadIn: 0, rapid: 20000 },
     quote: { customer: '', no: 'ҮС-001', valid: 7, margin: 20, setup: 0, vat: true, by: 'Х. Очирбат', contact: '', note: 'Үнэд материал болон лазер зүсэлт багтсан. Гулзайлт, гагнуур, будаг ороогүй.' },
     cut: { kW: 3, src: 'auto', speeds: [[1, 20000, 0.3], [2, 9000, 0.5], [3, 5000, 0.8], [4, 3800, 1], [5, 3000, 1.2], [6, 2500, 1.5], [8, 1800, 2], [10, 1300, 2.5], [12, 1000, 3], [16, 700, 4], [20, 500, 6]], cutPrice: 1200, piercePrice: 100 },
-    defMat: 'Ст3 / S235', defThk: 6,
+    defMat: 'Q235B', defThk: 6,
     laser: laserDefaults(),
     mark: { on: false, h: 6, minH: 3, clear: 1.5, fmt: '{short}-{p}' },
     iso: { formTrace: 'KH-F-', formLabel: '', rev: '01', operators: '' },
@@ -6810,8 +6810,8 @@ function defaults() {
   };
 }
 function sampleParts() {
-  const mk = (name, type, vals, qty, thk = 6, mat = 'Ст3 / S235') => { const g = SHAPES[type].build(vals); return { id: uid(), name, qty, mat, thk, rot: true, mir: false, prio: 0, outer: g.outer, holes: g.holes }; };
-  const bracket = { id: uid(), name: 'Тулгуур L 200×180', qty: 12, mat: 'Ст3 / S235', thk: 6, rot: true, mir: false, prio: 0,
+  const mk = (name, type, vals, qty, thk = 6, mat = 'Q235B') => { const g = SHAPES[type].build(vals); return { id: uid(), name, qty, mat, thk, rot: true, mir: false, prio: 0, outer: g.outer, holes: g.holes }; };
+  const bracket = { id: uid(), name: 'Тулгуур L 200×180', qty: 12, mat: 'Q235B', thk: 6, rot: true, mir: false, prio: 0,
     outer: [{ x: 0, y: 0, b: 0 }, { x: 200, y: 0, b: 0 }, { x: 200, y: 50, b: 0 }, { x: 70, y: 50, b: -BQ }, { x: 50, y: 70, b: 0 }, { x: 50, y: 180, b: 0 }, { x: 0, y: 180, b: 0 }],
     holes: [circleLoop(170, 25, 7), circleLoop(25, 150, 7)] };
   return [
@@ -13070,19 +13070,19 @@ const MFAB = {
 };
 // bucket types — general engineering guidance
 const BTYPES = [
-  { id: 'gp', name: 'Ерөнхий зориулалтын (GP)', for: 'exc wl', use: 'Сул хөрс, шороо, элс, хайрга ачих.', build: 'Нимгэн хавтан, шүдтэй ир. Элэгдлийн хамгаалалт бага.', mat: 'Бүтэц: S355. Ир: Hardox 400/450.' },
-  { id: 'hd', name: 'Хүнд даацын (HD)', for: 'exc wl', use: 'Нягт хөрс, шавар, жижиг чулуу, элэгдэл дунд зэрэг.', build: 'Зузаан ир, хажуугийн ир, ёроолын элэгдлийн тууз.', mat: 'Бүтэц: S355/Strenx. Элэгдэл: Hardox 450.' },
+  { id: 'gp', name: 'Ерөнхий зориулалтын (GP)', for: 'exc wl', use: 'Сул хөрс, шороо, элс, хайрга ачих.', build: 'Нимгэн хавтан, шүдтэй ир. Элэгдлийн хамгаалалт бага.', mat: 'Бүтэц: Q355B. Ир: Hardox 400/450.' },
+  { id: 'hd', name: 'Хүнд даацын (HD)', for: 'exc wl', use: 'Нягт хөрс, шавар, жижиг чулуу, элэгдэл дунд зэрэг.', build: 'Зузаан ир, хажуугийн ир, ёроолын элэгдлийн тууз.', mat: 'Бүтэц: Q355B/Strenx. Элэгдэл: Hardox 450.' },
   { id: 'rock', name: 'Хадны (Rock)', for: 'exc wl', use: 'Тэсэлсэн чулуу, хүдэр.', build: 'Зузаан ирний хавтан (spade эсвэл шулуун), хажуугийн хамгаалалт, ёроол бүтэн доторлогоотой, өсгийн хамгаалалт.', mat: 'Hardox 450/500 элэгдлийн хэсэг.' },
   { id: 'xhd', name: 'Хэт хүнд (Severe / XHD)', for: 'exc wl lhd', use: 'Маш элэгдэлтэй, нүдлэгтэй хүдэр, кварцит.', build: 'Бүх гадаргуу доторлогоотой, chocky bar эсвэл wear button, давхар ир.', mat: 'Hardox 500/600 доторлогоо.' },
-  { id: 'coal', name: 'Нүүрс, хөнгөн материал', for: 'exc wl', use: 'Нүүрс, мод, үр тариа зэрэг нягт багатай материал.', build: 'Том багтаамжтай, өргөн, хавтан нимгэн.', mat: 'S355, ир Hardox 400.' },
-  { id: 'skel', name: 'Шигшүүр (Skeleton)', for: 'exc wl', use: 'Чулуу ялгах, шигших.', build: 'Ёроол, нуруу нь сараалжтай.', mat: 'S355 + Hardox сараалж.' },
-  { id: 'ditch', name: 'Суваг цэвэрлэгч', for: 'exc', use: 'Налуу засах, суваг цэвэрлэх.', build: 'Өргөн, гүехэн, шүдгүй шулуун ир, ус гаргах нүхтэй.', mat: 'S355, ир Hardox 400.' },
-  { id: 'trench', name: 'Нарийн суваг (Trenching)', for: 'exc', use: 'Кабель, хоолойн суваг.', build: 'Нарийн, гүн, шүдтэй.', mat: 'S355, Hardox 450 ир.' },
+  { id: 'coal', name: 'Нүүрс, хөнгөн материал', for: 'exc wl', use: 'Нүүрс, мод, үр тариа зэрэг нягт багатай материал.', build: 'Том багтаамжтай, өргөн, хавтан нимгэн.', mat: 'Q355B, ир Hardox 400.' },
+  { id: 'skel', name: 'Шигшүүр (Skeleton)', for: 'exc wl', use: 'Чулуу ялгах, шигших.', build: 'Ёроол, нуруу нь сараалжтай.', mat: 'Q355B + Hardox сараалж.' },
+  { id: 'ditch', name: 'Суваг цэвэрлэгч', for: 'exc', use: 'Налуу засах, суваг цэвэрлэх.', build: 'Өргөн, гүехэн, шүдгүй шулуун ир, ус гаргах нүхтэй.', mat: 'Q355B, ир Hardox 400.' },
+  { id: 'trench', name: 'Нарийн суваг (Trenching)', for: 'exc', use: 'Кабель, хоолойн суваг.', build: 'Нарийн, гүн, шүдтэй.', mat: 'Q355B, Hardox 450 ир.' },
   { id: 'fs', name: 'Урд шанага (Face shovel / Loading shovel)', for: 'exc', use: 'Том уурхайн экскаваторын ачилт.', build: 'Доороос нээгддэг (clamshell) эсвэл хөмрөх; маш зузаан ир, том багтаамж.', mat: 'Strenx бүтэц, Hardox 500 элэгдэл.' },
   { id: 'lhdget', name: 'LHD шанага — шүдтэй (G.E.T.)', for: 'lhd', use: 'Тэсэлсэн хүдэр, далд уурхай.', build: 'Хавтгай өргөн ёроол, богино нуруу, солигддог шүд/хамгаалалт (Sandvik Shark, Epiroc).', mat: 'Hardox 450/500, ир 60–100 мм.' },
   { id: 'lhdbare', name: 'LHD шанага — шүдгүй ир (Bare lip)', for: 'lhd', use: 'Нарийн хүдэр, цэвэрлэгээ, зам засвар.', build: 'Шулуун ирний хавтан, багтаамж арай их.', mat: 'Hardox 500 ир.' },
   { id: 'lhdeod', name: 'LHD түлхэгчтэй шанага (EOD)', for: 'lhd', use: 'Нам таазтай газар, машинд буулгах.', build: 'Дотор нь түлхэгч хавтан — шанага хөмрөхгүйгээр буулгана.', mat: 'Hardox 450 + түлхэгчийн чиглүүлэгч.' },
-  { id: 'hdump', name: 'Өндөр буулгалттай / хажуу буулгагч', for: 'wl', use: 'Өндөр тэвшинд ачих, нарийн газар.', build: 'Нэмэлт холбоос эсвэл хажуу тийш хөмрөх механизм.', mat: 'S355, Hardox 450.' }
+  { id: 'hdump', name: 'Өндөр буулгалттай / хажуу буулгагч', for: 'wl', use: 'Өндөр тэвшинд ачих, нарийн газар.', build: 'Нэмэлт холбоос эсвэл хажуу тийш хөмрөх механизм.', mat: 'Q355B, Hardox 450.' }
 ];
 // loose densities for bucket sizing — typical handbook-level values
 const DENS = [['Хөрс, шороо (сул)', 1.5], ['Хайрга', 1.8], ['Тэсэлсэн чулуу', 1.8], ['Төмрийн хүдэр', 2.3], ['Зэсийн хүдэр', 2.0], ['Нүүрс', 0.9], ['Шавар (нойтон)', 1.7], ['Элс (хуурай)', 1.5]];
@@ -13161,7 +13161,7 @@ const TPL = {
     name: 'Pegboard — багажны самбар', cat: 'Цех',
     desc: 'Дөрвөн талдаа нугалсан ирмэгтэй, нүх/ангархай торон самбар. Хананд 4 нүхээр бэхэлнэ.',
     params: [['W', 'Өргөн', 1000, 10], ['H', 'Өндөр', 600, 10], ['t', 'Зузаан', 1.5, 0.5], ['F', 'Ирмэгийн өндөр', 25, 1], ['p', 'Нүхний алхам', 38, 1], ['hw', 'Нүхний өргөн', 6, 0.5], ['hl', 'Нүхний урт (= өргөн бол дугуй)', 20, 1], ['m', 'Захын зай', 45, 1], ['md', 'Бэхэлгээний нүх Ø', 8, 0.5], ['n', 'Тоо', 1, 1]],
-    mat: 'Ст3 / S235',
+    mat: 'Q235B',
     build(p) {
       const sd = [1, 1, 1, 1], tf = trayFlat(p.W, p.H, p.F, p.t, sd), holesP = [];
       const nx = Math.max(1, Math.floor((p.W - 2 * p.m) / p.p) + 1), ny = Math.max(1, Math.floor((p.H - 2 * p.m - (p.hl - p.hw)) / p.p) + 1);
@@ -13180,7 +13180,7 @@ const TPL = {
     name: 'Ажлын ширээ', cat: 'Цех',
     desc: 'Нугалсан тавцан, доод тавиур, булангийн 4 өнцөгт хөл. Бүгд боолтоор угсрагдана.',
     params: [['L', 'Урт', 1500, 10], ['D', 'Гүн', 700, 10], ['H', 'Өндөр', 900, 10], ['t', 'Тавцангийн зузаан', 3, 0.5], ['F', 'Тавцангийн ирмэг', 50, 1], ['A', 'Хөлийн өнцөгт', 60, 1], ['tl', 'Хөлийн зузаан', 4, 0.5], ['zs', 'Доод тавиурын өндөр', 200, 10], ['ts', 'Тавиурын зузаан', 2, 0.5], ['Fs', 'Тавиурын ирмэг', 30, 1], ['bd', 'Боолтны нүх Ø', 9, 0.5]],
-    mat: 'Ст3 / S235',
+    mat: 'Q235B',
     build(p) {
       const sd = [1, 1, 1, 1], top = trayFlat(p.L, p.D, p.F, p.t, sd);
       const SL = p.L - 2 * p.t - 2 * p.tl, SD = p.D - 2 * p.t - 2 * p.tl, sh = trayFlat(SL, SD, p.Fs, p.ts, sd);
@@ -13207,7 +13207,7 @@ const TPL = {
     name: 'Сандал (лазер, боолттой)', cat: 'Тавилга',
     desc: 'Хоёр хажуу хүрээ, нугалсан суудал, түшлэг. Хажуу хүрээнд боолтны нүх тааруулж гарна.',
     params: [['Ws', 'Суудлын өргөн', 430, 5], ['Ds', 'Суудлын гүн', 420, 5], ['Hs', 'Суудлын өндөр', 450, 5], ['Hb', 'Нийт өндөр', 820, 5], ['a', 'Түшлэгийн налуу, °', 8, 1], ['pw', 'Хүрээний өргөн', 45, 1], ['tf', 'Хүрээний зузаан', 5, 0.5], ['t', 'Суудал, түшлэгийн зузаан', 2, 0.5], ['F', 'Нугалаас', 30, 1], ['Hbp', 'Түшлэгийн өндөр', 260, 5], ['bd', 'Боолтны нүх Ø', 7, 0.5], ['n', 'Тоо', 1, 1]],
-    mat: 'Ст3 / S235',
+    mat: 'Q235B',
     build(p) {
       const ta = Math.tan(p.a * Math.PI / 180), ca = Math.cos(p.a * Math.PI / 180), sa = Math.sin(p.a * Math.PI / 180), r = p.bd / 2;
       const G = [p.pw - p.Hs * ta, p.Hs];
@@ -13246,7 +13246,7 @@ const TPL = {
     name: 'Тавиур (стеллаж)', cat: 'Агуулах',
     desc: '4 өнцөгт тулгуур (нүхтэй), нугалсан тавиурууд. Тавиурын өндрийг нүхний алхмаар тохируулна.',
     params: [['L', 'Урт', 1000, 10], ['D', 'Гүн', 400, 10], ['H', 'Өндөр', 1800, 10], ['k', 'Тавиурын тоо', 5, 1], ['ts', 'Тавиурын зузаан', 1.2, 0.1], ['F', 'Тавиурын ирмэг', 30, 1], ['A', 'Тулгуурын өнцөгт', 40, 1], ['tl', 'Тулгуурын зузаан', 2, 0.5], ['pt', 'Нүхний алхам', 50, 5], ['bd', 'Нүх Ø', 9, 0.5]],
-    mat: 'Ст3 / S235',
+    mat: 'Q235B',
     build(p) {
       const sd = [1, 1, 1, 1], SL = p.L - 2 * p.tl, SD = p.D - 2 * p.tl, sh = trayFlat(SL, SD, p.F, p.ts, sd), lg = angleFlat(p.A, p.A, p.H, p.tl), r = p.bd / 2;
       const rows = []; for (let y = p.pt / 2; y < p.H - p.pt / 4; y += p.pt) rows.push(y);
@@ -13270,7 +13270,7 @@ const TPL = {
     name: 'L бэхэлгээ (тавиурын кронштейн)', cat: 'Бэхэлгээ',
     desc: 'Нэг нугалаастай L хэлбэрийн бэхэлгээ, хоёр мөрөндөө нүхтэй.',
     params: [['A', 'Мөр 1', 150, 5], ['B', 'Мөр 2', 100, 5], ['w', 'Өргөн', 50, 5], ['t', 'Зузаан', 4, 0.5], ['d', 'Нүх Ø', 11, 0.5], ['nh', 'Нүх мөр тус бүрт', 2, 1], ['n', 'Тоо', 4, 1]],
-    mat: 'Ст3 / S235',
+    mat: 'Q235B',
     build(p) {
       const k = bend90(p.t), a = p.A - k.OS, b = p.B - k.OS, fl = angleFlat(p.A, p.B, p.w, p.t), holes = [], r = p.d / 2, nh = Math.max(0, Math.round(p.nh));
       for (let i = 0; i < nh; i++) {
@@ -15516,9 +15516,13 @@ applyLogoUI(); contactLists();
 const ENG = { tool: 'beam', v: {} };
 try { Object.assign(ENG, JSON.parse(localStorage.getItem('kh-eng') || '{}')); } catch (e) { }
 const engSave = () => { try { localStorage.setItem('kh-eng', JSON.stringify(ENG)); } catch (e) { } };
-const ENG_MAT = [ // name, yield Fy MPa, ultimate fu MPa, E MPa, density kg/m³
-  ['S235', 235, 360, 200000, 7850], ['S275', 275, 430, 200000, 7850], ['S355', 355, 490, 200000, 7850], ['Ст3 (St3sp)', 245, 370, 200000, 7850],
-  ['09Г2С', 345, 490, 200000, 7850], ['Hardox 450', 1200, 1400, 205000, 7850], ['AISI 304', 205, 515, 193000, 7930], ['Al 6061-T6', 276, 310, 69000, 2700]];
+const ENG_MAT = [ // GB/T 700, GB/T 1591 (t ≤ 16 mm) and SSAB Hardox typical values: name, yield Fy MPa, tensile fu MPa, E MPa, density kg/m³
+  ['Q235B', 235, 370, 206000, 7850], ['Q345B', 345, 470, 206000, 7850], ['Q355B', 355, 470, 206000, 7850], ['Q390B', 390, 490, 206000, 7850], ['Q420B', 420, 520, 206000, 7850], ['Q460C', 460, 550, 206000, 7850],
+  ['45# (GB/T 699)', 355, 600, 206000, 7850], ['40Cr (сайжруулсан)', 785, 980, 206000, 7850],
+  ['Hardox 400', 1000, 1250, 205000, 7850], ['Hardox 450', 1200, 1400, 205000, 7850], ['Hardox 500', 1400, 1550, 205000, 7850],
+  ['AISI 304', 205, 515, 193000, 7930], ['Al 6061-T6', 276, 310, 69000, 2700]];
+/* the nesting material list gets the Chinese grades too (existing names stay, parts keep pointing at them) */
+(() => { try { if (Array.isArray(S.materials) && !S._matGB) { [['Q235B', 3800], ['Q345B', 4300], ['Q355B', 4300], ['Hardox 400', 13000], ['Hardox 450', 14000], ['Hardox 500', 15000]].forEach(([n, p]) => { if (!S.materials.some(m => m.name === n)) S.materials.push({ name: n, rho: 7.85, price: p }); }); S._matGB = 1; save(); } } catch (e) { } })();
 const ENG_TOOLS = [
   ['beam', 'Даацын тооцоо — дам нуруу', 'Хүчдэл, нугаралт, зөвшөөрөгдөх ачаалал'],
   ['bolt', 'Боолт — эрэг чангалах момент', 'Эхний таталт, момент, зүсэлт, суналтын даац, нүх'],
@@ -15564,7 +15568,7 @@ const BFRIC = [['0.20', 'Хуурай, ган (K = 0.20)'], ['0.17', 'Цайрд
 function boltRow(b, cls, K, pct) { const [d, p, As, s, h] = b, [Sp, fu, av] = bclsProps(cls, d), F = Sp * As * pct / 100, T = K * F * d / 1000; const fub = { '4.6': 400, '5.6': 500, '8.8': 800, '10.9': 1000, '12.9': 1200 }[cls];   // EN 1993-1-8 Table 3.1 nominal fub
   return { d, p, As, s, h, tap: d - p, F, T, Fv: av * fub * As / 1.25, Ft: .9 * fub * As / 1.25, Sp, fu }; }
 /* ---------- fillet weld EN 1993-1-8 simplified method ---------- */
-const WELD_BW = { 'S235': .8, 'S275': .85, 'S355': .9, 'Ст3 (St3sp)': .8, '09Г2С': .9 };
+const WELD_BW = { 'Q235B': .8, 'Q345B': .9, 'Q355B': .9, 'Q390B': 1, 'Q420B': 1, 'Q460C': 1 };   // correlation factor βw as for the EN grade of the same strength
 /* ---------- units ---------- */
 const UNITS = {
   len: ['Урт', [['mm', 1e-3], ['cm', 1e-2], ['m', 1], ['km', 1e3], ['in', .0254], ['ft', .3048], ['yd', .9144], ['mile', 1609.344]]],
@@ -15590,7 +15594,7 @@ function renderEngSide() {
   el.querySelectorAll('[data-et]').forEach(b => b.addEventListener('click', () => { ENG.tool = b.dataset.et; engSave(); renderEng(); }));
 }
 const EV0 = { beam: { case: 'ss_p', sec: 'rhs', mat: 2, L: 2000, P: 10, B: 100, H: 200, t: 6, b: 50, h: 100, d: 60, D: 114, tw: 8, tf: 12, I: 1000, W: 100, sf: 1.5, self: 1, dlim: 250 },
-  bolt: { cls: '8.8', K: '0.20', pct: 75, d: 20, n: 4 }, weld: { mat: 'S355', leg: 8, L: 200, F: 100, sides: 1 }, lug: { mat: 2, t: 20, w: 120, R: 60, dh: 42, dp: 40, P: 5, dyn: 1.25, sf: 3 },
+  bolt: { cls: '8.8', K: '0.20', pct: 75, d: 20, n: 4 }, weld: { mat: 'Q355B', leg: 8, L: 200, F: 100, sides: 1 }, lug: { mat: 2, t: 20, w: 120, R: 60, dh: 42, dp: 40, P: 5, dyn: 1.25, sf: 3 },
   weight: { shape: 'plate', mat: 0, a: 1000, b: 2000, t: 10, d: 50, D: 114, L: 6000, q: 1 }, units: { cat: 'force', v: 1, a: 'tf (тонн-хүч)', b: 'kN' }, hard: { v: 40, k: 'HRC' } };
 const ev = t => { const o = ENG.v[t] = ENG.v[t] || {}; Object.keys(EV0[t]).forEach(k => { if (o[k] === undefined) o[k] = EV0[t][k]; }); return o; };   // one object per tool, defaults filled in
 function engIn(t, k, l, o = {}) { const v = ev(t)[k]; if (o.sel) return `<label class="fld">${l}<select data-ek="${k}" class="inp">${o.sel.map(([a, b]) => `<option value="${esc(a)}"${String(a) === String(v) ? ' selected' : ''}>${esc(b)}</option>`).join('')}</select></label>`;
@@ -15645,7 +15649,7 @@ function renderEng() {
     const lab = { a: sh === 'plate' ? 'Урт a, мм' : 'Тал a, мм', b: sh === 'plate' ? 'Өргөн b, мм' : 'Тал b, мм', t: 'Зузаан t, мм', d: sh === 'hex' ? 'Түлхүүрийн хэмжээ S, мм' : 'Диаметр d, мм', D: 'Гадна диаметр D, мм', L: 'Урт L, мм' };
     form = `${engIn(t, 'shape', 'Хэлбэр', { sel: SH })}${engIn(t, 'mat', 'Материал', { sel: ENG_MAT.map((x, i) => [i, `${x[0]} · ${x[4]} кг/м³`]) })}${fl.map(k => engIn(t, k, lab[k])).join('')}${engIn(t, 'q', 'Тоо, ш')}`;
     res = engRes([['Нэг ширхэгийн жин', `<span style="font-size:18px">${ef(kg, 2)} кг</span>`], ['Нийт жин', `${ef(kg * v('q'), 2)} кг`], ...(A ? [['Нэг метрийн жин', `${ef(A * 1e-6 * rho, 2)} кг/м`], ['Огтлолын талбай', `${ef(A / 100, 2)} см²`]] : [['Нэг м²-ийн жин', `${ef(v('t') * 1e-3 * rho, 2)} кг/м²`]])]);
-    note = 'Нягт: ган 7850, зэвэрдэггүй 7930, хөнгөн цагаан 2700 кг/м³. Профилийн булангийн радиусыг тооцоогүй (бодит жин 1–3% бага).';
+    note = 'Ган: GB/T 700 (Q235), GB/T 1591 (Q345/Q355…), утга нь t ≤ 16 мм; Hardox — SSAB-ийн ердийн утга. Нягт: ган 7850, зэвэрдэггүй 7930, хөнгөн цагаан 2700 кг/м³. Профилийн булангийн радиусыг тооцоогүй (бодит жин 1–3% бага).';
   } else if (t === 'units') {
     const C = UNITS[o.cat] || UNITS.force, U = C[1]; if (!U.some(u => u[0] === o.a)) o.a = U[0][0]; if (!U.some(u => u[0] === o.b)) o.b = U[1][0];
     const conv = (val, a, b) => o.cat === 'temp' ? tConv(val, a, b) : val * U.find(u => u[0] === a)[1] / U.find(u => u[0] === b)[1];
