@@ -17,6 +17,7 @@ const ERP_IC = {
   box: '<path d="M3 8l9-5 9 5v8l-9 5-9-5z"/><path d="M3 8l9 5 9-5"/>', cal: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
   task: '<path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 01-2 2H6a2 2 0 01-2-2V5a2 2 0 012-2h9"/>', file: '<path d="M21 12l-9 9a5 5 0 01-7-7l9-9a3.5 3.5 0 015 5l-9 9a2 2 0 01-3-3l8-8"/>',
   chat: '<path d="M21 12a8 8 0 01-11.6 7.1L4 20l1-4.6A8 8 0 1121 12z"/>', calc: '<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 12h2M12 12h2M16 12h0M8 16h2M12 16h2"/>',
+  qual: '<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/>',
   search: '<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>',
   truck: '<path d="M3 6h11v10H3zM14 9h4l3 3v4h-7"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/>'
 };
@@ -25,9 +26,10 @@ const erpIcon = (k, cls = '') => `<svg class="${cls}" viewBox="0 0 24 24" fill="
 const ERP_APPS = [
   { k: 'home', n: 'Нүүр', ic: 'home', c: '#344054', items: [['dash', 'Хяналтын самбар']] },
   { k: 'sales', n: 'Борлуулалт', ic: 'sales', c: '#e0650f', items: [['quotes', 'Үнийн санал'], ['docs:invoices', 'Нэхэмжлэх'], ['info:org', 'Харилцагч'], ['docs:forms', 'Маягт']] },
-  { k: 'mfg', n: 'Үйлдвэрлэл', ic: 'mfg', c: '#1d4ed8', items: [['jobs', 'Ажил'], ['plan', 'Төлөвлөгөө'], ['docs:scopes', 'Scope'], ['docs:dockets', 'Packing list']] },
+  { k: 'mfg', n: 'Үйлдвэрлэл', ic: 'mfg', c: '#1d4ed8', items: [['jobs', 'Ажил'], ['mfg', 'Үйлдвэрлэлийн захиалга'], ['mfg:wc', 'Ажлын байр'], ['plan', 'Төлөвлөгөө'], ['docs:scopes', 'Scope'], ['docs:dockets', 'Packing list']] },
   { k: 'cut', n: 'Инженер', ic: 'cut', c: '#0e7490', items: [['eng', 'Тооцоолол'], ['eng:bolt', 'Боолт'], ['eng:units', 'Нэгж хувиргагч'], ['nest', 'Лазер өрөлт'], ['bend', 'Нугалалт'], ['docs:kits', 'Иж бүрдэл']] },
   { k: 'stock', n: 'Агуулах', ic: 'stock', c: '#15803d', items: [['stock', 'Агуулах'], ['docs:certs', 'Материалын гэрчилгээ']] },
+  { k: 'qual', n: 'Чанар', ic: 'qual', c: '#be123c', items: [['mfg:qc', 'Шалгалт'], ['mfg:ncr', 'NCR'], ['mfg:trace', 'Мөшгөлт'], ['mfg:gauge', 'Хэмжих багаж']] },
   { k: 'team', n: 'Баг', ic: 'team', c: '#7c3aed', items: [['team', 'Даалгавар'], ['ideas', 'Санаа, сайжруулалт'], ['insp', 'Үзлэг · ХАБ']] },
   { k: 'lib', n: 'Сан', ic: 'lib', c: '#b45309', items: [['info:cat', 'Үнийн сан'], ['info:std', 'Стандарт'], ['info:tpl', 'Загвар'], ['info:mach', 'Техник']] }
 ];
@@ -47,6 +49,7 @@ function erpGo(route, o = {}) {
     $$('[data-jtab]').forEach(x => x.classList.toggle('on', x.dataset.jtab === J.tab)); ['jobs', 'kits', 'certs', 'dockets', 'forms', 'scopes', 'invoices'].forEach(k => { const e = $('#jtab-' + k); if (e) e.hidden = k !== J.tab; });
     renderJobs();
   } else if (m === 'eng') { if (typeof ENG !== 'undefined') { ENG.tool = t || (['bolt', 'units'].includes(ENG.tool) && route === 'eng' ? 'beam' : ENG.tool); engSave(); } setModule('eng'); }
+  else if (m === 'mfg') { if (typeof MF !== 'undefined') { MF.tab = t || 'mo'; if (!o.keep) MF.sel = null; MF.f = MF.tab === 'mo' ? 'act' : MF.tab === 'ncr' ? 'open' : ''; MF.q = ''; mfSave(); } setModule('mfg'); }
   else if (m === 'info') { setModule('info'); if (t && typeof IN !== 'undefined') { IN.tab = t; renderInfo(); } }
   else if (m === 'jobs' || m === 'quotes') { setModule(m); if (!o.keep) { J.sel = null; J.sub = m === 'quotes' ? 'quote' : 'main'; } renderJobs(); }
   else setModule(m);
@@ -57,6 +60,7 @@ function erpCurRoute() {
   const v = document.documentElement.dataset.jview, act = $$('.modtabs button.on')[0], m = act ? act.dataset.mod : 'nest';
   if (v === 'docs' || (m === 'docs')) return 'docs:' + (J.tab || 'dockets');
   if (m === 'info') return 'info:' + ((typeof IN !== 'undefined' && IN.tab) || 'cat');
+  if (m === 'mfg') return (typeof MF !== 'undefined' && MF.tab !== 'mo') ? 'mfg:' + MF.tab : 'mfg';
   if (m === 'eng') return (typeof ENG !== 'undefined' && ['bolt', 'units'].includes(ENG.tool)) ? 'eng:' + ENG.tool : 'eng';
   return m;
 }
@@ -64,7 +68,7 @@ function erpNav() {
   const nav = $('#erpNav'); if (!nav) return; const r = erpCurRoute(); ERP.route = r; const app = erpAppOf(r);
   nav.querySelector('.erp-appname').textContent = app.n;
   nav.querySelector('.erp-menu').innerHTML = app.items.map(([k, n]) => `<button data-erp="${k}" class="${k === r || (k.split(':')[0] === r.split(':')[0] && !app.items.some(x => x[0] === r) && app.items.filter(x => x[0].split(':')[0] === r.split(':')[0]).length === 1) ? 'on' : ''}">${esc(n)}</button>`).join('');
-  const full = (r === 'dash' || r === 'jobs' || r === 'quotes');
+  const full = (r === 'dash' || r === 'jobs' || r === 'quotes' || r.startsWith('mfg'));
   document.documentElement.toggleAttribute('data-erpfull', full);
   const ch = $('#btnChat'); if (ch && typeof chatBadge === 'function') chatBadge();
 }
@@ -79,7 +83,7 @@ function erpLaunch(open) {
 function erpCounts() {
   const JB = topJobs().filter(j => !isQ(j)), act = JB.filter(j => !['done', 'given'].includes(j.status)), Q = topJobs().filter(j => isQ(j) && ['draft', 'sent'].includes(j.qst || 'draft'));
   const low = (typeof stk === 'function' ? stk() : []).filter(it => it.min > 0 && +it.qty <= +it.min).length, tk = (typeof tasks === 'function' ? tasks() : []).filter(t => t.status !== 'done').length;
-  return { home: 'тойм', sales: `${Q.length} нээлттэй санал`, mfg: `${act.length} идэвхтэй ажил`, cut: 'даац, боолт, өрөлт', stock: low ? `${low} бараа дутуу` : 'үлдэгдэл', team: `${tk} нээлттэй даалгавар`, lib: 'үнэ, стандарт' };
+  return { home: 'тойм', sales: `${Q.length} нээлттэй санал`, mfg: `${act.length} идэвхтэй ажил${typeof mos === 'function' && mos().some(m => ['plan', 'run'].includes(m.status)) ? ' · ' + mos().filter(m => ['plan', 'run'].includes(m.status)).length + ' MO' : ''}`, cut: 'даац, боолт, өрөлт', stock: low ? `${low} бараа дутуу` : 'үлдэгдэл', team: `${tk} нээлттэй даалгавар`, qual: (() => { const n = typeof ncrs === 'function' ? ncrs().filter(x => x.st !== 'closed').length : 0, g = typeof gauges === 'function' ? gauges().filter(x => gSt(x)[0] === 'over').length : 0; return n || g ? [n ? `${n} нээлттэй NCR` : '', g ? `${g} багаж хэтэрсэн` : ''].filter(Boolean).join(' · ') : 'шалгалт, NCR, мөшгөлт'; })(), lib: 'үнэ, стандарт' };
 }
 
 /* ---------- control panel ---------- */
@@ -237,6 +241,7 @@ function erpDecorate(el, job, v) {
       add('acc', 'truck', job.dock && job.dock.issued ? '✓' : '—', 'Packing list');
       const tk = (typeof tasks === 'function' ? tasks() : []).filter(t => t.jobId === job.id), tko = tk.filter(t => t.status !== 'done').length; add('tasks', 'task', `${tko}/${tk.length}`, 'Даалгавар');
       const mv = (typeof stkMoves === 'function' ? stkMoves() : []).filter(m => m.job === job.id).length; add('stock', 'box', `${mv}`, 'Агуулахаас');
+      if (typeof mos === 'function') { const MO = mos().filter(m => m.job === job.id), NC = ncrs().filter(n => n.job === job.id && n.st !== 'closed'); add('mo', 'mfg', `${MO.length}`, MO.length ? 'Үйлдвэрлэлийн захиалга' : '+ Үйлдвэрлэлийн захиалга'); add('qc', 'qual', `${qcs().filter(q => q.job === job.id).length}`, NC.length ? `Шалгалт · ${NC.length} NCR` : 'Чанарын шалгалт'); }
     } else { add('scope', 'cal', (job.scope && job.scope.stages || []).filter(s => s.name).length + '', 'Scope, үе шат'); if (kids) add('kids', 'calc', `${kids}`, 'Мөрийн тооцоо'); }
     add('files', 'file', `${files}`, 'Хавсралт');
   }
@@ -257,6 +262,8 @@ function erpDecorate(el, job, v) {
   const dp = form.querySelector('#erpDup'); if (dp) dp.addEventListener('click', () => { const b = sheet.querySelector('#jb_dup'); if (b) b.click(); else toast('Хуулах товч олдсонгүй'); });
   const scrollTo = re => { const h = [...sheet.querySelectorAll('.bcard-h,h3,.jcard>.bcard-h')].find(x => re.test(x.textContent)); if (h) h.scrollIntoView({ behavior: 'smooth', block: 'start' }); else toast('Энэ хэсэг одоо харагдах хуудсанд алга'); };
   form.querySelectorAll('[data-sm]').forEach(b => b.addEventListener('click', () => { const k = b.dataset.sm;
+    if (k === 'mo') { const MO = mos().filter(m => m.job === job.id); if (MO.length === 1) mfGo('mo', MO[0].id); else if (MO.length) { erpGo('mfg'); MF.q = job.no; MF.f = ''; renderMfg(); } else { const mo = newMO({ job: job.id, item: job.title || '', due: job.due || '' }); moOpsFromJob(mo); mfGo('mo', mo.id); } return; }
+    if (k === 'qc') { erpGo('mfg:qc'); MF.q = job.no; renderMfg(); return; }
     if (k === 'quote') { J.sub = 'quote'; renderJobs(); } else if (k === 'scope') { J.sub = 'scope'; renderJobs(); } else if (k === 'acc') { J.sub = 'acc'; renderJobs(); }
     else if (k === 'inv') { if (J.sub !== 'main') { J.sub = 'main'; renderJobs(); } setTimeout(() => scrollTo(/Нэхэмжл|Санхүү/), 60); }
     else if (k === 'files') { if (!isQ(job) && J.sub !== 'main') { J.sub = 'main'; renderJobs(); } setTimeout(() => scrollTo(/Хавсралт|Файл/), 60); }

@@ -205,3 +205,20 @@ html[data-var="erp"] .tabs button.on{color:var(--accent)!important;border-color:
 @media (max-width:1000px){.erp-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .erp-appsrow{grid-template-columns:repeat(6,minmax(0,1fr))}
 @media (max-width:1100px){.erp-appsrow{grid-template-columns:repeat(3,minmax(0,1fr))}}
+/* ---- Үйлдвэрлэл & Чанар (mfg.js) ---- */
+.mf-body{padding:16px 24px 40px;display:grid;gap:14px;align-content:start}
+.mf-body>.jcard{margin:0}
+.mf-kpis{grid-template-columns:repeat(4,minmax(0,1fr))}@media (max-width:1000px){.mf-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.mf-warn,.mf-ok,.mf-info{border-radius:8px;padding:10px 14px;font-size:13px;border:1px solid}
+.mf-warn{background:#fef3f2;border-color:#fecdca;color:#912018}.mf-warn ul{margin:6px 0 0 18px;padding:0}.mf-warn li{margin:2px 0}
+.mf-ok{background:#ecfdf3;border-color:#abefc6;color:#05603a;font-weight:600}
+.mf-info{background:#eff8ff;border-color:#d1e9ff;color:#1849a9}
+html[data-theme="dark"] .mf-warn,html[data-theme="dark"] .mf-ok,html[data-theme="dark"] .mf-info{background:var(--surface-2);color:var(--ink)}
+.mf-6m{display:flex;flex-wrap:wrap;gap:14px;align-items:center;font-size:13px;padding:10px 14px;margin-bottom:12px;background:var(--surface);border:1px solid var(--line);border-radius:8px}.mf-6m .sp{flex:1}
+.mf-body td.lc{background:linear-gradient(90deg,color-mix(in srgb,var(--accent) 22%,transparent) var(--p),transparent var(--p))}
+.mf-gantt{display:grid;grid-template-columns:170px repeat(var(--n),minmax(30px,1fr));gap:2px;font-size:11px;overflow-x:auto}
+.mf-gantt .h{text-align:center;color:var(--ink-3);font-family:var(--f-mono,monospace);line-height:1.15;padding-bottom:3px}.mf-gantt .h small{display:block;font-size:9.5px}.mf-gantt .h.t{color:var(--accent);font-weight:700}
+.mf-gantt .n{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:5px 6px 5px 0;color:var(--ink-2)}
+.mf-gantt .c{height:26px;border-radius:3px;background:var(--surface-2);display:flex;align-items:center;justify-content:center;font-family:var(--f-mono,monospace);font-size:10px;color:#fff}
+.mf-gantt .c.on{background:color-mix(in srgb,#1d4ed8 calc(35% + var(--p) * 65%),var(--surface-2));cursor:pointer}.mf-gantt .c.over{background:#d92d20}
+.dt tr.rec{cursor:pointer}.dt tr.rec:hover td{background:var(--accent-soft)}
