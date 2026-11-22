@@ -457,57 +457,8 @@ html[data-skin="modern"] .summary{grid-template-columns:repeat(auto-fit,minmax(1
 html[data-skin="modern"] .app{grid-template-columns:224px 360px minmax(0,1fr)}
 @media (max-width:1100px){html[data-skin="modern"] .app{grid-template-columns:200px 300px minmax(0,1fr)}}
 
-/* ---- Modern variants (data-var) ---- */
 html[data-skin="modern"] #skinSel{width:100%!important;min-width:0;text-overflow:ellipsis}
 /* calm — Linear / Mercury: monochrome, accent only for status, content in an inset panel */
-html[data-skin="modern"][data-var="calm"]{--bg:#f4f4f5;--surface:#fff;--surface-2:#f7f7f8;--line:#e7e7ea;--line-2:#f0f0f2;--ink:#18181b;--ink-2:#52525b;--ink-3:#a1a1aa;--accent:#18181b;--accent-ink:#fff;--accent-soft:#ececee}
-html[data-skin="modern"][data-var="calm"] body{font-size:13.5px}
-html[data-skin="modern"][data-var="calm"] .top{background:var(--bg)!important;border-right:0}
-html[data-skin="modern"][data-var="calm"] .side{background:#fff!important;margin:10px 0;border:1px solid var(--line);border-right:0;border-radius:14px 0 0 14px}
-html[data-skin="modern"][data-var="calm"] .main{background:#fcfcfd;margin:10px 10px 10px 0;border:1px solid var(--line);border-radius:0 14px 14px 0}
-html[data-skin="modern"][data-var="calm"] .modtabs button.on{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08),0 0 0 1px var(--line)}
-html[data-skin="modern"][data-var="calm"] .jcard,html[data-skin="modern"][data-var="calm"] .bcard,html[data-skin="modern"][data-var="calm"] .summary>.stat{box-shadow:none}
-html[data-skin="modern"][data-var="calm"] .stat .v{font-weight:600;letter-spacing:-.02em}
-html[data-skin="modern"][data-var="calm"] .bcard-h{font-size:13.5px}
-html[data-skin="modern"][data-var="calm"] .btn{box-shadow:none}
-html[data-skin="modern"][data-var="calm"] .jitem.on{background:#f4f4f5;border-color:#18181b}
-/* dark — Supabase / Raycast: charcoal layers, one accent, saturated colour only for status */
-html[data-skin="modern"][data-var="dark"]{--bg:#0f1113;--surface:#16181b;--surface-2:#1c1f23;--line:#2a2e33;--line-2:#22262a;--ink:#ededef;--ink-2:#a3a8af;--ink-3:#6c727a;--accent:#ff7a2f;--accent-ink:#140a04;--accent-soft:rgba(255,122,47,.14);--sheet:#3b4755;--view:#121418;color-scheme:dark}
-html[data-skin="modern"][data-var="dark"] .top{background:#0b0d0f}html[data-skin="modern"][data-var="dark"] .side{background:#121417}
-html[data-skin="modern"][data-var="dark"] .brand-logo{background:#fff;border-radius:6px;padding:3px 6px}
-html[data-skin="modern"][data-var="dark"] .jcard,html[data-skin="modern"][data-var="dark"] .bcard,html[data-skin="modern"][data-var="dark"] .summary>.stat{box-shadow:none}
-html[data-skin="modern"][data-var="dark"] .dt td{padding:9px 12px}
-html[data-skin="modern"][data-var="dark"] .pill.st-done,html[data-skin="modern"][data-var="dark"] .pill.st-given,html[data-skin="modern"][data-var="dark"] .pill.ok{background:rgba(62,207,142,.14);color:#3ecf8e;box-shadow:none}
-html[data-skin="modern"][data-var="dark"] .pill.st-cut,html[data-skin="modern"][data-var="dark"] .pill.qst-sent,html[data-skin="modern"][data-var="dark"] .pill.rem{background:rgba(110,150,255,.15);color:#93acff;box-shadow:none}
-html[data-skin="modern"][data-var="dark"] .pill.st-weld{background:rgba(167,139,250,.15);color:#c0b0ff;box-shadow:none}html[data-skin="modern"][data-var="dark"] .pill.st-nest{background:rgba(251,191,36,.13);color:#fbbf24;box-shadow:none}
-html[data-skin="modern"][data-var="dark"] .pill.qst-lost,html[data-skin="modern"][data-var="dark"] .pill.bad{background:rgba(248,113,113,.14);color:#f87171;box-shadow:none}
-html[data-skin="modern"][data-var="dark"] #btnTheme{display:none}
-/* fintech — Stripe / Mercury: one hero number, indigo brand, soft layered shadows */
-html[data-skin="modern"][data-var="fintech"]{--bg:#f6f9fc;--surface:#fff;--surface-2:#f6f9fc;--line:#e3e8ee;--line-2:#edf1f5;--ink:#0a2540;--ink-2:#425466;--ink-3:#8792a2;--accent:#635bff;--accent-ink:#fff;--accent-soft:#efeefe;--r:12px}
-html[data-skin="modern"][data-var="fintech"] .jcard,html[data-skin="modern"][data-var="fintech"] .bcard,html[data-skin="modern"][data-var="fintech"] .summary>.stat{border-color:transparent;border-radius:14px;box-shadow:0 2px 5px rgba(50,50,93,.07),0 1px 1.5px rgba(0,0,0,.05)}
-html[data-skin="modern"][data-var="fintech"] .summary>.stat:first-child{grid-column:span 2;background:linear-gradient(135deg,#635bff 0%,#8b5cf6 100%);color:#fff}
-html[data-skin="modern"][data-var="fintech"] .summary>.stat:first-child .k,html[data-skin="modern"][data-var="fintech"] .summary>.stat:first-child .s,html[data-skin="modern"][data-var="fintech"] .summary>.stat:first-child .v small{color:rgba(255,255,255,.82)}
-html[data-skin="modern"][data-var="fintech"] .summary>.stat:first-child .v{font-size:32px}
-html[data-skin="modern"][data-var="fintech"] .btn.primary{box-shadow:0 4px 10px rgba(99,91,255,.28)}
-html[data-skin="modern"][data-var="fintech"] .modtabs button.on{background:var(--accent);color:#fff}
-html[data-skin="modern"][data-var="fintech"] .top{background:#fff}html[data-skin="modern"][data-var="fintech"] .side{background:#fbfcfe}
-html[data-skin="modern"][data-var="fintech"] .stepper button.on .sn{background:var(--accent);border-color:var(--accent)}
-/* bento — warm Kh orange, floating dark sidebar, coloured KPI tiles */
-html[data-skin="modern"][data-var="bento"]{--bg:#ebe9e4;--surface:#fff;--surface-2:#f6f5f2;--line:#e2dfd8;--line-2:#eeece7;--ink:#141414;--ink-2:#55524c;--ink-3:#9a968e;--accent:#ff6b1a;--accent-ink:#fff;--accent-soft:#fff0e6;--r:14px}
-html[data-skin="modern"][data-var="bento"] .top{background:#141414;color:#f2f1ee;margin:10px 0 10px 10px;border-radius:22px;border-right:0;--line:#2b2b2b;--surface:#1d1d1d;--surface-2:#222;--ink:#f2f1ee;--ink-2:#b7b4ad;--ink-3:#7c7972}
-html[data-skin="modern"][data-var="bento"] .top .btn,html[data-skin="modern"][data-var="bento"] .top .inp,html[data-skin="modern"][data-var="bento"] .top .job{background:#222;border-color:#333;color:#f2f1ee}
-html[data-skin="modern"][data-var="bento"] .brand-logo{background:#fff;border-radius:10px;padding:4px 8px}
-html[data-skin="modern"][data-var="bento"] .modtabs button{color:#b7b4ad}html[data-skin="modern"][data-var="bento"] .modtabs button:hover{background:#222;color:#fff}html[data-skin="modern"][data-var="bento"] .modtabs button.on{background:var(--accent);color:#fff}
-html[data-skin="modern"][data-var="bento"] .mco{background:#1d1d1d;border-color:#2b2b2b}
-html[data-skin="modern"][data-var="bento"] .side{background:transparent;border-right:0}html[data-skin="modern"][data-var="bento"] .side .tabs{border-bottom-color:var(--line)}
-html[data-skin="modern"][data-var="bento"] .jcard,html[data-skin="modern"][data-var="bento"] .bcard{border-radius:20px;border-color:transparent;box-shadow:0 1px 2px rgba(0,0,0,.04)}
-html[data-skin="modern"][data-var="bento"] .summary>.stat{border-radius:20px;border-color:transparent;box-shadow:none;padding:16px 18px}
-html[data-skin="modern"][data-var="bento"] .summary>.stat:nth-child(1){background:#f3e84a}html[data-skin="modern"][data-var="bento"] .summary>.stat:nth-child(2){background:#ff8a3d;color:#fff}html[data-skin="modern"][data-var="bento"] .summary>.stat:nth-child(3){background:#151515;color:#fff}
-html[data-skin="modern"][data-var="bento"] .summary>.stat:nth-child(2) .k,html[data-skin="modern"][data-var="bento"] .summary>.stat:nth-child(2) .s,html[data-skin="modern"][data-var="bento"] .summary>.stat:nth-child(3) .k,html[data-skin="modern"][data-var="bento"] .summary>.stat:nth-child(3) .s{color:rgba(255,255,255,.8)}
-html[data-skin="modern"][data-var="bento"] .summary>.stat:nth-child(1) .k,html[data-skin="modern"][data-var="bento"] .summary>.stat:nth-child(1) .s{color:rgba(0,0,0,.6)}
-html[data-skin="modern"][data-var="bento"] .jitem{border-color:transparent;border-radius:16px}html[data-skin="modern"][data-var="bento"] .jitem.on{background:#fff;border-color:var(--accent)}
-html[data-skin="modern"][data-var="bento"] .btn{border-radius:999px}html[data-skin="modern"][data-var="bento"] .fld input,html[data-skin="modern"][data-var="bento"] .fld select,html[data-skin="modern"][data-var="bento"] .inp{border-radius:12px}
-html[data-skin="modern"][data-var="bento"] .stepper{border-radius:999px;background:#fff}html[data-skin="modern"][data-var="bento"] .stepper button{border-radius:999px}html[data-skin="modern"][data-var="bento"] .stepper button.on{background:#141414;color:#fff}
 /* labels vs values: a label is small, semibold and muted; the value is full-size ink */
 label.fld,.fld>.flab{font-size:11.5px;font-weight:600;color:var(--ink-3);letter-spacing:.01em}
 .fld input,.fld select,.fld textarea{font-size:13.5px;font-weight:400;color:var(--ink);letter-spacing:0}
@@ -568,7 +519,7 @@ label.fld,.fld>.flab{font-size:11.5px;font-weight:600;color:var(--ink-3);letter-
     <div class="top-actions">
       <div class="mco"><b>Kh International</b><small>ISO 9001 · Know us, know the quality</small></div>
       <div class="seg notr" id="langSeg" role="group" aria-label="Language"><button data-lang="mn" title="Монгол">МН</button><button data-lang="en" title="English">EN</button></div>
-      <select id="skinSel" class="inp sm" aria-label="Загвар" title="Програмын загвар" style="width:auto;padding:5px 8px"><option value="erp">Загвар: ERP (Odoo маягийн)</option><option value="modern">Загвар: Орчин үеийн</option><option value="calm">Загвар: Тайван (Linear)</option><option value="dark">Загвар: Харанхуй (Supabase)</option><option value="fintech">Загвар: Fintech (Stripe)</option><option value="bento">Загвар: Bento (улбар шар)</option></select>
+      <select id="skinSel" class="inp sm" aria-label="Загвар" title="Програмын загвар" style="width:auto;padding:5px 8px"><option value="kh">Загвар: Odoo 18 · KH улбар шар</option><option value="odoo">Загвар: Odoo 18 · нил ягаан</option><option value="kh-c">Загвар: Нягт · KH улбар шар</option><option value="odoo-c">Загвар: Нягт · нил ягаан</option></select>
       <button class="btn sm ghost" id="btnChat" type="button" title="Оффис, үйлдвэрийн дотоод чат — ерөнхий суваг, ажил бүрийн чат">💬 Чат</button>
       <button class="btn sm ghost" id="btnLink" type="button" title="Нөөц (OneDrive), оффис ↔ үйлдвэр синк, утаснаас бүртгэх">🔗 Холболт</button>
       <button class="btn sm savebtn" type="button" title="Бүх өгөгдлийг одоо хадгалах (Ctrl+S). Програм өөрөө ч автоматаар хадгалдаг.">💾 Хадгалах</button>

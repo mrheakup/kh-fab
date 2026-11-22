@@ -59,7 +59,7 @@ async function syncInit() {
 }
 async function syncMerge(txt, startup) {
   let R; try { R = JSON.parse(txt); } catch (e) { return; }
-  const C = [], L = JSON.parse(JSON.stringify(S)); delete L._saved; delete R._saved; const B = KL.base ? Object.assign({}, KL.base) : {}; delete B._saved;
+  const C = [], L = JSON.parse(JSON.stringify(S)); delete L._saved; delete R._saved; if (KL.base === undefined) { try { KL.base = KL.baseTxt ? JSON.parse(KL.baseTxt) : null; } catch (e) { KL.base = null; } KL.baseTxt = null; } const B = KL.base ? Object.assign({}, KL.base) : {}; delete B._saved;
   const m = merge3(B, L, R, 'S', C);
   const fixedNos = syncFixNumbers(m, R);
   LOCAL_KEYS.forEach(k => { if (k in L) m[k] = L[k]; else delete m[k]; });   // this PC's own workspace / user stays as is
@@ -71,7 +71,7 @@ async function syncPush(txt) {
   if (!KL.on || KL.busy) return; KL.busy = true;
   try {
     const r = await window.kh.syncWrite(txt, KL.mt);
-    if (r && r.ok) { KL.mt = r.mt; KL.base = JSON.parse(txt); window.kh.syncBase(txt); syncBadge('ok'); }
+    if (r && r.ok) { KL.mt = r.mt; KL.base = undefined; KL.baseTxt = txt; window.kh.syncBase(txt); syncBadge('ok'); }
     else if (r && r.conflict) { KL.mt = r.mt; KL.busy = false; await syncMerge(r.txt); return; }
     else if (r && r.error) syncBadge('err', r.error);
   } catch (e) { syncBadge('err', e.message); } finally { KL.busy = false; }

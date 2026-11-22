@@ -164,7 +164,14 @@ const daysLeft = d => d ? Math.round((new Date(d + 'T00:00:00') - new Date(today
 
 /* ---------- side panel ---------- */
 $$('[data-jtab]').forEach(b => b.addEventListener('click', () => { J.tab = b.dataset.jtab; $$('[data-jtab]').forEach(x => x.classList.toggle('on', x === b)); ['jobs', 'kits', 'certs', 'dockets', 'forms', 'scopes', 'invoices'].forEach(t => $('#jtab-' + t).hidden = t !== J.tab); renderJobs(); }));
-function renderJobs() { renderJList(); renderKList(); renderCertSide(); renderDockSide(); renderFormSide(); renderScopeSide(); renderInvSide(); renderJobMain(); }
+/* only the side list that is on screen is drawn (in the full-width ERP lists none is) — switching menus stays fast with hundreds of jobs */
+const J_SIDE = { jobs: () => renderJList(), kits: () => renderKList(), certs: () => renderCertSide(), dockets: () => renderDockSide(), forms: () => renderFormSide(), scopes: () => renderScopeSide(), invoices: () => renderInvSide() };
+function renderJobs() {
+  const h = document.documentElement, full = h.hasAttribute('data-erpfull') && h.dataset.var === 'erp';
+  if (full) { const c = $('#cntJobs'); if (c) c.textContent = S.jobs.filter(j => !j.parent).filter(j => isQ(j) ? j.qst !== 'lost' : !['done', 'given'].includes(j.status)).length || ''; }
+  else (J_SIDE[J.tab] || J_SIDE.jobs)();
+  renderJobMain();
+}
 function renderJList() {
   $('#cntJobs').textContent = S.jobs.filter(j => !j.parent).filter(j => isQ(j) ? j.qst !== 'lost' : !['done', 'given'].includes(j.status)).length || '';
   { const v = document.documentElement.dataset.jview, sg = $('#jSeg'), fv = $('#jFilter').value, opts = v === 'quotes' ? [['quotes', 'Идэвхтэй'], ['closed', 'Татгалзсан'], ['all', 'Бүгд']] : v === 'jobs' ? [['jobs', 'Идэвхтэй'], ['closed', 'Архив'], ['all', 'Бүгд']] : null;

@@ -95,9 +95,10 @@ function i18nButtons() {
 }
 (() => {
   try { const t = localStorage.getItem(THEME_KEY); if (t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t); } catch (e) { }
-  { const V = ['erp', 'modern', 'calm', 'dark', 'fintech', 'bento'], apply = k => { const h = document.documentElement; h.setAttribute('data-skin', 'modern'); if (k === 'modern') h.removeAttribute('data-var'); else h.setAttribute('data-var', k); if (k === 'dark') h.setAttribute('data-theme', 'dark'); else if (h.dataset.forcedDark) h.setAttribute('data-theme', 'light'); h.dataset.forcedDark = k === 'dark' ? '1' : ''; if (typeof i18nButtons === 'function') i18nButtons(); };
-    let k = 'erp'; try { k = localStorage.getItem('kh-skin2') || 'erp'; } catch (e) { } if (!V.includes(k)) k = 'erp'; apply(k);
-    const sel = document.getElementById('skinSel'); if (sel) { sel.value = k; sel.addEventListener('change', () => { const was = document.documentElement.dataset.var === 'erp'; try { localStorage.setItem('kh-skin2', sel.value); } catch (e) { } if (was || sel.value === 'erp') { location.reload(); return; } apply(sel.value); }); } }
+  { /* one look: Odoo 18-style ERP shell; themes only change colour and density */
+    const V = ['kh', 'odoo', 'kh-c', 'odoo-c'], h = document.documentElement, apply = k => { h.setAttribute('data-skin', 'modern'); h.setAttribute('data-var', 'erp'); h.setAttribute('data-erpt', k.startsWith('odoo') ? 'odoo' : 'kh'); h.toggleAttribute('data-dens', k.endsWith('-c')); if (h.dataset.forcedDark) { h.setAttribute('data-theme', 'light'); h.dataset.forcedDark = ''; } if (typeof i18nButtons === 'function') i18nButtons(); };
+    let k = 'kh'; try { k = localStorage.getItem('kh-erpt') || 'kh'; localStorage.removeItem('kh-skin2'); } catch (e) { } if (!V.includes(k)) k = 'kh'; apply(k);
+    const sel = document.getElementById('skinSel'); if (sel) { sel.value = k; sel.addEventListener('change', () => { try { localStorage.setItem('kh-erpt', sel.value); } catch (e) { } apply(sel.value); if (typeof rerenderAll === 'function') try { rerenderAll(); } catch (e) { } }); } }
   document.documentElement.lang = LANG === 'en' ? 'en' : 'mn';
   trObs.observe(document.documentElement, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: TR_ATTRS });
   if (LANG === 'en') trWalk(document.body);

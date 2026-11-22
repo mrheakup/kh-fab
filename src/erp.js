@@ -42,8 +42,10 @@ const erpAv = (name, t) => `<span class="erp-av" style="background:${erpAvColor(
 const erpM = v => money(Math.round(+v || 0));
 
 /* ---------- navigation ---------- */
+const erpFull = r => r === 'dash' || r === 'jobs' || r === 'quotes' || String(r).startsWith('mfg');
 function erpGo(route, o = {}) {
   ERP.route = route; ERP.launch = false; const [m, t] = String(route).split(':');
+  document.documentElement.toggleAttribute('data-erpfull', erpFull(route));
   if (m === 'docs') {
     setModule('docs'); J.tab = t || 'dockets'; J.dash = false;
     $$('[data-jtab]').forEach(x => x.classList.toggle('on', x.dataset.jtab === J.tab)); ['jobs', 'kits', 'certs', 'dockets', 'forms', 'scopes', 'invoices'].forEach(k => { const e = $('#jtab-' + k); if (e) e.hidden = k !== J.tab; });
@@ -54,7 +56,7 @@ function erpGo(route, o = {}) {
   else if (m === 'jobs' || m === 'quotes') { setModule(m); if (!o.keep) { J.sel = null; J.sub = m === 'quotes' ? 'quote' : 'main'; } renderJobs(); }
   else setModule(m);
   try { localStorage.setItem('kh-erp-route', route); } catch (e) { }
-  erpNav(); const mm = $$('.main').find(x => !x.hidden); if (mm) mm.scrollTop = 0;
+  erpNav(); requestAnimationFrame(() => { const mm = $$('.main').find(x => !x.hidden); if (mm && mm.scrollTop) mm.scrollTop = 0; });
 }
 function erpCurRoute() {
   const v = document.documentElement.dataset.jview, act = $$('.modtabs button.on')[0], m = act ? act.dataset.mod : 'nest';
@@ -68,7 +70,7 @@ function erpNav() {
   const nav = $('#erpNav'); if (!nav) return; const r = erpCurRoute(); ERP.route = r; const app = erpAppOf(r);
   nav.querySelector('.erp-appname').textContent = app.n;
   nav.querySelector('.erp-menu').innerHTML = app.items.map(([k, n]) => `<button data-erp="${k}" class="${k === r || (k.split(':')[0] === r.split(':')[0] && !app.items.some(x => x[0] === r) && app.items.filter(x => x[0].split(':')[0] === r.split(':')[0]).length === 1) ? 'on' : ''}">${esc(n)}</button>`).join('');
-  const full = (r === 'dash' || r === 'jobs' || r === 'quotes' || r.startsWith('mfg'));
+  const full = erpFull(r);
   document.documentElement.toggleAttribute('data-erpfull', full);
   const ch = $('#btnChat'); if (ch && typeof chatBadge === 'function') chatBadge();
 }
@@ -122,29 +124,33 @@ function erpBindCrumbs(el, crumbs) { el.querySelectorAll('[data-crumb]').forEach
 /* ---------- list & kanban (jobs, quotes) ---------- */
 function erpList(el, v) {
   const st = EV[v], R = erpRecs(v), isJ = v === 'jobs', title = isJ ? 'Ажил' : 'Үнийн санал';
+  const PS = 80, NP = Math.max(1, Math.ceil(R.length / PS)); st.pg = Math.max(0, Math.min(+st.pg || 0, NP - 1)); const RP = R.slice(st.pg * PS, st.pg * PS + PS);
+  const pagerH = st.view === 'kanban' || R.length <= PS ? `<span class="erp-pager">${R.length} бичлэг</span>` : `<span class="erp-pager"><span>${st.pg * PS + 1}-${Math.min(R.length, st.pg * PS + PS)} / ${R.length}</span><button data-lpg="-1"${st.pg <= 0 ? ' disabled' : ''} title="Өмнөх хуудас">‹</button><button data-lpg="1"${st.pg >= NP - 1 ? ' disabled' : ''} title="Дараагийн хуудас">›</button></span>`;
   const facets = st.f.map(k => { const f = ERP_F[v].find(x => x[0] === k); return f ? `<span class="erp-facet">${esc(f[1])}<button data-unf="${k}" title="Хасах">×</button></span>` : ''; }).join('') + (st.g ? `<span class="erp-facet"><b>Бүлэг:</b> ${esc((ERP_G[v].find(g => g[0] === st.g) || [, ''])[1])}<button data-ung="1">×</button></span>` : '');
   el.innerHTML = erpCP({ crumbs: [[title]],
     right: `<button class="btn primary" id="erpNew">+ ${isJ ? 'Шинэ ажил' : 'Шинэ үнийн санал'}</button><button class="btn" id="erpImp">⇪ Үнийн санал оруулах</button>`,
     row2: `<div class="erp-search">${erpIcon('search').replace('<svg', '<svg width="16" height="16" style="color:var(--ink-3);flex:none"')}${facets}<input id="erpQ" placeholder="Хайх: дугаар, захиалагч, ажлын нэр, хүн…" value="${esc(st.q || '')}"></div>
       <div class="erp-filters">${ERP_F[v].map(([k, n]) => `<button class="erp-chip${st.f.includes(k) ? ' on' : ''}" data-f="${k}">${esc(n)}</button>`).join('')}</div>
       <select class="inp erp-gsel" id="erpG" title="Бүлэглэх">${ERP_G[v].map(([k, n]) => `<option value="${k}"${st.g === k ? ' selected' : ''}>${k ? n : 'Бүлэглэх…'}</option>`).join('')}</select>
-      <span class="erp-pager">${R.length} бичлэг</span>
+      ${pagerH}
       <span class="erp-views"><button data-view="list" class="${st.view === 'list' ? 'on' : ''}" title="Жагсаалт">${erpIcon('list')}</button><button data-view="kanban" class="${st.view === 'kanban' ? 'on' : ''}" title="Kanban">${erpIcon('kanban')}</button></span>` }) +
-    `<div class="erp-view">${!R.length ? `<div class="erp-empty"><b>${isJ ? 'Ажил олдсонгүй' : 'Үнийн санал олдсонгүй'}</b>${st.q || st.f.length ? 'Шүүлтүүрээ өөрчилж үзнэ үү, эсвэл ' : ''}<b style="display:inline">+ ${isJ ? 'Шинэ ажил' : 'Шинэ үнийн санал'}</b> товчоор эхэлнэ.</div>` : st.view === 'kanban' ? erpKanban(R, v) : erpTable(R, v)}</div>`;
+    `<div class="erp-view">${!R.length ? `<div class="erp-empty"><b>${isJ ? 'Ажил олдсонгүй' : 'Үнийн санал олдсонгүй'}</b>${st.q || st.f.length ? 'Шүүлтүүрээ өөрчилж үзнэ үү, эсвэл ' : ''}<b style="display:inline">+ ${isJ ? 'Шинэ ажил' : 'Шинэ үнийн санал'}</b> товчоор эхэлнэ.</div>` : st.view === 'kanban' ? erpKanban(R, v) : erpTable(R, v, RP)}</div>`;
   /* bindings */
   const go = j => { J.sel = j.id; J.sub = isQ(j) ? 'quote' : 'main'; if (!isQ(j) && v === 'quotes') { setModule('jobs'); J.sel = j.id; } renderJobs(); const m = $('#jobsMain'); if (m) m.scrollTop = 0; erpNav(); };
   el.querySelector('#erpNew').addEventListener('click', () => { const j = isJ ? newJob() : newQuote(); J.sel = j.id; J.sub = isJ ? 'main' : 'quote'; save(); renderJobs(); });
   el.querySelector('#erpImp').addEventListener('click', () => { const f = $('#qImpIn'); if (f) f.click(); });
-  const qi = el.querySelector('#erpQ'); let tm; qi.addEventListener('input', () => { clearTimeout(tm); tm = setTimeout(() => { st.q = qi.value; erpList(el, v); const n = el.querySelector('#erpQ'); n.focus(); n.setSelectionRange(n.value.length, n.value.length); }, 220); });
-  qi.addEventListener('keydown', e => { if (e.key === 'Backspace' && !qi.value && st.f.length) { st.f.pop(); evSave(); erpList(el, v); el.querySelector('#erpQ').focus(); } });
-  el.querySelectorAll('[data-f]').forEach(b => b.addEventListener('click', () => { const k = b.dataset.f, i = st.f.indexOf(k); if (i >= 0) st.f.splice(i, 1); else st.f.push(k); evSave(); erpList(el, v); }));
-  el.querySelectorAll('[data-unf]').forEach(b => b.addEventListener('click', () => { st.f = st.f.filter(k => k !== b.dataset.unf); evSave(); erpList(el, v); }));
-  el.querySelectorAll('[data-ung]').forEach(b => b.addEventListener('click', () => { st.g = ''; evSave(); erpList(el, v); }));
-  el.querySelector('#erpG').addEventListener('change', e => { st.g = e.target.value; evSave(); erpList(el, v); });
+  const qi = el.querySelector('#erpQ'); let tm; qi.addEventListener('input', () => { clearTimeout(tm); tm = setTimeout(() => { st.q = qi.value; st.pg = 0; erpList(el, v); const n = el.querySelector('#erpQ'); n.focus(); n.setSelectionRange(n.value.length, n.value.length); }, 220); });
+  qi.addEventListener('keydown', e => { if (e.key === 'Backspace' && !qi.value && st.f.length) { st.f.pop(); st.pg = 0; evSave(); erpList(el, v); el.querySelector('#erpQ').focus(); } });
+  el.querySelectorAll('[data-f]').forEach(b => b.addEventListener('click', () => { const k = b.dataset.f, i = st.f.indexOf(k); if (i >= 0) st.f.splice(i, 1); else st.f.push(k); st.pg = 0; evSave(); erpList(el, v); }));
+  el.querySelectorAll('[data-unf]').forEach(b => b.addEventListener('click', () => { st.f = st.f.filter(k => k !== b.dataset.unf); st.pg = 0; evSave(); erpList(el, v); }));
+  el.querySelectorAll('[data-ung]').forEach(b => b.addEventListener('click', () => { st.g = ''; evSave(); st.pg = 0; erpList(el, v); }));
+  el.querySelector('#erpG').addEventListener('change', e => { st.g = e.target.value; st.pg = 0; evSave(); erpList(el, v); });
   el.querySelectorAll('[data-view]').forEach(b => b.addEventListener('click', () => { st.view = b.dataset.view; evSave(); erpList(el, v); }));
-  el.querySelectorAll('[data-sort]').forEach(th => th.addEventListener('click', () => { const k = th.dataset.sort; st.sort = st.sort === k ? '-' + k : k; evSave(); erpList(el, v); }));
+  el.querySelectorAll('[data-sort]').forEach(th => th.addEventListener('click', () => { const k = th.dataset.sort; st.sort = st.sort === k ? '-' + k : k; st.pg = 0; evSave(); erpList(el, v); }));
   el.querySelectorAll('tr.grp').forEach(tr => tr.addEventListener('click', () => { ERP.fold = ERP.fold || {}; ERP.fold[tr.dataset.gk] = !ERP.fold[tr.dataset.gk]; erpList(el, v); }));
   el.querySelectorAll('[data-rec]').forEach(r => r.addEventListener('click', () => go(findJob(r.dataset.rec))));
+  el.querySelectorAll('[data-lpg]').forEach(b => b.addEventListener('click', () => { st.pg = (+st.pg || 0) + +b.dataset.lpg; erpList(el, v); const m = el.closest('.main') || el; m.scrollTop = 0; }));
+  el.querySelectorAll('[data-kmore]').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); ERP.kmore = ERP.kmore || {}; ERP.kmore[b.dataset.kmore] = (ERP.kmore[b.dataset.kmore] || 40) + 80; erpList(el, v); }));
   /* kanban drag → status */
   el.querySelectorAll('.erp-card').forEach(c => { c.draggable = true; c.addEventListener('dragstart', e => { e.dataTransfer.setData('text/plain', c.dataset.rec); c.classList.add('dragging'); }); c.addEventListener('dragend', () => c.classList.remove('dragging')); });
   el.querySelectorAll('.erp-kcol').forEach(col => { col.addEventListener('dragover', e => { e.preventDefault(); col.classList.add('drop'); }); col.addEventListener('dragleave', () => col.classList.remove('drop'));
@@ -156,7 +162,8 @@ const ERP_COLS = {
   quotes: [['no', 'Санал №'], ['date', 'Огноо'], ['customer', 'Захиалагч'], ['title', 'Ажлын нэр'], ['owner', 'Хариуцагч'], ['until', 'Хүчинтэй'], ['amount', 'Дүн (НӨАТ-гүй), ₮', 'r'], ['margin', 'Margin', 'r'], ['st', 'Төлөв']]
 };
 function erpGroupKey(r, g) { if (g === 'status' || g === 'qst') return r.stn; if (g === 'customer') return r.customer || '— захиалагчгүй —'; if (g === 'owner') return r.owner || '— хариуцагчгүй —'; if (g === 'month') return String(r.date || '').slice(0, 7) || '— огноогүй —'; return ''; }
-function erpTable(R, v) {
+function erpTable(R, v, RP) {
+  RP = RP || R;
   const st = EV[v], C = ERP_COLS[v], so = st.sort || '', sk = so.replace(/^-/, '');
   const cell = (r, k) => {
     if (k === 'no') return `<td class="no">${esc(r.no)}</td>`;
@@ -177,18 +184,19 @@ function erpTable(R, v) {
   let body = '';
   if (st.g) { const G = new Map(); R.forEach(r => { const k = erpGroupKey(r, st.g); if (!G.has(k)) G.set(k, []); G.get(k).push(r); });
     const order = st.g === 'status' ? JST.map(x => x[1]) : st.g === 'qst' ? QST.map(x => x[1]) : [...G.keys()].sort();
-    order.filter(k => G.has(k)).forEach(k => { const A = G.get(k), fold = ERP.fold && ERP.fold[k]; body += `<tr class="grp" data-gk="${esc(k)}"><td colspan="${C.length - 3}">${fold ? '▸' : '▾'} ${esc(k)}<span class="cnt">(${A.length})</span></td><td colspan="3" class="r num">${erpM(sum(A))}</td></tr>` + (fold ? '' : A.map(row).join('')); });
-  } else body = R.map(row).join('');
+    const inP = new Set(RP.map(r => r.j.id));
+    order.filter(k => G.has(k)).forEach(k => { const A = G.get(k).filter(r => inP.has(r.j.id)); if (!A.length) return; const AA = G.get(k); fold = ERP.fold && ERP.fold[k]; body += `<tr class="grp" data-gk="${esc(k)}"><td colspan="${C.length - 3}">${fold ? '▸' : '▾'} ${esc(k)}<span class="cnt">(${AA.length})</span></td><td colspan="3" class="r num">${erpM(sum(AA))}</td></tr>` + (fold ? '' : A.map(row).join('')); });
+  } else body = RP.map(row).join('');
   return `<div class="erp-list"><table><thead><tr>${C.map(([k, n, a]) => `<th class="${a || ''}" data-sort="${k}">${esc(n)}${sk === k ? `<span class="so"> ${so[0] === '-' ? '↓' : '↑'}</span>` : ''}</th>`).join('')}</tr></thead><tbody>${body}</tbody>
     <tfoot><tr>${C.map(([k, , al], i) => `<td class="${al || ''}${k === 'amount' || k === 'inv' ? ' num' : ''}">${i === 0 ? R.length + ' бичлэг' : k === 'amount' ? erpM(sum(R)) : k === 'inv' ? erpM(R.reduce((a, r) => a + r.inv, 0)) : ''}</td>`).join('')}</tr></tfoot></table></div>`;
 }
 function erpKanban(R, v) {
   const cols = v === 'jobs' ? JST.map(([k, n]) => [k, n]) : QST.map(([k, n]) => [k, n]);
   const colC = { new: '#98a2b3', nest: '#2e90fa', cut: '#f79009', weld: '#7a5af8', done: '#12b76a', given: '#667085', draft: '#98a2b3', sent: '#2e90fa', won: '#12b76a', lost: '#f04438' };
-  return `<div class="erp-kanban">${cols.map(([k, n]) => { const A = R.filter(r => r.st === k); return `<div class="erp-kcol" data-col="${k}"><div class="erp-kh"><span>${esc(n)}</span><span class="cnt">${A.length}</span><span class="sum">${A.length ? erpM(A.reduce((a, r) => a + r.amount, 0)) : ''}</span></div><span class="erp-kh bar" style="background:${colC[k] || '#98a2b3'}"></span>
+  return `<div class="erp-kanban">${cols.map(([k, n]) => { const A0 = R.filter(r => r.st === k), lim = (ERP.kmore && ERP.kmore[k]) || 40, A = A0.slice(0, lim); return `<div class="erp-kcol" data-col="${k}"><div class="erp-kh"><span>${esc(n)}</span><span class="cnt">${A0.length}</span><span class="sum">${A0.length ? erpM(A0.reduce((a, r) => a + r.amount, 0)) : ''}</span></div><span class="erp-kh bar" style="background:${colC[k] || '#98a2b3'}"></span>
     ${A.map(r => { const lt = (r.due && r.due < today() && !['done', 'given'].includes(r.st)) || (r.until && r.until < today() && ['draft', 'sent'].includes(r.st));
       return `<div class="erp-card" data-rec="${r.j.id}"><span class="no">${esc(r.no)}</span><div class="t">${esc(r.title || '—')}</div><div class="c">${esc(r.customer || '')}</div>${v === 'jobs' ? `<div class="erp-prog"><i><b style="width:${Math.round(r.pct)}%"></b></i><span>${Math.round(r.pct)}%</span></div>` : ''}
-        <div class="ft">${r.owner ? erpAv(r.owner) : ''}<span class="${lt ? 'late' : ''}">${esc(v === 'jobs' ? (r.due ? '⏱ ' + r.due : '') : (r.until ? 'хүчинтэй ' + r.until : ''))}</span><span class="amt">${r.amount ? erpM(r.amount) : ''}</span></div></div>`; }).join('')}</div>`; }).join('')}</div>`;
+        <div class="ft">${r.owner ? erpAv(r.owner) : ''}<span class="${lt ? 'late' : ''}">${esc(v === 'jobs' ? (r.due ? '⏱ ' + r.due : '') : (r.until ? 'хүчинтэй ' + r.until : ''))}</span><span class="amt">${r.amount ? erpM(r.amount) : ''}</span></div></div>`; }).join('')}${A0.length > A.length ? `<button class="btn sm ghost erp-kmore" data-kmore="${k}">+ ${A0.length - A.length} илүү</button>` : ''}</div>`; }).join('')}</div>`;
 }
 /* change a quote / job stage from the status bar or a kanban drop */
 function erpSetStage(j, k, after) {
@@ -302,8 +310,16 @@ function erpHome(el) {
   const me = pName(S.me), h = new Date().getHours(), greet = h < 12 ? 'Өглөөний мэнд' : h < 18 ? 'Өдрийн мэнд' : 'Оройн мэнд', cnt = erpCounts();
   const kpi = (k, v2, s, go, cls = '') => `<button class="erp-kpi ${cls}" data-go="${go}"><span class="k">${k}</span><span class="v">${v2}</span><span class="s">${s}</span></button>`;
   const al = (arr, f, empty) => `<div class="erp-al">${arr.length ? arr.slice(0, 8).map(f).join('') : `<div class="none">${empty}</div>`}</div>`;
-  el.innerHTML = `<div class="erp-home">
-    <div class="erp-hi"><h1>${greet}${me ? ', ' + esc(me) : ''}</h1><span>${today()} · Kh International</span></div>
+  const myT = TK.filter(t => t.assignee && t.assignee === S.me), myJ = act.filter(j => j.owner && j.owner === S.me && j.due && j.due <= addDays(today(), 7)), myOps = [];
+  if (typeof mos === 'function') mos().filter(m => ['plan', 'run'].includes(m.status)).forEach(m => (m.ops || []).forEach(o => { if (o.who && o.who === S.me && o.st !== 'done') myOps.push({ m, o }); }));
+  const lateMO = typeof mfSchedule === 'function' ? (() => { const SC = mfSchedule(); return mos().filter(m => SC.M[m.id] && SC.M[m.id].late); })() : [], openNCR = typeof ncrs === 'function' ? ncrs().filter(n => n.st !== 'closed') : [];
+  const ag = [...myT.map(t => ({ d: t.due || '9999', h: `<button data-task="${t.id}"><span class="erp-b s-${t.status === 'doing' ? 'cut' : 'draft'}">${t.status === 'doing' ? 'хийгдэж буй' : 'даалгавар'}</span><span class="t">${esc(t.title || '(гарчиггүй)')}</span><span class="r${t.due && t.due < today() ? ' bad' : ''}">${esc(t.due || '')}</span></button>` })),
+    ...myJ.map(j => ({ d: j.due, h: `<button data-job="${j.id}"><span class="erp-b s-${j.status}">${esc(jstName(j.status))}</span><span class="t"><b class="mono">${esc(j.no)}</b> ${esc(j.title || '')}</span><span class="r${j.due < today() ? ' bad' : ''}">⏱ ${esc(j.due)}</span></button>` })),
+    ...myOps.map(({ m, o }) => ({ d: '0', h: `<button data-mo="${m.id}"><span class="erp-b s-${o.st === 'run' ? 'cut' : 'sent'}">${o.st === 'run' ? 'хийгдэж буй' : 'үйлдэл'}</span><span class="t"><b class="mono">${esc(m.no)}</b> ${esc(o.name)}</span><span class="r">${esc(machName(o.mach) || '')}</span></button>` }))].sort((x, y) => x.d.localeCompare(y.d));
+  el.innerHTML = `<div class="erp-home erp-home2">
+    <div class="eh-top"><div class="erp-hi"><h1>${greet}${me ? ', ' + esc(me) : ''}</h1><span>${['Ням', 'Даваа', 'Мягмар', 'Лхагва', 'Пүрэв', 'Баасан', 'Бямба'][new Date().getDay()]} · ${today()} · Kh International</span></div>
+      <div class="eh-pills"><span class="eh-pill"><b>${mineTodos('today').length}</b> TODO өнөөдөр</span><span class="eh-pill"><b>${ag.length}</b> надад оноогдсон</span>${late.length ? `<span class="eh-pill bad"><b>${late.length}</b> хэтэрсэн ажил</span>` : ''}</div></div>
+    <div class="eh-grid"><div class="eh-main">
     <div class="erp-appsrow">${ERP_APPS.filter(a => a.k !== 'home').map(a => `<button class="erp-tile" data-app="${a.k}"><i style="background:${a.c}">${erpIcon(a.ic)}</i><b>${esc(a.n)}</b><small>${esc(cnt[a.k] || '')}</small></button>`).join('')}</div>
     <div class="erp-kpis">
       ${kpi('Нээлттэй үнийн санал', `${QO.length}`, `${erpM(QO.reduce((a, j) => a + qv(j), 0))} ₮ нийт`, 'quotes')}
@@ -315,14 +331,21 @@ function erpHome(el) {
       ${kpi('Дутуу бараа', `${low.length}`, low.slice(0, 3).map(i => i.name).join(', ') || 'бүгд хүрэлцээтэй', 'stock', low.length ? 'bad' : '')}
       ${kpi('Нээлттэй даалгавар', `${TK.length}`, `${TK.filter(t => t.status === 'doing').length} хийгдэж буй`, 'team')}
     </div>
+    <div class="erp-panel"><h3>Миний ажил — надад оноогдсон<span class="cnt">${ag.length}</span></h3>${al(ag, x => x.h, 'Танд оноогдсон даалгавар, 7 хоногт дуусах ажил, цехийн үйлдэл алга. (Хариуцагч / гүйцэтгэгчээр таныг сонгосон зүйлс энд гарна.)')}</div>
     <div class="erp-cols">
       <div class="erp-panel"><h3>Анхаарах: хугацаа хэтэрсэн ажил<span class="cnt">${late.length}</span></h3>${al(late.sort((a, b) => a.due.localeCompare(b.due)), j => `<button data-job="${j.id}"><span class="erp-b s-${j.status}">${esc(jstName(j.status))}</span><span class="t"><b class="mono">${esc(j.no)}</b> ${esc(j.title || '')} <span class="muted">· ${esc(j.customer || '')}</span></span><span class="r bad">${-daysLeft(j.due)} хоног</span></button>`, 'Хугацаа хэтэрсэн ажил алга 👍')}</div>
       <div class="erp-panel"><h3>Төлбөр хүлээгдэж буй нэхэмжлэх<span class="cnt">${RC.length}</span></h3>${al(RC.slice().sort((a, b) => (b.st[0] === 'late') - (a.st[0] === 'late') || String(a.i.due || '').localeCompare(String(b.i.due || ''))), r => `<button data-inv="${r.i.id}"><span class="erp-b s-${r.st[0]}">${esc(r.st[1])}</span><span class="t"><b class="mono">${esc(r.i.no || '')}</b> ${esc((r.job && r.job.customer) || (r.i.bill && r.i.bill.company) || '')}</span><span class="r${r.st[0] === 'late' ? ' bad' : ''}">${erpM(r.left)} ₮</span></button>`, 'Авлага алга')}</div>
       <div class="erp-panel"><h3>Хүлээгдэж буй үнийн санал<span class="cnt">${QO.length}</span></h3>${al(QO.slice().sort((a, b) => String(b.quote.date || '').localeCompare(String(a.quote.date || ''))), j => { const ex = expQ.includes(j); return `<button data-job="${j.id}"><span class="erp-b s-${j.qst || 'draft'}">${esc((QST.find(x => x[0] === (j.qst || 'draft')) || [, ''])[1])}</span><span class="t"><b class="mono">${esc(j.quote.no || j.no)}</b> ${esc(j.title || '')} <span class="muted">· ${esc(j.customer || '')}</span></span><span class="r${ex ? ' bad' : ''}">${ex ? 'хугацаа дууссан' : erpM(qv(j)) + ' ₮'}</span></button>`; }, 'Нээлттэй санал алга')}</div>
+      ${lateMO.length || openNCR.length ? `<div class="erp-panel"><h3>Үйлдвэрлэл, чанар<span class="cnt">${lateMO.length + openNCR.length}</span></h3>${al([...lateMO.map(m => `<button data-mo="${m.id}"><span class="erp-b s-late">хоцорно</span><span class="t"><b class="mono">${esc(m.no)}</b> ${esc(m.item || '')}</span><span class="r bad">${esc(m.due || '')}</span></button>`), ...openNCR.map(n => `<button data-ncr="${n.id}"><span class="erp-b s-late">NCR</span><span class="t"><b class="mono">${esc(n.no)}</b> ${esc(String(n.desc || '').slice(0, 60))}</span><span class="r">${esc(n.caDue || n.date)}</span></button>`)], x => x, '')}</div>` : ''}
       <div class="erp-panel"><h3>Дутуу бараа (агуулах)<span class="cnt">${low.length}</span></h3>${al(low, i => `<button data-go="stock"><span class="erp-b s-late">дутуу</span><span class="t">${esc(i.name || '')}</span><span class="r bad">${nf(+i.qty || 0, 1)} / ${nf(+i.min || 0, 1)} ${esc(i.unit || '')}</span></button>`, 'Доод үлдэгдлээс доош бараа алга')}</div>
     </div>
     <details class="erp-panel" style="padding:0 16px 16px"><summary style="padding:12px 0;cursor:pointer;font-weight:600">Дэлгэрэнгүй тойм — борлуулалт, авлага, ажлын төсөв</summary><div class="erp-oldash" id="erpOldDash"></div></details>
+    </div><aside class="eh-side" id="ehSide"></aside></div>
   </div>`;
+  { const side = el.querySelector('#ehSide'); const draw = () => { side.innerHTML = mineTodoHTML() + mineNotesHTML(); mineBind(side, draw); }; side._draw = draw; draw(); }
+  el.querySelectorAll('[data-task]').forEach(b => b.addEventListener('click', () => { if (typeof TM !== 'undefined') TM.sel = b.dataset.task; erpGo('team'); }));
+  el.querySelectorAll('[data-mo]').forEach(b => b.addEventListener('click', () => mfGo('mo', b.dataset.mo)));
+  el.querySelectorAll('[data-ncr]').forEach(b => b.addEventListener('click', () => mfGo('ncr', b.dataset.ncr)));
   el.querySelectorAll('[data-app]').forEach(b => b.addEventListener('click', () => { const a = ERP_APPS.find(x => x.k === b.dataset.app); erpGo(a.items[0][0]); }));
   el.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => { const g = b.dataset.go; if (g === 'jobs:late') { EV.jobs.f = ['active', 'late']; EV.jobs.view = 'list'; evSave(); erpGo('jobs'); } else erpGo(g); }));
   el.querySelectorAll('[data-job]').forEach(b => b.addEventListener('click', () => { const j = findJob(b.dataset.job); setModule(isQ(j) ? 'quotes' : 'jobs'); J.sel = j.id; J.sub = isQ(j) ? 'quote' : 'main'; renderJobs(); erpNav(); }));
@@ -346,6 +369,7 @@ function erpBuild() {
   const h2 = document.createElement('div'); h2.className = 'ddh'; h2.textContent = 'Өгөгдөл, төсөл'; dd.appendChild(h2);
   ['#btnDataDir', '#jobName', '#btnOpenProj', '#btnSaveProj'].forEach(s => { const n = $(s); if (n) dd.appendChild(n); });
   const iso = document.createElement('button'); iso.className = 'btn ghost'; iso.textContent = 'ISO маягтын код, операторууд, лого'; iso.addEventListener('click', erpIsoDlg); dd.appendChild(iso);
+  { const ch = $('#btnChat'), mb = document.createElement('button'); mb.className = 'btn sm ghost'; mb.id = 'btnMine'; mb.type = 'button'; mb.title = 'Миний TODO ба тэмдэглэл (Ctrl+Shift+T)'; mb.innerHTML = '📝 Миний жагсаалт<span class="cnt" hidden></span>'; mb.addEventListener('click', () => mineDrawer()); if (ch && ch.parentNode) ch.parentNode.insertBefore(mb, ch); else acts.insertBefore(mb, acts.firstChild); if (typeof mineBadge === 'function') mineBadge(); }
   acts.appendChild(more);
   const user = document.createElement('button'); user.className = 'erp-user'; user.id = 'erpUser'; acts.appendChild(user);
   const upUser = () => { const n = pName(S.me); user.textContent = erpInit2(n || 'KH'); user.title = n ? `${n} — солих` : 'Би хэн бэ? — Баг хэсгээс нэрээ сонгоно'; user.style.background = n ? erpAvColor(n) : ''; };

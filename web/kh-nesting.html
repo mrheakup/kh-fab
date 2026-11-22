@@ -457,57 +457,8 @@ html[data-skin="modern"] .summary{grid-template-columns:repeat(auto-fit,minmax(1
 html[data-skin="modern"] .app{grid-template-columns:224px 360px minmax(0,1fr)}
 @media (max-width:1100px){html[data-skin="modern"] .app{grid-template-columns:200px 300px minmax(0,1fr)}}
 
-/* ---- Modern variants (data-var) ---- */
 html[data-skin="modern"] #skinSel{width:100%!important;min-width:0;text-overflow:ellipsis}
 /* calm — Linear / Mercury: monochrome, accent only for status, content in an inset panel */
-html[data-skin="modern"][data-var="calm"]{--bg:#f4f4f5;--surface:#fff;--surface-2:#f7f7f8;--line:#e7e7ea;--line-2:#f0f0f2;--ink:#18181b;--ink-2:#52525b;--ink-3:#a1a1aa;--accent:#18181b;--accent-ink:#fff;--accent-soft:#ececee}
-html[data-skin="modern"][data-var="calm"] body{font-size:13.5px}
-html[data-skin="modern"][data-var="calm"] .top{background:var(--bg)!important;border-right:0}
-html[data-skin="modern"][data-var="calm"] .side{background:#fff!important;margin:10px 0;border:1px solid var(--line);border-right:0;border-radius:14px 0 0 14px}
-html[data-skin="modern"][data-var="calm"] .main{background:#fcfcfd;margin:10px 10px 10px 0;border:1px solid var(--line);border-radius:0 14px 14px 0}
-html[data-skin="modern"][data-var="calm"] .modtabs button.on{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08),0 0 0 1px var(--line)}
-html[data-skin="modern"][data-var="calm"] .jcard,html[data-skin="modern"][data-var="calm"] .bcard,html[data-skin="modern"][data-var="calm"] .summary>.stat{box-shadow:none}
-html[data-skin="modern"][data-var="calm"] .stat .v{font-weight:600;letter-spacing:-.02em}
-html[data-skin="modern"][data-var="calm"] .bcard-h{font-size:13.5px}
-html[data-skin="modern"][data-var="calm"] .btn{box-shadow:none}
-html[data-skin="modern"][data-var="calm"] .jitem.on{background:#f4f4f5;border-color:#18181b}
-/* dark — Supabase / Raycast: charcoal layers, one accent, saturated colour only for status */
-html[data-skin="modern"][data-var="dark"]{--bg:#0f1113;--surface:#16181b;--surface-2:#1c1f23;--line:#2a2e33;--line-2:#22262a;--ink:#ededef;--ink-2:#a3a8af;--ink-3:#6c727a;--accent:#ff7a2f;--accent-ink:#140a04;--accent-soft:rgba(255,122,47,.14);--sheet:#3b4755;--view:#121418;color-scheme:dark}
-html[data-skin="modern"][data-var="dark"] .top{background:#0b0d0f}html[data-skin="modern"][data-var="dark"] .side{background:#121417}
-html[data-skin="modern"][data-var="dark"] .brand-logo{background:#fff;border-radius:6px;padding:3px 6px}
-html[data-skin="modern"][data-var="dark"] .jcard,html[data-skin="modern"][data-var="dark"] .bcard,html[data-skin="modern"][data-var="dark"] .summary>.stat{box-shadow:none}
-html[data-skin="modern"][data-var="dark"] .dt td{padding:9px 12px}
-html[data-skin="modern"][data-var="dark"] .pill.st-done,html[data-skin="modern"][data-var="dark"] .pill.st-given,html[data-skin="modern"][data-var="dark"] .pill.ok{background:rgba(62,207,142,.14);color:#3ecf8e;box-shadow:none}
-html[data-skin="modern"][data-var="dark"] .pill.st-cut,html[data-skin="modern"][data-var="dark"] .pill.qst-sent,html[data-skin="modern"][data-var="dark"] .pill.rem{background:rgba(110,150,255,.15);color:#93acff;box-shadow:none}
-html[data-skin="modern"][data-var="dark"] .pill.st-weld{background:rgba(167,139,250,.15);color:#c0b0ff;box-shadow:none}html[data-skin="modern"][data-var="dark"] .pill.st-nest{background:rgba(251,191,36,.13);color:#fbbf24;box-shadow:none}
-html[data-skin="modern"][data-var="dark"] .pill.qst-lost,html[data-skin="modern"][data-var="dark"] .pill.bad{background:rgba(248,113,113,.14);color:#f87171;box-shadow:none}
-html[data-skin="modern"][data-var="dark"] #btnTheme{display:none}
-/* fintech — Stripe / Mercury: one hero number, indigo brand, soft layered shadows */
-html[data-skin="modern"][data-var="fintech"]{--bg:#f6f9fc;--surface:#fff;--surface-2:#f6f9fc;--line:#e3e8ee;--line-2:#edf1f5;--ink:#0a2540;--ink-2:#425466;--ink-3:#8792a2;--accent:#635bff;--accent-ink:#fff;--accent-soft:#efeefe;--r:12px}
-html[data-skin="modern"][data-var="fintech"] .jcard,html[data-skin="modern"][data-var="fintech"] .bcard,html[data-skin="modern"][data-var="fintech"] .summary>.stat{border-color:transparent;border-radius:14px;box-shadow:0 2px 5px rgba(50,50,93,.07),0 1px 1.5px rgba(0,0,0,.05)}
-html[data-skin="modern"][data-var="fintech"] .summary>.stat:first-child{grid-column:span 2;background:linear-gradient(135deg,#635bff 0%,#8b5cf6 100%);color:#fff}
-html[data-skin="modern"][data-var="fintech"] .summary>.stat:first-child .k,html[data-skin="modern"][data-var="fintech"] .summary>.stat:first-child .s,html[data-skin="modern"][data-var="fintech"] .summary>.stat:first-child .v small{color:rgba(255,255,255,.82)}
-html[data-skin="modern"][data-var="fintech"] .summary>.stat:first-child .v{font-size:32px}
-html[data-skin="modern"][data-var="fintech"] .btn.primary{box-shadow:0 4px 10px rgba(99,91,255,.28)}
-html[data-skin="modern"][data-var="fintech"] .modtabs button.on{background:var(--accent);color:#fff}
-html[data-skin="modern"][data-var="fintech"] .top{background:#fff}html[data-skin="modern"][data-var="fintech"] .side{background:#fbfcfe}
-html[data-skin="modern"][data-var="fintech"] .stepper button.on .sn{background:var(--accent);border-color:var(--accent)}
-/* bento — warm Kh orange, floating dark sidebar, coloured KPI tiles */
-html[data-skin="modern"][data-var="bento"]{--bg:#ebe9e4;--surface:#fff;--surface-2:#f6f5f2;--line:#e2dfd8;--line-2:#eeece7;--ink:#141414;--ink-2:#55524c;--ink-3:#9a968e;--accent:#ff6b1a;--accent-ink:#fff;--accent-soft:#fff0e6;--r:14px}
-html[data-skin="modern"][data-var="bento"] .top{background:#141414;color:#f2f1ee;margin:10px 0 10px 10px;border-radius:22px;border-right:0;--line:#2b2b2b;--surface:#1d1d1d;--surface-2:#222;--ink:#f2f1ee;--ink-2:#b7b4ad;--ink-3:#7c7972}
-html[data-skin="modern"][data-var="bento"] .top .btn,html[data-skin="modern"][data-var="bento"] .top .inp,html[data-skin="modern"][data-var="bento"] .top .job{background:#222;border-color:#333;color:#f2f1ee}
-html[data-skin="modern"][data-var="bento"] .brand-logo{background:#fff;border-radius:10px;padding:4px 8px}
-html[data-skin="modern"][data-var="bento"] .modtabs button{color:#b7b4ad}html[data-skin="modern"][data-var="bento"] .modtabs button:hover{background:#222;color:#fff}html[data-skin="modern"][data-var="bento"] .modtabs button.on{background:var(--accent);color:#fff}
-html[data-skin="modern"][data-var="bento"] .mco{background:#1d1d1d;border-color:#2b2b2b}
-html[data-skin="modern"][data-var="bento"] .side{background:transparent;border-right:0}html[data-skin="modern"][data-var="bento"] .side .tabs{border-bottom-color:var(--line)}
-html[data-skin="modern"][data-var="bento"] .jcard,html[data-skin="modern"][data-var="bento"] .bcard{border-radius:20px;border-color:transparent;box-shadow:0 1px 2px rgba(0,0,0,.04)}
-html[data-skin="modern"][data-var="bento"] .summary>.stat{border-radius:20px;border-color:transparent;box-shadow:none;padding:16px 18px}
-html[data-skin="modern"][data-var="bento"] .summary>.stat:nth-child(1){background:#f3e84a}html[data-skin="modern"][data-var="bento"] .summary>.stat:nth-child(2){background:#ff8a3d;color:#fff}html[data-skin="modern"][data-var="bento"] .summary>.stat:nth-child(3){background:#151515;color:#fff}
-html[data-skin="modern"][data-var="bento"] .summary>.stat:nth-child(2) .k,html[data-skin="modern"][data-var="bento"] .summary>.stat:nth-child(2) .s,html[data-skin="modern"][data-var="bento"] .summary>.stat:nth-child(3) .k,html[data-skin="modern"][data-var="bento"] .summary>.stat:nth-child(3) .s{color:rgba(255,255,255,.8)}
-html[data-skin="modern"][data-var="bento"] .summary>.stat:nth-child(1) .k,html[data-skin="modern"][data-var="bento"] .summary>.stat:nth-child(1) .s{color:rgba(0,0,0,.6)}
-html[data-skin="modern"][data-var="bento"] .jitem{border-color:transparent;border-radius:16px}html[data-skin="modern"][data-var="bento"] .jitem.on{background:#fff;border-color:var(--accent)}
-html[data-skin="modern"][data-var="bento"] .btn{border-radius:999px}html[data-skin="modern"][data-var="bento"] .fld input,html[data-skin="modern"][data-var="bento"] .fld select,html[data-skin="modern"][data-var="bento"] .inp{border-radius:12px}
-html[data-skin="modern"][data-var="bento"] .stepper{border-radius:999px;background:#fff}html[data-skin="modern"][data-var="bento"] .stepper button{border-radius:999px}html[data-skin="modern"][data-var="bento"] .stepper button.on{background:#141414;color:#fff}
 /* labels vs values: a label is small, semibold and muted; the value is full-size ink */
 label.fld,.fld>.flab{font-size:11.5px;font-weight:600;color:var(--ink-3);letter-spacing:.01em}
 .fld input,.fld select,.fld textarea{font-size:13.5px;font-weight:400;color:var(--ink);letter-spacing:0}
@@ -763,6 +714,88 @@ html[data-theme="dark"] .mf-warn,html[data-theme="dark"] .mf-ok,html[data-theme=
 .mf-gantt .c{height:26px;border-radius:3px;background:var(--surface-2);display:flex;align-items:center;justify-content:center;font-family:var(--f-mono,monospace);font-size:10px;color:#fff}
 .mf-gantt .c.on{background:color-mix(in srgb,#1d4ed8 calc(35% + var(--p) * 65%),var(--surface-2));cursor:pointer}.mf-gantt .c.over{background:#d92d20}
 .dt tr.rec{cursor:pointer}.dt tr.rec:hover td{background:var(--accent-soft)}
+/* ================= Themes (Odoo 18): colour via data-erpt, density via data-dens ================= */
+/* Odoo 18 base refinements, all themes */
+html[data-var="erp"]{--f-ui:"Inter","Segoe UI",system-ui,-apple-system,Roboto,sans-serif;--r:6px}
+html[data-var="erp"] body{font-family:var(--f-ui)}
+html[data-var="erp"] .btn{border-radius:4px!important;font-weight:500}
+html[data-var="erp"] .btn:not(.primary):not(.ghost){background:#e7e9ed!important;border-color:#e7e9ed!important;color:#1f2328!important}
+html[data-var="erp"] .btn:not(.primary):not(.ghost):hover{background:#d8dadd!important;border-color:#d8dadd!important}
+html[data-var="erp"][data-theme="dark"] .btn:not(.primary):not(.ghost){background:var(--surface-2)!important;border-color:var(--line)!important;color:var(--ink)!important}
+html[data-var="erp"] .erp-list thead th{font-weight:700;color:var(--ink)}
+html[data-var="erp"] .erp-list tbody tr.rec:hover td{background:var(--accent-soft)}
+html[data-var="erp"] .erp-b{border-radius:999px}
+html[data-var="erp"] .erp-cp{box-shadow:0 1px 0 var(--line)}
+/* Odoo purple */
+html[data-var="erp"][data-erpt="odoo"]:not([data-theme="dark"]){--accent:#714b67;--accent-soft:#f1eaf0;--acc:#714b67;--link:#017e84;--bg:#f9fafb;--line:#d8dadd;--ink:#111827;--ink-2:#374151;--ink-3:#6b7280}
+html[data-var="erp"][data-erpt="odoo"][data-theme="dark"]{--accent:#b07aa3;--accent-soft:#3a2735;--acc:#b07aa3;--link:#35c5cb}
+html[data-var="erp"][data-erpt="odoo"] .erp-crumbs a,html[data-var="erp"][data-erpt="odoo"] a{color:var(--link)}
+html[data-var="erp"][data-erpt="odoo"] .erp-chip.on{background:#e6f2f3;border-color:var(--link);color:var(--link)}
+html[data-var="erp"][data-erpt="odoo"] .erp-stages button.on{background:#e6f2f3;color:var(--link);box-shadow:inset 0 -2px 0 var(--link)}
+html[data-var="erp"][data-erpt="odoo"] .erp-menu button.on{border-bottom-color:var(--accent)}
+html[data-var="erp"][data-erpt="odoo"] .erp-appname{color:var(--accent)}
+/* Compact density: more rows on one screen */
+html[data-var="erp"][data-dens]{--nav-h:40px}
+html[data-var="erp"][data-dens] body{font-size:12.5px}
+html[data-var="erp"][data-dens] .main{padding:10px 14px!important;gap:10px!important}
+html[data-var="erp"][data-dens] .erp-menu button{font-size:12.5px;padding:0 9px}
+html[data-var="erp"][data-dens] .erp-cp{padding:8px 14px!important;gap:6px!important}
+html[data-var="erp"][data-dens] .erp-list td,html[data-var="erp"][data-dens] .erp-list th{padding:5px 8px!important}
+html[data-var="erp"][data-dens] .dt td,html[data-var="erp"][data-dens] .dt th{padding:4px 7px!important}
+html[data-var="erp"][data-dens] .btn{padding:4px 10px!important;font-size:12.5px!important;min-height:0!important}
+html[data-var="erp"][data-dens] .btn.sm{padding:2px 7px!important;font-size:11.5px!important}
+html[data-var="erp"][data-dens] .fld input,html[data-var="erp"][data-dens] .fld select,html[data-var="erp"][data-dens] .inp{padding:4px 7px!important;font-size:12.5px!important;min-height:0!important}
+html[data-var="erp"][data-dens] .jcard .jbody{padding:10px 12px!important}html[data-var="erp"][data-dens] .bcard-h{padding:8px 12px!important}
+html[data-var="erp"][data-dens] .mf-body,html[data-var="erp"][data-dens] .erp-home{padding:10px 14px!important;gap:10px!important}
+html[data-var="erp"][data-dens] .erp-kpi{padding:9px 12px}html[data-var="erp"][data-dens] .erp-kpi .v{font-size:19px}
+html[data-var="erp"][data-dens] .erp-card{padding:7px 9px}
+/* ================= Нүүр (dashboard) v2: зүүн — тойм, баруун — миний TODO + тэмдэглэл ================= */
+.erp-home2{gap:14px}
+.eh-top{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.eh-pills{display:flex;gap:8px;flex-wrap:wrap}.eh-pill{background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:5px 12px;font-size:12.5px;color:var(--ink-2)}.eh-pill b{color:var(--ink);font-size:14px;margin-right:3px}.eh-pill.bad b{color:var(--bad)}
+.eh-grid{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:16px;align-items:start}
+@media (max-width:1250px){.eh-grid{grid-template-columns:minmax(0,1fr) 340px}}@media (max-width:980px){.eh-grid{grid-template-columns:1fr}}
+.eh-main{display:grid;gap:14px;min-width:0}
+.eh-side{display:grid;gap:14px;position:sticky;top:0;align-content:start}
+.erp-home2 .erp-appsrow{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+/* TODO */
+.mine-todo,.mine-notes{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 14px;display:grid;gap:9px}
+.td-head{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}.td-head h3{margin:0!important;font-size:14px!important;text-transform:none!important;letter-spacing:0!important;color:var(--ink)!important}.td-head .sp{flex:1}
+.td-stat{font-size:12px;color:var(--ink-3)}.td-stat .bad,.bad{color:var(--bad)}
+.td-prog{height:4px;background:var(--line-2);border-radius:4px;overflow:hidden}.td-prog i{display:block;height:100%;background:var(--ok);border-radius:4px;transition:width .3s}
+.td-add{display:grid;grid-template-columns:128px minmax(0,1fr) 36px;gap:6px}.td-add input[name=t]{grid-column:1/-1}.td-add .btn{padding:0!important;justify-content:center}
+.td-add input,.td-add select{border:1px solid var(--line);border-radius:5px;padding:6px 8px;background:var(--surface);color:var(--ink);font:inherit;font-size:12.5px;min-width:0}
+.td-add input[name=t]{font-size:13.5px;padding:8px 10px;border-color:var(--ink-3)}.td-add input[name=t]:focus{outline:2px solid var(--accent-soft);border-color:var(--accent)}
+.td-tabs{display:flex;gap:2px;border-bottom:1px solid var(--line-2)}.td-tabs button{border:0;background:transparent;padding:6px 9px;font-size:12.5px;color:var(--ink-2);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}.td-tabs button span{margin-left:5px;color:var(--ink-3);font-size:11px}.td-tabs button.on{color:var(--ink);font-weight:600;border-bottom-color:var(--accent)}
+.td-list{display:grid;max-height:520px;overflow:auto}
+.td-row{display:grid;grid-template-columns:22px minmax(0,1fr) auto auto auto;gap:8px;align-items:start;padding:7px 2px;border-bottom:1px solid var(--line-2);transition:opacity .3s}
+.td-row:last-child{border-bottom:0}.td-row:hover{background:var(--surface-2)}
+.td-chk{width:18px;height:18px;margin-top:1px;border:1.6px solid var(--ink-3);border-radius:50%;background:transparent;cursor:pointer;color:#fff;font-size:11px;line-height:1;display:grid;place-items:center;padding:0}.td-chk:hover{border-color:var(--ok)}
+.td-row.done .td-chk{background:var(--ok);border-color:var(--ok)}.td-row.done .td-t{text-decoration:line-through;color:var(--ink-3)}
+.td-t{cursor:text;word-break:break-word;font-size:13px;line-height:1.35}.td-edit{width:100%;font:inherit;font-size:13px;padding:2px 5px;border:1px solid var(--accent);border-radius:4px}
+.td-meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:2px}.td-meta:empty{display:none}
+.td-due{font-size:11px;padding:1px 7px;border-radius:999px;background:var(--surface-2);color:var(--ink-2)}.td-due.s-late{background:#fef3f2;color:#b42318;font-weight:600}.td-due.s-today{background:#fff4e5;color:#b54708;font-weight:600}.td-due.s-week{background:#eff8ff;color:#175cd3}
+.td-job{font-size:11px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:0 7px;cursor:pointer;font-family:var(--f-mono,monospace);color:var(--ink-2)}.td-job:hover{border-color:var(--accent);color:var(--accent)}
+.td-dn{font-size:11px;color:var(--ok)}
+.td-star,.td-del{border:0;background:transparent;cursor:pointer;color:var(--line);font-size:15px;line-height:1;padding:0 2px}.td-star.on{color:#f5a524}.td-row:hover .td-star:not(.on){color:var(--ink-3)}.td-del{color:transparent;font-size:17px}.td-row:hover .td-del{color:var(--ink-3)}.td-del:hover{color:var(--bad)!important}
+.td-date{width:22px;border:0;background:transparent;color:transparent;padding:0;cursor:pointer;opacity:.45}.td-row:hover .td-date{opacity:1}.td-date::-webkit-datetime-edit{display:none}
+.td-empty{padding:14px 4px;color:var(--ink-3);font-size:12.5px;text-align:center}
+/* notes */
+.nt-q{border:1px solid var(--line);border-radius:5px;padding:4px 8px;font:inherit;font-size:12px;width:110px;background:var(--surface);color:var(--ink)}
+.nt-grid{display:grid;grid-template-columns:1fr;gap:8px;max-height:560px;overflow:auto}
+.nt-card{background:var(--nc);border:1px solid color-mix(in srgb,var(--nc) 70%,#000 8%);border-radius:7px;padding:8px 10px 6px;display:grid;gap:4px;box-shadow:0 1px 2px rgba(16,24,40,.05)}.nt-card.pin{box-shadow:0 0 0 2px var(--accent-soft),0 1px 3px rgba(16,24,40,.08)}
+.nt-card textarea{border:0;background:transparent;resize:none;font:inherit;font-size:13px;line-height:1.45;color:#1f2328;outline:0;padding:0;min-height:40px;overflow:hidden}
+.nt-ft{display:flex;align-items:center;gap:4px;opacity:.55;transition:opacity .15s}.nt-card:hover .nt-ft,.nt-card:focus-within .nt-ft{opacity:1}.nt-ft .sp{flex:1}
+.nt-c{display:flex;gap:3px}.nt-c button{width:13px;height:13px;border-radius:50%;border:1px solid rgba(0,0,0,.18);cursor:pointer;padding:0}.nt-c button.on{outline:2px solid #1f2328;outline-offset:1px}
+.nt-ft>button{border:0;background:transparent;cursor:pointer;font-size:12px;color:#475467;padding:1px 3px;border-radius:3px}.nt-ft>button:hover{background:rgba(0,0,0,.06)}.nt-ft>button.on{color:var(--accent)}
+.nt-d{font-size:10.5px;color:#667085;font-family:var(--f-mono,monospace)}
+/* navbar button + drawer */
+#btnMine{position:relative;white-space:nowrap}#btnMine .cnt{margin-left:5px;background:var(--accent);color:#fff;border-radius:999px;font-size:10.5px;padding:0 6px;font-weight:700}#btnMine .cnt.bad{background:var(--bad)}
+.mine-drawer{position:fixed;top:var(--nav-h,48px);right:0;bottom:0;width:420px;max-width:96vw;background:var(--bg);border-left:1px solid var(--line);box-shadow:-8px 0 24px rgba(16,24,40,.12);z-index:60;display:grid;grid-template-rows:auto minmax(0,1fr);animation:mdIn .16s ease-out}
+@keyframes mdIn{from{transform:translateX(30px);opacity:0}}
+.md-h{display:flex;align-items:center;padding:10px 14px;background:var(--surface);border-bottom:1px solid var(--line)}.md-h .sp{flex:1}.md-x{border:0;background:transparent;font-size:22px;cursor:pointer;color:var(--ink-3);line-height:1}
+.md-b{overflow:auto;padding:12px;display:grid;gap:12px;align-content:start}
+html[data-theme="dark"] .nt-card textarea{color:#1f2328}
 
 </style>
 
@@ -793,7 +826,7 @@ html[data-theme="dark"] .mf-warn,html[data-theme="dark"] .mf-ok,html[data-theme=
     <div class="top-actions">
       <div class="mco"><b>Kh International</b><small>ISO 9001 · Know us, know the quality</small></div>
       <div class="seg notr" id="langSeg" role="group" aria-label="Language"><button data-lang="mn" title="Монгол">МН</button><button data-lang="en" title="English">EN</button></div>
-      <select id="skinSel" class="inp sm" aria-label="Загвар" title="Програмын загвар" style="width:auto;padding:5px 8px"><option value="erp">Загвар: ERP (Odoo маягийн)</option><option value="modern">Загвар: Орчин үеийн</option><option value="calm">Загвар: Тайван (Linear)</option><option value="dark">Загвар: Харанхуй (Supabase)</option><option value="fintech">Загвар: Fintech (Stripe)</option><option value="bento">Загвар: Bento (улбар шар)</option></select>
+      <select id="skinSel" class="inp sm" aria-label="Загвар" title="Програмын загвар" style="width:auto;padding:5px 8px"><option value="kh">Загвар: Odoo 18 · KH улбар шар</option><option value="odoo">Загвар: Odoo 18 · нил ягаан</option><option value="kh-c">Загвар: Нягт · KH улбар шар</option><option value="odoo-c">Загвар: Нягт · нил ягаан</option></select>
       <button class="btn sm ghost" id="btnChat" type="button" title="Оффис, үйлдвэрийн дотоод чат — ерөнхий суваг, ажил бүрийн чат">💬 Чат</button>
       <button class="btn sm ghost" id="btnLink" type="button" title="Нөөц (OneDrive), оффис ↔ үйлдвэр синк, утаснаас бүртгэх">🔗 Холболт</button>
       <button class="btn sm savebtn" type="button" title="Бүх өгөгдлийг одоо хадгалах (Ctrl+S). Програм өөрөө ч автоматаар хадгалдаг.">💾 Хадгалах</button>
@@ -5377,9 +5410,10 @@ function i18nButtons() {
 }
 (() => {
   try { const t = localStorage.getItem(THEME_KEY); if (t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t); } catch (e) { }
-  { const V = ['erp', 'modern', 'calm', 'dark', 'fintech', 'bento'], apply = k => { const h = document.documentElement; h.setAttribute('data-skin', 'modern'); if (k === 'modern') h.removeAttribute('data-var'); else h.setAttribute('data-var', k); if (k === 'dark') h.setAttribute('data-theme', 'dark'); else if (h.dataset.forcedDark) h.setAttribute('data-theme', 'light'); h.dataset.forcedDark = k === 'dark' ? '1' : ''; if (typeof i18nButtons === 'function') i18nButtons(); };
-    let k = 'erp'; try { k = localStorage.getItem('kh-skin2') || 'erp'; } catch (e) { } if (!V.includes(k)) k = 'erp'; apply(k);
-    const sel = document.getElementById('skinSel'); if (sel) { sel.value = k; sel.addEventListener('change', () => { const was = document.documentElement.dataset.var === 'erp'; try { localStorage.setItem('kh-skin2', sel.value); } catch (e) { } if (was || sel.value === 'erp') { location.reload(); return; } apply(sel.value); }); } }
+  { /* one look: Odoo 18-style ERP shell; themes only change colour and density */
+    const V = ['kh', 'odoo', 'kh-c', 'odoo-c'], h = document.documentElement, apply = k => { h.setAttribute('data-skin', 'modern'); h.setAttribute('data-var', 'erp'); h.setAttribute('data-erpt', k.startsWith('odoo') ? 'odoo' : 'kh'); h.toggleAttribute('data-dens', k.endsWith('-c')); if (h.dataset.forcedDark) { h.setAttribute('data-theme', 'light'); h.dataset.forcedDark = ''; } if (typeof i18nButtons === 'function') i18nButtons(); };
+    let k = 'kh'; try { k = localStorage.getItem('kh-erpt') || 'kh'; localStorage.removeItem('kh-skin2'); } catch (e) { } if (!V.includes(k)) k = 'kh'; apply(k);
+    const sel = document.getElementById('skinSel'); if (sel) { sel.value = k; sel.addEventListener('change', () => { try { localStorage.setItem('kh-erpt', sel.value); } catch (e) { } apply(sel.value); if (typeof rerenderAll === 'function') try { rerenderAll(); } catch (e) { } }); } }
   document.documentElement.lang = LANG === 'en' ? 'en' : 'mn';
   trObs.observe(document.documentElement, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: TR_ATTRS });
   if (LANG === 'en') trWalk(document.body);
@@ -8753,7 +8787,14 @@ const daysLeft = d => d ? Math.round((new Date(d + 'T00:00:00') - new Date(today
 
 /* ---------- side panel ---------- */
 $$('[data-jtab]').forEach(b => b.addEventListener('click', () => { J.tab = b.dataset.jtab; $$('[data-jtab]').forEach(x => x.classList.toggle('on', x === b)); ['jobs', 'kits', 'certs', 'dockets', 'forms', 'scopes', 'invoices'].forEach(t => $('#jtab-' + t).hidden = t !== J.tab); renderJobs(); }));
-function renderJobs() { renderJList(); renderKList(); renderCertSide(); renderDockSide(); renderFormSide(); renderScopeSide(); renderInvSide(); renderJobMain(); }
+/* only the side list that is on screen is drawn (in the full-width ERP lists none is) — switching menus stays fast with hundreds of jobs */
+const J_SIDE = { jobs: () => renderJList(), kits: () => renderKList(), certs: () => renderCertSide(), dockets: () => renderDockSide(), forms: () => renderFormSide(), scopes: () => renderScopeSide(), invoices: () => renderInvSide() };
+function renderJobs() {
+  const h = document.documentElement, full = h.hasAttribute('data-erpfull') && h.dataset.var === 'erp';
+  if (full) { const c = $('#cntJobs'); if (c) c.textContent = S.jobs.filter(j => !j.parent).filter(j => isQ(j) ? j.qst !== 'lost' : !['done', 'given'].includes(j.status)).length || ''; }
+  else (J_SIDE[J.tab] || J_SIDE.jobs)();
+  renderJobMain();
+}
 function renderJList() {
   $('#cntJobs').textContent = S.jobs.filter(j => !j.parent).filter(j => isQ(j) ? j.qst !== 'lost' : !['done', 'given'].includes(j.status)).length || '';
   { const v = document.documentElement.dataset.jview, sg = $('#jSeg'), fv = $('#jFilter').value, opts = v === 'quotes' ? [['quotes', 'Идэвхтэй'], ['closed', 'Татгалзсан'], ['all', 'Бүгд']] : v === 'jobs' ? [['jobs', 'Идэвхтэй'], ['closed', 'Архив'], ['all', 'Бүгд']] : null;
@@ -15158,7 +15199,7 @@ async function syncInit() {
 }
 async function syncMerge(txt, startup) {
   let R; try { R = JSON.parse(txt); } catch (e) { return; }
-  const C = [], L = JSON.parse(JSON.stringify(S)); delete L._saved; delete R._saved; const B = KL.base ? Object.assign({}, KL.base) : {}; delete B._saved;
+  const C = [], L = JSON.parse(JSON.stringify(S)); delete L._saved; delete R._saved; if (KL.base === undefined) { try { KL.base = KL.baseTxt ? JSON.parse(KL.baseTxt) : null; } catch (e) { KL.base = null; } KL.baseTxt = null; } const B = KL.base ? Object.assign({}, KL.base) : {}; delete B._saved;
   const m = merge3(B, L, R, 'S', C);
   const fixedNos = syncFixNumbers(m, R);
   LOCAL_KEYS.forEach(k => { if (k in L) m[k] = L[k]; else delete m[k]; });   // this PC's own workspace / user stays as is
@@ -15170,7 +15211,7 @@ async function syncPush(txt) {
   if (!KL.on || KL.busy) return; KL.busy = true;
   try {
     const r = await window.kh.syncWrite(txt, KL.mt);
-    if (r && r.ok) { KL.mt = r.mt; KL.base = JSON.parse(txt); window.kh.syncBase(txt); syncBadge('ok'); }
+    if (r && r.ok) { KL.mt = r.mt; KL.base = undefined; KL.baseTxt = txt; window.kh.syncBase(txt); syncBadge('ok'); }
     else if (r && r.conflict) { KL.mt = r.mt; KL.busy = false; await syncMerge(r.txt); return; }
     else if (r && r.error) syncBadge('err', r.error);
   } catch (e) { syncBadge('err', e.message); } finally { KL.busy = false; }
@@ -16203,6 +16244,96 @@ async function traceDoc(q, R) {
 /* a running operation shows its live hours */
 setInterval(() => { const mn = $('#mfgMain'); if (mn && !mn.hidden && MF.tab === 'mo' && MF.sel) { const mo = mos().find(m => m.id === MF.sel); if (mo && (mo.ops || []).some(o => o.st === 'run')) mn.querySelectorAll('[data-opact]').forEach(f => { const o = mo.ops[+f.dataset.opact]; if (o && o.st === 'run') f.value = mfH(opActH(o)); }); } }, 30000);
 
+/* ================= Миний TODO ба тэмдэглэл — хувийн, зөвхөн энэ компьютерт (синк хийгдэхгүй) =================
+   Хадгалалт: localStorage 'kh-mine' (Electron-ий хэрэглэгчийн фолдерт байнга хадгалагдана). Нүүр хуудас болон навбарын «Миний жагсаалт» самбарт. */
+const MINE = (() => { let m = {}; try { m = JSON.parse(localStorage.getItem('kh-mine') || '{}'); } catch (e) { } return Object.assign({ todos: [], notes: [], f: 'today', nq: '' }, m); })();
+const mineSave = () => { try { localStorage.setItem('kh-mine', JSON.stringify(MINE)); } catch (e) { toast('⚠ TODO хадгалж чадсангүй'); } mineBadge(); };
+const NOTE_C = [['#fff7d6', 'Шар'], ['#e3f2ff', 'Цэнхэр'], ['#e6f6ec', 'Ногоон'], ['#fde8ec', 'Ягаан'], ['#f1eaf0', 'Нил'], ['#ffffff', 'Цагаан']];
+const tdState = t => t.done ? 'done' : t.due && t.due < today() ? 'late' : t.due === today() ? 'today' : t.due && t.due <= addDays(today(), 7) ? 'week' : 'later';
+const tdSort = (a, b) => (a.done - b.done) || ((b.star ? 1 : 0) - (a.star ? 1 : 0)) || String(a.due || '9999').localeCompare(String(b.due || '9999')) || (a.ord || 0) - (b.ord || 0);
+function mineTodos(f) {
+  const T = MINE.todos;
+  if (f === 'today') return T.filter(t => !t.done && (t.star || !t.due || t.due <= today())).sort(tdSort);
+  if (f === 'week') return T.filter(t => !t.done && t.due && t.due <= addDays(today(), 7)).sort(tdSort);
+  if (f === 'done') return T.filter(t => t.done).sort((a, b) => String(b.doneAt || '').localeCompare(String(a.doneAt || '')));
+  return T.filter(t => !t.done).sort(tdSort);
+}
+function mineAdd(txt, due, job) {
+  let t = String(txt || '').trim(); if (!t) return null; let star = false;
+  if (/^!\s*/.test(t) || /\s!$/.test(t)) { star = true; t = t.replace(/^!\s*|\s!$/g, '').trim(); }
+  /* quick dates: «маргааш», «өнөөдөр», «+3» (өдөр) */
+  if (!due) { const m = t.match(/\s(өнөөдөр|маргааш|нөгөөдөр|\+(\d{1,3}))$/i); if (m) { due = /өнөөдөр/i.test(m[1]) ? today() : /нөгөөдөр/i.test(m[1]) ? addDays(today(), 2) : /маргааш/i.test(m[1]) ? addDays(today(), 1) : addDays(today(), +m[2]); t = t.slice(0, m.index).trim(); } }
+  const o = { id: uid(), t, done: false, due: due || '', star, job: job || '', created: today(), ord: Date.now() }; MINE.todos.unshift(o); mineSave(); return o;
+}
+const mineLate = () => MINE.todos.filter(t => !t.done && t.due && t.due <= today()).length;
+function mineBadge() { const b = $('#btnMine'); if (!b) return; const n = MINE.todos.filter(t => !t.done && (t.star || (t.due && t.due <= today()))).length, l = MINE.todos.filter(t => !t.done && t.due && t.due < today()).length; const s = b.querySelector('.cnt'); if (s) { s.textContent = n || ''; s.hidden = !n; s.classList.toggle('bad', !!l); } }
+
+/* ---------- TODO list ---------- */
+function mineTodoHTML(opt = {}) {
+  const f = MINE.f || 'today', L = mineTodos(f), all = MINE.todos, open = all.filter(t => !t.done);
+  const wk = addDays(today(), -6), doneWk = all.filter(t => t.done && t.doneAt && t.doneAt >= wk).length, late = open.filter(t => t.due && t.due < today()).length;
+  const jobOpts = (typeof topJobs === 'function' ? topJobs() : []).filter(j => !isQ(j) && !['done', 'given'].includes(j.status)).slice(0, 200);
+  const chip = t => { const s = tdState(t); if (!t.due) return ''; const lbl = t.due === today() ? 'Өнөөдөр' : t.due === addDays(today(), 1) ? 'Маргааш' : s === 'late' ? `${t.due.slice(5)} · хэтэрсэн` : t.due.slice(5); return `<span class="td-due s-${s}">${lbl}</span>`; };
+  const row = t => { const j = t.job && findJob(t.job); return `<div class="td-row${t.done ? ' done' : ''}" data-td="${t.id}">
+      <button class="td-chk" data-tdx="done" title="${t.done ? 'Буцаах' : 'Дууссан'}">${t.done ? '✓' : ''}</button>
+      <div class="td-main"><span class="td-t" data-tdx="edit" title="Засах бол дарна уу">${esc(t.t)}</span><div class="td-meta">${chip(t)}${j ? `<button class="td-job" data-tdx="job">${esc(j.no)}</button>` : ''}${t.done && t.doneAt ? `<span class="td-dn">✓ ${esc(t.doneAt.slice(5))}</span>` : ''}</div></div>
+      <button class="td-star${t.star ? ' on' : ''}" data-tdx="star" title="Чухал">★</button>
+      <input type="date" class="td-date" data-tdx="due" value="${esc(t.due || '')}" title="Хугацаа">
+      <button class="td-del" data-tdx="del" title="Устгах">×</button></div>`; };
+  const tabs = [['today', 'Өнөөдөр', mineTodos('today').length], ['week', '7 хоног', mineTodos('week').length], ['all', 'Бүгд', open.length], ['done', 'Дууссан', all.length - open.length]];
+  return `<div class="mine-todo">
+    <div class="td-head"><h3>Миний TODO</h3><span class="td-stat">${open.length} нээлттэй${late ? ` · <b class="bad">${late} хэтэрсэн</b>` : ''} · 7 хоногт ${doneWk} дууссан</span></div>
+    <div class="td-prog"><i style="width:${all.length ? Math.round((all.length - open.length) / all.length * 100) : 0}%"></i></div>
+    <form class="td-add" data-tdadd="1"><input name="t" placeholder="Шинэ ажил… (Enter) — «!» чухал, «маргааш», «+3»" autocomplete="off"><input name="d" type="date" title="Хугацаа"><select name="j" title="Ажилтай холбох"><option value="">Ажилгүй</option>${jobOpts.map(j => `<option value="${j.id}">${esc(j.no)} · ${esc(String(j.title || '').slice(0, 28))}</option>`).join('')}</select><button class="btn primary sm">+</button></form>
+    <div class="td-tabs">${tabs.map(([k, n, c]) => `<button data-tdf="${k}" class="${f === k ? 'on' : ''}">${n}<span>${c}</span></button>`).join('')}</div>
+    <div class="td-list">${L.length ? L.slice(0, opt.max || 200).map(row).join('') : `<div class="td-empty">${f === 'done' ? 'Дууссан зүйл алга' : f === 'today' ? '🎉 Өнөөдрийн жагсаалт хоосон' : 'Жагсаалт хоосон'}</div>`}</div>
+    ${f === 'done' && L.length ? '<button class="btn ghost sm" data-tdclr="1">Дууссаныг цэвэрлэх</button>' : ''}</div>`;
+}
+/* ---------- notes ---------- */
+function mineNotesHTML() {
+  const q = lc(MINE.nq || ''), N = MINE.notes.filter(n => !q || lc(n.txt).includes(q)).sort((a, b) => (b.pin ? 1 : 0) - (a.pin ? 1 : 0) || String(b.upd || '').localeCompare(String(a.upd || '')));
+  return `<div class="mine-notes"><div class="td-head"><h3>Тэмдэглэл</h3><span class="td-stat">${MINE.notes.length}</span><span class="sp"></span><input class="nt-q" placeholder="Хайх…" value="${esc(MINE.nq || '')}"><button class="btn sm" data-ntadd="1">+ Тэмдэглэл</button></div>
+    <div class="nt-grid">${N.length ? N.map(n => `<div class="nt-card${n.pin ? ' pin' : ''}" data-nt="${n.id}" style="--nc:${n.c || '#fff7d6'}"><textarea data-ntx="txt" placeholder="Бичих…" rows="3">${esc(n.txt)}</textarea>
+      <div class="nt-ft"><span class="nt-c">${NOTE_C.map(([c, nm]) => `<button data-ntx="c" data-c="${c}" title="${nm}" style="background:${c}"${(n.c || '#fff7d6') === c ? ' class="on"' : ''}></button>`).join('')}</span><span class="sp"></span><span class="nt-d">${esc(String(n.upd || '').slice(5, 16).replace('T', ' '))}</span><button data-ntx="todo" title="TODO болгох">☐→</button><button data-ntx="pin" title="Дээр бэхлэх" class="${n.pin ? 'on' : ''}">📌</button><button data-ntx="del" title="Устгах">×</button></div></div>`).join('') : '<div class="td-empty">Санаа, утасны дугаар, хэмжээ… юу ч хамаагүй бичээд хадгал.</div>'}</div></div>`;
+}
+const autoH = ta => { ta.style.height = 'auto'; ta.style.height = Math.min(320, ta.scrollHeight + 2) + 'px'; };
+function mineBind(el, rerender) {
+  const f = el.querySelector('[data-tdadd]'); if (f) f.addEventListener('submit', e => { e.preventDefault(); const o = mineAdd(f.t.value, f.d.value, f.j.value); if (o) { if (MINE.f === 'done') MINE.f = 'all'; mineSave(); rerender(); const n = el.querySelector('[data-tdadd] input[name=t]'); if (n) n.focus(); } });
+  el.querySelectorAll('[data-tdf]').forEach(b => b.addEventListener('click', () => { MINE.f = b.dataset.tdf; mineSave(); rerender(); }));
+  const clr = el.querySelector('[data-tdclr]'); if (clr) clr.addEventListener('click', () => { if (!confirm('Дууссан бүх зүйлийг устгах уу?')) return; MINE.todos = MINE.todos.filter(t => !t.done); mineSave(); rerender(); });
+  el.querySelectorAll('[data-td]').forEach(r => { const t = MINE.todos.find(x => x.id === r.dataset.td); if (!t) return;
+    r.querySelectorAll('[data-tdx]').forEach(b => { const k = b.dataset.tdx;
+      if (k === 'due') b.addEventListener('change', () => { t.due = b.value; mineSave(); rerender(); });
+      else b.addEventListener('click', e => { e.stopPropagation();
+        if (k === 'done') { t.done = !t.done; t.doneAt = t.done ? new Date().toISOString().slice(0, 16) : ''; mineSave(); r.classList.toggle('done', t.done); setTimeout(rerender, t.done ? 380 : 0); }
+        else if (k === 'star') { t.star = !t.star; mineSave(); rerender(); }
+        else if (k === 'del') { MINE.todos = MINE.todos.filter(x => x !== t); mineSave(); rerender(); }
+        else if (k === 'job') { const j = findJob(t.job); if (j) { if (typeof erpGo === 'function' && erpOn()) erpGo(isQ(j) ? 'quotes' : 'jobs'); else setModule(isQ(j) ? 'quotes' : 'jobs'); J.sel = j.id; J.sub = isQ(j) ? 'quote' : 'main'; renderJobs(); if (typeof erpNav === 'function') erpNav(); mineDrawer(false); } }
+        else if (k === 'edit' && !t.done) { const sp = b, inp = document.createElement('input'); inp.className = 'td-edit'; inp.value = t.t; sp.replaceWith(inp); inp.focus(); inp.select();
+          const fin = ok => { if (ok && inp.value.trim()) { t.t = inp.value.trim(); mineSave(); } rerender(); }; inp.addEventListener('keydown', e2 => { if (e2.key === 'Enter') fin(true); if (e2.key === 'Escape') fin(false); }); inp.addEventListener('blur', () => fin(true)); }
+      }); }); });
+  const nq = el.querySelector('.nt-q'); if (nq) { let tm; nq.addEventListener('input', () => { clearTimeout(tm); tm = setTimeout(() => { MINE.nq = nq.value; rerender(); const n = el.querySelector('.nt-q'); if (n) { n.focus(); n.setSelectionRange(n.value.length, n.value.length); } }, 250); }); }
+  const na = el.querySelector('[data-ntadd]'); if (na) na.addEventListener('click', () => { const n = { id: uid(), txt: '', c: '#fff7d6', pin: false, upd: new Date().toISOString().slice(0, 16) }; MINE.notes.unshift(n); MINE.nq = ''; mineSave(); rerender(); const ta = el.querySelector(`[data-nt="${n.id}"] textarea`); if (ta) ta.focus(); });
+  el.querySelectorAll('[data-nt]').forEach(c => { const n = MINE.notes.find(x => x.id === c.dataset.nt); if (!n) return; const ta = c.querySelector('textarea'); autoH(ta);
+    let tm; ta.addEventListener('input', () => { autoH(ta); n.txt = ta.value; n.upd = new Date().toISOString().slice(0, 16); clearTimeout(tm); tm = setTimeout(mineSave, 500); });
+    ta.addEventListener('blur', () => { clearTimeout(tm); if (!n.txt.trim() && MINE.notes.includes(n)) { MINE.notes = MINE.notes.filter(x => x !== n); mineSave(); setTimeout(rerender, 0); } else mineSave(); });
+    c.querySelectorAll('button[data-ntx]').forEach(b => b.addEventListener('mousedown', e => e.preventDefault()));
+    c.querySelectorAll('button[data-ntx]').forEach(b => b.addEventListener('click', () => { const k = b.dataset.ntx;
+      if (k === 'c') n.c = b.dataset.c; else if (k === 'pin') n.pin = !n.pin; else if (k === 'del') { if (n.txt.trim() && !confirm('Тэмдэглэлийг устгах уу?')) return; MINE.notes = MINE.notes.filter(x => x !== n); }
+      else if (k === 'todo') { const lines = n.txt.split('\n').map(s => s.replace(/^\s*[-*•☐\d.)]+\s*/, '').trim()).filter(Boolean); if (!lines.length) return; lines.reverse().forEach(s => mineAdd(s)); toast(`${lines.length} мөр TODO болов`); }
+      mineSave(); rerender(); })); });
+}
+/* ---------- drawer reachable from every page (navbar button) ---------- */
+function mineDrawer(open) {
+  let D = $('#mineDrawer'); if (open === false || (open == null && D)) { if (D) { D.remove(); const hs = $('#ehSide'); if (hs && hs._draw) hs._draw(); } return; }
+  if (!D) { D = document.createElement('div'); D.id = 'mineDrawer'; D.className = 'mine-drawer'; document.body.appendChild(D); }
+  const draw = () => { D.innerHTML = `<div class="md-h"><b>Миний жагсаалт</b><span class="sp"></span><button class="md-x" title="Хаах (Esc)">×</button></div><div class="md-b">${mineTodoHTML()}${mineNotesHTML()}</div>`; D.querySelector('.md-x').addEventListener('click', () => mineDrawer(false)); mineBind(D, draw); };
+  draw(); const f = D.querySelector('[data-tdadd] input[name=t]'); if (f) setTimeout(() => f.focus(), 30);
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && $('#mineDrawer') && !e.target.closest('.td-edit')) mineDrawer(false); if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'T' || e.key === 't')) { e.preventDefault(); mineDrawer(); } });
+/* startup reminder — once a day */
+setTimeout(() => { try { const k = 'kh-mine-rem'; if (localStorage.getItem(k) === today()) return; const l = MINE.todos.filter(t => !t.done && t.due && t.due < today()).length, d = MINE.todos.filter(t => !t.done && t.due === today()).length; if (l || d) { toast(`📝 Өнөөдөр ${d} TODO${l ? `, ${l} хугацаа хэтэрсэн` : ''} — Ctrl+Shift+T`, 7000); localStorage.setItem(k, today()); } } catch (e) { } }, 4000);
+
 /* ================= Kh International — ERP shell (Odoo-style): apps & top menu, breadcrumbs, control panel,
    list / kanban views, form status bar + smart buttons + chatter, home dashboard.
    It sits on top of the existing modules: they still render their own content; this file arranges it. ================= */
@@ -16247,8 +16378,10 @@ const erpAv = (name, t) => `<span class="erp-av" style="background:${erpAvColor(
 const erpM = v => money(Math.round(+v || 0));
 
 /* ---------- navigation ---------- */
+const erpFull = r => r === 'dash' || r === 'jobs' || r === 'quotes' || String(r).startsWith('mfg');
 function erpGo(route, o = {}) {
   ERP.route = route; ERP.launch = false; const [m, t] = String(route).split(':');
+  document.documentElement.toggleAttribute('data-erpfull', erpFull(route));
   if (m === 'docs') {
     setModule('docs'); J.tab = t || 'dockets'; J.dash = false;
     $$('[data-jtab]').forEach(x => x.classList.toggle('on', x.dataset.jtab === J.tab)); ['jobs', 'kits', 'certs', 'dockets', 'forms', 'scopes', 'invoices'].forEach(k => { const e = $('#jtab-' + k); if (e) e.hidden = k !== J.tab; });
@@ -16259,7 +16392,7 @@ function erpGo(route, o = {}) {
   else if (m === 'jobs' || m === 'quotes') { setModule(m); if (!o.keep) { J.sel = null; J.sub = m === 'quotes' ? 'quote' : 'main'; } renderJobs(); }
   else setModule(m);
   try { localStorage.setItem('kh-erp-route', route); } catch (e) { }
-  erpNav(); const mm = $$('.main').find(x => !x.hidden); if (mm) mm.scrollTop = 0;
+  erpNav(); requestAnimationFrame(() => { const mm = $$('.main').find(x => !x.hidden); if (mm && mm.scrollTop) mm.scrollTop = 0; });
 }
 function erpCurRoute() {
   const v = document.documentElement.dataset.jview, act = $$('.modtabs button.on')[0], m = act ? act.dataset.mod : 'nest';
@@ -16273,7 +16406,7 @@ function erpNav() {
   const nav = $('#erpNav'); if (!nav) return; const r = erpCurRoute(); ERP.route = r; const app = erpAppOf(r);
   nav.querySelector('.erp-appname').textContent = app.n;
   nav.querySelector('.erp-menu').innerHTML = app.items.map(([k, n]) => `<button data-erp="${k}" class="${k === r || (k.split(':')[0] === r.split(':')[0] && !app.items.some(x => x[0] === r) && app.items.filter(x => x[0].split(':')[0] === r.split(':')[0]).length === 1) ? 'on' : ''}">${esc(n)}</button>`).join('');
-  const full = (r === 'dash' || r === 'jobs' || r === 'quotes' || r.startsWith('mfg'));
+  const full = erpFull(r);
   document.documentElement.toggleAttribute('data-erpfull', full);
   const ch = $('#btnChat'); if (ch && typeof chatBadge === 'function') chatBadge();
 }
@@ -16327,29 +16460,33 @@ function erpBindCrumbs(el, crumbs) { el.querySelectorAll('[data-crumb]').forEach
 /* ---------- list & kanban (jobs, quotes) ---------- */
 function erpList(el, v) {
   const st = EV[v], R = erpRecs(v), isJ = v === 'jobs', title = isJ ? 'Ажил' : 'Үнийн санал';
+  const PS = 80, NP = Math.max(1, Math.ceil(R.length / PS)); st.pg = Math.max(0, Math.min(+st.pg || 0, NP - 1)); const RP = R.slice(st.pg * PS, st.pg * PS + PS);
+  const pagerH = st.view === 'kanban' || R.length <= PS ? `<span class="erp-pager">${R.length} бичлэг</span>` : `<span class="erp-pager"><span>${st.pg * PS + 1}-${Math.min(R.length, st.pg * PS + PS)} / ${R.length}</span><button data-lpg="-1"${st.pg <= 0 ? ' disabled' : ''} title="Өмнөх хуудас">‹</button><button data-lpg="1"${st.pg >= NP - 1 ? ' disabled' : ''} title="Дараагийн хуудас">›</button></span>`;
   const facets = st.f.map(k => { const f = ERP_F[v].find(x => x[0] === k); return f ? `<span class="erp-facet">${esc(f[1])}<button data-unf="${k}" title="Хасах">×</button></span>` : ''; }).join('') + (st.g ? `<span class="erp-facet"><b>Бүлэг:</b> ${esc((ERP_G[v].find(g => g[0] === st.g) || [, ''])[1])}<button data-ung="1">×</button></span>` : '');
   el.innerHTML = erpCP({ crumbs: [[title]],
     right: `<button class="btn primary" id="erpNew">+ ${isJ ? 'Шинэ ажил' : 'Шинэ үнийн санал'}</button><button class="btn" id="erpImp">⇪ Үнийн санал оруулах</button>`,
     row2: `<div class="erp-search">${erpIcon('search').replace('<svg', '<svg width="16" height="16" style="color:var(--ink-3);flex:none"')}${facets}<input id="erpQ" placeholder="Хайх: дугаар, захиалагч, ажлын нэр, хүн…" value="${esc(st.q || '')}"></div>
       <div class="erp-filters">${ERP_F[v].map(([k, n]) => `<button class="erp-chip${st.f.includes(k) ? ' on' : ''}" data-f="${k}">${esc(n)}</button>`).join('')}</div>
       <select class="inp erp-gsel" id="erpG" title="Бүлэглэх">${ERP_G[v].map(([k, n]) => `<option value="${k}"${st.g === k ? ' selected' : ''}>${k ? n : 'Бүлэглэх…'}</option>`).join('')}</select>
-      <span class="erp-pager">${R.length} бичлэг</span>
+      ${pagerH}
       <span class="erp-views"><button data-view="list" class="${st.view === 'list' ? 'on' : ''}" title="Жагсаалт">${erpIcon('list')}</button><button data-view="kanban" class="${st.view === 'kanban' ? 'on' : ''}" title="Kanban">${erpIcon('kanban')}</button></span>` }) +
-    `<div class="erp-view">${!R.length ? `<div class="erp-empty"><b>${isJ ? 'Ажил олдсонгүй' : 'Үнийн санал олдсонгүй'}</b>${st.q || st.f.length ? 'Шүүлтүүрээ өөрчилж үзнэ үү, эсвэл ' : ''}<b style="display:inline">+ ${isJ ? 'Шинэ ажил' : 'Шинэ үнийн санал'}</b> товчоор эхэлнэ.</div>` : st.view === 'kanban' ? erpKanban(R, v) : erpTable(R, v)}</div>`;
+    `<div class="erp-view">${!R.length ? `<div class="erp-empty"><b>${isJ ? 'Ажил олдсонгүй' : 'Үнийн санал олдсонгүй'}</b>${st.q || st.f.length ? 'Шүүлтүүрээ өөрчилж үзнэ үү, эсвэл ' : ''}<b style="display:inline">+ ${isJ ? 'Шинэ ажил' : 'Шинэ үнийн санал'}</b> товчоор эхэлнэ.</div>` : st.view === 'kanban' ? erpKanban(R, v) : erpTable(R, v, RP)}</div>`;
   /* bindings */
   const go = j => { J.sel = j.id; J.sub = isQ(j) ? 'quote' : 'main'; if (!isQ(j) && v === 'quotes') { setModule('jobs'); J.sel = j.id; } renderJobs(); const m = $('#jobsMain'); if (m) m.scrollTop = 0; erpNav(); };
   el.querySelector('#erpNew').addEventListener('click', () => { const j = isJ ? newJob() : newQuote(); J.sel = j.id; J.sub = isJ ? 'main' : 'quote'; save(); renderJobs(); });
   el.querySelector('#erpImp').addEventListener('click', () => { const f = $('#qImpIn'); if (f) f.click(); });
-  const qi = el.querySelector('#erpQ'); let tm; qi.addEventListener('input', () => { clearTimeout(tm); tm = setTimeout(() => { st.q = qi.value; erpList(el, v); const n = el.querySelector('#erpQ'); n.focus(); n.setSelectionRange(n.value.length, n.value.length); }, 220); });
-  qi.addEventListener('keydown', e => { if (e.key === 'Backspace' && !qi.value && st.f.length) { st.f.pop(); evSave(); erpList(el, v); el.querySelector('#erpQ').focus(); } });
-  el.querySelectorAll('[data-f]').forEach(b => b.addEventListener('click', () => { const k = b.dataset.f, i = st.f.indexOf(k); if (i >= 0) st.f.splice(i, 1); else st.f.push(k); evSave(); erpList(el, v); }));
-  el.querySelectorAll('[data-unf]').forEach(b => b.addEventListener('click', () => { st.f = st.f.filter(k => k !== b.dataset.unf); evSave(); erpList(el, v); }));
-  el.querySelectorAll('[data-ung]').forEach(b => b.addEventListener('click', () => { st.g = ''; evSave(); erpList(el, v); }));
-  el.querySelector('#erpG').addEventListener('change', e => { st.g = e.target.value; evSave(); erpList(el, v); });
+  const qi = el.querySelector('#erpQ'); let tm; qi.addEventListener('input', () => { clearTimeout(tm); tm = setTimeout(() => { st.q = qi.value; st.pg = 0; erpList(el, v); const n = el.querySelector('#erpQ'); n.focus(); n.setSelectionRange(n.value.length, n.value.length); }, 220); });
+  qi.addEventListener('keydown', e => { if (e.key === 'Backspace' && !qi.value && st.f.length) { st.f.pop(); st.pg = 0; evSave(); erpList(el, v); el.querySelector('#erpQ').focus(); } });
+  el.querySelectorAll('[data-f]').forEach(b => b.addEventListener('click', () => { const k = b.dataset.f, i = st.f.indexOf(k); if (i >= 0) st.f.splice(i, 1); else st.f.push(k); st.pg = 0; evSave(); erpList(el, v); }));
+  el.querySelectorAll('[data-unf]').forEach(b => b.addEventListener('click', () => { st.f = st.f.filter(k => k !== b.dataset.unf); st.pg = 0; evSave(); erpList(el, v); }));
+  el.querySelectorAll('[data-ung]').forEach(b => b.addEventListener('click', () => { st.g = ''; evSave(); st.pg = 0; erpList(el, v); }));
+  el.querySelector('#erpG').addEventListener('change', e => { st.g = e.target.value; st.pg = 0; evSave(); erpList(el, v); });
   el.querySelectorAll('[data-view]').forEach(b => b.addEventListener('click', () => { st.view = b.dataset.view; evSave(); erpList(el, v); }));
-  el.querySelectorAll('[data-sort]').forEach(th => th.addEventListener('click', () => { const k = th.dataset.sort; st.sort = st.sort === k ? '-' + k : k; evSave(); erpList(el, v); }));
+  el.querySelectorAll('[data-sort]').forEach(th => th.addEventListener('click', () => { const k = th.dataset.sort; st.sort = st.sort === k ? '-' + k : k; st.pg = 0; evSave(); erpList(el, v); }));
   el.querySelectorAll('tr.grp').forEach(tr => tr.addEventListener('click', () => { ERP.fold = ERP.fold || {}; ERP.fold[tr.dataset.gk] = !ERP.fold[tr.dataset.gk]; erpList(el, v); }));
   el.querySelectorAll('[data-rec]').forEach(r => r.addEventListener('click', () => go(findJob(r.dataset.rec))));
+  el.querySelectorAll('[data-lpg]').forEach(b => b.addEventListener('click', () => { st.pg = (+st.pg || 0) + +b.dataset.lpg; erpList(el, v); const m = el.closest('.main') || el; m.scrollTop = 0; }));
+  el.querySelectorAll('[data-kmore]').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); ERP.kmore = ERP.kmore || {}; ERP.kmore[b.dataset.kmore] = (ERP.kmore[b.dataset.kmore] || 40) + 80; erpList(el, v); }));
   /* kanban drag → status */
   el.querySelectorAll('.erp-card').forEach(c => { c.draggable = true; c.addEventListener('dragstart', e => { e.dataTransfer.setData('text/plain', c.dataset.rec); c.classList.add('dragging'); }); c.addEventListener('dragend', () => c.classList.remove('dragging')); });
   el.querySelectorAll('.erp-kcol').forEach(col => { col.addEventListener('dragover', e => { e.preventDefault(); col.classList.add('drop'); }); col.addEventListener('dragleave', () => col.classList.remove('drop'));
@@ -16361,7 +16498,8 @@ const ERP_COLS = {
   quotes: [['no', 'Санал №'], ['date', 'Огноо'], ['customer', 'Захиалагч'], ['title', 'Ажлын нэр'], ['owner', 'Хариуцагч'], ['until', 'Хүчинтэй'], ['amount', 'Дүн (НӨАТ-гүй), ₮', 'r'], ['margin', 'Margin', 'r'], ['st', 'Төлөв']]
 };
 function erpGroupKey(r, g) { if (g === 'status' || g === 'qst') return r.stn; if (g === 'customer') return r.customer || '— захиалагчгүй —'; if (g === 'owner') return r.owner || '— хариуцагчгүй —'; if (g === 'month') return String(r.date || '').slice(0, 7) || '— огноогүй —'; return ''; }
-function erpTable(R, v) {
+function erpTable(R, v, RP) {
+  RP = RP || R;
   const st = EV[v], C = ERP_COLS[v], so = st.sort || '', sk = so.replace(/^-/, '');
   const cell = (r, k) => {
     if (k === 'no') return `<td class="no">${esc(r.no)}</td>`;
@@ -16382,18 +16520,19 @@ function erpTable(R, v) {
   let body = '';
   if (st.g) { const G = new Map(); R.forEach(r => { const k = erpGroupKey(r, st.g); if (!G.has(k)) G.set(k, []); G.get(k).push(r); });
     const order = st.g === 'status' ? JST.map(x => x[1]) : st.g === 'qst' ? QST.map(x => x[1]) : [...G.keys()].sort();
-    order.filter(k => G.has(k)).forEach(k => { const A = G.get(k), fold = ERP.fold && ERP.fold[k]; body += `<tr class="grp" data-gk="${esc(k)}"><td colspan="${C.length - 3}">${fold ? '▸' : '▾'} ${esc(k)}<span class="cnt">(${A.length})</span></td><td colspan="3" class="r num">${erpM(sum(A))}</td></tr>` + (fold ? '' : A.map(row).join('')); });
-  } else body = R.map(row).join('');
+    const inP = new Set(RP.map(r => r.j.id));
+    order.filter(k => G.has(k)).forEach(k => { const A = G.get(k).filter(r => inP.has(r.j.id)); if (!A.length) return; const AA = G.get(k); fold = ERP.fold && ERP.fold[k]; body += `<tr class="grp" data-gk="${esc(k)}"><td colspan="${C.length - 3}">${fold ? '▸' : '▾'} ${esc(k)}<span class="cnt">(${AA.length})</span></td><td colspan="3" class="r num">${erpM(sum(AA))}</td></tr>` + (fold ? '' : A.map(row).join('')); });
+  } else body = RP.map(row).join('');
   return `<div class="erp-list"><table><thead><tr>${C.map(([k, n, a]) => `<th class="${a || ''}" data-sort="${k}">${esc(n)}${sk === k ? `<span class="so"> ${so[0] === '-' ? '↓' : '↑'}</span>` : ''}</th>`).join('')}</tr></thead><tbody>${body}</tbody>
     <tfoot><tr>${C.map(([k, , al], i) => `<td class="${al || ''}${k === 'amount' || k === 'inv' ? ' num' : ''}">${i === 0 ? R.length + ' бичлэг' : k === 'amount' ? erpM(sum(R)) : k === 'inv' ? erpM(R.reduce((a, r) => a + r.inv, 0)) : ''}</td>`).join('')}</tr></tfoot></table></div>`;
 }
 function erpKanban(R, v) {
   const cols = v === 'jobs' ? JST.map(([k, n]) => [k, n]) : QST.map(([k, n]) => [k, n]);
   const colC = { new: '#98a2b3', nest: '#2e90fa', cut: '#f79009', weld: '#7a5af8', done: '#12b76a', given: '#667085', draft: '#98a2b3', sent: '#2e90fa', won: '#12b76a', lost: '#f04438' };
-  return `<div class="erp-kanban">${cols.map(([k, n]) => { const A = R.filter(r => r.st === k); return `<div class="erp-kcol" data-col="${k}"><div class="erp-kh"><span>${esc(n)}</span><span class="cnt">${A.length}</span><span class="sum">${A.length ? erpM(A.reduce((a, r) => a + r.amount, 0)) : ''}</span></div><span class="erp-kh bar" style="background:${colC[k] || '#98a2b3'}"></span>
+  return `<div class="erp-kanban">${cols.map(([k, n]) => { const A0 = R.filter(r => r.st === k), lim = (ERP.kmore && ERP.kmore[k]) || 40, A = A0.slice(0, lim); return `<div class="erp-kcol" data-col="${k}"><div class="erp-kh"><span>${esc(n)}</span><span class="cnt">${A0.length}</span><span class="sum">${A0.length ? erpM(A0.reduce((a, r) => a + r.amount, 0)) : ''}</span></div><span class="erp-kh bar" style="background:${colC[k] || '#98a2b3'}"></span>
     ${A.map(r => { const lt = (r.due && r.due < today() && !['done', 'given'].includes(r.st)) || (r.until && r.until < today() && ['draft', 'sent'].includes(r.st));
       return `<div class="erp-card" data-rec="${r.j.id}"><span class="no">${esc(r.no)}</span><div class="t">${esc(r.title || '—')}</div><div class="c">${esc(r.customer || '')}</div>${v === 'jobs' ? `<div class="erp-prog"><i><b style="width:${Math.round(r.pct)}%"></b></i><span>${Math.round(r.pct)}%</span></div>` : ''}
-        <div class="ft">${r.owner ? erpAv(r.owner) : ''}<span class="${lt ? 'late' : ''}">${esc(v === 'jobs' ? (r.due ? '⏱ ' + r.due : '') : (r.until ? 'хүчинтэй ' + r.until : ''))}</span><span class="amt">${r.amount ? erpM(r.amount) : ''}</span></div></div>`; }).join('')}</div>`; }).join('')}</div>`;
+        <div class="ft">${r.owner ? erpAv(r.owner) : ''}<span class="${lt ? 'late' : ''}">${esc(v === 'jobs' ? (r.due ? '⏱ ' + r.due : '') : (r.until ? 'хүчинтэй ' + r.until : ''))}</span><span class="amt">${r.amount ? erpM(r.amount) : ''}</span></div></div>`; }).join('')}${A0.length > A.length ? `<button class="btn sm ghost erp-kmore" data-kmore="${k}">+ ${A0.length - A.length} илүү</button>` : ''}</div>`; }).join('')}</div>`;
 }
 /* change a quote / job stage from the status bar or a kanban drop */
 function erpSetStage(j, k, after) {
@@ -16507,8 +16646,16 @@ function erpHome(el) {
   const me = pName(S.me), h = new Date().getHours(), greet = h < 12 ? 'Өглөөний мэнд' : h < 18 ? 'Өдрийн мэнд' : 'Оройн мэнд', cnt = erpCounts();
   const kpi = (k, v2, s, go, cls = '') => `<button class="erp-kpi ${cls}" data-go="${go}"><span class="k">${k}</span><span class="v">${v2}</span><span class="s">${s}</span></button>`;
   const al = (arr, f, empty) => `<div class="erp-al">${arr.length ? arr.slice(0, 8).map(f).join('') : `<div class="none">${empty}</div>`}</div>`;
-  el.innerHTML = `<div class="erp-home">
-    <div class="erp-hi"><h1>${greet}${me ? ', ' + esc(me) : ''}</h1><span>${today()} · Kh International</span></div>
+  const myT = TK.filter(t => t.assignee && t.assignee === S.me), myJ = act.filter(j => j.owner && j.owner === S.me && j.due && j.due <= addDays(today(), 7)), myOps = [];
+  if (typeof mos === 'function') mos().filter(m => ['plan', 'run'].includes(m.status)).forEach(m => (m.ops || []).forEach(o => { if (o.who && o.who === S.me && o.st !== 'done') myOps.push({ m, o }); }));
+  const lateMO = typeof mfSchedule === 'function' ? (() => { const SC = mfSchedule(); return mos().filter(m => SC.M[m.id] && SC.M[m.id].late); })() : [], openNCR = typeof ncrs === 'function' ? ncrs().filter(n => n.st !== 'closed') : [];
+  const ag = [...myT.map(t => ({ d: t.due || '9999', h: `<button data-task="${t.id}"><span class="erp-b s-${t.status === 'doing' ? 'cut' : 'draft'}">${t.status === 'doing' ? 'хийгдэж буй' : 'даалгавар'}</span><span class="t">${esc(t.title || '(гарчиггүй)')}</span><span class="r${t.due && t.due < today() ? ' bad' : ''}">${esc(t.due || '')}</span></button>` })),
+    ...myJ.map(j => ({ d: j.due, h: `<button data-job="${j.id}"><span class="erp-b s-${j.status}">${esc(jstName(j.status))}</span><span class="t"><b class="mono">${esc(j.no)}</b> ${esc(j.title || '')}</span><span class="r${j.due < today() ? ' bad' : ''}">⏱ ${esc(j.due)}</span></button>` })),
+    ...myOps.map(({ m, o }) => ({ d: '0', h: `<button data-mo="${m.id}"><span class="erp-b s-${o.st === 'run' ? 'cut' : 'sent'}">${o.st === 'run' ? 'хийгдэж буй' : 'үйлдэл'}</span><span class="t"><b class="mono">${esc(m.no)}</b> ${esc(o.name)}</span><span class="r">${esc(machName(o.mach) || '')}</span></button>` }))].sort((x, y) => x.d.localeCompare(y.d));
+  el.innerHTML = `<div class="erp-home erp-home2">
+    <div class="eh-top"><div class="erp-hi"><h1>${greet}${me ? ', ' + esc(me) : ''}</h1><span>${['Ням', 'Даваа', 'Мягмар', 'Лхагва', 'Пүрэв', 'Баасан', 'Бямба'][new Date().getDay()]} · ${today()} · Kh International</span></div>
+      <div class="eh-pills"><span class="eh-pill"><b>${mineTodos('today').length}</b> TODO өнөөдөр</span><span class="eh-pill"><b>${ag.length}</b> надад оноогдсон</span>${late.length ? `<span class="eh-pill bad"><b>${late.length}</b> хэтэрсэн ажил</span>` : ''}</div></div>
+    <div class="eh-grid"><div class="eh-main">
     <div class="erp-appsrow">${ERP_APPS.filter(a => a.k !== 'home').map(a => `<button class="erp-tile" data-app="${a.k}"><i style="background:${a.c}">${erpIcon(a.ic)}</i><b>${esc(a.n)}</b><small>${esc(cnt[a.k] || '')}</small></button>`).join('')}</div>
     <div class="erp-kpis">
       ${kpi('Нээлттэй үнийн санал', `${QO.length}`, `${erpM(QO.reduce((a, j) => a + qv(j), 0))} ₮ нийт`, 'quotes')}
@@ -16520,14 +16667,21 @@ function erpHome(el) {
       ${kpi('Дутуу бараа', `${low.length}`, low.slice(0, 3).map(i => i.name).join(', ') || 'бүгд хүрэлцээтэй', 'stock', low.length ? 'bad' : '')}
       ${kpi('Нээлттэй даалгавар', `${TK.length}`, `${TK.filter(t => t.status === 'doing').length} хийгдэж буй`, 'team')}
     </div>
+    <div class="erp-panel"><h3>Миний ажил — надад оноогдсон<span class="cnt">${ag.length}</span></h3>${al(ag, x => x.h, 'Танд оноогдсон даалгавар, 7 хоногт дуусах ажил, цехийн үйлдэл алга. (Хариуцагч / гүйцэтгэгчээр таныг сонгосон зүйлс энд гарна.)')}</div>
     <div class="erp-cols">
       <div class="erp-panel"><h3>Анхаарах: хугацаа хэтэрсэн ажил<span class="cnt">${late.length}</span></h3>${al(late.sort((a, b) => a.due.localeCompare(b.due)), j => `<button data-job="${j.id}"><span class="erp-b s-${j.status}">${esc(jstName(j.status))}</span><span class="t"><b class="mono">${esc(j.no)}</b> ${esc(j.title || '')} <span class="muted">· ${esc(j.customer || '')}</span></span><span class="r bad">${-daysLeft(j.due)} хоног</span></button>`, 'Хугацаа хэтэрсэн ажил алга 👍')}</div>
       <div class="erp-panel"><h3>Төлбөр хүлээгдэж буй нэхэмжлэх<span class="cnt">${RC.length}</span></h3>${al(RC.slice().sort((a, b) => (b.st[0] === 'late') - (a.st[0] === 'late') || String(a.i.due || '').localeCompare(String(b.i.due || ''))), r => `<button data-inv="${r.i.id}"><span class="erp-b s-${r.st[0]}">${esc(r.st[1])}</span><span class="t"><b class="mono">${esc(r.i.no || '')}</b> ${esc((r.job && r.job.customer) || (r.i.bill && r.i.bill.company) || '')}</span><span class="r${r.st[0] === 'late' ? ' bad' : ''}">${erpM(r.left)} ₮</span></button>`, 'Авлага алга')}</div>
       <div class="erp-panel"><h3>Хүлээгдэж буй үнийн санал<span class="cnt">${QO.length}</span></h3>${al(QO.slice().sort((a, b) => String(b.quote.date || '').localeCompare(String(a.quote.date || ''))), j => { const ex = expQ.includes(j); return `<button data-job="${j.id}"><span class="erp-b s-${j.qst || 'draft'}">${esc((QST.find(x => x[0] === (j.qst || 'draft')) || [, ''])[1])}</span><span class="t"><b class="mono">${esc(j.quote.no || j.no)}</b> ${esc(j.title || '')} <span class="muted">· ${esc(j.customer || '')}</span></span><span class="r${ex ? ' bad' : ''}">${ex ? 'хугацаа дууссан' : erpM(qv(j)) + ' ₮'}</span></button>`; }, 'Нээлттэй санал алга')}</div>
+      ${lateMO.length || openNCR.length ? `<div class="erp-panel"><h3>Үйлдвэрлэл, чанар<span class="cnt">${lateMO.length + openNCR.length}</span></h3>${al([...lateMO.map(m => `<button data-mo="${m.id}"><span class="erp-b s-late">хоцорно</span><span class="t"><b class="mono">${esc(m.no)}</b> ${esc(m.item || '')}</span><span class="r bad">${esc(m.due || '')}</span></button>`), ...openNCR.map(n => `<button data-ncr="${n.id}"><span class="erp-b s-late">NCR</span><span class="t"><b class="mono">${esc(n.no)}</b> ${esc(String(n.desc || '').slice(0, 60))}</span><span class="r">${esc(n.caDue || n.date)}</span></button>`)], x => x, '')}</div>` : ''}
       <div class="erp-panel"><h3>Дутуу бараа (агуулах)<span class="cnt">${low.length}</span></h3>${al(low, i => `<button data-go="stock"><span class="erp-b s-late">дутуу</span><span class="t">${esc(i.name || '')}</span><span class="r bad">${nf(+i.qty || 0, 1)} / ${nf(+i.min || 0, 1)} ${esc(i.unit || '')}</span></button>`, 'Доод үлдэгдлээс доош бараа алга')}</div>
     </div>
     <details class="erp-panel" style="padding:0 16px 16px"><summary style="padding:12px 0;cursor:pointer;font-weight:600">Дэлгэрэнгүй тойм — борлуулалт, авлага, ажлын төсөв</summary><div class="erp-oldash" id="erpOldDash"></div></details>
+    </div><aside class="eh-side" id="ehSide"></aside></div>
   </div>`;
+  { const side = el.querySelector('#ehSide'); const draw = () => { side.innerHTML = mineTodoHTML() + mineNotesHTML(); mineBind(side, draw); }; side._draw = draw; draw(); }
+  el.querySelectorAll('[data-task]').forEach(b => b.addEventListener('click', () => { if (typeof TM !== 'undefined') TM.sel = b.dataset.task; erpGo('team'); }));
+  el.querySelectorAll('[data-mo]').forEach(b => b.addEventListener('click', () => mfGo('mo', b.dataset.mo)));
+  el.querySelectorAll('[data-ncr]').forEach(b => b.addEventListener('click', () => mfGo('ncr', b.dataset.ncr)));
   el.querySelectorAll('[data-app]').forEach(b => b.addEventListener('click', () => { const a = ERP_APPS.find(x => x.k === b.dataset.app); erpGo(a.items[0][0]); }));
   el.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => { const g = b.dataset.go; if (g === 'jobs:late') { EV.jobs.f = ['active', 'late']; EV.jobs.view = 'list'; evSave(); erpGo('jobs'); } else erpGo(g); }));
   el.querySelectorAll('[data-job]').forEach(b => b.addEventListener('click', () => { const j = findJob(b.dataset.job); setModule(isQ(j) ? 'quotes' : 'jobs'); J.sel = j.id; J.sub = isQ(j) ? 'quote' : 'main'; renderJobs(); erpNav(); }));
@@ -16551,6 +16705,7 @@ function erpBuild() {
   const h2 = document.createElement('div'); h2.className = 'ddh'; h2.textContent = 'Өгөгдөл, төсөл'; dd.appendChild(h2);
   ['#btnDataDir', '#jobName', '#btnOpenProj', '#btnSaveProj'].forEach(s => { const n = $(s); if (n) dd.appendChild(n); });
   const iso = document.createElement('button'); iso.className = 'btn ghost'; iso.textContent = 'ISO маягтын код, операторууд, лого'; iso.addEventListener('click', erpIsoDlg); dd.appendChild(iso);
+  { const ch = $('#btnChat'), mb = document.createElement('button'); mb.className = 'btn sm ghost'; mb.id = 'btnMine'; mb.type = 'button'; mb.title = 'Миний TODO ба тэмдэглэл (Ctrl+Shift+T)'; mb.innerHTML = '📝 Миний жагсаалт<span class="cnt" hidden></span>'; mb.addEventListener('click', () => mineDrawer()); if (ch && ch.parentNode) ch.parentNode.insertBefore(mb, ch); else acts.insertBefore(mb, acts.firstChild); if (typeof mineBadge === 'function') mineBadge(); }
   acts.appendChild(more);
   const user = document.createElement('button'); user.className = 'erp-user'; user.id = 'erpUser'; acts.appendChild(user);
   const upUser = () => { const n = pName(S.me); user.textContent = erpInit2(n || 'KH'); user.title = n ? `${n} — солих` : 'Би хэн бэ? — Баг хэсгээс нэрээ сонгоно'; user.style.background = n ? erpAvColor(n) : ''; };
