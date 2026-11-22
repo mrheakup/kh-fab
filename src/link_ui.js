@@ -88,7 +88,9 @@ const MOB = {
     const jobs = (S.jobs || []).filter(j => !isQ(j) && !['given'].includes(j.status)).map(j => { jx(j); return { id: j.id, no: j.no, title: j.title || '', customer: j.customer || '', due: j.due || '', status: jstName(j.status), stages: j.scope.stages.map((s, i) => ({ i, name: s.name, pct: +s.pct || 0 })) }; });
     const I = IS(), M = I.machines.map(m => ({ id: m.id, no: m.no, name: m.name, role: m.role || 'оператор', items: m.items.map(x => Array.isArray(x) ? (x[1] || x[0]) : String(x)) }));
     const chat = chatMsgs().slice().sort((a, b) => a.t.localeCompare(b.t)).slice(-200).map(m => ({ id: m.id, ch: m.ch, who: m.who, t: m.t, text: m.text, ph: !!m.src }));
-    return { jobs, chat, machines: M, people: people().filter(p => p.active !== false).map(p => p.name), concl: INSP_CONCL, company: company().name, date: today() };
+    const MO = typeof mos === 'function' ? mos().filter(m => ['plan', 'run'].includes(m.status)).map(m => ({ id: m.id, no: m.no, jobId: m.job || '', job: mfJobTxt(m.job), item: m.item || '', qty: +m.qty || 1, unit: m.unit || 'ш', due: m.due || '', prio: m.prio || 'n', note: m.note || '',
+      ops: (m.ops || []).map((o, i) => ({ id: o.id, i, name: o.name || '', mach: machName(o.mach) || 'Гар ажил', st: o.st || 'wait', who: pName(o.who) || '', plan: +mfH(opPlanH(o, m)) || 0, act: Math.round(opActH(o) * 10) / 10, hold: o.hold || '', ready: i === 0 || (m.ops[i - 1] || {}).st === 'done' })) })) : [];
+    return { mos: MO, jobs, chat, machines: M, people: people().filter(p => p.active !== false).map(p => p.name), concl: INSP_CONCL, company: company().name, date: today() };
   },
   progress(b) { const j = findJob(b.job); if (!j) throw new Error('Ажил олдсонгүй'); jx(j); const s = j.scope.stages[+b.stage]; if (!s) throw new Error('Үе шат олдсонгүй'); const o = +s.pct || 0; s.pct = Math.max(0, Math.min(100, Math.round(+b.pct || 0))); jobLog(`📱 ${b.who || 'Утас'}: «${s.name}» ${o}% → ${s.pct}%${b.note ? ' — ' + b.note : ''}`, j); if (b.note && b.needs) { j.need = b.note; } jobAdvance(j, 'утаснаас'); save(); setTimeout(mobRefresh, 50); return { ok: true, pct: s.pct }; },
   async photo(b) { const j = findJob(b.job); if (!j) throw new Error('Ажил олдсонгүй'); const bin = atob(String(b.data).split(',')[1] || ''), u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); const f = new File([u], b.name || `photo-${Date.now()}.jpg`, { type: 'image/jpeg' }); await jobFilesAdd(j, [f]); jobLog(`📱 ${b.who || 'Утас'}: зураг нэмсэн${b.note ? ' — ' + b.note : ''}`, j); save(); setTimeout(mobRefresh, 50); return { ok: true }; },
@@ -96,9 +98,16 @@ const MOB = {
     const rec = { id: uid(), mid: m.id, date: b.date || today(), shift: b.shift || (new Date().getHours() < 14 ? 'am' : 'pm'), res, notes: m.items.map((_, i) => (b.notes || [])[i] || ''), concl: b.concl || (bad ? 'fix' : res.every(v => v === 'ok') ? 'ok' : ''), by: b.by, chk: b.chk || '', note: (b.note || '') + ' (утаснаас)' };
     I.recs.push(rec); save(); setTimeout(mobRefresh, 50); return { ok: true, bad: res.filter(v => v === 'bad').length }; },
   chat(b) { if (!String(b.who || '').trim()) throw new Error('Нэрээ сонгоно уу'); const ch = b.ch === 'general' || findJob(b.ch) ? b.ch : 'general'; const m = chatPost(ch, b.text, b.who, 'phone'); if (!m) throw new Error('Хоосон мессеж'); setTimeout(() => { try { chatTick(); } catch (e) { } }, 50); return { ok: true, id: m.id }; },
+  opset(b) {
+    const who = String(b.who || '').trim(); if (!who) throw new Error('Нэрээ сонгоно уу'); const mo = (typeof mos === 'function' ? mos() : []).find(m => m.id === b.mo); if (!mo) throw new Error('Үйлдвэрлэлийн захиалга олдсонгүй');
+    const op = (mo.ops || []).find(o => o.id === b.op); if (!op) throw new Error('Үйлдэл олдсонгүй'); if (!['run', 'pause', 'done', 'note'].includes(b.st)) throw new Error('bad state');
+    const p = people().find(x => lc(x.name) === lc(who)); if (p && b.st !== 'note' && (b.st === 'run' || !op.who)) op.who = p.id;
+    if (b.st !== 'note') opSetSt(mo, op, b.st, { remote: 1, who }); if (b.note) { mfLog(mo, `📱 ${who}: ${op.name} — ${b.note}`); const j = mo.job && findJob(mo.job); if (j) jobLog(`📱 ${who} (${mo.no} · ${op.name}): ${b.note}`, j); }
+    save(); setTimeout(mobRefresh, 50); return { ok: true, st: op.st, act: Math.round(opActH(op) * 10) / 10 };
+  },
   note(b) { const j = findJob(b.job); if (!j) throw new Error('Ажил олдсонгүй'); j.need = String(b.text || '').trim(); jobLog(`📱 ${b.who || 'Утас'}: ${j.need}`, j); save(); setTimeout(mobRefresh, 50); return { ok: true }; }
 };
-function mobRefresh() { try { const cur = (document.querySelector('.modtabs button.on') || {}).dataset?.mod; if (['jobs', 'dash', 'plan', 'insp'].includes(cur)) setModule(cur); } catch (e) { } }
+function mobRefresh() { try { const cur = (document.querySelector('.modtabs button.on') || {}).dataset?.mod; if (['jobs', 'dash', 'plan', 'insp', 'mfg'].includes(cur)) setModule(cur); } catch (e) { } }
 if (window.kh && window.kh.onMobileReq) window.kh.onMobileReq(async r => { try { const f = MOB[r.type]; if (!f) throw new Error('unknown'); const d = await f(r.body || {}); window.kh.mobileRes(r.id, d); } catch (e) { window.kh.mobileRes(r.id, { error: e.message }); } });
 if (window.kh && window.kh.onMobileErr) window.kh.onMobileErr(m => toast('📱 Утасны холболт асаасангүй: ' + m + ' (порт эзэлсэн бол өөр порт сонгоно уу)', 8000));
 

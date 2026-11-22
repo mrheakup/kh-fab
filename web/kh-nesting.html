@@ -820,6 +820,19 @@ html[data-var="erp"][data-dens] .erp-card{padding:7px 9px}
 .md-h{display:flex;align-items:center;padding:10px 14px;background:var(--surface);border-bottom:1px solid var(--line)}.md-h .sp{flex:1}.md-x{border:0;background:transparent;font-size:22px;cursor:pointer;color:var(--ink-3);line-height:1}
 .md-b{overflow:auto;padding:12px;display:grid;gap:12px;align-content:start}
 html[data-theme="dark"] .nt-card textarea{color:#1f2328}
+/* purchasing */
+.mf-tot{display:flex;gap:22px;justify-content:flex-end;align-items:baseline;margin-top:10px;font-size:13px;color:var(--ink-2)}.mf-tot b{color:var(--ink);margin-left:6px}.mf-tot .big{font-size:15px}.mf-tot .big b{font-size:18px}
+.po-dlg{position:fixed;inset:0;background:rgba(16,24,40,.45);z-index:90;display:grid;place-items:center;padding:20px}
+.po-dlgb{background:var(--surface);border-radius:10px;width:min(980px,100%);max-height:90vh;display:grid;grid-template-rows:auto minmax(0,1fr) auto;box-shadow:0 20px 50px rgba(16,24,40,.3);overflow:hidden}
+.po-dlgc{overflow:auto;padding:14px 16px;display:grid;gap:10px;align-content:start}.po-dlgc input{border:1px solid var(--line);border-radius:5px;padding:5px 7px;font:inherit;background:var(--surface);color:var(--ink)}
+.po-dlgf{display:flex;justify-content:flex-end;gap:8px;padding:10px 16px;border-top:1px solid var(--line);background:var(--surface-2)}
+.dt td .ok{color:var(--ok);font-weight:700}
+/* reports */
+.rp-bars{display:grid;gap:4px}.rp-bar{display:grid;grid-template-columns:150px minmax(0,1fr) 110px;gap:10px;align-items:center;font-size:12.5px}.rp-bar .n{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.rp-bar .b{height:16px;background:var(--surface-2);border-radius:3px;position:relative;overflow:hidden}.rp-bar .b i{position:absolute;left:0;top:0;bottom:0;background:var(--accent);border-radius:3px}.rp-bar .b i.neg{background:var(--bad)}.rp-bar .v{text-align:right;font-family:var(--f-mono,monospace)}
+.rp-chart{width:100%;height:auto;display:block}.rp-chart text{font:11px var(--f-ui);fill:var(--ink-3)}.rp-leg{display:flex;gap:14px;font-size:12px;color:var(--ink-2);margin-top:6px}.rp-leg i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.rp-filt{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.rp-filt select,.rp-filt input{border:1px solid var(--line);border-radius:5px;padding:5px 8px;font:inherit;font-size:13px;background:var(--surface);color:var(--ink)}
+.rp-pos{color:var(--ok)}.rp-neg{color:var(--bad)}
+.mf-util th.fut,.mf-util td.fut{color:var(--ink-3);background-color:var(--surface-2)}
 
 </style>
 
@@ -832,6 +845,8 @@ html[data-theme="dark"] .nt-card textarea{color:#1f2328}
       <button data-mod="quotes" role="tab" title="Үнийн санал бэлдэх, илгээх, ажил болгох"><svg class="mico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg>Үнийн санал</button>
       <button data-mod="jobs" role="tab" title="Ажлын scope, үйлдвэрлэл, явц, зардал, хүлээлгэх"><svg class="mico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18"/></svg>Ажил</button>
       <span class="mgrp">Үйлдвэрлэл</span>
+      <button data-mod="po" role="tab" title="Худалдан авалт, хэрэгцээ, нийлүүлэгч">🛒 Худалдан авалт</button>
+      <button data-mod="rep" role="tab" title="Ашиг, борлуулалт, машины ашиглалт">📊 Тайлан</button>
       <button data-mod="mfg" role="tab" title="Үйлдвэрлэлийн захиалга, ажлын байр, чанарын шалгалт, NCR, мөшгөлт (ISO 9001)"><svg class="mico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>Үйлдвэрлэл · чанар</button>
       <button data-mod="plan" role="tab" title="Бүх ажлын Gantt хуваарь, машин/постын ачаалал"><svg class="mico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5h8M3 12h13M3 19h6"/><rect x="13" y="3" width="8" height="4" rx="1"/><rect x="17" y="10" width="4" height="4" rx="1"/><rect x="11" y="17" width="7" height="4" rx="1"/></svg>Төлөвлөгөө</button>
       <button data-mod="stock" role="tab" title="Агуулах: үлдэгдэл, орлого, ажилд зарлага, тооллого"><svg class="mico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l9-5 9 5v11H3z"/><path d="M7 20v-7h10v7M7 16h10"/></svg>Агуулах</button>
@@ -1324,6 +1339,10 @@ html[data-theme="dark"] .nt-card textarea{color:#1f2328}
     </div>
   </aside>
   <main class="main" id="rollMain" hidden></main>
+  <aside class="side" id="poSide" hidden><div class="ptitle">Худалдан авалт<small>PO · хэрэгцээ · нийлүүлэгч</small></div><div class="panel-body"><div id="poList" class="plist"></div></div></aside>
+  <main class="main" id="poMain" hidden></main>
+  <aside class="side" id="repSide" hidden><div class="ptitle">Тайлан<small>ашиг · борлуулалт · машин</small></div><div class="panel-body"><div id="repList" class="plist"></div></div></aside>
+  <main class="main" id="repMain" hidden></main>
   <aside class="side" id="mfgSide" hidden>
     <div class="ptitle">Үйлдвэрлэл · чанар<small>MO · ажлын байр · QC · NCR · мөшгөлт</small></div>
     <div class="panel-body"><div id="mfgList" class="plist"></div></div>
@@ -15255,7 +15274,9 @@ const MOB = {
     const jobs = (S.jobs || []).filter(j => !isQ(j) && !['given'].includes(j.status)).map(j => { jx(j); return { id: j.id, no: j.no, title: j.title || '', customer: j.customer || '', due: j.due || '', status: jstName(j.status), stages: j.scope.stages.map((s, i) => ({ i, name: s.name, pct: +s.pct || 0 })) }; });
     const I = IS(), M = I.machines.map(m => ({ id: m.id, no: m.no, name: m.name, role: m.role || 'оператор', items: m.items.map(x => Array.isArray(x) ? (x[1] || x[0]) : String(x)) }));
     const chat = chatMsgs().slice().sort((a, b) => a.t.localeCompare(b.t)).slice(-200).map(m => ({ id: m.id, ch: m.ch, who: m.who, t: m.t, text: m.text, ph: !!m.src }));
-    return { jobs, chat, machines: M, people: people().filter(p => p.active !== false).map(p => p.name), concl: INSP_CONCL, company: company().name, date: today() };
+    const MO = typeof mos === 'function' ? mos().filter(m => ['plan', 'run'].includes(m.status)).map(m => ({ id: m.id, no: m.no, jobId: m.job || '', job: mfJobTxt(m.job), item: m.item || '', qty: +m.qty || 1, unit: m.unit || 'ш', due: m.due || '', prio: m.prio || 'n', note: m.note || '',
+      ops: (m.ops || []).map((o, i) => ({ id: o.id, i, name: o.name || '', mach: machName(o.mach) || 'Гар ажил', st: o.st || 'wait', who: pName(o.who) || '', plan: +mfH(opPlanH(o, m)) || 0, act: Math.round(opActH(o) * 10) / 10, hold: o.hold || '', ready: i === 0 || (m.ops[i - 1] || {}).st === 'done' })) })) : [];
+    return { mos: MO, jobs, chat, machines: M, people: people().filter(p => p.active !== false).map(p => p.name), concl: INSP_CONCL, company: company().name, date: today() };
   },
   progress(b) { const j = findJob(b.job); if (!j) throw new Error('Ажил олдсонгүй'); jx(j); const s = j.scope.stages[+b.stage]; if (!s) throw new Error('Үе шат олдсонгүй'); const o = +s.pct || 0; s.pct = Math.max(0, Math.min(100, Math.round(+b.pct || 0))); jobLog(`📱 ${b.who || 'Утас'}: «${s.name}» ${o}% → ${s.pct}%${b.note ? ' — ' + b.note : ''}`, j); if (b.note && b.needs) { j.need = b.note; } jobAdvance(j, 'утаснаас'); save(); setTimeout(mobRefresh, 50); return { ok: true, pct: s.pct }; },
   async photo(b) { const j = findJob(b.job); if (!j) throw new Error('Ажил олдсонгүй'); const bin = atob(String(b.data).split(',')[1] || ''), u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); const f = new File([u], b.name || `photo-${Date.now()}.jpg`, { type: 'image/jpeg' }); await jobFilesAdd(j, [f]); jobLog(`📱 ${b.who || 'Утас'}: зураг нэмсэн${b.note ? ' — ' + b.note : ''}`, j); save(); setTimeout(mobRefresh, 50); return { ok: true }; },
@@ -15263,9 +15284,16 @@ const MOB = {
     const rec = { id: uid(), mid: m.id, date: b.date || today(), shift: b.shift || (new Date().getHours() < 14 ? 'am' : 'pm'), res, notes: m.items.map((_, i) => (b.notes || [])[i] || ''), concl: b.concl || (bad ? 'fix' : res.every(v => v === 'ok') ? 'ok' : ''), by: b.by, chk: b.chk || '', note: (b.note || '') + ' (утаснаас)' };
     I.recs.push(rec); save(); setTimeout(mobRefresh, 50); return { ok: true, bad: res.filter(v => v === 'bad').length }; },
   chat(b) { if (!String(b.who || '').trim()) throw new Error('Нэрээ сонгоно уу'); const ch = b.ch === 'general' || findJob(b.ch) ? b.ch : 'general'; const m = chatPost(ch, b.text, b.who, 'phone'); if (!m) throw new Error('Хоосон мессеж'); setTimeout(() => { try { chatTick(); } catch (e) { } }, 50); return { ok: true, id: m.id }; },
+  opset(b) {
+    const who = String(b.who || '').trim(); if (!who) throw new Error('Нэрээ сонгоно уу'); const mo = (typeof mos === 'function' ? mos() : []).find(m => m.id === b.mo); if (!mo) throw new Error('Үйлдвэрлэлийн захиалга олдсонгүй');
+    const op = (mo.ops || []).find(o => o.id === b.op); if (!op) throw new Error('Үйлдэл олдсонгүй'); if (!['run', 'pause', 'done', 'note'].includes(b.st)) throw new Error('bad state');
+    const p = people().find(x => lc(x.name) === lc(who)); if (p && b.st !== 'note' && (b.st === 'run' || !op.who)) op.who = p.id;
+    if (b.st !== 'note') opSetSt(mo, op, b.st, { remote: 1, who }); if (b.note) { mfLog(mo, `📱 ${who}: ${op.name} — ${b.note}`); const j = mo.job && findJob(mo.job); if (j) jobLog(`📱 ${who} (${mo.no} · ${op.name}): ${b.note}`, j); }
+    save(); setTimeout(mobRefresh, 50); return { ok: true, st: op.st, act: Math.round(opActH(op) * 10) / 10 };
+  },
   note(b) { const j = findJob(b.job); if (!j) throw new Error('Ажил олдсонгүй'); j.need = String(b.text || '').trim(); jobLog(`📱 ${b.who || 'Утас'}: ${j.need}`, j); save(); setTimeout(mobRefresh, 50); return { ok: true }; }
 };
-function mobRefresh() { try { const cur = (document.querySelector('.modtabs button.on') || {}).dataset?.mod; if (['jobs', 'dash', 'plan', 'insp'].includes(cur)) setModule(cur); } catch (e) { } }
+function mobRefresh() { try { const cur = (document.querySelector('.modtabs button.on') || {}).dataset?.mod; if (['jobs', 'dash', 'plan', 'insp', 'mfg'].includes(cur)) setModule(cur); } catch (e) { } }
 if (window.kh && window.kh.onMobileReq) window.kh.onMobileReq(async r => { try { const f = MOB[r.type]; if (!f) throw new Error('unknown'); const d = await f(r.body || {}); window.kh.mobileRes(r.id, d); } catch (e) { window.kh.mobileRes(r.id, { error: e.message }); } });
 if (window.kh && window.kh.onMobileErr) window.kh.onMobileErr(m => toast('📱 Утасны холболт асаасангүй: ' + m + ' (порт эзэлсэн бол өөр порт сонгоно уу)', 8000));
 
@@ -15781,7 +15809,7 @@ const mfArr = k => (Array.isArray(S[k]) ? S[k] : (S[k] = []));
 const mos = () => mfArr('mos'), qcs = () => mfArr('qcs'), ncrs = () => mfArr('ncrs'), gauges = () => mfArr('gauges');
 function mfNo(k) { const y = today().slice(0, 4); if (!S.mfSeq || typeof S.mfSeq !== 'object') S.mfSeq = {}; const key = k + y; S.mfSeq[key] = (+S.mfSeq[key] || 0) + 1; return `${k}-${y}-${String(S.mfSeq[key]).padStart(3, '0')}`; }
 const mfLog = (o, m) => { (o.log = o.log || []).push({ t: today(), who: S.me || '', m }); };
-const mfIso = k => (S.iso && S.iso[k]) || { formMO: 'KH-PR-F01', formQC: 'KH-QC-F01', formNCR: 'KH-QC-F02', formTrace: 'KH-QC-F03', formGauge: 'KH-QC-F04' }[k] || '';
+const mfIso = k => (S.iso && S.iso[k]) || { formMO: 'KH-PR-F01', formQC: 'KH-QC-F01', formNCR: 'KH-QC-F02', formTrace: 'KH-QC-F03', formGauge: 'KH-QC-F04', formPO: 'KH-PU-F01', formSup: 'KH-PU-F02' }[k] || '';
 const mfJobs = () => topJobs().filter(j => !isQ(j));
 const mfJobTxt = id => { const j = id && findJob(id); return j ? `${j.no}${j.customer ? ' · ' + j.customer : ''}` : ''; };
 const mfB = (cls, t) => `<span class="erp-b s-${cls}">${esc(t)}</span>`;
@@ -15864,16 +15892,24 @@ function moBlockers(mo) {
   if (!mo.appr) B.push('Баталсан хүн (гаргахыг зөвшөөрөх эрхтэй) сонгогдоогүй');
   return B;
 }
-function opSetSt(mo, op, st) {
+/* actual hours of a finished operation go into the job's expenses as labour (one line per operation, kept in step) */
+function moLaborExp(mo, op) {
+  const j = mo.job && findJob(mo.job); if (!j) return; jx(j); const r = machRate(op.mach) || +S.mfRate || 25000, h = Math.round((+op.act || 0) * 100) / 100;
+  let e = j.prog.exp.find(x => x.ref === op.id); if (!h || op.st !== 'done') { if (e) j.prog.exp.splice(j.prog.exp.indexOf(e), 1); return; }
+  if (!e) { e = { ref: op.id, date: today(), cat: 'labor', stage: '' }; j.prog.exp.push(e); }
+  Object.assign(e, { desc: `${mo.no}: ${op.name} (${machName(op.mach) || 'гар ажил'})`, hours: h, amount: Math.round(h * r), who: pName(op.who) || '' });
+}
+function opSetSt(mo, op, st, o = {}) {
   const j = mo.job && findJob(mo.job);
   if (op.st === 'run' && op.t0) { op.act = Math.round(((+op.act || 0) + (Date.now() - op.t0) / 3.6e6) * 100) / 100; op.t0 = null; }
   if (st === 'run') { op.t0 = Date.now(); op.d0 = op.d0 || today(); if (!op.who && S.me) op.who = S.me; if (mo.status === 'plan' || mo.status === 'draft') { mo.status = 'run'; mfLog(mo, 'Үйлдвэрлэл эхэлсэн'); } }
   if (st === 'done') {
+    if (op.hold === 'H' && !qcs().some(q => q.mo === mo.id && q.op === op.id && ['pass', 'cond'].includes(q.res)) && o.remote) throw new Error(`«${op.name}» бол Hold цэг — чанарын шалгалт тэнцсэний дараа дуусгана. Чанарын хяналтын ажилтанд мэдэгдэнэ үү.`);
     if (op.hold === 'H' && !qcs().some(q => q.mo === mo.id && q.op === op.id && ['pass', 'cond'].includes(q.res)) && !confirm(`«${op.name}» бол Hold (зогсох) цэг. Чанарын шалгалт тэнцээгүй байна.\nЭнэ үйлдлийг дууссан гэж тэмдэглээд, дараагийнхыг шалгалтгүйгээр эхлүүлэх үү?`)) return;
     op.done = today(); op.d0 = op.d0 || today();
     if (j) { jx(j); const sg = (j.scope.stages || []).find(s => String(s.name).trim().toLowerCase() === String(op.name).trim().toLowerCase()); if (sg) sg.pct = 100; jobLog(`${mo.no}: «${op.name}» дууссан (${mfH(op.act)} цаг)`, j); }
   }
-  op.st = st; mfLog(mo, `${op.name}: ${OP_ST[st][0]}`);
+  op.st = st; mfLog(mo, `${o.remote ? '📱 ' : ''}${op.name}: ${OP_ST[st][0]}${o.who ? ' — ' + o.who : ''}`); moLaborExp(mo, op);
   if (st === 'done' && (mo.ops || []).every(o => o.st === 'done') && mo.status !== 'closed') { mo.status = 'done'; mfLog(mo, 'Бүх үйлдэл дууссан'); }
   save();
 }
@@ -15909,16 +15945,17 @@ function renderMfg() {
 const mfGo = (tab, sel) => { MF.tab = tab; MF.sel = sel || null; mfSave(); if (typeof erpOn === 'function' && erpOn() && typeof erpGo === 'function') { erpGo(tab === 'mo' ? 'mfg' : 'mfg:' + tab, { keep: 1 }); MF.sel = sel || null; renderMfg(); } else { setModule('mfg'); } };
 /* list page shell: control panel + filter chips + table */
 function mfListPage(el, o) {
+  const st = o.st || MF, rr = o.rr || renderMfg, mid = o.main || '#mfgMain';
   el.innerHTML = erpCP({ crumbs: [[o.title]], right: o.right || '',
-    row2: `<div class="erp-search">${erpIcon('search').replace('<svg', '<svg width="16" height="16" style="color:var(--ink-3);flex:none"')}<input id="mfQ" placeholder="${esc(o.ph || 'Хайх…')}" value="${esc(MF.q || '')}"></div>
-      ${o.chips ? `<div class="erp-filters">${o.chips.map(([k, n, c]) => `<button class="erp-chip${MF.f === k ? ' on' : ''}" data-mff="${k}">${esc(n)}${c != null ? ` <span class="mono">${c}</span>` : ''}</button>`).join('')}</div>` : ''}
+    row2: `<div class="erp-search">${erpIcon('search').replace('<svg', '<svg width="16" height="16" style="color:var(--ink-3);flex:none"')}<input id="mfQ" placeholder="${esc(o.ph || 'Хайх…')}" value="${esc(st.q || '')}"></div>
+      ${o.chips ? `<div class="erp-filters">${o.chips.map(([k, n, c]) => `<button class="erp-chip${st.f === k ? ' on' : ''}" data-mff="${k}">${esc(n)}${c != null ? ` <span class="mono">${c}</span>` : ''}</button>`).join('')}</div>` : ''}
       <span class="erp-pager">${o.rows.length} бичлэг</span>` }) +
     `<div class="erp-view">${o.top || ''}${o.rows.length ? `<div class="erp-list"><table><thead><tr>${o.cols.map(c => `<th class="${c[2] || ''}">${esc(c[1])}</th>`).join('')}</tr></thead><tbody>${o.rows.map(r => `<tr class="rec" data-mfr="${r.id}">${o.cols.map(c => `<td class="${c[2] || ''}">${c[3](r)}</td>`).join('')}</tr>`).join('')}</tbody>${o.foot ? `<tfoot><tr>${o.foot}</tr></tfoot>` : ''}</table></div>` : `<div class="erp-empty"><b>${esc(o.empty || 'Бичлэг алга')}</b>${esc(o.emptyHint || '')}</div>`}</div>`;
-  const qi = el.querySelector('#mfQ'); let tm; qi.addEventListener('input', () => { clearTimeout(tm); tm = setTimeout(() => { MF.q = qi.value; renderMfg(); const n = $('#mfQ'); if (n) { n.focus(); n.setSelectionRange(n.value.length, n.value.length); } }, 250); });
-  el.querySelectorAll('[data-mff]').forEach(b => b.addEventListener('click', () => { MF.f = MF.f === b.dataset.mff ? '' : b.dataset.mff; renderMfg(); }));
-  el.querySelectorAll('[data-mfr]').forEach(r => r.addEventListener('click', () => { MF.sel = r.dataset.mfr; renderMfg(); const m = $('#mfgMain'); if (m) m.scrollTop = 0; }));
+  const qi = el.querySelector('#mfQ'); let tm; qi.addEventListener('input', () => { clearTimeout(tm); tm = setTimeout(() => { st.q = qi.value; rr(); const n = $('#mfQ'); if (n) { n.focus(); n.setSelectionRange(n.value.length, n.value.length); } }, 250); });
+  el.querySelectorAll('[data-mff]').forEach(b => b.addEventListener('click', () => { st.f = st.f === b.dataset.mff ? '' : b.dataset.mff; rr(); }));
+  el.querySelectorAll('[data-mfr]').forEach(r => r.addEventListener('click', () => { st.sel = r.dataset.mfr; rr(); const m = $(mid); if (m) m.scrollTop = 0; }));
 }
-const mfMatch = (o, keys) => { const q = lc(MF.q || ''); return !q || lc(keys.join(' ')).includes(q); };
+const mfMatch = (o, keys, st) => { const q = lc((st || MF).q || ''); return !q || lc(keys.join(' ')).includes(q); };
 /* form page shell: control panel + status bar, then the body */
 function mfFormTop(o) {
   return erpCP({ crumbs: o.crumbs, right: o.right || '' }) + `<div class="erp-sbar"><div class="acts">${o.acts || ''}</div>${o.stages ? `<div class="erp-stages">${o.stages}</div>` : ''}</div>`;
@@ -16014,15 +16051,15 @@ function moForm(el, mo) {
     if (to === 'closed') { el.querySelector('#moRel') && el.querySelector('#moRel').click(); return; }
     if (to === 'plan' && !(mo.ops || []).length) { toast('Эхлээд маршрутад үйлдэл нэмнэ үү'); return; }
     if (to === 'done' && (mo.ops || []).some(o => o.st !== 'done') && !confirm('Дуусаагүй үйлдэл байна. Бүгдийг дууссан гэж тэмдэглэх үү?')) return;
-    if (to === 'done') (mo.ops || []).forEach(o => { if (o.st !== 'done') { if (o.st === 'run' && o.t0) { o.act = Math.round(((+o.act || 0) + (Date.now() - o.t0) / 3.6e6) * 100) / 100; o.t0 = null; } o.st = 'done'; o.done = today(); } });
+    if (to === 'done') (mo.ops || []).forEach(o => { if (o.st !== 'done') { if (o.st === 'run' && o.t0) { o.act = Math.round(((+o.act || 0) + (Date.now() - o.t0) / 3.6e6) * 100) / 100; o.t0 = null; } o.st = 'done'; o.done = today(); moLaborExp(mo, o); } });
     mfLog(mo, `${stOf(MO_ST, mo.status)[1]} → ${stOf(MO_ST, to)[1]}`); mo.status = to; if (to !== 'closed') { mo.relBy = ''; mo.relDate = ''; } save(); re();
   }));
   const rel = el.querySelector('#moRel'); if (rel) rel.addEventListener('click', () => {
     const B = moBlockers(mo); if (B.length) { alert('Гаргах боломжгүй (ISO 9001 §8.6):\n\n• ' + B.join('\n• ')); return; }
     mo.status = 'closed'; mo.relBy = mo.appr; mo.relDate = today(); mfLog(mo, `Гаргахыг зөвшөөрсөн: ${pName(mo.appr)}`); if (j) jobLog(`${mo.no} гаргахыг зөвшөөрсөн (${pName(mo.appr)})`, j); save(); re();
   });
-  el.querySelectorAll('[data-opst]').forEach(b => b.addEventListener('click', () => { const [i, s] = b.dataset.opst.split(':'); const o = mo.ops[+i]; if (!o) return; if (s === 'wait') { o.st = 'wait'; o.done = ''; mfLog(mo, `${o.name}: дахин нээсэн`); save(); } else opSetSt(mo, o, s); re(); }));
-  el.querySelectorAll('[data-opact]').forEach(f => f.addEventListener('change', () => { const o = mo.ops[+f.dataset.opact]; o.act = +f.value || 0; save(); re(); }));
+  el.querySelectorAll('[data-opst]').forEach(b => b.addEventListener('click', () => { const [i, s] = b.dataset.opst.split(':'); const o = mo.ops[+i]; if (!o) return; if (s === 'wait') { o.st = 'wait'; o.done = ''; moLaborExp(mo, o); mfLog(mo, `${o.name}: дахин нээсэн`); save(); } else opSetSt(mo, o, s); re(); }));
+  el.querySelectorAll('[data-opact]').forEach(f => f.addEventListener('change', () => { const o = mo.ops[+f.dataset.opact]; o.act = +f.value || 0; moLaborExp(mo, o); save(); re(); }));
   el.querySelectorAll('[data-opqc]').forEach(b => b.addEventListener('click', () => { const o = mo.ops[+b.dataset.opqc]; const ty = /гагнуур|weld/i.test(o.name) ? 'VT' : /будаг|элс|paint|blast/i.test(o.name) ? 'DFT' : /NDT/i.test(o.name) ? 'NDT' : /хүлээн авах|VIR/i.test(o.name) ? 'VIR' : 'DIM'; const q = newQC({ type: ty, mo: mo.id, op: o.id, job: mo.job, item: mo.item, std: /гагнуур/i.test(o.name) ? qcT('VT')[2] : qcT(ty)[2] }); mfLog(mo, `${q.no} шалгалт нээсэн (${o.name})`); save(); mfGo('qc', q.id); }));
   el.querySelector('#moQC').addEventListener('click', () => { const fin = mo.status === 'done'; const q = newQC({ type: fin ? 'FINAL' : 'DIM', mo: mo.id, job: mo.job, item: mo.item }); mfLog(mo, `${q.no} шалгалт нээсэн`); save(); mfGo('qc', q.id); });
   el.querySelector('#moNCR').addEventListener('click', () => { const n = newNCR({ mo: mo.id, job: mo.job, item: mo.item }); mfLog(mo, `${n.no} NCR нээсэн`); save(); mfGo('ncr', n.id); });
@@ -16038,10 +16075,15 @@ function moForm(el, mo) {
   el.querySelector('#moDel').addEventListener('click', () => { if ((mo.mats || []).some(m => m.mv)) { toast('Материал олгосон тул устгах боломжгүй — «Ноорог» болгож, тайлбар бичнэ үү'); return; } if (!confirm(`${mo.no}-г устгах уу?`)) return; S.mos = mos().filter(x => x !== mo); MF.sel = null; save(); re(); });
   erpBindCrumbs(el, [['', () => { MF.sel = null; re(); }], ['']]);
 }
+/* phone link for one MO (works when «Утаснаас бүртгэх» is on): the shop scans the route card */
+async function mfQrUrl(mo) {
+  try { if (!(window.kh && window.kh.linkInfo)) return ''; const I = await window.kh.linkInfo(); if (!I.mobile || !I.token || !(I.ips || []).length) return ''; if (!window.qrcode) { try { await loadScript('vendor/qrcode.js'); } catch (e) { } } return `http://${I.ips[0]}:${I.port}/m?t=${encodeURIComponent(I.token)}&mo=${encodeURIComponent(mo.id)}`; } catch (e) { return ''; }
+}
 async function moDoc(mo) {
   const SC = mfSchedule(), j = mo.job && findJob(mo.job), c = moCost(mo);
   const D = await kdoc({ title: 'ҮЙЛДВЭРЛЭЛИЙН ЗАХИАЛГА — МАРШРУТЫН КАРТ', sub: `${mo.no} · ${today()}`, code: mfIso('formMO') });
   D.kv([['MO дугаар', mo.no], ['Ажил', j ? j.no : '—'], ['Захиалагч', j ? j.customer || '—' : '—'], ['Бүтээгдэхүүн', mo.item || '—'], ['Тоо', `${nf(+mo.qty || 0)} ${mo.unit || ''}`], ['Хугацаа', mo.due || '—'], ['Зураг / rev', `${mo.dwg || '—'} / ${mo.rev || '—'}`], ['Хүлээн авах стандарт', mo.std || '—']], 2);
+  { const qr = await mfQrUrl(mo); if (qr && window.qrcode) { D.need(30); const y = D.y + 1; drawQR(D.x, qr, D.PW - D.M - 26, y, 26); D.x.fillStyle = '#1f2328'; D.x.font = `600 3.2px ${DF}`; D.x.fillText('Цехийн терминал', D.M, y + 8); D.x.font = `400 2.8px ${DF}`; D.x.fillStyle = '#475467'; D.x.fillText('Утасны камераар QR-ыг уншуулж үйлдлээ ▶ эхлүүлэх, ⏸ зогсоох, ✓ дуусгах — бодит цаг автоматаар бүртгэгдэнэ.', D.M, y + 13); D.x.fillText('Утас үйлдвэрийн Wi-Fi-д холбогдсон байна.', D.M, y + 17.5); D.y = y + 28; } }
   D.h2('Маршрут', 'H — зогсох цэг · W — гэрчлэх · R — бүртгэл');
   D.table([{ t: '№', w: 8, m: 1 }, { t: 'Үйлдэл' }, { t: 'Ажлын байр', w: 34 }, { t: 'Цэг', w: 10, a: 'c' }, { t: 'Төлөвлөгөө', w: 26, m: 1 }, { t: 'Төл. цаг', w: 15, a: 'r', m: 1 }, { t: 'Бодит цаг', w: 16, a: 'r', m: 1 }, { t: 'Гүйцэтгэгч / гарын үсэг', w: 38 }],
     (mo.ops || []).map((o, i) => { const r = SC.R[o.id] || {}; return [i + 1, o.name, machName(o.mach) || 'гар ажил', o.hold || '', r.s ? `${r.s.slice(5)} → ${r.e.slice(5)}` : '', mfH(opPlanH(o, mo)), o.act ? mfH(o.act) : '', o.who ? pName(o.who) : '']; }), { minRh: 8 });
@@ -16163,8 +16205,8 @@ function ncrForm(el, n) {
     acts: `${nx ? `<button class="btn primary" id="ncNext"${why ? ` title="${esc(why)}"` : ''}>→ ${esc(nx[1])}</button>` : '<button class="btn" id="ncReopen">Дахин нээх</button>'}${qc ? `<button class="btn ghost" data-goqc="${qc.id}">← ${esc(qc.no)}</button>` : ''}${mo ? `<button class="btn ghost" data-gomo="${mo.id}">← ${esc(mo.no)}</button>` : ''}${n.disp === 'rework' || n.disp === 'repair' ? `<button class="btn" id="ncReQC">+ Дахин шалгалт</button>` : ''}`,
     stages: NCR_ST.map(([k, t], i) => `<button class="${k === n.st ? 'on' : i < ci ? 'past' : ''}">${esc(t)}</button>`).join('') }) + `<div class="mf-body">
     ${why && nx ? `<div class="mf-info">Дараагийн шат руу шилжихийн тулд: ${esc(why)}.</div>` : ''}
-    ${mfCard('1. Үл тохирлын тодорхойлолт', `<div class="jgrid">${fldIn('nc_date', 'Огноо', n.date, { type: 'date' })}${mfSel('nc_src', NCR_SRC, n.src, 'Эх үүсвэр')}${mfSel('nc_job', mfJobOpts(), n.job, 'Ажил', 'grow')}${fldIn('nc_item', 'Эд анги / материал', n.item, { cls: 'grow' })}${fldIn('nc_heat', 'Хайлалтын дугаар', n.heat, { list: 'dl-heat' })}${fldIn('nc_qty', 'Тоо хэмжээ', n.qty)}${mfSel('nc_by', mfPeople(), n.by, 'Илрүүлсэн')}</div>
-      ${fldIn('nc_desc', 'Юу шаардлага хангаагүй вэ (шаардлага ↔ бодит байдал)', n.desc, { area: 1, rows: 3 })}<datalist id="dl-heat">${(S.certs || []).map(c => `<option value="${esc(c.heat)}">`).join('')}</datalist>`)}
+    ${mfCard('1. Үл тохирлын тодорхойлолт', `<div class="jgrid">${fldIn('nc_date', 'Огноо', n.date, { type: 'date' })}${mfSel('nc_src', NCR_SRC, n.src, 'Эх үүсвэр')}${mfSel('nc_job', mfJobOpts(), n.job, 'Ажил', 'grow')}${fldIn('nc_item', 'Эд анги / материал', n.item, { cls: 'grow' })}${fldIn('nc_heat', 'Хайлалтын дугаар', n.heat, { list: 'dl-heat' })}${n.src === 'sup' ? fldIn('nc_sup', 'Нийлүүлэгч', n.sup || '', { list: 'dl-ncsup' }) : ''}${fldIn('nc_qty', 'Тоо хэмжээ', n.qty)}${mfSel('nc_by', mfPeople(), n.by, 'Илрүүлсэн')}</div>
+      ${fldIn('nc_desc', 'Юу шаардлага хангаагүй вэ (шаардлага ↔ бодит байдал)', n.desc, { area: 1, rows: 3 })}<datalist id="dl-heat">${(S.certs || []).map(c => `<option value="${esc(c.heat)}">`).join('')}</datalist><datalist id="dl-ncsup">${orgs().map(o => `<option value="${esc(o.name)}">`).join('')}</datalist>`)}
     ${mfCard('2. Шийдвэр (disposition) — ISO 9001 §8.7', `<div class="jgrid">${mfSel('nc_disp', NCR_DISP, n.disp, 'Шийдвэр', 'grow')}${mfSel('nc_dispBy', mfPeople(), n.dispBy, 'Шийдвэр гаргасан')}${fldIn('nc_cost', 'Үл тохирлын зардал, ₮', n.cost, { num: 1 })}</div>${fldIn('nc_dispNote', 'Тайлбар (захиалагчийн зөвшөөрөл, засварын арга…)', n.dispNote, { area: 1, rows: 2 })}`)}
     ${mfCard('3. Үндсэн шалтгаан ба залруулах арга хэмжээ — §10.2', `<div class="jgrid">${mfSel('nc_cause6', [['', '— 6M ангилал —']].concat(NCR_6M.map(c => [c, c])), n.cause6, 'Шалтгааны ангилал')}${mfSel('nc_caOwner', mfPeople(), n.caOwner, 'Хариуцагч')}${fldIn('nc_caDue', 'Хэрэгжүүлэх хугацаа', n.caDue, { type: 'date' })}</div>
       ${fldIn('nc_cause', 'Үндсэн шалтгаан (5 яагаад)', n.cause, { area: 1, rows: 3 })}${fldIn('nc_ca', 'Залруулах арга хэмжээ (дахин гаргахгүйн тулд)', n.ca, { area: 1, rows: 3 })}
@@ -16172,7 +16214,7 @@ function ncrForm(el, n) {
     ${mfCard('4. Үр нөлөөг шалгах, хаах', `<div class="jgrid">${mfSel('nc_verBy', mfPeople(), n.verBy, 'Шалгасан')}${fldIn('nc_verDate', 'Огноо', n.verDate, { type: 'date' })}</div>${fldIn('nc_verify', 'Арга хэмжээ үр дүнтэй болсон эсэх', n.verify, { area: 1, rows: 2 })}`)}
     ${mfCard('Түүх', mfLogHTML(n))}</div>`;
   const re = () => renderMfg();
-  mfBind(el, n, [['nc_date', 'date'], ['nc_src', 'src'], ['nc_job', 'job'], ['nc_item', 'item'], ['nc_heat', 'heat'], ['nc_qty', 'qty'], ['nc_by', 'by'], ['nc_desc', 'desc'], ['nc_disp', 'disp'], ['nc_dispBy', 'dispBy'], ['nc_cost', 'cost', 1], ['nc_dispNote', 'dispNote'], ['nc_cause6', 'cause6'], ['nc_caOwner', 'caOwner'], ['nc_caDue', 'caDue'], ['nc_cause', 'cause'], ['nc_ca', 'ca'], ['nc_verBy', 'verBy'], ['nc_verDate', 'verDate'], ['nc_verify', 'verify']], k => { if (['disp', 'dispBy', 'cause6', 'caOwner', 'verBy', 'ca'].includes(k)) re(); });
+  mfBind(el, n, [['nc_date', 'date'], ['nc_src', 'src'], ['nc_job', 'job'], ['nc_item', 'item'], ['nc_heat', 'heat'], ['nc_qty', 'qty'], ['nc_sup', 'sup'], ['nc_by', 'by'], ['nc_desc', 'desc'], ['nc_disp', 'disp'], ['nc_dispBy', 'dispBy'], ['nc_cost', 'cost', 1], ['nc_dispNote', 'dispNote'], ['nc_cause6', 'cause6'], ['nc_caOwner', 'caOwner'], ['nc_caDue', 'caDue'], ['nc_cause', 'cause'], ['nc_ca', 'ca'], ['nc_verBy', 'verBy'], ['nc_verDate', 'verDate'], ['nc_verify', 'verify']], k => { if (k === 'heat' && n.src === 'sup' && !n.sup) { const c = (S.certs || []).find(x => lc(x.heat) === lc(n.heat)); if (c && c.sup) { n.sup = c.sup; save(); re(); } } if (['disp', 'dispBy', 'cause6', 'caOwner', 'verBy', 'ca', 'src'].includes(k)) re(); });
   const nb = el.querySelector('#ncNext'); if (nb) nb.addEventListener('click', () => { const w = ncrNext(n); if (w) { toast(w); return; } mfLog(n, `${stOf(NCR_ST, n.st)[1]} → ${nx[1]}`); n.st = nx[0]; if (n.st === 'closed' && !n.verDate) n.verDate = today(); save(); re(); });
   const ro = el.querySelector('#ncReopen'); if (ro) ro.addEventListener('click', () => { n.st = 'ca'; mfLog(n, 'Дахин нээсэн'); save(); re(); });
   const rq = el.querySelector('#ncReQC'); if (rq) rq.addEventListener('click', () => { const old = qc; const q = newQC({ type: old ? old.type : 'DIM', mo: n.mo, op: old ? old.op : '', job: n.job, item: n.item, heat: n.heat, note: `${n.no}-ийн дараах дахин шалгалт` }); mfLog(n, `Дахин шалгалт ${q.no}`); save(); mfGo('qc', q.id); });
@@ -16209,9 +16251,9 @@ function gaugePage(el) {
   el.innerHTML = erpCP({ crumbs: [['Хэмжих багаж — тохируулга']], right: '<button class="btn" data-gout="pdf">Бүртгэл PDF</button><button class="btn ghost" data-gout="print">🖨</button>' }) + `<div class="mf-body">
     ${over ? `<div class="mf-warn"><b>${over} багажийн тохируулгын хугацаа хэтэрсэн.</b> Эдгээрийг ашиглалтаас гаргаж, тохируулга хийлгэнэ үү (ISO 9001 §7.1.5.2).</div>` : soon ? `<div class="mf-info">${soon} багажийн тохируулга 30 хоногт дуусна.</div>` : ''}
     ${mfCard('Хэмжих, хяналтын багажийн бүртгэл', `${edTable('gg', G_COLS, G)}${G.length ? '' : '<p class="note">Жишээ: штангенциркуль, микрометр, гагнуурын калибр, DFT хэмжигч, хатуулаг хэмжигч, рулет, түвшин, момент түлхүүр, UT/MT багаж.</p>'}`)}
-    ${mfCard('ISO маягтын код', `<div class="jgrid">${[['formMO', 'Маршрутын карт'], ['formQC', 'Шалгалтын тайлан'], ['formNCR', 'NCR'], ['formTrace', 'Мөшгөлтийн тайлан'], ['formGauge', 'Багажийн бүртгэл']].map(([k, l]) => fldIn('iso2_' + k, l, mfIso(k))).join('')}</div><p class="note">PDF баримт бүрийн доод буланд хэвлэгдэнэ.</p>`)}</div>`;
+    ${mfCard('ISO маягтын код', `<div class="jgrid">${[['formMO', 'Маршрутын карт'], ['formQC', 'Шалгалтын тайлан'], ['formNCR', 'NCR'], ['formTrace', 'Мөшгөлтийн тайлан'], ['formGauge', 'Багажийн бүртгэл'], ['formPO', 'Худалдан авалтын захиалга'], ['formSup', 'Нийлүүлэгчийн үнэлгээ']].map(([k, l]) => fldIn('iso2_' + k, l, mfIso(k))).join('')}</div><p class="note">PDF баримт бүрийн доод буланд хэвлэгдэнэ.</p>`)}</div>`;
   bindEd(el, { gg: { arr: gauges, cols: G_COLS, blank: () => ({ id: uid(), code: 'G-' + String(gauges().length + 1).padStart(3, '0'), name: '', serial: '', range: '', loc: '', last: today(), months: 12, cert: '', active: true }) } }, () => renderMfg());
-  ['formMO', 'formQC', 'formNCR', 'formTrace', 'formGauge'].forEach(k => { const f = el.querySelector('#iso2_' + k); if (f) f.addEventListener('change', () => { S.iso = S.iso || {}; S.iso[k] = f.value.trim(); save(); }); });
+  ['formMO', 'formQC', 'formNCR', 'formTrace', 'formGauge', 'formPO', 'formSup'].forEach(k => { const f = el.querySelector('#iso2_' + k); if (f) f.addEventListener('change', () => { S.iso = S.iso || {}; S.iso[k] = f.value.trim(); save(); }); });
   el.querySelectorAll('[data-gout]').forEach(b => b.addEventListener('click', () => docOut(b.dataset.gout, async () => { const D = await kdoc({ title: 'ХЭМЖИХ БАГАЖИЙН ТОХИРУУЛГЫН БҮРТГЭЛ', sub: today(), code: mfIso('formGauge'), landscape: true }); D.table([{ t: 'Код', w: 20, m: 1 }, { t: 'Багаж' }, { t: 'Сериал', w: 26, m: 1 }, { t: 'Хязгаар', w: 34 }, { t: 'Байршил', w: 30 }, { t: 'Тохируулсан', w: 24, m: 1 }, { t: 'Сар', w: 12, a: 'r', m: 1 }, { t: 'Дараагийн', w: 24, m: 1 }, { t: 'Гэрчилгээ', w: 26 }, { t: 'Төлөв', w: 30 }], gauges().map(g => ({ cells: [g.code, g.name, g.serial, g.range, g.loc, g.last, g.months, gNext(g), g.cert, gSt(g)[1]], fill: gSt(g)[0] === 'over' ? '#fef3f2' : '' }))); D.sigs(['Бүртгэсэн', 'Чанарын хариуцсан']); return D; }, 'Багажийн_тохируулга')));
 }
 
@@ -16270,6 +16312,294 @@ async function traceDoc(q, R) {
 { const _smM = setModule; setModule = function (v) { _smM(v); const on = v === 'mfg', sd = $('#mfgSide'), mn = $('#mfgMain'); if (sd) sd.hidden = !on; if (mn) mn.hidden = !on; if (on) renderMfg(); }; }
 /* a running operation shows its live hours */
 setInterval(() => { const mn = $('#mfgMain'); if (mn && !mn.hidden && MF.tab === 'mo' && MF.sel) { const mo = mos().find(m => m.id === MF.sel); if (mo && (mo.ops || []).some(o => o.st === 'run')) mn.querySelectorAll('[data-opact]').forEach(f => { const o = mo.ops[+f.dataset.opact]; if (o && o.st === 'run') f.value = mfH(opActH(o)); }); } }, 30000);
+
+/* ================= Kh International — Худалдан авалт (ISO 9001 §8.4 гаднаас нийлүүлэгдэх)
+   Хэрэгцээ (MRP: доод хэмжээ + үйлдвэрлэлийн захиалгын материал − үлдэгдэл − ирэх) → Худалдан авалтын захиалга (PO) → нийлүүлэгч →
+   хүлээн авах (агуулахын орлого, хайлалтын дугаар/гэрчилгээ, VIR шалгалт, ажилд шууд) → нийлүүлэгчийн үнэлгээ ================= */
+const PV = { tab: 'po', sel: null, q: '', f: 'open' };
+try { const o = JSON.parse(localStorage.getItem('kh-pv') || '{}'); if (o.tab) PV.tab = o.tab; } catch (e) { }
+const pvSave = () => { try { localStorage.setItem('kh-pv', JSON.stringify({ tab: PV.tab })); } catch (e) { } };
+const pos = () => (Array.isArray(S.pos) ? S.pos : (S.pos = []));
+const PO_ST = [['draft', 'Ноорог', 'draft'], ['sent', 'Илгээсэн', 'sent'], ['part', 'Хэсэгчлэн ирсэн', 'open'], ['recv', 'Бүрэн ирсэн', 'done'], ['cancel', 'Цуцалсан', 'late']];
+const poLeft = l => Math.max(0, (+l.qty || 0) - (+l.recv || 0));
+const poSum = p => (p.lines || []).reduce((a, l) => a + (+l.qty || 0) * (+l.price || 0), 0);
+const poLate = p => ['sent', 'part'].includes(p.status) && p.need && p.need < today();
+/* ordered but not yet received, per warehouse item */
+function poOnOrder() { const M = {}; pos().filter(p => ['sent', 'part'].includes(p.status)).forEach(p => (p.lines || []).forEach(l => { if (l.stk) M[l.stk] = (M[l.stk] || 0) + poLeft(l); })); return M; }
+function newPO(d) {
+  const p = Object.assign({ id: uid(), no: mfNo('PO'), sup: '', contact: '', date: today(), need: addDays(today(), 7), status: 'draft', vat: 10, terms: 'Төлбөр: нэхэмжлэх ирснээс хойш 14 хоногт', deliv: 'Kh International үйлдвэр, Сонгинохайрхан дүүрэг', lines: [], note: '', by: S.me || '', appr: '', recvs: [], log: [] }, d || {});
+  mfLog(p, 'Үүсгэсэн'); pos().unshift(p); save(); return p;
+}
+/* ---------- MRP: what has to be bought ---------- */
+function poNeeds() {
+  const oo = poOnOrder(), need = {}, add = (it, q, why) => { if (!it) return; const n = need[it.id] || (need[it.id] = { it, req: 0, why: [] }); n.req += q; if (why) n.why.push(why); };
+  /* materials of open manufacturing orders that are not issued yet */
+  (typeof mos === 'function' ? mos() : []).filter(m => ['draft', 'plan', 'run'].includes(m.status)).forEach(m => (m.mats || []).forEach(x => { if (x.stk && !x.mv && +x.qty > 0) add(stkFind(x.stk), +x.qty, `${m.no} × ${x.qty}`); }));
+  const R = [];
+  stk().forEach(it => {
+    const n = need[it.id], have = +it.qty || 0, ord = oo[it.id] || 0, req = n ? n.req : 0, min = +it.min || 0;
+    const short = Math.max(0, req + min - have - ord); if (short <= 0) return;
+    const sug = Math.max(short, min > 0 ? Math.ceil(min * 2 + req - have - ord) : short);
+    R.push({ it, have, ord, req, min, short: Math.round(short * 1000) / 1000, sug: Math.round(sug * 1000) / 1000, why: (n ? n.why : []).concat(min && have + ord - req < min ? [`доод хэмжээ ${min}`] : []) });
+  });
+  return R.sort((a, b) => b.req - a.req || a.it.name.localeCompare(b.it.name));
+}
+/* ---------- supplier evaluation (ISO 9001 §8.4.1) ---------- */
+function poSupEval() {
+  const M = {};
+  pos().filter(p => p.sup && p.status !== 'cancel').forEach(p => {
+    const s = M[p.sup] || (M[p.sup] = { sup: p.sup, n: 0, sum: 0, recv: 0, onTime: 0, lead: [], vir: 0, virFail: 0, ncr: 0, last: '' });
+    s.n++; s.sum += poSum(p); if (p.date > s.last) s.last = p.date;
+    const r = (p.recvs || [])[0]; if (r) { s.recv++; if (!p.need || r.date <= p.need) s.onTime++; s.lead.push(Math.round((new Date(r.date) - new Date(p.date)) / 864e5)); }
+    (typeof qcs === 'function' ? qcs() : []).filter(q => q.po === p.id && q.res).forEach(q => { s.vir++; if (q.res === 'fail') s.virFail++; });
+  });
+  const heatSup = {}; (S.certs || []).forEach(c => { if (c.sup) heatSup[lc(c.heat)] = c.sup; });
+  (typeof ncrs === 'function' ? ncrs() : []).filter(n => n.src === 'sup').forEach(n => { const sp = n.sup || heatSup[lc(n.heat || '')]; if (sp && M[sp]) M[sp].ncr++; });
+  return Object.values(M).map(s => { const ot = s.recv ? s.onTime / s.recv * 100 : null, qu = s.vir ? (s.vir - s.virFail) / s.vir * 100 : 100, q2 = Math.max(0, qu - s.ncr * 10), sc = ot == null ? null : Math.round(ot * 0.5 + q2 * 0.5);
+    return Object.assign(s, { ot, qu: q2, score: sc, grade: sc == null ? '—' : sc >= 90 ? 'A' : sc >= 75 ? 'B' : 'C', leadAvg: s.lead.length ? Math.round(s.lead.reduce((a, b) => a + b, 0) / s.lead.length) : null }); }).sort((a, b) => b.sum - a.sum);
+}
+
+/* ---------- page ---------- */
+const PO_TABS = [['po', 'Худалдан авалтын захиалга'], ['need', 'Хэрэгцээ (MRP)'], ['sup', 'Нийлүүлэгчийн үнэлгээ']];
+function renderPoSide() { const b = $('#poList'); if (!b) return; const N = poNeeds().length, L = pos().filter(poLate).length; b.innerHTML = PO_TABS.map(([k, n]) => `<div class="engitem${PV.tab === k ? ' on' : ''}" data-pvt="${k}"><b>${esc(n)}</b>${k === 'need' && N ? `<span class="mono muted">${N}</span>` : k === 'po' && L ? `<span class="mono late">${L}</span>` : ''}</div>`).join(''); b.querySelectorAll('[data-pvt]').forEach(x => x.addEventListener('click', () => { PV.tab = x.dataset.pvt; PV.sel = null; pvSave(); renderPo(); })); }
+function renderPo() {
+  renderPoSide(); const el = $('#poMain'); if (!el) return;
+  if (PV.tab === 'need') poNeedPage(el); else if (PV.tab === 'sup') poSupPage(el); else { const p = PV.sel && pos().find(x => x.id === PV.sel); p ? poForm(el, p) : poList(el); }
+  if (typeof erpOn === 'function' && erpOn() && typeof erpNav === 'function') erpNav();
+}
+const poGo = (tab, sel) => { PV.tab = tab; pvSave(); if (typeof erpOn === 'function' && erpOn()) erpGo(tab === 'po' ? 'po' : 'po:' + tab, { keep: 1 }); else setModule('po'); PV.sel = sel || null; renderPo(); };
+function poList(el) {
+  const A = pos(), F = { open: p => ['draft', 'sent', 'part'].includes(p.status), late: poLate, recv: p => p.status === 'recv' };
+  const R = A.filter(p => (!PV.f || !F[PV.f] || F[PV.f](p)) && mfMatch(p, [p.no, p.sup, (p.lines || []).map(l => l.desc || stkName(stkFind(l.stk))).join(' ')], PV));
+  mfListPage(el, { st: PV, rr: renderPo, main: '#poMain', title: 'Худалдан авалтын захиалга', ph: 'Хайх: PO дугаар, нийлүүлэгч, бараа…', rows: R,
+    right: '<button class="btn primary" id="poNew">+ Худалдан авалтын захиалга</button><button class="btn" id="poNeedGo">Хэрэгцээ (MRP) →</button>',
+    chips: [['open', 'Нээлттэй', A.filter(F.open).length], ['late', 'Хоцорсон', A.filter(F.late).length], ['recv', 'Ирсэн', A.filter(F.recv).length]],
+    cols: [['no', 'Дугаар', '', p => `<b class="mono">${esc(p.no)}</b>`], ['sup', 'Нийлүүлэгч', '', p => esc(p.sup || '—')], ['d', 'Огноо', '', p => `<span class="num">${esc(p.date)}</span>`], ['n', 'Ирэх хугацаа', '', p => `<span class="num${poLate(p) ? ' late' : ''}">${esc(p.need || '')}</span>`],
+      ['l', 'Бараа', '', p => esc((p.lines || []).slice(0, 2).map(l => l.desc || stkName(stkFind(l.stk))).join(', ') + ((p.lines || []).length > 2 ? ` +${p.lines.length - 2}` : ''))],
+      ['r', 'Ирсэн', 'r', p => { const q = (p.lines || []).reduce((a, l) => a + (+l.qty || 0), 0), r = (p.lines || []).reduce((a, l) => a + Math.min(+l.qty || 0, +l.recv || 0), 0); const pc = q ? r / q * 100 : 0; return `<div class="erp-prog"><i><b style="width:${Math.round(pc)}%"></b></i><span>${Math.round(pc)}%</span></div>`; }],
+      ['s', 'Дүн, ₮', 'r', p => `<span class="num">${money(poSum(p))}</span>`], ['st', 'Төлөв', '', p => { const s = stOf(PO_ST, p.status); return mfB(s[2], s[1]); }]],
+    foot: `<td colspan="6">${R.length} захиалга</td><td class="r num">${money(R.reduce((a, p) => a + poSum(p), 0))}</td><td></td>`,
+    empty: 'Худалдан авалтын захиалга алга', emptyHint: ' «Хэрэгцээ (MRP)» хуудаснаас дутуу материалыг сонгож захиалга үүсгэнэ, эсвэл гараар.' });
+  el.querySelector('#poNew').addEventListener('click', () => { const p = newPO({}); PV.sel = p.id; renderPo(); });
+  el.querySelector('#poNeedGo').addEventListener('click', () => poGo('need'));
+}
+const PO_LCOLS = () => [{ k: 'desc', t: 'Бараа / тодорхойлолт', list: 'dl-postk' }, { k: 'mat', t: 'Марк', w: 90, list: 'dl-pomat' }, { k: 'thk', t: 'Зузаан', num: 1, w: 64 }, { k: 'size', t: 'Хэмжээ', w: 110 }, { k: 'qty', t: 'Тоо', num: 1, w: 70 }, { k: 'unit', t: 'Нэгж', w: 56 }, { k: 'price', t: 'Нэгж үнэ, ₮', num: 1, w: 110 },
+  { k: 'sum', t: 'Дүн, ₮', calc: l => money((+l.qty || 0) * (+l.price || 0)) }, { k: 'job', t: 'Ажилд шууд', sel: [['', '— агуулахад —']].concat(mfJobs().filter(j => !['done', 'given'].includes(j.status)).map(j => [j.id, `${j.no} · ${String(j.title || '').slice(0, 24)}`])) }, { k: 'recv', t: 'Ирсэн', calc: l => `<span class="${+l.recv >= +l.qty && +l.qty ? 'ok' : ''}">${nf(+l.recv || 0, 2)}</span>` }];
+function poForm(el, p) {
+  const st = stOf(PO_ST, p.status), sum = poSum(p), vat = sum * (+p.vat || 0) / 100, ord = pos().map(x => x.id), idx = ord.indexOf(p.id), O = orgs().slice().sort((a, b) => a.name.localeCompare(b.name));
+  let acts = '';
+  if (p.status === 'draft') acts = '<button class="btn primary" data-pst="sent">Батлах, илгээсэн гэж тэмдэглэх</button>';
+  if (['sent', 'part'].includes(p.status)) acts = '<button class="btn primary" id="poRecv">⇩ Бараа хүлээн авах</button><button class="btn" data-pst="draft">Ноорог руу</button>';
+  if (p.status !== 'cancel' && p.status !== 'recv') acts += '<button class="btn ghost" data-pst="cancel">Цуцлах</button>'; else if (p.status === 'cancel') acts = '<button class="btn" data-pst="draft">Сэргээх</button>';
+  el.innerHTML = mfFormTop({ crumbs: [['Худалдан авалтын захиалга'], [p.no]],
+    right: `<span class="erp-pager">${idx + 1} / ${ord.length}<button data-ppg="-1"${idx <= 0 ? ' disabled' : ''}>‹</button><button data-ppg="1"${idx >= ord.length - 1 ? ' disabled' : ''}>›</button></span><button class="btn" data-poout="pdf">PO PDF</button><button class="btn ghost" data-poout="print">🖨</button><button class="btn ghost" id="poDel">Устгах</button>`,
+    acts, stages: PO_ST.filter(s => s[0] !== 'cancel' || p.status === 'cancel').map(([k, n], i, L) => `<button class="${k === p.status ? 'on' : i < L.findIndex(x => x[0] === p.status) ? 'past' : ''}">${esc(n)}</button>`).join('') }) + `<div class="mf-body">
+    ${poLate(p) ? `<div class="mf-warn"><b>Ирэх хугацаа хэтэрсэн</b> (${esc(p.need)}). Нийлүүлэгчтэй холбогдоно уу — нийлүүлэгчийн үнэлгээнд тооцогдоно.</div>` : ''}
+    ${mfCard('Нийлүүлэгч, нөхцөл', `<div class="jgrid">${fldIn('po_sup', 'Нийлүүлэгч', p.sup, { list: 'dl-posup', cls: 'grow' })}${fldIn('po_contact', 'Холбоо барих хүн, утас', p.contact, { cls: 'grow' })}${fldIn('po_date', 'Захиалсан огноо', p.date, { type: 'date' })}${fldIn('po_need', 'Ирэх хугацаа', p.need, { type: 'date' })}${fldIn('po_vat', 'НӨАТ, %', p.vat, { num: 1 })}
+      ${fldIn('po_deliv', 'Хүргэх хаяг', p.deliv, { cls: 'grow' })}${fldIn('po_terms', 'Төлбөрийн нөхцөл', p.terms, { cls: 'grow' })}${mfSel('po_by', mfPeople(), p.by, 'Захиалсан')}${mfSel('po_appr', mfPeople(), p.appr, 'Баталсан')}</div>${fldIn('po_note', 'Шаардлага (EN 10204 3.1 гэрчилгээ, тэмдэглэгээ, савлагаа…)', p.note, { area: 1, rows: 2 })}
+      <datalist id="dl-posup">${O.map(o => `<option value="${esc(o.name)}">`).join('')}</datalist>`)}
+    ${mfCard('Бараа', `${edTable('pol', PO_LCOLS(), p.lines || [], { extra: '<button class="btn sm" id="poAddNeed">+ Хэрэгцээнээс нэмэх</button>' })}
+      <datalist id="dl-postk">${stk().map(it => `<option value="${esc(stkName(it))}">${esc(it.mat || '')} ${it.thk ? it.thk + 'мм' : ''} · үлд. ${nf(+it.qty || 0, 2)} ${esc(it.unit)}</option>`).join('')}</datalist>
+      <datalist id="dl-pomat">${(S.materials || []).map(m => `<option value="${esc(m.name)}">`).join('')}</datalist>
+      <div class="mf-tot"><span>Дүн <b class="mono">${money(sum)}</b></span><span>НӨАТ ${+p.vat || 0}% <b class="mono">${money(vat)}</b></span><span class="big">Нийт <b class="mono">${money(sum + vat)} ₮</b></span></div>
+      <p class="note">Агуулахын бараатай нэрээр таарвал хүлээн авахад тэр бараанд орлого орно; таарахгүй бол шинэ бараа үүснэ. «Ажилд шууд» сонгосон мөр ирэнгүүт тухайн ажлын зардалд орно.</p>`, `<span class="mono">${(p.lines || []).length} мөр</span>`)}
+    ${(p.recvs || []).length ? mfCard('Хүлээн авалт', `<div class="tblwrap"><table class="dt"><thead><tr><th>Огноо</th><th>Хүлээн авсан</th><th>Бараа</th><th class="r">Тоо</th><th>Хайлалт / гэрчилгээ</th><th>Шалгалт</th></tr></thead><tbody>${p.recvs.flatMap(r => r.lines.map(x => { const l = (p.lines || []).find(y => y.id === x.lid) || {}, q = x.qc && qcs().find(y => y.id === x.qc); return `<tr><td class="num">${esc(r.date)}</td><td>${esc(pName(r.by) || r.by || '')}</td><td>${esc(l.desc || '')}</td><td class="r num">${nf(+x.qty, 2)} ${esc(l.unit || '')}</td><td class="mono">${esc([x.heat, x.cert].filter(Boolean).join(' · '))}</td><td>${q ? `<button class="linkbtn" data-goqc="${q.id}">${esc(q.no)}</button> ${mfB(stOf(QC_RES, q.res)[2], stOf(QC_RES, q.res)[1])}` : ''}</td></tr>`; })).join('')}</tbody></table></div>`) : ''}
+    ${mfCard('Түүх', mfLogHTML(p))}</div>`;
+  const re = () => renderPo();
+  mfBind(el, p, [['po_sup', 'sup'], ['po_contact', 'contact'], ['po_date', 'date'], ['po_need', 'need'], ['po_vat', 'vat', 1], ['po_deliv', 'deliv'], ['po_terms', 'terms'], ['po_by', 'by'], ['po_appr', 'appr'], ['po_note', 'note']], k => { if (k === 'sup' && p.sup) { const o = orgLearn({ org: p.sup }); if (o) { p.sup = o.name; o.supplier = true; if (!p.contact && o.persons && o.persons[0]) p.contact = [o.persons[0].name, o.persons[0].phone].filter(Boolean).join(', '); save(); re(); } } if (k === 'vat') re(); });
+  bindEd(el, { pol: { arr: () => (p.lines = p.lines || []), cols: PO_LCOLS(), blank: () => ({ id: uid(), stk: '', desc: '', mat: '', thk: '', size: '', qty: 1, unit: 'ш', price: '', recv: 0, job: '' }), onDel: l => !(+l.recv > 0) || (toast('Ирсэн мөрийг устгахгүй'), false) } }, re,
+    (id, l, k) => { if (k === 'desc') { const it = stk().find(x => lc(stkName(x)) === lc(l.desc) || lc(x.name) === lc(l.desc)); if (it) { l.stk = it.id; l.desc = stkName(it); l.mat = l.mat || it.mat || ''; l.thk = l.thk || it.thk || ''; l.size = l.size || it.size || ''; l.unit = it.unit || l.unit; if (!+l.price && +it.price) l.price = +it.price; } else l.stk = ''; } });
+  el.querySelectorAll('[data-pst]').forEach(b => b.addEventListener('click', () => {
+    const to = b.dataset.pst; if (to === 'sent') { if (!p.sup) { toast('Нийлүүлэгчийг бөглөнө үү'); return; } if (!(p.lines || []).some(l => +l.qty > 0)) { toast('Барааны мөр нэмнэ үү'); return; } }
+    if (to === 'cancel' && !confirm(`${p.no}-г цуцлах уу?`)) return;
+    mfLog(p, `${stOf(PO_ST, p.status)[1]} → ${stOf(PO_ST, to)[1]}`); p.status = to; save(); re(); }));
+  const rv = el.querySelector('#poRecv'); if (rv) rv.addEventListener('click', () => poRecvDlg(p));
+  el.querySelector('#poAddNeed').addEventListener('click', () => { const N = poNeeds(); if (!N.length) { toast('Дутуу материал алга'); return; } const have = new Set((p.lines || []).map(l => l.stk)); let n = 0; N.filter(x => !have.has(x.it.id)).forEach(x => { p.lines.push(poLineOf(x)); n++; }); mfLog(p, `Хэрэгцээнээс ${n} мөр`); save(); toast(n ? `${n} мөр нэмэгдлээ` : 'Бүгд аль хэдийн орсон'); re(); });
+  el.querySelectorAll('[data-goqc]').forEach(b => b.addEventListener('click', () => mfGo('qc', b.dataset.goqc)));
+  el.querySelectorAll('[data-ppg]').forEach(b => b.addEventListener('click', () => { const n = ord[idx + +b.dataset.ppg]; if (n) { PV.sel = n; re(); } }));
+  el.querySelectorAll('[data-poout]').forEach(b => b.addEventListener('click', () => docOut(b.dataset.poout, () => poDoc(p), `${p.no}_${p.sup || ''}`)));
+  el.querySelector('#poDel').addEventListener('click', () => { if ((p.recvs || []).length) { toast('Хүлээн авалт хийгдсэн тул устгахгүй — «Цуцлах» ашиглана уу'); return; } if (!confirm(`${p.no}-г устгах уу?`)) return; S.pos = pos().filter(x => x !== p); PV.sel = null; save(); re(); });
+  erpBindCrumbs(el, [['', () => { PV.sel = null; re(); }], ['']]);
+}
+const poLineOf = x => ({ id: uid(), stk: x.it.id, desc: stkName(x.it), mat: x.it.mat || '', thk: x.it.thk || '', size: x.it.size || '', qty: x.sug, unit: x.it.unit || 'ш', price: +x.it.price || '', recv: 0, job: '' });
+/* receiving: stock in (moving average price), mill certificate per heat, incoming inspection, direct-to-job issue */
+function poRecvDlg(p) {
+  const L = (p.lines || []).filter(l => poLeft(l) > 0); if (!L.length) { toast('Ирэх үлдэгдэл алга'); return; }
+  const dlg = document.createElement('div'); dlg.className = 'po-dlg';
+  dlg.innerHTML = `<div class="po-dlgb"><div class="md-h"><b>${esc(p.no)} — бараа хүлээн авах</b><span class="sp"></span><button class="md-x">×</button></div>
+    <div class="po-dlgc"><div class="jgrid">${fldIn('rv_date', 'Огноо', today(), { type: 'date' })}${mfSel('rv_by', mfPeople(), S.me || '', 'Хүлээн авсан')}</div>
+    <div class="tblwrap"><table class="dt"><thead><tr><th>Бараа</th><th class="r">Үлдэгдэл</th><th class="r">Хүлээн авах</th><th>Хайлалтын дугаар</th><th>Гэрчилгээ №</th></tr></thead><tbody>${L.map(l => `<tr data-rl="${l.id}"><td>${esc(l.desc || '')}<div class="sub">${esc([l.mat, l.thk ? l.thk + 'мм' : '', l.size].filter(Boolean).join(' · '))}${l.job ? ' · ажилд шууд: ' + esc((findJob(l.job) || {}).no || '') : ''}</div></td><td class="r num">${nf(poLeft(l), 2)} ${esc(l.unit)}</td>
+      <td class="r"><input class="mono" type="number" step="any" data-k="qty" value="${poLeft(l)}" style="width:90px;text-align:right"></td><td><input data-k="heat" placeholder="${l.mat || l.thk ? 'жишээ: 24A1187' : '—'}" style="width:130px"></td><td><input data-k="cert" placeholder="MTC / 3.1" style="width:120px"></td></tr>`).join('')}</tbody></table></div>
+    <label class="chk" style="display:flex;gap:8px;align-items:center;margin-top:10px"><input type="checkbox" id="rv_vir" checked> Хүлээн авах үзлэг (VIR) бүртгэл нээх — ISO 9001 §8.4.2</label></div>
+    <div class="po-dlgf"><button class="btn" data-x="1">Болих</button><button class="btn primary" id="rv_ok">⇩ Хүлээн авах</button></div></div>`;
+  document.body.appendChild(dlg); const close = () => dlg.remove(); dlg.querySelector('.md-x').onclick = close; dlg.querySelector('[data-x]').onclick = close;
+  dlg.querySelector('#rv_ok').onclick = () => {
+    const date = dlg.querySelector('#rv_date').value || today(), by = dlg.querySelector('#rv_by').value, vir = dlg.querySelector('#rv_vir').checked, rec = { date, by, lines: [] };
+    dlg.querySelectorAll('[data-rl]').forEach(tr => {
+      const l = p.lines.find(x => x.id === tr.dataset.rl), g = k => tr.querySelector(`[data-k="${k}"]`).value.trim(), q = +g('qty') || 0; if (!(q > 0)) return;
+      let it = l.stk && stkFind(l.stk);
+      if (!it) { it = stk().find(x => lc(stkName(x)) === lc(l.desc) || lc(x.name) === lc(l.desc)); if (!it) it = stkNew({ name: l.desc || 'Бараа', mat: l.mat || '', thk: +l.thk || '', size: l.size || '', unit: l.unit || 'ш', cat: +l.thk ? 'plate' : /труба|профиль|швеллер|уголок|двутавр|pipe|beam|tube|channel/i.test(l.desc) ? 'profile' : 'other' }); l.stk = it.id; }
+      const heat = g('heat'), cert = g('cert');
+      stkMove(it, 'in', q, { price: +l.price || 0, date, who: by, note: `${p.no} · ${p.sup}${heat ? ' · хайлалт ' + heat : ''}` });
+      let cid = ''; if (heat) { const m = String(l.size || '').match(/(\d{3,5})\s*[x×*]\s*(\d{3,5})/); const c = { id: uid(), heat, cert, mat: l.mat || it.mat || '', thk: +l.thk || +it.thk || 0, L: m ? +m[2] > +m[1] ? +m[2] : +m[1] : 0, W: m ? Math.min(+m[1], +m[2]) : 0, qty: q, used: 0, sup: p.sup, date, po: p.id }; (S.certs = S.certs || []).unshift(c); cid = c.id; }
+      if (l.job) { const mv = stkMove(it, 'out', q, { job: l.job, date, who: by, note: `${p.no} → ажилд шууд${heat ? ' · хайлалт ' + heat : ''}` }); if (mv && heat) { mv.heat = heat; mv.cert = cert; } }
+      let qid = ''; if (vir && typeof newQC === 'function') { const qq = newQC({ type: 'VIR', item: `${l.desc || stkName(it)}${l.size ? ' · ' + l.size : ''}`, heat, job: l.job || '', po: p.id, note: `${p.no} · ${p.sup} · ${q} ${l.unit || ''}${cert ? ' · гэрчилгээ ' + cert : ''}`, insp: by || S.me || '' }); qid = qq.id; }
+      l.recv = Math.round(((+l.recv || 0) + q) * 1000) / 1000; rec.lines.push({ lid: l.id, qty: q, heat, cert, cert_id: cid, qc: qid });
+    });
+    if (!rec.lines.length) { toast('Хүлээн авах тоо оруулна уу'); return; }
+    (p.recvs = p.recvs || []).push(rec); p.status = (p.lines || []).every(l => poLeft(l) <= 0) ? 'recv' : 'part';
+    mfLog(p, `Хүлээн авсан: ${rec.lines.length} мөр (${pName(by) || ''})`); save(); close(); toast(`⇩ ${rec.lines.length} мөр агуулахад орлоо${vir ? ' · VIR бүртгэл нээгдлээ' : ''}`); renderPo();
+  };
+}
+async function poDoc(p) {
+  const sum = poSum(p), vat = sum * (+p.vat || 0) / 100, co = typeof company === 'function' ? company() : {};
+  const D = await kdoc({ title: 'ХУДАЛДАН АВАЛТЫН ЗАХИАЛГА', sub: `${p.no} · ${p.date}`, code: mfIso('formPO') || 'KH-PU-F01' });
+  D.kv([['Захиалгын №', p.no], ['Огноо', p.date], ['Нийлүүлэгч', p.sup || '—'], ['Холбоо барих', p.contact || '—'], ['Захиалагч', co.name || 'Kh International'], ['Ирэх хугацаа', p.need || '—'], ['Хүргэх хаяг', p.deliv || '—'], ['Төлбөрийн нөхцөл', p.terms || '—']], 2);
+  D.table([{ t: '№', w: 8, m: 1 }, { t: 'Бараа / тодорхойлолт' }, { t: 'Марк', w: 24 }, { t: 'Зузаан', w: 15, a: 'r', m: 1 }, { t: 'Хэмжээ', w: 28, m: 1 }, { t: 'Тоо', w: 16, a: 'r', m: 1 }, { t: 'Нэгж', w: 12 }, { t: 'Нэгж үнэ', w: 24, a: 'r', m: 1 }, { t: 'Дүн', w: 26, a: 'r', m: 1 }],
+    (p.lines || []).map((l, i) => [i + 1, l.desc, l.mat, l.thk ? l.thk + ' мм' : '', l.size, nf(+l.qty || 0, 2), l.unit, l.price ? money(+l.price) : '', money((+l.qty || 0) * (+l.price || 0))]));
+  D.totals([['Дүн', money(sum)], [`НӨАТ ${+p.vat || 0}%`, money(vat)], ['НИЙТ, ₮', money(sum + vat), 1]], { w: 90 });
+  D.box('Шаардлага', [p.note || '—', 'Хавтан, профилийн материалд EN 10204 3.1 чанарын гэрчилгээ (хайлалтын дугаартай) заавал хавсаргана. Гэрчилгээгүй, тэмдэглэгээгүй материалыг хүлээн авахгүй.']);
+  D.sigs(['Захиалсан', 'Баталсан', 'Нийлүүлэгч (хүлээн авсан)'], { names: [pName(p.by), pName(p.appr), ''] });
+  return D;
+}
+
+/* ===== Хэрэгцээ (MRP) ===== */
+function poNeedPage(el) {
+  const N = poNeeds(), sel = PV.need || (PV.need = {}), O = orgs().filter(o => o.supplier).concat(orgs().filter(o => !o.supplier)).map(o => o.name);
+  el.innerHTML = erpCP({ crumbs: [['Хэрэгцээ (MRP)']], right: `<input class="inp" id="ndSup" list="dl-ndsup" placeholder="Нийлүүлэгч" style="width:200px"><datalist id="dl-ndsup">${O.map(n => `<option value="${esc(n)}">`).join('')}</datalist><button class="btn primary" id="ndPO">Сонгосноор PO үүсгэх</button>` }) + `<div class="mf-body">
+    <div class="mf-info">Хэрэгцээ = нээлттэй үйлдвэрлэлийн захиалгын олгогдоогүй материал + агуулахын доод хэмжээ − үлдэгдэл − захиалсан (ирэх). Санал болгосон тоо нь доод хэмжээний 2 дахинтай тэнцэх хүртэл нөхнө.</div>
+    ${N.length ? `<div class="erp-list"><table><thead><tr><th style="width:30px"><input type="checkbox" id="ndAll"></th><th>Бараа</th><th>Шалтгаан</th><th class="r">Үлдэгдэл</th><th class="r">Ирэх</th><th class="r">Шаардлага</th><th class="r">Доод хэм.</th><th class="r">Дутуу</th><th class="r">Захиалах</th></tr></thead><tbody>
+      ${N.map(x => `<tr data-nd="${x.it.id}"><td><input type="checkbox" data-ndc${sel[x.it.id] !== false ? ' checked' : ''}></td><td><b>${esc(stkName(x.it))}</b><div class="sub">${esc([x.it.mat, x.it.thk ? x.it.thk + 'мм' : '', x.it.size].filter(Boolean).join(' · '))}</div></td><td class="sub">${esc(x.why.join(', '))}</td><td class="r num">${nf(x.have, 2)}</td><td class="r num">${x.ord ? nf(x.ord, 2) : ''}</td><td class="r num">${x.req ? nf(x.req, 2) : ''}</td><td class="r num">${x.min || ''}</td><td class="r num late">${nf(x.short, 2)}</td><td class="r"><input class="mono" type="number" step="any" data-ndq value="${PV.nq && PV.nq[x.it.id] != null ? PV.nq[x.it.id] : x.sug}" style="width:80px;text-align:right"> ${esc(x.it.unit)}</td></tr>`).join('')}</tbody></table></div>`
+      : '<div class="erp-empty"><b>Дутуу материал алга</b>Агуулахын барааны «Доод хэмжээ»-г тохируулж, үйлдвэрлэлийн захиалгад материал нэмбэл энд гарна.</div>'}</div>`;
+  PV.nq = PV.nq || {};
+  el.querySelectorAll('[data-nd]').forEach(tr => { const id = tr.dataset.nd; tr.querySelector('[data-ndc]').addEventListener('change', e => { sel[id] = e.target.checked; }); tr.querySelector('[data-ndq]').addEventListener('change', e => { PV.nq[id] = +e.target.value || 0; }); });
+  const all = el.querySelector('#ndAll'); if (all) all.addEventListener('change', () => { el.querySelectorAll('[data-nd]').forEach(tr => { sel[tr.dataset.nd] = all.checked; tr.querySelector('[data-ndc]').checked = all.checked; }); });
+  el.querySelector('#ndPO').addEventListener('click', () => {
+    const pick = N.filter(x => sel[x.it.id] !== false); if (!pick.length) { toast('Бараа сонгоно уу'); return; }
+    const sup = el.querySelector('#ndSup').value.trim(), p = newPO({ sup }); p.lines = pick.map(x => Object.assign(poLineOf(x), { qty: PV.nq[x.it.id] != null ? PV.nq[x.it.id] : x.sug })); if (sup) { const o = orgLearn({ org: sup }); if (o) { o.supplier = true; p.sup = o.name; } }
+    mfLog(p, `Хэрэгцээнээс ${p.lines.length} мөр`); save(); PV.need = {}; PV.nq = {}; poGo('po', p.id); toast(`${p.no} үүслээ`);
+  });
+}
+/* ===== Нийлүүлэгчийн үнэлгээ ===== */
+function poSupPage(el) {
+  const E = poSupEval();
+  el.innerHTML = erpCP({ crumbs: [['Нийлүүлэгчийн үнэлгээ']], right: '<button class="btn" data-spout="pdf">Үнэлгээ PDF</button><button class="btn ghost" data-spout="print">🖨</button>' }) + `<div class="mf-body">
+    <div class="mf-info">ISO 9001 §8.4.1 — гаднаас нийлүүлэгчийг хугацаандаа нийлүүлэлт (50%) ба чанар (VIR тэнцсэн %, нийлүүлэгчийн NCR бүр −10) (50%)-аар үнэлнэ. A ≥ 90 — батлагдсан, B ≥ 75 — хяналттай, C — сайжруулах / солих.</div>
+    ${E.length ? `<div class="erp-list"><table><thead><tr><th>Нийлүүлэгч</th><th class="r">PO</th><th class="r">Нийт дүн, ₮</th><th class="r">Хугацаандаа</th><th class="r">Дундаж хугацаа</th><th class="r">VIR тэнцсэн</th><th class="r">NCR</th><th class="r">Оноо</th><th>Зэрэг</th><th>Сүүлд</th></tr></thead><tbody>
+      ${E.map(s => `<tr><td><b>${esc(s.sup)}</b></td><td class="r num">${s.n}</td><td class="r num">${money(s.sum)}</td><td class="r num">${s.ot == null ? '—' : Math.round(s.ot) + '%'}</td><td class="r num">${s.leadAvg == null ? '—' : s.leadAvg + ' хоног'}</td><td class="r num">${s.vir ? Math.round((s.vir - s.virFail) / s.vir * 100) + '%' : '—'}</td><td class="r num${s.ncr ? ' late' : ''}">${s.ncr || ''}</td><td class="r num"><b>${s.score == null ? '—' : s.score}</b></td><td>${s.grade === '—' ? '<span class="sub">хүлээн авалт алга</span>' : mfB(s.grade === 'A' ? 'done' : s.grade === 'B' ? 'open' : 'late', s.grade)}</td><td class="num">${esc(s.last)}</td></tr>`).join('')}</tbody></table></div>` : '<div class="erp-empty"><b>Үнэлгээ алга</b>Худалдан авалтын захиалга үүсгэж, бараа хүлээн авбал нийлүүлэгч бүрийн үнэлгээ автоматаар гарна.</div>'}</div>`;
+  el.querySelectorAll('[data-spout]').forEach(b => b.addEventListener('click', () => docOut(b.dataset.spout, async () => { const D = await kdoc({ title: 'НИЙЛҮҮЛЭГЧИЙН ҮНЭЛГЭЭ', sub: today(), code: mfIso('formSup') || 'KH-PU-F02', landscape: true }); D.para('ISO 9001:2015 §8.4.1. Хугацаандаа нийлүүлэлт 50% + чанар 50%. A ≥ 90 батлагдсан, B ≥ 75 хяналттай, C сайжруулах / солих.', { size: 2.8 }); D.table([{ t: 'Нийлүүлэгч' }, { t: 'PO', w: 14, a: 'r' }, { t: 'Нийт дүн', w: 34, a: 'r', m: 1 }, { t: 'Хугацаандаа', w: 24, a: 'r' }, { t: 'Дундаж хугацаа', w: 28, a: 'r' }, { t: 'VIR тэнцсэн', w: 24, a: 'r' }, { t: 'NCR', w: 14, a: 'r' }, { t: 'Оноо', w: 16, a: 'r' }, { t: 'Зэрэг', w: 16, a: 'c' }], E.map(s => [s.sup, s.n, money(s.sum), s.ot == null ? '—' : Math.round(s.ot) + '%', s.leadAvg == null ? '—' : s.leadAvg + ' хоног', s.vir ? Math.round((s.vir - s.virFail) / s.vir * 100) + '%' : '—', s.ncr || '', s.score == null ? '—' : s.score, s.grade])); D.sigs(['Үнэлсэн', 'Баталсан']); return D; }, 'Нийлүүлэгчийн_үнэлгээ')));
+}
+{ const _smP = setModule; setModule = function (v) { _smP(v); const on = v === 'po', sd = $('#poSide'), mn = $('#poMain'); if (sd) sd.hidden = !on; if (mn) mn.hidden = !on; if (on) renderPo(); }; }
+
+/* ================= Kh International — Тайлан: ажлын ашиг (төлөвлөсөн ↔ бодит), борлуулалт сараар, захиалагчаар, машины ашиглалт ================= */
+const RP = { tab: 'job', from: today().slice(0, 4) + '-01-01', to: today(), st: 'all', sort: '-profit', cust: '' };
+try { const o = JSON.parse(localStorage.getItem('kh-rp') || '{}'); Object.assign(RP, o, { to: o.to && o.to > today() ? o.to : (o.to || today()) }); } catch (e) { }
+const rpSave = () => { try { localStorage.setItem('kh-rp', JSON.stringify({ tab: RP.tab, from: RP.from, to: RP.to, st: RP.st, sort: RP.sort })); } catch (e) { } };
+const RP_TABS = [['job', 'Ажлын ашиг'], ['sales', 'Борлуулалт'], ['cust', 'Захиалагчаар'], ['mach', 'Машины ашиглалт']];
+const rpM = v => nf(Math.round((+v || 0) / 1e5) / 10, 1);   // сая ₮
+const rpPct = v => v == null || !isFinite(v) ? '—' : nf(v, 1) + '%';
+/* one row per job: contract, planned cost (costing), actual cost (expenses: stock issues, MO labour, other) */
+function rpJobs() {
+  return topJobs().filter(j => !isQ(j)).filter(j => { const d = j.created || ''; return (!RP.from || d >= RP.from) && (!RP.to || d <= RP.to); })
+    .filter(j => RP.st === 'all' || (RP.st === 'closed' ? ['done', 'given'].includes(j.status) : !['done', 'given'].includes(j.status)))
+    .map(j => { let m = {}, c = {}, P = {}; try { m = jobMoney(j); c = quoteCalc(j); P = progCalc(j); } catch (e) { }
+      const price = +m.price || 0, plan = +c.cost || +m.plan || 0, act = +P.AC || 0, has = act > 0, prof = price - (has ? act : plan);
+      const inv = (j.inv || []).reduce((a, i) => a + (+i.amount || 0), 0), paid = (j.inv || []).reduce((a, i) => a + invPaid(i), 0);
+      return { j, no: j.no, customer: j.customer || '', title: j.title || '', st: j.status, price, plan, planProf: price - plan, planM: price ? (price - plan) / price * 100 : null, act, has, profit: prof, margin: price ? prof / price * 100 : null, varc: has ? act - plan : null, inv, paid, pct: (P.pct || 0) * 100, date: j.created || '' }; });
+}
+function renderRepSide() { const b = $('#repList'); if (!b) return; b.innerHTML = RP_TABS.map(([k, n]) => `<div class="engitem${RP.tab === k ? ' on' : ''}" data-rpt="${k}"><b>${esc(n)}</b></div>`).join(''); b.querySelectorAll('[data-rpt]').forEach(x => x.addEventListener('click', () => { RP.tab = x.dataset.rpt; rpSave(); renderRep(); })); }
+function renderRep() {
+  renderRepSide(); const el = $('#repMain'); if (!el) return;
+  ({ job: rpJobPage, sales: rpSalesPage, cust: rpCustPage, mach: rpMachPage }[RP.tab] || rpJobPage)(el);
+  if (typeof erpOn === 'function' && erpOn() && typeof erpNav === 'function') erpNav();
+}
+const rpFilt = (st) => `<div class="rp-filt"><label>Хугацаа <input type="date" id="rpFrom" value="${esc(RP.from)}"> — <input type="date" id="rpTo" value="${esc(RP.to)}"></label>
+  <select id="rpQuick"><option value="">Хурдан сонгох…</option><option value="m">Энэ сар</option><option value="q">Сүүлийн 3 сар</option><option value="y">Энэ жил</option><option value="ly">Өнгөрсөн жил</option><option value="all">Бүх хугацаа</option></select>
+  ${st ? `<select id="rpSt"><option value="all"${RP.st === 'all' ? ' selected' : ''}>Бүх ажил</option><option value="closed"${RP.st === 'closed' ? ' selected' : ''}>Дууссан, хүлээлгэсэн</option><option value="open"${RP.st === 'open' ? ' selected' : ''}>Идэвхтэй</option></select>` : ''}</div>`;
+function rpBindFilt(el) {
+  const f = el.querySelector('#rpFrom'), t = el.querySelector('#rpTo'), q = el.querySelector('#rpQuick'), s = el.querySelector('#rpSt');
+  if (f) f.addEventListener('change', () => { RP.from = f.value; rpSave(); renderRep(); }); if (t) t.addEventListener('change', () => { RP.to = t.value; rpSave(); renderRep(); });
+  if (s) s.addEventListener('change', () => { RP.st = s.value; rpSave(); renderRep(); });
+  if (q) q.addEventListener('change', () => { const y = today().slice(0, 4); ({ m: () => { RP.from = today().slice(0, 7) + '-01'; RP.to = today(); }, q: () => { RP.from = addDays(today(), -91); RP.to = today(); }, y: () => { RP.from = y + '-01-01'; RP.to = today(); }, ly: () => { RP.from = (y - 1) + '-01-01'; RP.to = (y - 1) + '-12-31'; }, all: () => { RP.from = ''; RP.to = ''; } }[q.value] || (() => { }))(); rpSave(); renderRep(); });
+}
+const rpKpi = (k, v, s, cls) => `<div class="erp-kpi${cls ? ' ' + cls : ''}" style="cursor:default"><div class="k">${k}</div><div class="v">${v}</div><div class="s">${s || ''}</div></div>`;
+async function rpXlsx(name, head, rows) { try { if (!window.XLSX) await loadScript(XLSX_URL); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([head].concat(rows)), name.slice(0, 30)); XLSX.writeFile(wb, `${name}_${today()}.xlsx`); } catch (e) { toast('Excel гаргаж чадсангүй: ' + e.message); } }
+
+/* ===== Ажлын ашиг ===== */
+const RP_JCOLS = [['no', 'Ажил'], ['customer', 'Захиалагч'], ['price', 'Гэрээ, ₮', 'r'], ['plan', 'Төлөвлөсөн зардал', 'r'], ['act', 'Бодит зардал', 'r'], ['varc', 'Зөрүү', 'r'], ['profit', 'Ашиг', 'r'], ['margin', 'Margin', 'r'], ['inv', 'Нэхэмжилсэн', 'r'], ['st', 'Төлөв']];
+function rpJobPage(el) {
+  const R = rpJobs(), sk = RP.sort.replace(/^-/, ''), dir = RP.sort[0] === '-' ? -1 : 1;
+  R.sort((a, b) => { const x = a[sk], y = b[sk]; return (typeof x === 'string' ? String(x).localeCompare(String(y)) : ((x ?? -1e18) - (y ?? -1e18))) * dir; });
+  const T = R.reduce((a, r) => { a.price += r.price; a.plan += r.plan; a.act += r.has ? r.act : 0; a.cost += r.has ? r.act : r.plan; a.prof += r.profit; return a; }, { price: 0, plan: 0, act: 0, cost: 0, prof: 0 });
+  const loss = R.filter(r => r.profit < 0), noAct = R.filter(r => !r.has && r.price), over = R.filter(r => r.has && r.varc > r.plan * 0.1 && r.plan);
+  const top = R.slice().sort((a, b) => Math.abs(b.profit) - Math.abs(a.profit)).slice(0, 12), mx = Math.max(1, ...top.map(r => Math.abs(r.profit)));
+  el.innerHTML = erpCP({ crumbs: [['Тайлан'], ['Ажлын ашиг']], right: '<button class="btn" id="rpX">⇩ Excel</button><button class="btn" data-rpo="pdf">PDF</button><button class="btn ghost" data-rpo="print">🖨</button>', row2: rpFilt(true) }) + `<div class="mf-body">
+    <div class="erp-kpis">${rpKpi('Гэрээний дүн', `${rpM(T.price)}<small>сая ₮</small>`, `${R.length} ажил`)}${rpKpi('Зардал (бодит / төлөвлөсөн)', `${rpM(T.cost)}<small>сая ₮</small>`, `бодит ${rpM(T.act)} · төлөвлөсөн ${rpM(T.plan)}`)}${rpKpi('Ашиг', `${rpM(T.prof)}<small>сая ₮</small>`, `margin ${rpPct(T.price ? T.prof / T.price * 100 : null)}`, T.prof < 0 ? 'bad' : 'good')}${rpKpi('Алдагдалтай ажил', `${loss.length}`, over.length ? `${over.length} ажил төлөвлөгөөнөөс 10%+ хэтэрсэн` : 'төсөвт багтсан', loss.length ? 'bad' : '')}</div>
+    ${noAct.length ? `<div class="mf-info">${noAct.length} ажилд бодит зардал бүртгэгдээгүй тул ашгийг төлөвлөсөн зардлаар тооцов. Бодит зардал = агуулахаас олгосон материал + цехийн бодит цаг (үйлдвэрлэлийн захиалга) + «Зардал бүртгэх».</div>` : ''}
+    ${top.length ? mfCard('Ашиг / алдагдал — хамгийн том 12 ажил', `<div class="rp-bars">${top.map(r => `<div class="rp-bar"><span class="n" title="${esc(r.title)}"><b class="mono">${esc(r.no)}</b> ${esc(r.customer)}</span><span class="b"><i class="${r.profit < 0 ? 'neg' : ''}" style="width:${Math.abs(r.profit) / mx * 100}%"></i></span><span class="v ${r.profit < 0 ? 'rp-neg' : ''}">${money(r.profit)}</span></div>`).join('')}</div>`) : ''}
+    ${R.length ? `<div class="erp-list"><table><thead><tr>${RP_JCOLS.map(([k, n, a]) => `<th class="${a || ''}" data-rps="${k}">${esc(n)}${sk === k ? (dir < 0 ? ' ↓' : ' ↑') : ''}</th>`).join('')}</tr></thead><tbody>
+      ${R.slice(0, RP.all ? R.length : 150).map(r => `<tr class="rec" data-rpj="${r.j.id}"><td><b class="mono">${esc(r.no)}</b><div class="sub">${esc(r.title)}</div></td><td>${esc(r.customer)}</td><td class="r num">${money(r.price)}</td><td class="r num">${money(r.plan)}</td><td class="r num">${r.has ? money(r.act) : '<span class="sub">—</span>'}</td><td class="r num ${r.varc > 0 ? 'rp-neg' : r.varc < 0 ? 'rp-pos' : ''}">${r.varc == null ? '' : (r.varc > 0 ? '+' : '') + money(r.varc)}</td><td class="r num ${r.profit < 0 ? 'rp-neg' : ''}"><b>${money(r.profit)}</b>${r.has ? '' : '<div class="sub">төлөвлөсөн</div>'}</td><td class="r num ${r.margin != null && r.margin < 10 ? 'rp-neg' : ''}">${rpPct(r.margin)}</td><td class="r num">${r.inv ? money(r.inv) : ''}</td><td>${mfB(r.st, jstName(r.st))}</td></tr>`).join('')}${R.length > 150 && !RP.all ? `<tr><td colspan="10" style="text-align:center"><button class="btn sm" id="rpAll">Бүгдийг харуулах (${R.length})</button></td></tr>` : ''}</tbody>
+      <tfoot><tr><td colspan="2">${R.length} ажил</td><td class="r num">${money(T.price)}</td><td class="r num">${money(T.plan)}</td><td class="r num">${money(T.act)}</td><td></td><td class="r num"><b>${money(T.prof)}</b></td><td class="r num">${rpPct(T.price ? T.prof / T.price * 100 : null)}</td><td class="r num">${money(R.reduce((a, r) => a + r.inv, 0))}</td><td></td></tr></tfoot></table></div>` : '<div class="erp-empty"><b>Энэ хугацаанд ажил алга</b>Хугацааг өөрчилж үзнэ үү.</div>'}</div>`;
+  rpBindFilt(el); { const a = el.querySelector('#rpAll'); if (a) a.addEventListener('click', () => { RP.all = true; renderRep(); }); }
+  el.querySelectorAll('[data-rps]').forEach(th => th.addEventListener('click', () => { const k = th.dataset.rps; RP.sort = RP.sort === '-' + k ? k : '-' + k; rpSave(); renderRep(); }));
+  el.querySelectorAll('[data-rpj]').forEach(tr => tr.addEventListener('click', () => { const j = findJob(tr.dataset.rpj); if (!j) return; erpGo('jobs'); J.sel = j.id; J.sub = 'main'; renderJobs(); erpNav(); }));
+  el.querySelector('#rpX').addEventListener('click', () => rpXlsx('Ажлын_ашиг', ['Ажил', 'Нэр', 'Захиалагч', 'Огноо', 'Гэрээ', 'Төлөвлөсөн зардал', 'Бодит зардал', 'Зөрүү', 'Ашиг', 'Margin %', 'Нэхэмжилсэн', 'Төлсөн', 'Төлөв'], R.map(r => [r.no, r.title, r.customer, r.date, r.price, Math.round(r.plan), r.has ? Math.round(r.act) : '', r.varc == null ? '' : Math.round(r.varc), Math.round(r.profit), r.margin == null ? '' : Math.round(r.margin * 10) / 10, r.inv, r.paid, jstName(r.st)])));
+  el.querySelectorAll('[data-rpo]').forEach(b => b.addEventListener('click', () => docOut(b.dataset.rpo, async () => { const D = await kdoc({ title: 'АЖЛЫН АШГИЙН ТАЙЛАН', sub: `${RP.from || '…'} — ${RP.to || '…'}`, code: 'KH-FN-R01', landscape: true });
+    D.kv([['Гэрээний дүн', money(T.price) + ' ₮'], ['Зардал', money(T.cost) + ' ₮'], ['Ашиг', money(T.prof) + ' ₮'], ['Margin', rpPct(T.price ? T.prof / T.price * 100 : null)]], 4);
+    D.table([{ t: 'Ажил', w: 26, m: 1 }, { t: 'Нэр' }, { t: 'Захиалагч', w: 44 }, { t: 'Гэрээ', w: 28, a: 'r', m: 1 }, { t: 'Төлөвлөсөн', w: 28, a: 'r', m: 1 }, { t: 'Бодит', w: 28, a: 'r', m: 1 }, { t: 'Ашиг', w: 28, a: 'r', m: 1 }, { t: 'Margin', w: 16, a: 'r' }], R.map(r => ({ cells: [r.no, r.title, r.customer, money(r.price), money(r.plan), r.has ? money(r.act) : '—', money(r.profit), rpPct(r.margin)], fill: r.profit < 0 ? '#fef3f2' : '' })));
+    return D; }, 'Ажлын_ашиг')));
+}
+/* ===== Борлуулалт сараар ===== */
+function rpMonths() {
+  const end = (RP.to || today()).slice(0, 7), L = []; let d = new Date(end + '-01T00:00:00Z'); for (let i = 0; i < 12; i++) { L.unshift(d.toISOString().slice(0, 7)); d.setUTCMonth(d.getUTCMonth() - 1); }
+  const M = {}; L.forEach(m => M[m] = { m, quoted: 0, nQ: 0, won: 0, nW: 0, lost: 0, inv: 0, paid: 0 });
+  topJobs().forEach(j => { let net = 0; try { net = quoteCalc(j).net; } catch (e) { }
+    const qd = String((j.quote && j.quote.date) || j.created || '').slice(0, 7); if (M[qd] && (isQ(j) || j.qst)) { M[qd].quoted += net; M[qd].nQ++; if (j.qst === 'lost') M[qd].lost++; }
+    if (!isQ(j)) { const wd = String(j.created || '').slice(0, 7); if (M[wd]) { M[wd].won += +jobMoney(j).price || net; M[wd].nW++; } } });
+  allInvoices().forEach(({ i }) => { const m = String(i.date || '').slice(0, 7); if (M[m]) M[m].inv += +i.amount || 0; (i.pays || []).forEach(p => { const pm = String(p.date || '').slice(0, 7); if (M[pm]) M[pm].paid += +p.amount || 0; }); });
+  return L.map(m => M[m]);
+}
+function rpChart(rows, keys) {
+  const W = 900, H = 260, P = { l: 46, r: 10, t: 12, b: 28 }, n = rows.length, gw = (W - P.l - P.r) / n, bw = Math.min(18, (gw - 10) / keys.length), mx = Math.max(1, ...rows.flatMap(r => keys.map(k => r[k[0]])));
+  const nice = (() => { const e = Math.pow(10, Math.floor(Math.log10(mx))), f = mx / e; return (f <= 2 ? 2 : f <= 5 ? 5 : 10) * e; })(), y = v => H - P.b - v / nice * (H - P.t - P.b);
+  let g = ''; for (let i = 0; i <= 4; i++) { const v = nice * i / 4; g += `<line x1="${P.l}" x2="${W - P.r}" y1="${y(v)}" y2="${y(v)}" stroke="currentColor" stroke-opacity=".12"/><text x="${P.l - 6}" y="${y(v) + 4}" text-anchor="end">${nf(v / 1e6, v / 1e6 < 10 ? 1 : 0)}</text>`; }
+  rows.forEach((r, i) => { const x0 = P.l + i * gw + (gw - bw * keys.length) / 2; keys.forEach(([k, , c], j) => { const v = r[k]; if (v > 0) g += `<rect x="${x0 + j * bw}" y="${y(v)}" width="${bw - 2}" height="${H - P.b - y(v)}" rx="2" fill="${c}"><title>${r.m} · ${money(v)} ₮</title></rect>`; }); g += `<text x="${P.l + i * gw + gw / 2}" y="${H - 8}" text-anchor="middle">${r.m.slice(2).replace('-', '.')}</text>`; });
+  return `<svg class="rp-chart" viewBox="0 0 ${W} ${H}" style="color:var(--ink-3)">${g}<text x="6" y="12">сая ₮</text></svg><div class="rp-leg">${keys.map(([, n, c]) => `<span><i style="background:${c}"></i>${esc(n)}</span>`).join('')}</div>`;
+}
+function rpSalesPage(el) {
+  const R = rpMonths(), S1 = k => R.reduce((a, r) => a + r[k], 0), dec = R.reduce((a, r) => a + r.nW + r.lost, 0), wr = dec ? R.reduce((a, r) => a + r.nW, 0) / Math.max(1, R.reduce((a, r) => a + r.nQ, 0)) * 100 : null;
+  el.innerHTML = erpCP({ crumbs: [['Тайлан'], ['Борлуулалт']], right: '<button class="btn" id="rpX">⇩ Excel</button>', row2: `<div class="rp-filt"><label>Сүүлийн 12 сар — дуусах сар <input type="date" id="rpTo" value="${esc(RP.to || today())}"></label></div>` }) + `<div class="mf-body">
+    <div class="erp-kpis">${rpKpi('Илгээсэн үнийн санал', `${rpM(S1('quoted'))}<small>сая ₮</small>`, `${S1('nQ')} санал`)}${rpKpi('Батлагдсан (ажил болсон)', `${rpM(S1('won'))}<small>сая ₮</small>`, `${S1('nW')} ажил · амжилт ${rpPct(wr)}`, 'good')}${rpKpi('Нэхэмжилсэн', `${rpM(S1('inv'))}<small>сая ₮</small>`, '12 сард')}${rpKpi('Орсон төлбөр', `${rpM(S1('paid'))}<small>сая ₮</small>`, S1('inv') ? `нэхэмжилснээс ${Math.round(S1('paid') / S1('inv') * 100)}%` : '')}</div>
+    ${mfCard('Сар бүрээр', rpChart(R, [['quoted', 'Үнийн санал', '#98a2b3'], ['won', 'Батлагдсан', 'var(--accent)'], ['inv', 'Нэхэмжилсэн', '#2e90fa'], ['paid', 'Төлбөр орсон', '#12b76a']]))}
+    <div class="erp-list"><table><thead><tr><th>Сар</th><th class="r">Санал</th><th class="r">Саналын дүн</th><th class="r">Батлагдсан</th><th class="r">Дүн</th><th class="r">Татгалзсан</th><th class="r">Нэхэмжилсэн</th><th class="r">Төлбөр</th></tr></thead><tbody>${R.slice().reverse().map(r => `<tr><td class="num">${r.m}</td><td class="r num">${r.nQ || ''}</td><td class="r num">${r.quoted ? money(r.quoted) : ''}</td><td class="r num">${r.nW || ''}</td><td class="r num">${r.won ? money(r.won) : ''}</td><td class="r num">${r.lost || ''}</td><td class="r num">${r.inv ? money(r.inv) : ''}</td><td class="r num">${r.paid ? money(r.paid) : ''}</td></tr>`).join('')}</tbody></table></div></div>`;
+  const t = el.querySelector('#rpTo'); t.addEventListener('change', () => { RP.to = t.value; rpSave(); renderRep(); });
+  el.querySelector('#rpX').addEventListener('click', () => rpXlsx('Борлуулалт', ['Сар', 'Санал', 'Саналын дүн', 'Батлагдсан', 'Дүн', 'Татгалзсан', 'Нэхэмжилсэн', 'Төлбөр'], R.map(r => [r.m, r.nQ, Math.round(r.quoted), r.nW, Math.round(r.won), r.lost, Math.round(r.inv), Math.round(r.paid)])));
+}
+/* ===== Захиалагчаар ===== */
+function rpCustPage(el) {
+  const M = {}; rpJobs().forEach(r => { const k = r.customer || '— захиалагчгүй —', c = M[k] || (M[k] = { c: k, n: 0, price: 0, cost: 0, prof: 0, inv: 0, paid: 0, last: '' }); c.n++; c.price += r.price; c.cost += r.has ? r.act : r.plan; c.prof += r.profit; c.inv += r.inv; c.paid += r.paid; if (r.date > c.last) c.last = r.date; });
+  const R = Object.values(M).sort((a, b) => b.price - a.price), tot = R.reduce((a, c) => a + c.price, 0) || 1, mx = Math.max(1, ...R.map(c => c.price));
+  el.innerHTML = erpCP({ crumbs: [['Тайлан'], ['Захиалагчаар']], right: '<button class="btn" id="rpX">⇩ Excel</button>', row2: rpFilt(true) }) + `<div class="mf-body">
+    ${R.length ? mfCard('Гэрээний дүнгээр', `<div class="rp-bars">${R.slice(0, 12).map(c => `<div class="rp-bar"><span class="n">${esc(c.c)}</span><span class="b"><i style="width:${c.price / mx * 100}%"></i></span><span class="v">${rpM(c.price)} сая · ${Math.round(c.price / tot * 100)}%</span></div>`).join('')}</div>`) : ''}
+    ${R.length ? `<div class="erp-list"><table><thead><tr><th>Захиалагч</th><th class="r">Ажил</th><th class="r">Гэрээ, ₮</th><th class="r">Хувь</th><th class="r">Ашиг</th><th class="r">Margin</th><th class="r">Нэхэмжилсэн</th><th class="r">Авлага</th><th>Сүүлийн ажил</th></tr></thead><tbody>${R.map(c => `<tr><td><b>${esc(c.c)}</b></td><td class="r num">${c.n}</td><td class="r num">${money(c.price)}</td><td class="r num">${Math.round(c.price / tot * 100)}%</td><td class="r num ${c.prof < 0 ? 'rp-neg' : ''}">${money(c.prof)}</td><td class="r num">${rpPct(c.price ? c.prof / c.price * 100 : null)}</td><td class="r num">${money(c.inv)}</td><td class="r num ${c.inv - c.paid > 0 ? 'rp-neg' : ''}">${c.inv - c.paid > 0 ? money(c.inv - c.paid) : ''}</td><td class="num">${esc(c.last)}</td></tr>`).join('')}</tbody></table></div>` : '<div class="erp-empty"><b>Энэ хугацаанд ажил алга</b></div>'}</div>`;
+  rpBindFilt(el);
+  el.querySelector('#rpX').addEventListener('click', () => rpXlsx('Захиалагчаар', ['Захиалагч', 'Ажил', 'Гэрээ', 'Ашиг', 'Margin %', 'Нэхэмжилсэн', 'Төлсөн', 'Авлага', 'Сүүлийн ажил'], R.map(c => [c.c, c.n, Math.round(c.price), Math.round(c.prof), c.price ? Math.round(c.prof / c.price * 1000) / 10 : '', Math.round(c.inv), Math.round(c.paid), Math.round(c.inv - c.paid), c.last])));
+}
+/* ===== Машины ашиглалт: өнгөрсөн 8 долоо хоногийн бодит цаг (цехийн бүртгэл) + ирэх 4 долоо хоногийн төлөвлөгөө ===== */
+function rpMachPage(el) {
+  const M = machines(), mon = d => { const t = new Date(d + 'T00:00:00Z'), w = (t.getUTCDay() + 6) % 7; t.setUTCDate(t.getUTCDate() - w); return t.toISOString().slice(0, 10); };
+  const W0 = mon(today()), past = []; for (let i = 7; i >= 0; i--) past.push(addDays(W0, -7 * i)); const fut = [1, 2, 3, 4].map(i => addDays(W0, 7 * i));
+  const act = {}; (typeof mos === 'function' ? mos() : []).forEach(m => (m.ops || []).forEach(o => { if (!o.mach || !(+o.act > 0)) return; const d = o.done || o.d0; if (!d) return; const w = mon(d); ((act[o.mach] = act[o.mach] || {})[w] = (act[o.mach][w] || 0) + +o.act); }));
+  const SC = typeof mfSchedule === 'function' ? mfSchedule() : { used: {} }, pl = id => { const u = SC.used[id] || {}, R = {}; Object.entries(u).forEach(([d, h]) => { const w = mon(d); R[w] = (R[w] || 0) + h; }); return R; };
+  const cell = (h, cap, f) => { const p = cap ? h / cap * 100 : 0; return `<td class="r num lc${f ? ' fut' : ''}" style="--p:${Math.min(100, p)}%;${p > 100 ? 'color:#b42318;font-weight:700' : ''}" title="${mfH(h)} цаг / ${cap}">${h ? Math.round(p) + '%' : ''}</td>`; };
+  const i0 = past.findIndex(w => Object.values(act).some(a => a[w])), PW = i0 < 0 ? past : past.slice(i0), avg = id => { const m = M.find(x => x.id === id), h = PW.reduce((a, w) => a + ((act[id] || {})[w] || 0), 0); return m && +m.cap ? h / (+m.cap * PW.length) * 100 : 0; };
+  el.innerHTML = erpCP({ crumbs: [['Тайлан'], ['Машины ашиглалт']], right: '' }) + `<div class="mf-body">
+    <div class="mf-info">Өнгөрсөн 8 долоо хоног — цехийн терминал / үйлдвэрлэлийн захиалгаар бүртгэгдсэн бодит цаг ÷ хүчин чадал. Ирэх 4 долоо хоног (саарал) — төлөвлөгдсөн ачаалал. Зорилт: ${M.map(m => m.oee).filter(Boolean).length ? 'ажлын байр бүрийн «Ашиглалтын зорилт»' : '75–85%'}.</div>
+    <div class="erp-list"><table class="mf-util"><thead><tr><th>Ажлын байр</th><th class="r">Цаг/7х</th>${past.map(w => `<th class="r">${w.slice(5)}</th>`).join('')}<th class="r">Дундаж</th>${fut.map(w => `<th class="r fut">${w.slice(5)}</th>`).join('')}</tr></thead><tbody>
+      ${M.map(m => { const pf = pl(m.id), a = avg(m.id), tg = +m.oee || 80; return `<tr><td>${esc(m.name)}</td><td class="r num">${m.cap}</td>${past.map(w => cell((act[m.id] || {})[w] || 0, +m.cap)).join('')}<td class="r num"><b class="${a && a < tg * 0.6 ? 'rp-neg' : ''}">${a ? Math.round(a) + '%' : '—'}</b></td>${fut.map(w => cell(pf[w] || 0, +m.cap, 1)).join('')}</tr>`; }).join('')}</tbody></table></div>
+    ${!Object.keys(act).length ? '<div class="erp-empty"><b>Бодит цаг бүртгэгдээгүй байна</b>Үйлдвэрлэлийн захиалгын үйлдлийг цехийн терминал (утас) эсвэл компьютерээс ▶ эхлүүлж ✓ дуусгахад энд гарна.</div>' : ''}</div>`;
+}
+{ const _smR = setModule; setModule = function (v) { _smR(v); const on = v === 'rep', sd = $('#repSide'), mn = $('#repMain'); if (sd) sd.hidden = !on; if (mn) mn.hidden = !on; if (on) renderRep(); }; }
 
 /* ================= Миний TODO ба тэмдэглэл — хувийн, зөвхөн энэ компьютерт (синк хийгдэхгүй) =================
    Хадгалалт: localStorage 'kh-mine' (Electron-ий хэрэглэгчийн фолдерт байнга хадгалагдана). Нүүр хуудас болон навбарын «Миний жагсаалт» самбарт. */
@@ -16370,6 +16700,8 @@ const ERP_IC = {
   sales: '<path d="M7 3h8l4 4v14H7z"/><path d="M15 3v4h4"/><path d="M10 12h6M10 16h6"/>',
   mfg: '<path d="M3 21V10l6 4V10l6 4V6l6 4v11z"/><path d="M7 17h2M12 17h2M17 17h2"/>',
   cut: '<rect x="3" y="5" width="18" height="14" rx="1"/><path d="M7 9h4v4H7zM14 9l3 6"/>',
+  buy: '<circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.6 12.4a2 2 0 0 0 2 1.6h8.3a2 2 0 0 0 2-1.5L22 7H6"/>',
+  rep: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
   stock: '<path d="M3 8l9-5 9 5v8l-9 5-9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/>',
   team: '<circle cx="9" cy="8" r="3"/><path d="M3 20c0-3 3-5 6-5s6 2 6 5"/><circle cx="17" cy="9" r="2.5"/><path d="M16 15c3 0 5 2 5 5"/>',
   lib: '<path d="M4 4h6a2 2 0 012 2v14a2 2 0 00-2-2H4zM20 4h-6a2 2 0 00-2 2v14a2 2 0 012-2h6z"/>',
@@ -16392,6 +16724,8 @@ const ERP_APPS = [
   { k: 'mfg', n: 'Үйлдвэрлэл', ic: 'mfg', c: '#1d4ed8', items: [['jobs', 'Ажил'], ['mfg', 'Үйлдвэрлэлийн захиалга'], ['mfg:wc', 'Ажлын байр'], ['plan', 'Төлөвлөгөө'], ['docs:scopes', 'Scope'], ['docs:dockets', 'Packing list']] },
   { k: 'cut', n: 'Инженер', ic: 'cut', c: '#0e7490', items: [['eng', 'Тооцоолол'], ['eng:bolt', 'Боолт'], ['eng:units', 'Нэгж хувиргагч'], ['nest', 'Лазер өрөлт'], ['bend', 'Нугалалт'], ['docs:kits', 'Иж бүрдэл']] },
   { k: 'stock', n: 'Агуулах', ic: 'stock', c: '#15803d', items: [['stock', 'Агуулах'], ['docs:certs', 'Материалын гэрчилгээ']] },
+  { k: 'buy', n: 'Худалдан авалт', ic: 'buy', c: '#b45309', items: [['po', 'Худалдан авалтын захиалга'], ['po:need', 'Хэрэгцээ (MRP)'], ['po:sup', 'Нийлүүлэгчийн үнэлгээ']] },
+  { k: 'rep', n: 'Тайлан', ic: 'rep', c: '#4338ca', items: [['rep', 'Ажлын ашиг'], ['rep:sales', 'Борлуулалт'], ['rep:cust', 'Захиалагчаар'], ['rep:mach', 'Машины ашиглалт']] },
   { k: 'qual', n: 'Чанар', ic: 'qual', c: '#be123c', items: [['mfg:qc', 'Шалгалт'], ['mfg:ncr', 'NCR'], ['mfg:trace', 'Мөшгөлт'], ['mfg:gauge', 'Хэмжих багаж']] },
   { k: 'team', n: 'Баг', ic: 'team', c: '#7c3aed', items: [['team', 'Даалгавар'], ['ideas', 'Санаа, сайжруулалт'], ['insp', 'Үзлэг · ХАБ']] },
   { k: 'lib', n: 'Сан', ic: 'lib', c: '#b45309', items: [['info:cat', 'Үнийн сан'], ['info:std', 'Стандарт'], ['info:tpl', 'Загвар'], ['info:mach', 'Техник']] }
@@ -16405,7 +16739,7 @@ const erpAv = (name, t) => `<span class="erp-av" style="background:${erpAvColor(
 const erpM = v => money(Math.round(+v || 0));
 
 /* ---------- navigation ---------- */
-const erpFull = r => r === 'dash' || r === 'jobs' || r === 'quotes' || String(r).startsWith('mfg');
+const erpFull = r => r === 'dash' || r === 'jobs' || r === 'quotes' || /^(mfg|po|rep)\b/.test(String(r));
 function erpGo(route, o = {}) {
   ERP.route = route; ERP.launch = false; const [m, t] = String(route).split(':');
   document.documentElement.toggleAttribute('data-erpfull', erpFull(route));
@@ -16414,6 +16748,8 @@ function erpGo(route, o = {}) {
     $$('[data-jtab]').forEach(x => x.classList.toggle('on', x.dataset.jtab === J.tab)); ['jobs', 'kits', 'certs', 'dockets', 'forms', 'scopes', 'invoices'].forEach(k => { const e = $('#jtab-' + k); if (e) e.hidden = k !== J.tab; });
     renderJobs();
   } else if (m === 'eng') { if (typeof ENG !== 'undefined') { ENG.tool = t || (['bolt', 'units'].includes(ENG.tool) && route === 'eng' ? 'beam' : ENG.tool); engSave(); } setModule('eng'); }
+  else if (m === 'po') { if (typeof PV !== 'undefined') { PV.tab = t || 'po'; if (!o.keep) PV.sel = null; PV.q = ''; PV.f = 'open'; pvSave(); } setModule('po'); }
+  else if (m === 'rep') { if (typeof RP !== 'undefined') { RP.tab = t || 'job'; } setModule('rep'); }
   else if (m === 'mfg') { if (typeof MF !== 'undefined') { MF.tab = t || 'mo'; if (!o.keep) MF.sel = null; MF.f = MF.tab === 'mo' ? 'act' : MF.tab === 'ncr' ? 'open' : ''; MF.q = ''; mfSave(); } setModule('mfg'); }
   else if (m === 'info') { setModule('info'); if (t && typeof IN !== 'undefined') { IN.tab = t; renderInfo(); } }
   else if (m === 'jobs' || m === 'quotes') { setModule(m); if (!o.keep) { J.sel = null; J.sub = m === 'quotes' ? 'quote' : 'main'; } renderJobs(); }
@@ -16425,6 +16761,8 @@ function erpCurRoute() {
   const v = document.documentElement.dataset.jview, act = $$('.modtabs button.on')[0], m = act ? act.dataset.mod : 'nest';
   if (v === 'docs' || (m === 'docs')) return 'docs:' + (J.tab || 'dockets');
   if (m === 'info') return 'info:' + ((typeof IN !== 'undefined' && IN.tab) || 'cat');
+  if (m === 'po') return (typeof PV !== 'undefined' && PV.tab !== 'po') ? 'po:' + PV.tab : 'po';
+  if (m === 'rep') return (typeof RP !== 'undefined' && RP.tab !== 'job') ? 'rep:' + RP.tab : 'rep';
   if (m === 'mfg') return (typeof MF !== 'undefined' && MF.tab !== 'mo') ? 'mfg:' + MF.tab : 'mfg';
   if (m === 'eng') return (typeof ENG !== 'undefined' && ['bolt', 'units'].includes(ENG.tool)) ? 'eng:' + ENG.tool : 'eng';
   return m;
@@ -16448,7 +16786,8 @@ function erpLaunch(open) {
 function erpCounts() {
   const JB = topJobs().filter(j => !isQ(j)), act = JB.filter(j => !['done', 'given'].includes(j.status)), Q = topJobs().filter(j => isQ(j) && ['draft', 'sent'].includes(j.qst || 'draft'));
   const low = (typeof stk === 'function' ? stk() : []).filter(it => it.min > 0 && +it.qty <= +it.min).length, tk = (typeof tasks === 'function' ? tasks() : []).filter(t => t.status !== 'done').length;
-  return { home: 'тойм', sales: `${Q.length} нээлттэй санал`, mfg: `${act.length} идэвхтэй ажил${typeof mos === 'function' && mos().some(m => ['plan', 'run'].includes(m.status)) ? ' · ' + mos().filter(m => ['plan', 'run'].includes(m.status)).length + ' MO' : ''}`, cut: 'даац, боолт, өрөлт', stock: low ? `${low} бараа дутуу` : 'үлдэгдэл', team: `${tk} нээлттэй даалгавар`, qual: (() => { const n = typeof ncrs === 'function' ? ncrs().filter(x => x.st !== 'closed').length : 0, g = typeof gauges === 'function' ? gauges().filter(x => gSt(x)[0] === 'over').length : 0; return n || g ? [n ? `${n} нээлттэй NCR` : '', g ? `${g} багаж хэтэрсэн` : ''].filter(Boolean).join(' · ') : 'шалгалт, NCR, мөшгөлт'; })(), lib: 'үнэ, стандарт' };
+  const buyC = typeof pos === 'function' ? (() => { const o = pos().filter(p => ['sent', 'part'].includes(p.status)).length, l = pos().filter(poLate).length; return o ? `${o} хүлээгдэж буй PO${l ? ` · ${l} хоцорсон` : ''}` : 'PO, хэрэгцээ, нийлүүлэгч'; })() : '';
+  return { buy: buyC, rep: 'ашиг, борлуулалт', home: 'тойм', sales: `${Q.length} нээлттэй санал`, mfg: `${act.length} идэвхтэй ажил${typeof mos === 'function' && mos().some(m => ['plan', 'run'].includes(m.status)) ? ' · ' + mos().filter(m => ['plan', 'run'].includes(m.status)).length + ' MO' : ''}`, cut: 'даац, боолт, өрөлт', stock: low ? `${low} бараа дутуу` : 'үлдэгдэл', team: `${tk} нээлттэй даалгавар`, qual: (() => { const n = typeof ncrs === 'function' ? ncrs().filter(x => x.st !== 'closed').length : 0, g = typeof gauges === 'function' ? gauges().filter(x => gSt(x)[0] === 'over').length : 0; return n || g ? [n ? `${n} нээлттэй NCR` : '', g ? `${g} багаж хэтэрсэн` : ''].filter(Boolean).join(' · ') : 'шалгалт, NCR, мөшгөлт'; })(), lib: 'үнэ, стандарт' };
 }
 
 /* ---------- control panel ---------- */

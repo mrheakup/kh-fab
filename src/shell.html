@@ -501,6 +501,8 @@ label.fld,.fld>.flab{font-size:11.5px;font-weight:600;color:var(--ink-3);letter-
       <button data-mod="quotes" role="tab" title="Үнийн санал бэлдэх, илгээх, ажил болгох"><svg class="mico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg>Үнийн санал</button>
       <button data-mod="jobs" role="tab" title="Ажлын scope, үйлдвэрлэл, явц, зардал, хүлээлгэх"><svg class="mico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18"/></svg>Ажил</button>
       <span class="mgrp">Үйлдвэрлэл</span>
+      <button data-mod="po" role="tab" title="Худалдан авалт, хэрэгцээ, нийлүүлэгч">🛒 Худалдан авалт</button>
+      <button data-mod="rep" role="tab" title="Ашиг, борлуулалт, машины ашиглалт">📊 Тайлан</button>
       <button data-mod="mfg" role="tab" title="Үйлдвэрлэлийн захиалга, ажлын байр, чанарын шалгалт, NCR, мөшгөлт (ISO 9001)"><svg class="mico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>Үйлдвэрлэл · чанар</button>
       <button data-mod="plan" role="tab" title="Бүх ажлын Gantt хуваарь, машин/постын ачаалал"><svg class="mico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5h8M3 12h13M3 19h6"/><rect x="13" y="3" width="8" height="4" rx="1"/><rect x="17" y="10" width="4" height="4" rx="1"/><rect x="11" y="17" width="7" height="4" rx="1"/></svg>Төлөвлөгөө</button>
       <button data-mod="stock" role="tab" title="Агуулах: үлдэгдэл, орлого, ажилд зарлага, тооллого"><svg class="mico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l9-5 9 5v11H3z"/><path d="M7 20v-7h10v7M7 16h10"/></svg>Агуулах</button>
@@ -993,6 +995,10 @@ label.fld,.fld>.flab{font-size:11.5px;font-weight:600;color:var(--ink-3);letter-
     </div>
   </aside>
   <main class="main" id="rollMain" hidden></main>
+  <aside class="side" id="poSide" hidden><div class="ptitle">Худалдан авалт<small>PO · хэрэгцээ · нийлүүлэгч</small></div><div class="panel-body"><div id="poList" class="plist"></div></div></aside>
+  <main class="main" id="poMain" hidden></main>
+  <aside class="side" id="repSide" hidden><div class="ptitle">Тайлан<small>ашиг · борлуулалт · машин</small></div><div class="panel-body"><div id="repList" class="plist"></div></div></aside>
+  <main class="main" id="repMain" hidden></main>
   <aside class="side" id="mfgSide" hidden>
     <div class="ptitle">Үйлдвэрлэл · чанар<small>MO · ажлын байр · QC · NCR · мөшгөлт</small></div>
     <div class="panel-body"><div id="mfgList" class="plist"></div></div>

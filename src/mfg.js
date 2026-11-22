@@ -10,7 +10,7 @@ const mfArr = k => (Array.isArray(S[k]) ? S[k] : (S[k] = []));
 const mos = () => mfArr('mos'), qcs = () => mfArr('qcs'), ncrs = () => mfArr('ncrs'), gauges = () => mfArr('gauges');
 function mfNo(k) { const y = today().slice(0, 4); if (!S.mfSeq || typeof S.mfSeq !== 'object') S.mfSeq = {}; const key = k + y; S.mfSeq[key] = (+S.mfSeq[key] || 0) + 1; return `${k}-${y}-${String(S.mfSeq[key]).padStart(3, '0')}`; }
 const mfLog = (o, m) => { (o.log = o.log || []).push({ t: today(), who: S.me || '', m }); };
-const mfIso = k => (S.iso && S.iso[k]) || { formMO: 'KH-PR-F01', formQC: 'KH-QC-F01', formNCR: 'KH-QC-F02', formTrace: 'KH-QC-F03', formGauge: 'KH-QC-F04' }[k] || '';
+const mfIso = k => (S.iso && S.iso[k]) || { formMO: 'KH-PR-F01', formQC: 'KH-QC-F01', formNCR: 'KH-QC-F02', formTrace: 'KH-QC-F03', formGauge: 'KH-QC-F04', formPO: 'KH-PU-F01', formSup: 'KH-PU-F02' }[k] || '';
 const mfJobs = () => topJobs().filter(j => !isQ(j));
 const mfJobTxt = id => { const j = id && findJob(id); return j ? `${j.no}${j.customer ? ' · ' + j.customer : ''}` : ''; };
 const mfB = (cls, t) => `<span class="erp-b s-${cls}">${esc(t)}</span>`;
@@ -93,16 +93,24 @@ function moBlockers(mo) {
   if (!mo.appr) B.push('Баталсан хүн (гаргахыг зөвшөөрөх эрхтэй) сонгогдоогүй');
   return B;
 }
-function opSetSt(mo, op, st) {
+/* actual hours of a finished operation go into the job's expenses as labour (one line per operation, kept in step) */
+function moLaborExp(mo, op) {
+  const j = mo.job && findJob(mo.job); if (!j) return; jx(j); const r = machRate(op.mach) || +S.mfRate || 25000, h = Math.round((+op.act || 0) * 100) / 100;
+  let e = j.prog.exp.find(x => x.ref === op.id); if (!h || op.st !== 'done') { if (e) j.prog.exp.splice(j.prog.exp.indexOf(e), 1); return; }
+  if (!e) { e = { ref: op.id, date: today(), cat: 'labor', stage: '' }; j.prog.exp.push(e); }
+  Object.assign(e, { desc: `${mo.no}: ${op.name} (${machName(op.mach) || 'гар ажил'})`, hours: h, amount: Math.round(h * r), who: pName(op.who) || '' });
+}
+function opSetSt(mo, op, st, o = {}) {
   const j = mo.job && findJob(mo.job);
   if (op.st === 'run' && op.t0) { op.act = Math.round(((+op.act || 0) + (Date.now() - op.t0) / 3.6e6) * 100) / 100; op.t0 = null; }
   if (st === 'run') { op.t0 = Date.now(); op.d0 = op.d0 || today(); if (!op.who && S.me) op.who = S.me; if (mo.status === 'plan' || mo.status === 'draft') { mo.status = 'run'; mfLog(mo, 'Үйлдвэрлэл эхэлсэн'); } }
   if (st === 'done') {
+    if (op.hold === 'H' && !qcs().some(q => q.mo === mo.id && q.op === op.id && ['pass', 'cond'].includes(q.res)) && o.remote) throw new Error(`«${op.name}» бол Hold цэг — чанарын шалгалт тэнцсэний дараа дуусгана. Чанарын хяналтын ажилтанд мэдэгдэнэ үү.`);
     if (op.hold === 'H' && !qcs().some(q => q.mo === mo.id && q.op === op.id && ['pass', 'cond'].includes(q.res)) && !confirm(`«${op.name}» бол Hold (зогсох) цэг. Чанарын шалгалт тэнцээгүй байна.\nЭнэ үйлдлийг дууссан гэж тэмдэглээд, дараагийнхыг шалгалтгүйгээр эхлүүлэх үү?`)) return;
     op.done = today(); op.d0 = op.d0 || today();
     if (j) { jx(j); const sg = (j.scope.stages || []).find(s => String(s.name).trim().toLowerCase() === String(op.name).trim().toLowerCase()); if (sg) sg.pct = 100; jobLog(`${mo.no}: «${op.name}» дууссан (${mfH(op.act)} цаг)`, j); }
   }
-  op.st = st; mfLog(mo, `${op.name}: ${OP_ST[st][0]}`);
+  op.st = st; mfLog(mo, `${o.remote ? '📱 ' : ''}${op.name}: ${OP_ST[st][0]}${o.who ? ' — ' + o.who : ''}`); moLaborExp(mo, op);
   if (st === 'done' && (mo.ops || []).every(o => o.st === 'done') && mo.status !== 'closed') { mo.status = 'done'; mfLog(mo, 'Бүх үйлдэл дууссан'); }
   save();
 }
@@ -138,16 +146,17 @@ function renderMfg() {
 const mfGo = (tab, sel) => { MF.tab = tab; MF.sel = sel || null; mfSave(); if (typeof erpOn === 'function' && erpOn() && typeof erpGo === 'function') { erpGo(tab === 'mo' ? 'mfg' : 'mfg:' + tab, { keep: 1 }); MF.sel = sel || null; renderMfg(); } else { setModule('mfg'); } };
 /* list page shell: control panel + filter chips + table */
 function mfListPage(el, o) {
+  const st = o.st || MF, rr = o.rr || renderMfg, mid = o.main || '#mfgMain';
   el.innerHTML = erpCP({ crumbs: [[o.title]], right: o.right || '',
-    row2: `<div class="erp-search">${erpIcon('search').replace('<svg', '<svg width="16" height="16" style="color:var(--ink-3);flex:none"')}<input id="mfQ" placeholder="${esc(o.ph || 'Хайх…')}" value="${esc(MF.q || '')}"></div>
-      ${o.chips ? `<div class="erp-filters">${o.chips.map(([k, n, c]) => `<button class="erp-chip${MF.f === k ? ' on' : ''}" data-mff="${k}">${esc(n)}${c != null ? ` <span class="mono">${c}</span>` : ''}</button>`).join('')}</div>` : ''}
+    row2: `<div class="erp-search">${erpIcon('search').replace('<svg', '<svg width="16" height="16" style="color:var(--ink-3);flex:none"')}<input id="mfQ" placeholder="${esc(o.ph || 'Хайх…')}" value="${esc(st.q || '')}"></div>
+      ${o.chips ? `<div class="erp-filters">${o.chips.map(([k, n, c]) => `<button class="erp-chip${st.f === k ? ' on' : ''}" data-mff="${k}">${esc(n)}${c != null ? ` <span class="mono">${c}</span>` : ''}</button>`).join('')}</div>` : ''}
       <span class="erp-pager">${o.rows.length} бичлэг</span>` }) +
     `<div class="erp-view">${o.top || ''}${o.rows.length ? `<div class="erp-list"><table><thead><tr>${o.cols.map(c => `<th class="${c[2] || ''}">${esc(c[1])}</th>`).join('')}</tr></thead><tbody>${o.rows.map(r => `<tr class="rec" data-mfr="${r.id}">${o.cols.map(c => `<td class="${c[2] || ''}">${c[3](r)}</td>`).join('')}</tr>`).join('')}</tbody>${o.foot ? `<tfoot><tr>${o.foot}</tr></tfoot>` : ''}</table></div>` : `<div class="erp-empty"><b>${esc(o.empty || 'Бичлэг алга')}</b>${esc(o.emptyHint || '')}</div>`}</div>`;
-  const qi = el.querySelector('#mfQ'); let tm; qi.addEventListener('input', () => { clearTimeout(tm); tm = setTimeout(() => { MF.q = qi.value; renderMfg(); const n = $('#mfQ'); if (n) { n.focus(); n.setSelectionRange(n.value.length, n.value.length); } }, 250); });
-  el.querySelectorAll('[data-mff]').forEach(b => b.addEventListener('click', () => { MF.f = MF.f === b.dataset.mff ? '' : b.dataset.mff; renderMfg(); }));
-  el.querySelectorAll('[data-mfr]').forEach(r => r.addEventListener('click', () => { MF.sel = r.dataset.mfr; renderMfg(); const m = $('#mfgMain'); if (m) m.scrollTop = 0; }));
+  const qi = el.querySelector('#mfQ'); let tm; qi.addEventListener('input', () => { clearTimeout(tm); tm = setTimeout(() => { st.q = qi.value; rr(); const n = $('#mfQ'); if (n) { n.focus(); n.setSelectionRange(n.value.length, n.value.length); } }, 250); });
+  el.querySelectorAll('[data-mff]').forEach(b => b.addEventListener('click', () => { st.f = st.f === b.dataset.mff ? '' : b.dataset.mff; rr(); }));
+  el.querySelectorAll('[data-mfr]').forEach(r => r.addEventListener('click', () => { st.sel = r.dataset.mfr; rr(); const m = $(mid); if (m) m.scrollTop = 0; }));
 }
-const mfMatch = (o, keys) => { const q = lc(MF.q || ''); return !q || lc(keys.join(' ')).includes(q); };
+const mfMatch = (o, keys, st) => { const q = lc((st || MF).q || ''); return !q || lc(keys.join(' ')).includes(q); };
 /* form page shell: control panel + status bar, then the body */
 function mfFormTop(o) {
   return erpCP({ crumbs: o.crumbs, right: o.right || '' }) + `<div class="erp-sbar"><div class="acts">${o.acts || ''}</div>${o.stages ? `<div class="erp-stages">${o.stages}</div>` : ''}</div>`;
@@ -243,15 +252,15 @@ function moForm(el, mo) {
     if (to === 'closed') { el.querySelector('#moRel') && el.querySelector('#moRel').click(); return; }
     if (to === 'plan' && !(mo.ops || []).length) { toast('Эхлээд маршрутад үйлдэл нэмнэ үү'); return; }
     if (to === 'done' && (mo.ops || []).some(o => o.st !== 'done') && !confirm('Дуусаагүй үйлдэл байна. Бүгдийг дууссан гэж тэмдэглэх үү?')) return;
-    if (to === 'done') (mo.ops || []).forEach(o => { if (o.st !== 'done') { if (o.st === 'run' && o.t0) { o.act = Math.round(((+o.act || 0) + (Date.now() - o.t0) / 3.6e6) * 100) / 100; o.t0 = null; } o.st = 'done'; o.done = today(); } });
+    if (to === 'done') (mo.ops || []).forEach(o => { if (o.st !== 'done') { if (o.st === 'run' && o.t0) { o.act = Math.round(((+o.act || 0) + (Date.now() - o.t0) / 3.6e6) * 100) / 100; o.t0 = null; } o.st = 'done'; o.done = today(); moLaborExp(mo, o); } });
     mfLog(mo, `${stOf(MO_ST, mo.status)[1]} → ${stOf(MO_ST, to)[1]}`); mo.status = to; if (to !== 'closed') { mo.relBy = ''; mo.relDate = ''; } save(); re();
   }));
   const rel = el.querySelector('#moRel'); if (rel) rel.addEventListener('click', () => {
     const B = moBlockers(mo); if (B.length) { alert('Гаргах боломжгүй (ISO 9001 §8.6):\n\n• ' + B.join('\n• ')); return; }
     mo.status = 'closed'; mo.relBy = mo.appr; mo.relDate = today(); mfLog(mo, `Гаргахыг зөвшөөрсөн: ${pName(mo.appr)}`); if (j) jobLog(`${mo.no} гаргахыг зөвшөөрсөн (${pName(mo.appr)})`, j); save(); re();
   });
-  el.querySelectorAll('[data-opst]').forEach(b => b.addEventListener('click', () => { const [i, s] = b.dataset.opst.split(':'); const o = mo.ops[+i]; if (!o) return; if (s === 'wait') { o.st = 'wait'; o.done = ''; mfLog(mo, `${o.name}: дахин нээсэн`); save(); } else opSetSt(mo, o, s); re(); }));
-  el.querySelectorAll('[data-opact]').forEach(f => f.addEventListener('change', () => { const o = mo.ops[+f.dataset.opact]; o.act = +f.value || 0; save(); re(); }));
+  el.querySelectorAll('[data-opst]').forEach(b => b.addEventListener('click', () => { const [i, s] = b.dataset.opst.split(':'); const o = mo.ops[+i]; if (!o) return; if (s === 'wait') { o.st = 'wait'; o.done = ''; moLaborExp(mo, o); mfLog(mo, `${o.name}: дахин нээсэн`); save(); } else opSetSt(mo, o, s); re(); }));
+  el.querySelectorAll('[data-opact]').forEach(f => f.addEventListener('change', () => { const o = mo.ops[+f.dataset.opact]; o.act = +f.value || 0; moLaborExp(mo, o); save(); re(); }));
   el.querySelectorAll('[data-opqc]').forEach(b => b.addEventListener('click', () => { const o = mo.ops[+b.dataset.opqc]; const ty = /гагнуур|weld/i.test(o.name) ? 'VT' : /будаг|элс|paint|blast/i.test(o.name) ? 'DFT' : /NDT/i.test(o.name) ? 'NDT' : /хүлээн авах|VIR/i.test(o.name) ? 'VIR' : 'DIM'; const q = newQC({ type: ty, mo: mo.id, op: o.id, job: mo.job, item: mo.item, std: /гагнуур/i.test(o.name) ? qcT('VT')[2] : qcT(ty)[2] }); mfLog(mo, `${q.no} шалгалт нээсэн (${o.name})`); save(); mfGo('qc', q.id); }));
   el.querySelector('#moQC').addEventListener('click', () => { const fin = mo.status === 'done'; const q = newQC({ type: fin ? 'FINAL' : 'DIM', mo: mo.id, job: mo.job, item: mo.item }); mfLog(mo, `${q.no} шалгалт нээсэн`); save(); mfGo('qc', q.id); });
   el.querySelector('#moNCR').addEventListener('click', () => { const n = newNCR({ mo: mo.id, job: mo.job, item: mo.item }); mfLog(mo, `${n.no} NCR нээсэн`); save(); mfGo('ncr', n.id); });
@@ -267,10 +276,15 @@ function moForm(el, mo) {
   el.querySelector('#moDel').addEventListener('click', () => { if ((mo.mats || []).some(m => m.mv)) { toast('Материал олгосон тул устгах боломжгүй — «Ноорог» болгож, тайлбар бичнэ үү'); return; } if (!confirm(`${mo.no}-г устгах уу?`)) return; S.mos = mos().filter(x => x !== mo); MF.sel = null; save(); re(); });
   erpBindCrumbs(el, [['', () => { MF.sel = null; re(); }], ['']]);
 }
+/* phone link for one MO (works when «Утаснаас бүртгэх» is on): the shop scans the route card */
+async function mfQrUrl(mo) {
+  try { if (!(window.kh && window.kh.linkInfo)) return ''; const I = await window.kh.linkInfo(); if (!I.mobile || !I.token || !(I.ips || []).length) return ''; if (!window.qrcode) { try { await loadScript('vendor/qrcode.js'); } catch (e) { } } return `http://${I.ips[0]}:${I.port}/m?t=${encodeURIComponent(I.token)}&mo=${encodeURIComponent(mo.id)}`; } catch (e) { return ''; }
+}
 async function moDoc(mo) {
   const SC = mfSchedule(), j = mo.job && findJob(mo.job), c = moCost(mo);
   const D = await kdoc({ title: 'ҮЙЛДВЭРЛЭЛИЙН ЗАХИАЛГА — МАРШРУТЫН КАРТ', sub: `${mo.no} · ${today()}`, code: mfIso('formMO') });
   D.kv([['MO дугаар', mo.no], ['Ажил', j ? j.no : '—'], ['Захиалагч', j ? j.customer || '—' : '—'], ['Бүтээгдэхүүн', mo.item || '—'], ['Тоо', `${nf(+mo.qty || 0)} ${mo.unit || ''}`], ['Хугацаа', mo.due || '—'], ['Зураг / rev', `${mo.dwg || '—'} / ${mo.rev || '—'}`], ['Хүлээн авах стандарт', mo.std || '—']], 2);
+  { const qr = await mfQrUrl(mo); if (qr && window.qrcode) { D.need(30); const y = D.y + 1; drawQR(D.x, qr, D.PW - D.M - 26, y, 26); D.x.fillStyle = '#1f2328'; D.x.font = `600 3.2px ${DF}`; D.x.fillText('Цехийн терминал', D.M, y + 8); D.x.font = `400 2.8px ${DF}`; D.x.fillStyle = '#475467'; D.x.fillText('Утасны камераар QR-ыг уншуулж үйлдлээ ▶ эхлүүлэх, ⏸ зогсоох, ✓ дуусгах — бодит цаг автоматаар бүртгэгдэнэ.', D.M, y + 13); D.x.fillText('Утас үйлдвэрийн Wi-Fi-д холбогдсон байна.', D.M, y + 17.5); D.y = y + 28; } }
   D.h2('Маршрут', 'H — зогсох цэг · W — гэрчлэх · R — бүртгэл');
   D.table([{ t: '№', w: 8, m: 1 }, { t: 'Үйлдэл' }, { t: 'Ажлын байр', w: 34 }, { t: 'Цэг', w: 10, a: 'c' }, { t: 'Төлөвлөгөө', w: 26, m: 1 }, { t: 'Төл. цаг', w: 15, a: 'r', m: 1 }, { t: 'Бодит цаг', w: 16, a: 'r', m: 1 }, { t: 'Гүйцэтгэгч / гарын үсэг', w: 38 }],
     (mo.ops || []).map((o, i) => { const r = SC.R[o.id] || {}; return [i + 1, o.name, machName(o.mach) || 'гар ажил', o.hold || '', r.s ? `${r.s.slice(5)} → ${r.e.slice(5)}` : '', mfH(opPlanH(o, mo)), o.act ? mfH(o.act) : '', o.who ? pName(o.who) : '']; }), { minRh: 8 });
@@ -392,8 +406,8 @@ function ncrForm(el, n) {
     acts: `${nx ? `<button class="btn primary" id="ncNext"${why ? ` title="${esc(why)}"` : ''}>→ ${esc(nx[1])}</button>` : '<button class="btn" id="ncReopen">Дахин нээх</button>'}${qc ? `<button class="btn ghost" data-goqc="${qc.id}">← ${esc(qc.no)}</button>` : ''}${mo ? `<button class="btn ghost" data-gomo="${mo.id}">← ${esc(mo.no)}</button>` : ''}${n.disp === 'rework' || n.disp === 'repair' ? `<button class="btn" id="ncReQC">+ Дахин шалгалт</button>` : ''}`,
     stages: NCR_ST.map(([k, t], i) => `<button class="${k === n.st ? 'on' : i < ci ? 'past' : ''}">${esc(t)}</button>`).join('') }) + `<div class="mf-body">
     ${why && nx ? `<div class="mf-info">Дараагийн шат руу шилжихийн тулд: ${esc(why)}.</div>` : ''}
-    ${mfCard('1. Үл тохирлын тодорхойлолт', `<div class="jgrid">${fldIn('nc_date', 'Огноо', n.date, { type: 'date' })}${mfSel('nc_src', NCR_SRC, n.src, 'Эх үүсвэр')}${mfSel('nc_job', mfJobOpts(), n.job, 'Ажил', 'grow')}${fldIn('nc_item', 'Эд анги / материал', n.item, { cls: 'grow' })}${fldIn('nc_heat', 'Хайлалтын дугаар', n.heat, { list: 'dl-heat' })}${fldIn('nc_qty', 'Тоо хэмжээ', n.qty)}${mfSel('nc_by', mfPeople(), n.by, 'Илрүүлсэн')}</div>
-      ${fldIn('nc_desc', 'Юу шаардлага хангаагүй вэ (шаардлага ↔ бодит байдал)', n.desc, { area: 1, rows: 3 })}<datalist id="dl-heat">${(S.certs || []).map(c => `<option value="${esc(c.heat)}">`).join('')}</datalist>`)}
+    ${mfCard('1. Үл тохирлын тодорхойлолт', `<div class="jgrid">${fldIn('nc_date', 'Огноо', n.date, { type: 'date' })}${mfSel('nc_src', NCR_SRC, n.src, 'Эх үүсвэр')}${mfSel('nc_job', mfJobOpts(), n.job, 'Ажил', 'grow')}${fldIn('nc_item', 'Эд анги / материал', n.item, { cls: 'grow' })}${fldIn('nc_heat', 'Хайлалтын дугаар', n.heat, { list: 'dl-heat' })}${n.src === 'sup' ? fldIn('nc_sup', 'Нийлүүлэгч', n.sup || '', { list: 'dl-ncsup' }) : ''}${fldIn('nc_qty', 'Тоо хэмжээ', n.qty)}${mfSel('nc_by', mfPeople(), n.by, 'Илрүүлсэн')}</div>
+      ${fldIn('nc_desc', 'Юу шаардлага хангаагүй вэ (шаардлага ↔ бодит байдал)', n.desc, { area: 1, rows: 3 })}<datalist id="dl-heat">${(S.certs || []).map(c => `<option value="${esc(c.heat)}">`).join('')}</datalist><datalist id="dl-ncsup">${orgs().map(o => `<option value="${esc(o.name)}">`).join('')}</datalist>`)}
     ${mfCard('2. Шийдвэр (disposition) — ISO 9001 §8.7', `<div class="jgrid">${mfSel('nc_disp', NCR_DISP, n.disp, 'Шийдвэр', 'grow')}${mfSel('nc_dispBy', mfPeople(), n.dispBy, 'Шийдвэр гаргасан')}${fldIn('nc_cost', 'Үл тохирлын зардал, ₮', n.cost, { num: 1 })}</div>${fldIn('nc_dispNote', 'Тайлбар (захиалагчийн зөвшөөрөл, засварын арга…)', n.dispNote, { area: 1, rows: 2 })}`)}
     ${mfCard('3. Үндсэн шалтгаан ба залруулах арга хэмжээ — §10.2', `<div class="jgrid">${mfSel('nc_cause6', [['', '— 6M ангилал —']].concat(NCR_6M.map(c => [c, c])), n.cause6, 'Шалтгааны ангилал')}${mfSel('nc_caOwner', mfPeople(), n.caOwner, 'Хариуцагч')}${fldIn('nc_caDue', 'Хэрэгжүүлэх хугацаа', n.caDue, { type: 'date' })}</div>
       ${fldIn('nc_cause', 'Үндсэн шалтгаан (5 яагаад)', n.cause, { area: 1, rows: 3 })}${fldIn('nc_ca', 'Залруулах арга хэмжээ (дахин гаргахгүйн тулд)', n.ca, { area: 1, rows: 3 })}
@@ -401,7 +415,7 @@ function ncrForm(el, n) {
     ${mfCard('4. Үр нөлөөг шалгах, хаах', `<div class="jgrid">${mfSel('nc_verBy', mfPeople(), n.verBy, 'Шалгасан')}${fldIn('nc_verDate', 'Огноо', n.verDate, { type: 'date' })}</div>${fldIn('nc_verify', 'Арга хэмжээ үр дүнтэй болсон эсэх', n.verify, { area: 1, rows: 2 })}`)}
     ${mfCard('Түүх', mfLogHTML(n))}</div>`;
   const re = () => renderMfg();
-  mfBind(el, n, [['nc_date', 'date'], ['nc_src', 'src'], ['nc_job', 'job'], ['nc_item', 'item'], ['nc_heat', 'heat'], ['nc_qty', 'qty'], ['nc_by', 'by'], ['nc_desc', 'desc'], ['nc_disp', 'disp'], ['nc_dispBy', 'dispBy'], ['nc_cost', 'cost', 1], ['nc_dispNote', 'dispNote'], ['nc_cause6', 'cause6'], ['nc_caOwner', 'caOwner'], ['nc_caDue', 'caDue'], ['nc_cause', 'cause'], ['nc_ca', 'ca'], ['nc_verBy', 'verBy'], ['nc_verDate', 'verDate'], ['nc_verify', 'verify']], k => { if (['disp', 'dispBy', 'cause6', 'caOwner', 'verBy', 'ca'].includes(k)) re(); });
+  mfBind(el, n, [['nc_date', 'date'], ['nc_src', 'src'], ['nc_job', 'job'], ['nc_item', 'item'], ['nc_heat', 'heat'], ['nc_qty', 'qty'], ['nc_sup', 'sup'], ['nc_by', 'by'], ['nc_desc', 'desc'], ['nc_disp', 'disp'], ['nc_dispBy', 'dispBy'], ['nc_cost', 'cost', 1], ['nc_dispNote', 'dispNote'], ['nc_cause6', 'cause6'], ['nc_caOwner', 'caOwner'], ['nc_caDue', 'caDue'], ['nc_cause', 'cause'], ['nc_ca', 'ca'], ['nc_verBy', 'verBy'], ['nc_verDate', 'verDate'], ['nc_verify', 'verify']], k => { if (k === 'heat' && n.src === 'sup' && !n.sup) { const c = (S.certs || []).find(x => lc(x.heat) === lc(n.heat)); if (c && c.sup) { n.sup = c.sup; save(); re(); } } if (['disp', 'dispBy', 'cause6', 'caOwner', 'verBy', 'ca', 'src'].includes(k)) re(); });
   const nb = el.querySelector('#ncNext'); if (nb) nb.addEventListener('click', () => { const w = ncrNext(n); if (w) { toast(w); return; } mfLog(n, `${stOf(NCR_ST, n.st)[1]} → ${nx[1]}`); n.st = nx[0]; if (n.st === 'closed' && !n.verDate) n.verDate = today(); save(); re(); });
   const ro = el.querySelector('#ncReopen'); if (ro) ro.addEventListener('click', () => { n.st = 'ca'; mfLog(n, 'Дахин нээсэн'); save(); re(); });
   const rq = el.querySelector('#ncReQC'); if (rq) rq.addEventListener('click', () => { const old = qc; const q = newQC({ type: old ? old.type : 'DIM', mo: n.mo, op: old ? old.op : '', job: n.job, item: n.item, heat: n.heat, note: `${n.no}-ийн дараах дахин шалгалт` }); mfLog(n, `Дахин шалгалт ${q.no}`); save(); mfGo('qc', q.id); });
@@ -438,9 +452,9 @@ function gaugePage(el) {
   el.innerHTML = erpCP({ crumbs: [['Хэмжих багаж — тохируулга']], right: '<button class="btn" data-gout="pdf">Бүртгэл PDF</button><button class="btn ghost" data-gout="print">🖨</button>' }) + `<div class="mf-body">
     ${over ? `<div class="mf-warn"><b>${over} багажийн тохируулгын хугацаа хэтэрсэн.</b> Эдгээрийг ашиглалтаас гаргаж, тохируулга хийлгэнэ үү (ISO 9001 §7.1.5.2).</div>` : soon ? `<div class="mf-info">${soon} багажийн тохируулга 30 хоногт дуусна.</div>` : ''}
     ${mfCard('Хэмжих, хяналтын багажийн бүртгэл', `${edTable('gg', G_COLS, G)}${G.length ? '' : '<p class="note">Жишээ: штангенциркуль, микрометр, гагнуурын калибр, DFT хэмжигч, хатуулаг хэмжигч, рулет, түвшин, момент түлхүүр, UT/MT багаж.</p>'}`)}
-    ${mfCard('ISO маягтын код', `<div class="jgrid">${[['formMO', 'Маршрутын карт'], ['formQC', 'Шалгалтын тайлан'], ['formNCR', 'NCR'], ['formTrace', 'Мөшгөлтийн тайлан'], ['formGauge', 'Багажийн бүртгэл']].map(([k, l]) => fldIn('iso2_' + k, l, mfIso(k))).join('')}</div><p class="note">PDF баримт бүрийн доод буланд хэвлэгдэнэ.</p>`)}</div>`;
+    ${mfCard('ISO маягтын код', `<div class="jgrid">${[['formMO', 'Маршрутын карт'], ['formQC', 'Шалгалтын тайлан'], ['formNCR', 'NCR'], ['formTrace', 'Мөшгөлтийн тайлан'], ['formGauge', 'Багажийн бүртгэл'], ['formPO', 'Худалдан авалтын захиалга'], ['formSup', 'Нийлүүлэгчийн үнэлгээ']].map(([k, l]) => fldIn('iso2_' + k, l, mfIso(k))).join('')}</div><p class="note">PDF баримт бүрийн доод буланд хэвлэгдэнэ.</p>`)}</div>`;
   bindEd(el, { gg: { arr: gauges, cols: G_COLS, blank: () => ({ id: uid(), code: 'G-' + String(gauges().length + 1).padStart(3, '0'), name: '', serial: '', range: '', loc: '', last: today(), months: 12, cert: '', active: true }) } }, () => renderMfg());
-  ['formMO', 'formQC', 'formNCR', 'formTrace', 'formGauge'].forEach(k => { const f = el.querySelector('#iso2_' + k); if (f) f.addEventListener('change', () => { S.iso = S.iso || {}; S.iso[k] = f.value.trim(); save(); }); });
+  ['formMO', 'formQC', 'formNCR', 'formTrace', 'formGauge', 'formPO', 'formSup'].forEach(k => { const f = el.querySelector('#iso2_' + k); if (f) f.addEventListener('change', () => { S.iso = S.iso || {}; S.iso[k] = f.value.trim(); save(); }); });
   el.querySelectorAll('[data-gout]').forEach(b => b.addEventListener('click', () => docOut(b.dataset.gout, async () => { const D = await kdoc({ title: 'ХЭМЖИХ БАГАЖИЙН ТОХИРУУЛГЫН БҮРТГЭЛ', sub: today(), code: mfIso('formGauge'), landscape: true }); D.table([{ t: 'Код', w: 20, m: 1 }, { t: 'Багаж' }, { t: 'Сериал', w: 26, m: 1 }, { t: 'Хязгаар', w: 34 }, { t: 'Байршил', w: 30 }, { t: 'Тохируулсан', w: 24, m: 1 }, { t: 'Сар', w: 12, a: 'r', m: 1 }, { t: 'Дараагийн', w: 24, m: 1 }, { t: 'Гэрчилгээ', w: 26 }, { t: 'Төлөв', w: 30 }], gauges().map(g => ({ cells: [g.code, g.name, g.serial, g.range, g.loc, g.last, g.months, gNext(g), g.cert, gSt(g)[1]], fill: gSt(g)[0] === 'over' ? '#fef3f2' : '' }))); D.sigs(['Бүртгэсэн', 'Чанарын хариуцсан']); return D; }, 'Багажийн_тохируулга')));
 }
 

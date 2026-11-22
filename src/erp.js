@@ -7,6 +7,8 @@ const ERP_IC = {
   sales: '<path d="M7 3h8l4 4v14H7z"/><path d="M15 3v4h4"/><path d="M10 12h6M10 16h6"/>',
   mfg: '<path d="M3 21V10l6 4V10l6 4V6l6 4v11z"/><path d="M7 17h2M12 17h2M17 17h2"/>',
   cut: '<rect x="3" y="5" width="18" height="14" rx="1"/><path d="M7 9h4v4H7zM14 9l3 6"/>',
+  buy: '<circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.6 12.4a2 2 0 0 0 2 1.6h8.3a2 2 0 0 0 2-1.5L22 7H6"/>',
+  rep: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
   stock: '<path d="M3 8l9-5 9 5v8l-9 5-9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/>',
   team: '<circle cx="9" cy="8" r="3"/><path d="M3 20c0-3 3-5 6-5s6 2 6 5"/><circle cx="17" cy="9" r="2.5"/><path d="M16 15c3 0 5 2 5 5"/>',
   lib: '<path d="M4 4h6a2 2 0 012 2v14a2 2 0 00-2-2H4zM20 4h-6a2 2 0 00-2 2v14a2 2 0 012-2h6z"/>',
@@ -29,6 +31,8 @@ const ERP_APPS = [
   { k: 'mfg', n: 'Үйлдвэрлэл', ic: 'mfg', c: '#1d4ed8', items: [['jobs', 'Ажил'], ['mfg', 'Үйлдвэрлэлийн захиалга'], ['mfg:wc', 'Ажлын байр'], ['plan', 'Төлөвлөгөө'], ['docs:scopes', 'Scope'], ['docs:dockets', 'Packing list']] },
   { k: 'cut', n: 'Инженер', ic: 'cut', c: '#0e7490', items: [['eng', 'Тооцоолол'], ['eng:bolt', 'Боолт'], ['eng:units', 'Нэгж хувиргагч'], ['nest', 'Лазер өрөлт'], ['bend', 'Нугалалт'], ['docs:kits', 'Иж бүрдэл']] },
   { k: 'stock', n: 'Агуулах', ic: 'stock', c: '#15803d', items: [['stock', 'Агуулах'], ['docs:certs', 'Материалын гэрчилгээ']] },
+  { k: 'buy', n: 'Худалдан авалт', ic: 'buy', c: '#b45309', items: [['po', 'Худалдан авалтын захиалга'], ['po:need', 'Хэрэгцээ (MRP)'], ['po:sup', 'Нийлүүлэгчийн үнэлгээ']] },
+  { k: 'rep', n: 'Тайлан', ic: 'rep', c: '#4338ca', items: [['rep', 'Ажлын ашиг'], ['rep:sales', 'Борлуулалт'], ['rep:cust', 'Захиалагчаар'], ['rep:mach', 'Машины ашиглалт']] },
   { k: 'qual', n: 'Чанар', ic: 'qual', c: '#be123c', items: [['mfg:qc', 'Шалгалт'], ['mfg:ncr', 'NCR'], ['mfg:trace', 'Мөшгөлт'], ['mfg:gauge', 'Хэмжих багаж']] },
   { k: 'team', n: 'Баг', ic: 'team', c: '#7c3aed', items: [['team', 'Даалгавар'], ['ideas', 'Санаа, сайжруулалт'], ['insp', 'Үзлэг · ХАБ']] },
   { k: 'lib', n: 'Сан', ic: 'lib', c: '#b45309', items: [['info:cat', 'Үнийн сан'], ['info:std', 'Стандарт'], ['info:tpl', 'Загвар'], ['info:mach', 'Техник']] }
@@ -42,7 +46,7 @@ const erpAv = (name, t) => `<span class="erp-av" style="background:${erpAvColor(
 const erpM = v => money(Math.round(+v || 0));
 
 /* ---------- navigation ---------- */
-const erpFull = r => r === 'dash' || r === 'jobs' || r === 'quotes' || String(r).startsWith('mfg');
+const erpFull = r => r === 'dash' || r === 'jobs' || r === 'quotes' || /^(mfg|po|rep)\b/.test(String(r));
 function erpGo(route, o = {}) {
   ERP.route = route; ERP.launch = false; const [m, t] = String(route).split(':');
   document.documentElement.toggleAttribute('data-erpfull', erpFull(route));
@@ -51,6 +55,8 @@ function erpGo(route, o = {}) {
     $$('[data-jtab]').forEach(x => x.classList.toggle('on', x.dataset.jtab === J.tab)); ['jobs', 'kits', 'certs', 'dockets', 'forms', 'scopes', 'invoices'].forEach(k => { const e = $('#jtab-' + k); if (e) e.hidden = k !== J.tab; });
     renderJobs();
   } else if (m === 'eng') { if (typeof ENG !== 'undefined') { ENG.tool = t || (['bolt', 'units'].includes(ENG.tool) && route === 'eng' ? 'beam' : ENG.tool); engSave(); } setModule('eng'); }
+  else if (m === 'po') { if (typeof PV !== 'undefined') { PV.tab = t || 'po'; if (!o.keep) PV.sel = null; PV.q = ''; PV.f = 'open'; pvSave(); } setModule('po'); }
+  else if (m === 'rep') { if (typeof RP !== 'undefined') { RP.tab = t || 'job'; } setModule('rep'); }
   else if (m === 'mfg') { if (typeof MF !== 'undefined') { MF.tab = t || 'mo'; if (!o.keep) MF.sel = null; MF.f = MF.tab === 'mo' ? 'act' : MF.tab === 'ncr' ? 'open' : ''; MF.q = ''; mfSave(); } setModule('mfg'); }
   else if (m === 'info') { setModule('info'); if (t && typeof IN !== 'undefined') { IN.tab = t; renderInfo(); } }
   else if (m === 'jobs' || m === 'quotes') { setModule(m); if (!o.keep) { J.sel = null; J.sub = m === 'quotes' ? 'quote' : 'main'; } renderJobs(); }
@@ -62,6 +68,8 @@ function erpCurRoute() {
   const v = document.documentElement.dataset.jview, act = $$('.modtabs button.on')[0], m = act ? act.dataset.mod : 'nest';
   if (v === 'docs' || (m === 'docs')) return 'docs:' + (J.tab || 'dockets');
   if (m === 'info') return 'info:' + ((typeof IN !== 'undefined' && IN.tab) || 'cat');
+  if (m === 'po') return (typeof PV !== 'undefined' && PV.tab !== 'po') ? 'po:' + PV.tab : 'po';
+  if (m === 'rep') return (typeof RP !== 'undefined' && RP.tab !== 'job') ? 'rep:' + RP.tab : 'rep';
   if (m === 'mfg') return (typeof MF !== 'undefined' && MF.tab !== 'mo') ? 'mfg:' + MF.tab : 'mfg';
   if (m === 'eng') return (typeof ENG !== 'undefined' && ['bolt', 'units'].includes(ENG.tool)) ? 'eng:' + ENG.tool : 'eng';
   return m;
@@ -85,7 +93,8 @@ function erpLaunch(open) {
 function erpCounts() {
   const JB = topJobs().filter(j => !isQ(j)), act = JB.filter(j => !['done', 'given'].includes(j.status)), Q = topJobs().filter(j => isQ(j) && ['draft', 'sent'].includes(j.qst || 'draft'));
   const low = (typeof stk === 'function' ? stk() : []).filter(it => it.min > 0 && +it.qty <= +it.min).length, tk = (typeof tasks === 'function' ? tasks() : []).filter(t => t.status !== 'done').length;
-  return { home: 'тойм', sales: `${Q.length} нээлттэй санал`, mfg: `${act.length} идэвхтэй ажил${typeof mos === 'function' && mos().some(m => ['plan', 'run'].includes(m.status)) ? ' · ' + mos().filter(m => ['plan', 'run'].includes(m.status)).length + ' MO' : ''}`, cut: 'даац, боолт, өрөлт', stock: low ? `${low} бараа дутуу` : 'үлдэгдэл', team: `${tk} нээлттэй даалгавар`, qual: (() => { const n = typeof ncrs === 'function' ? ncrs().filter(x => x.st !== 'closed').length : 0, g = typeof gauges === 'function' ? gauges().filter(x => gSt(x)[0] === 'over').length : 0; return n || g ? [n ? `${n} нээлттэй NCR` : '', g ? `${g} багаж хэтэрсэн` : ''].filter(Boolean).join(' · ') : 'шалгалт, NCR, мөшгөлт'; })(), lib: 'үнэ, стандарт' };
+  const buyC = typeof pos === 'function' ? (() => { const o = pos().filter(p => ['sent', 'part'].includes(p.status)).length, l = pos().filter(poLate).length; return o ? `${o} хүлээгдэж буй PO${l ? ` · ${l} хоцорсон` : ''}` : 'PO, хэрэгцээ, нийлүүлэгч'; })() : '';
+  return { buy: buyC, rep: 'ашиг, борлуулалт', home: 'тойм', sales: `${Q.length} нээлттэй санал`, mfg: `${act.length} идэвхтэй ажил${typeof mos === 'function' && mos().some(m => ['plan', 'run'].includes(m.status)) ? ' · ' + mos().filter(m => ['plan', 'run'].includes(m.status)).length + ' MO' : ''}`, cut: 'даац, боолт, өрөлт', stock: low ? `${low} бараа дутуу` : 'үлдэгдэл', team: `${tk} нээлттэй даалгавар`, qual: (() => { const n = typeof ncrs === 'function' ? ncrs().filter(x => x.st !== 'closed').length : 0, g = typeof gauges === 'function' ? gauges().filter(x => gSt(x)[0] === 'over').length : 0; return n || g ? [n ? `${n} нээлттэй NCR` : '', g ? `${g} багаж хэтэрсэн` : ''].filter(Boolean).join(' · ') : 'шалгалт, NCR, мөшгөлт'; })(), lib: 'үнэ, стандарт' };
 }
 
 /* ---------- control panel ---------- */

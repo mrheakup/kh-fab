@@ -19,15 +19,20 @@ input[type=range]{padding:0;height:36px}
 .seg{display:flex;gap:6px}.seg button{flex:1;padding:10px;border:1px solid var(--line);border-radius:10px;background:#fff;font:inherit;font-weight:600}.seg button.ok{background:var(--ok);color:#fff;border-color:var(--ok)}.seg button.bad{background:var(--bad);color:#fff;border-color:var(--bad)}
 #toast{position:fixed;left:12px;right:12px;bottom:14px;background:#141a20;color:#fff;padding:12px 14px;border-radius:12px;display:none;z-index:9}
 .cm{padding:8px 10px;border-radius:12px;background:#f1f3f5;margin:6px 0;max-width:88%}.cm.me{background:#fde6d4;margin-left:auto}.cm .w{font-size:12px;color:var(--mute)}.cms{max-height:55vh;overflow-y:auto}
+.op{border-left:5px solid var(--line)}.op.run{border-left-color:#f79009}.op.pause{border-left-color:#98a2b3}.op.ready{border-left-color:var(--ok)}.op.done{opacity:.55}
+.op .t{font-size:17px;font-weight:700;margin-bottom:2px}.op .row{display:flex;gap:8px;margin-top:10px}.op .row .btn{margin-top:0;padding:13px 6px;font-size:15px}
+.chip{display:inline-block;font-size:12px;font-weight:600;padding:2px 9px;border-radius:999px;background:#eef1f4;color:#344054;margin-right:4px}.chip.run{background:#fff1e0;color:#b54708}.chip.h{background:#fee4e2;color:#b42318}.chip.ok{background:#dcfae6;color:#067647}
+.btn.ok{background:var(--ok)}.btn.pz{background:#475467}.hr{display:flex;justify-content:space-between;font-size:13px;color:var(--mute);margin-top:6px}
 .thumbs img{width:72px;height:72px;object-fit:cover;border-radius:8px;margin:6px 6px 0 0}
 </style></head><body>
 <header><b id="co">Kh International</b><span id="dt"></span></header>
-<nav><button data-v="jobs" class="on">Ажлын явц</button><button data-v="chat">💬 Чат</button><button data-v="insp">Үзлэг</button></nav>
+<nav><button data-v="shop" class="on">🏭 Цех</button><button data-v="jobs">Ажлын явц</button><button data-v="chat">💬 Чат</button><button data-v="insp">Үзлэг</button></nav>
 <main id="main"><p class="m">Ачаалж байна…</p></main>
 <div id="toast"></div>
 <script>
 const T = new URLSearchParams(location.search).get('t') || '', $ = s => document.querySelector(s);
-let D = null, V = 'jobs', who = localStorage.getItem('kh-who') || '';
+const MO0 = new URLSearchParams(location.search).get('mo') || '';
+let D = null, V = 'shop', MOF = MO0, who = localStorage.getItem('kh-who') || '';
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const toast = (m, ms = 2600) => { const t = $('#toast'); t.textContent = m; t.style.display = 'block'; clearTimeout(t._t); t._t = setTimeout(() => t.style.display = 'none', ms); };
 const api = async (p, body) => { const r = await fetch(p + '?t=' + encodeURIComponent(T), body ? { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) } : {}); const j = await r.json(); if (!r.ok || j.error) throw new Error(j.error || r.status); return j; };
@@ -35,6 +40,7 @@ async function load() { try { D = await api('/api/state'); $('#co').textContent 
 const whoSel = id => `<label>Таны нэр</label><input id="${id}" list="ppl" value="${esc(who)}" placeholder="Нэрээ сонгох эсвэл бичих" autocomplete="off"><datalist id="ppl">${D.people.map(p => `<option value="${esc(p)}">`).join('')}</datalist>`;
 function render() {
   document.querySelectorAll('nav button').forEach(b => b.classList.toggle('on', b.dataset.v === V));
+  if (V === 'shop') { shop(); return; }
   if (V === 'jobs') {
     $('#main').innerHTML = D.jobs.length ? D.jobs.map(j => { const p = j.stages.length ? Math.round(j.stages.reduce((a, s) => a + s.pct, 0) / j.stages.length) : 0; return `<div class="card" data-j="${j.id}"><h3>${esc(j.no)} · ${esc(j.title)}</h3><div class="m">${esc(j.customer)}${j.due ? ' · хугацаа ' + esc(j.due) : ''} · ${esc(j.status)}</div><div class="bar"><i style="width:${p}%"></i></div><div class="m" style="margin-top:4px">Нийт ${p}% — дарж нээнэ</div></div>`; }).join('') : '<div class="card"><p class="m">Идэвхтэй ажил алга.</p></div>';
     document.querySelectorAll('[data-j]').forEach(c => c.onclick = () => job(c.dataset.j));
@@ -55,6 +61,41 @@ function chatView(ch, box) {
     box.querySelector('#csd').onclick = async () => { const w = (box.querySelector('#cw') || $('#who') || {}).value || who, t = box.querySelector('#ctx').value.trim(); if (!w.trim()) return toast('Нэрээ сонгоно уу'); if (!t) return; who = w; localStorage.setItem('kh-who', who);
       try { await api('/api/chat', { ch, text: t, who: w }); D = await api('/api/state'); draw(); } catch (e) { toast('Алдаа: ' + e.message, 5000); } }; };
   draw(); clearInterval(CT); CT = setInterval(async () => { if (!document.body.contains(box) || (box.querySelector('#ctx') || {}).value) return; try { const n = await api('/api/state'); if (JSON.stringify(n.chat) !== JSON.stringify(D.chat)) { D = n; draw(); } } catch (e) { } }, 8000);
+}
+/* ---------- цехийн терминал: үйлдвэрлэлийн захиалгын үйлдэл эхлүүлэх / зогсоох / дуусгах ---------- */
+let ST = null;
+function shop() {
+  const wc = localStorage.getItem('kh-wc') || '', L = [];
+  (D.mos || []).forEach(m => m.ops.forEach(o => { if (MOF ? m.id === MOF : o.st !== 'done' && (!wc || o.mach === wc)) L.push({ m, o }); }));
+  const rank = x => x.o.st === 'run' ? 0 : x.o.st === 'pause' ? 1 : x.o.ready ? 2 : x.o.st === 'done' ? 4 : 3;
+  if (!MOF) L.sort((a, b) => rank(a) - rank(b) || (a.m.prio === 'u' ? -1 : 0) - (b.m.prio === 'u' ? -1 : 0) || String(a.m.due || '9').localeCompare(String(b.m.due || '9')));
+  const W = [...new Set((D.mos || []).flatMap(m => m.ops.map(o => o.mach)))].sort(), mo = MOF && (D.mos || []).find(m => m.id === MOF);
+  const card = ({ m, o }) => { const cls = o.st === 'run' ? 'run' : o.st === 'pause' ? 'pause' : o.st === 'done' ? 'done' : o.ready ? 'ready' : '';
+    return `<div class="card op ${cls}" data-mo="${m.id}" data-op="${o.id}"><div class="t">${esc(o.name)}</div>
+      <div class="m"><b>${esc(m.no)}</b> · ${esc(m.item)} × ${m.qty} ${esc(m.unit)}${m.due ? ' · хугацаа ' + esc(m.due) : ''}</div><div class="m">${esc(m.job)}</div>
+      <div style="margin-top:6px">${o.st === 'run' ? '<span class="chip run">▶ хийгдэж буй</span>' : o.st === 'pause' ? '<span class="chip">⏸ түр зогссон</span>' : o.st === 'done' ? '<span class="chip ok">✓ дууссан</span>' : o.ready ? '<span class="chip ok">бэлэн</span>' : '<span class="chip">өмнөх үйлдэл дуусаагүй</span>'}${o.hold === 'H' ? '<span class="chip h">H — чанарын шалгалттай</span>' : o.hold === 'W' ? '<span class="chip h">W — гэрчлэх</span>' : ''}${m.prio === 'u' ? '<span class="chip h">яаралтай</span>' : ''}</div>
+      <div class="hr"><span>${esc(o.mach)}${o.who ? ' · ' + esc(o.who) : ''}</span><span>Төлөвлөсөн ${o.plan} ц · бодит <b>${o.act}</b> ц</span></div>
+      ${o.st === 'done' ? '' : `<div class="row">${o.st !== 'run' ? `<button class="btn" data-a="run">▶ Эхлэх</button>` : `<button class="btn pz" data-a="pause">⏸ Зогсоох</button>`}<button class="btn ok" data-a="done">✓ Дууссан</button></div>
+      <div class="row"><button class="btn g" data-a="note" style="padding:10px">✎ Тэмдэглэл</button><button class="btn g" data-a="photo" style="padding:10px">📷 Зураг</button></div>`}</div>`; };
+  $('#main').innerHTML = `${MOF ? `<button class="btn g" id="allmo" style="margin-top:0">← Бүх үйлдэл</button>${mo ? `<div class="card"><h3>${esc(mo.no)} · ${esc(mo.item)}</h3><div class="m">${esc(mo.job)} · ${mo.qty} ${esc(mo.unit)}${mo.due ? ' · хугацаа ' + esc(mo.due) : ''}</div>${mo.note ? `<div class="m" style="margin-top:6px">⚠ ${esc(mo.note)}</div>` : ''}</div>` : '<div class="card"><h3>Энэ захиалга идэвхгүй эсвэл дууссан</h3></div>'}` : ''}
+    <div class="card">${whoSel('sw')}${MOF ? '' : `<label>Ажлын байр</label><select id="wc"><option value="">Бүх ажлын байр</option>${W.map(w => `<option${w === wc ? ' selected' : ''}>${esc(w)}</option>`).join('')}</select>`}</div>
+    ${L.length ? L.map(card).join('') : `<div class="card"><p class="m">${(D.mos || []).length ? 'Энэ ажлын байранд хийх үйлдэл алга.' : 'Идэвхтэй үйлдвэрлэлийн захиалга алга (компьютер дээр «Төлөвлөсөн» болгоно).'}</p></div>`}
+    <input type="file" id="sph" accept="image/*" capture="environment" style="display:none">`;
+  const sw = $('#sw'); sw.onchange = sw.oninput = e => { who = e.target.value; localStorage.setItem('kh-who', who); };
+  const w = $('#wc'); if (w) w.onchange = () => { localStorage.setItem('kh-wc', w.value); shop(); };
+  const am = $('#allmo'); if (am) am.onclick = () => { MOF = ''; history.replaceState(null, '', location.pathname + '?t=' + encodeURIComponent(T)); shop(); };
+  document.querySelectorAll('.op [data-a]').forEach(b => b.onclick = async () => {
+    const c = b.closest('.op'), a = b.dataset.a, nm = (sw.value || '').trim(); if (!nm) { toast('Эхлээд нэрээ сонгоно уу'); sw.focus(); return; }
+    const m = D.mos.find(x => x.id === c.dataset.mo), o = m && m.ops.find(x => x.id === c.dataset.op); if (!o) return;
+    if (a === 'photo') { const f = $('#sph'); f.onchange = async () => { const F = f.files[0]; if (!F) return; if (!m.jobId) { toast('Энэ захиалга ажилгүй тул зураг хадгалах газар алга'); return; } try { await api('/api/photo', { job: m.jobId, name: F.name || 'photo.jpg', data: await shrink(F), note: `${m.no} · ${o.name}`, who: nm }); toast('✓ Зураг илгээгдлээ'); } catch (e) { toast('Алдаа: ' + e.message, 5000); } f.value = ''; }; f.click(); return; }
+    let note = ''; if (a === 'note') { note = prompt(`${o.name} — тэмдэглэл (саад, материал дутсан…)`) || ''; if (!note.trim()) return; }
+    if (a === 'done' && !confirm(`«${o.name}» дууссан уу?`)) return;
+    if (a === 'run' && !o.ready && !confirm('Өмнөх үйлдэл дуусаагүй байна. Эхлүүлэх үү?')) return;
+    b.disabled = true;
+    try { const r = await api('/api/opset', { mo: m.id, op: o.id, st: a, who: nm, note }); toast(a === 'run' ? '▶ Эхэллээ — цаг тоолж байна' : a === 'pause' ? `⏸ Зогслоо · ${r.act} цаг` : a === 'done' ? `✓ Дууслаа · ${r.act} цаг` : '✓ Тэмдэглэл хадгалагдлаа'); D = await api('/api/state'); shop(); }
+    catch (e) { toast(e.message, 6000); b.disabled = false; }
+  });
+  clearInterval(ST); ST = setInterval(async () => { if (V !== 'shop' || document.activeElement === sw) return; try { D = await api('/api/state'); shop(); } catch (e) { } }, 30000);
 }
 function job(id) {
   const j = D.jobs.find(x => x.id === id); if (!j) return;
