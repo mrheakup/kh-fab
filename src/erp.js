@@ -365,7 +365,7 @@ function erpBuild() {
   const more = document.createElement('div'); more.className = 'erp-more';
   more.innerHTML = `<button class="btn ghost" id="erpMoreBtn" title="Тохиргоо, өгөгдөл">⚙</button><div class="erp-dd" id="erpDD" hidden><div class="ddh">Харагдах байдал</div></div>`;
   const dd = more.querySelector('#erpDD');
-  ['#skinSel', '#btnTheme'].forEach(s => { const n = $(s); if (n) dd.appendChild(n); });
+  ['#skinSel', '#densSel', '#btnTheme'].forEach(s => { const n = $(s); if (n) dd.appendChild(n); });
   const h2 = document.createElement('div'); h2.className = 'ddh'; h2.textContent = 'Өгөгдөл, төсөл'; dd.appendChild(h2);
   ['#btnDataDir', '#jobName', '#btnOpenProj', '#btnSaveProj'].forEach(s => { const n = $(s); if (n) dd.appendChild(n); });
   const iso = document.createElement('button'); iso.className = 'btn ghost'; iso.textContent = 'ISO маягтын код, операторууд, лого'; iso.addEventListener('click', erpIsoDlg); dd.appendChild(iso);

@@ -733,14 +733,38 @@ html[data-var="erp"] .erp-list thead th{font-weight:700;color:var(--ink)}
 html[data-var="erp"] .erp-list tbody tr.rec:hover td{background:var(--accent-soft)}
 html[data-var="erp"] .erp-b{border-radius:999px}
 html[data-var="erp"] .erp-cp{box-shadow:0 1px 0 var(--line)}
-/* Odoo purple */
-html[data-var="erp"][data-erpt="odoo"]:not([data-theme="dark"]){--accent:#714b67;--accent-soft:#f1eaf0;--acc:#714b67;--link:#017e84;--bg:#f9fafb;--line:#d8dadd;--ink:#111827;--ink-2:#374151;--ink-3:#6b7280}
-html[data-var="erp"][data-erpt="odoo"][data-theme="dark"]{--accent:#b07aa3;--accent-soft:#3a2735;--acc:#b07aa3;--link:#35c5cb}
-html[data-var="erp"][data-erpt="odoo"] .erp-crumbs a,html[data-var="erp"][data-erpt="odoo"] a{color:var(--link)}
+/* colour themes — palette + navbar */
+html[data-var="erp"][data-erpt="odoo"]:not([data-theme="dark"]){--accent:#714b67;--accent-soft:#f3ecf1;--acc:#714b67;--link:#017e84;--bg:#f9fafb;--nav-bg:#714b67}
+html[data-var="erp"][data-erpt="steel"]:not([data-theme="dark"]){--accent:#1d5fa8;--accent-soft:#e8f0fa;--acc:#1d5fa8;--link:#1d5fa8;--bg:#f2f5f9;--nav-bg:#18324f}
+html[data-var="erp"][data-erpt="graphite"]:not([data-theme="dark"]){--accent:#e0650f;--accent-soft:#fdf0e6;--acc:#e0650f;--link:#c2560b;--bg:#f4f4f5;--nav-bg:#1f2328}
+html[data-var="erp"][data-erpt="green"]:not([data-theme="dark"]){--accent:#0f7a5c;--accent-soft:#e6f4ef;--acc:#0f7a5c;--link:#0f7a5c;--bg:#f3f7f5;--nav-bg:#0f3d31}
+html[data-var="erp"][data-erpt="odoo"][data-theme="dark"]{--accent:#b07aa3;--accent-soft:#3a2735;--acc:#b07aa3;--link:#35c5cb;--nav-bg:#3b2635}
+html[data-var="erp"][data-erpt="steel"][data-theme="dark"]{--accent:#5b9be6;--accent-soft:#1d2c3f;--acc:#5b9be6;--link:#5b9be6;--nav-bg:#13263b}
+html[data-var="erp"][data-erpt="graphite"][data-theme="dark"]{--nav-bg:#111315}
+html[data-var="erp"][data-erpt="green"][data-theme="dark"]{--accent:#3bbf92;--accent-soft:#16322a;--acc:#3bbf92;--link:#3bbf92;--nav-bg:#0d2a22}
+html[data-var="erp"][data-erpt]:not([data-erpt="kh"]) .erp-crumbs a{color:var(--link)}
 html[data-var="erp"][data-erpt="odoo"] .erp-chip.on{background:#e6f2f3;border-color:var(--link);color:var(--link)}
 html[data-var="erp"][data-erpt="odoo"] .erp-stages button.on{background:#e6f2f3;color:var(--link);box-shadow:inset 0 -2px 0 var(--link)}
-html[data-var="erp"][data-erpt="odoo"] .erp-menu button.on{border-bottom-color:var(--accent)}
-html[data-var="erp"][data-erpt="odoo"] .erp-appname{color:var(--accent)}
+/* dark navbar (all themes except KH white) */
+html[data-var="erp"][data-navdark] .top{background:var(--nav-bg)!important;border-bottom-color:transparent!important;box-shadow:0 1px 3px rgba(0,0,0,.18)}
+html[data-var="erp"][data-navdark] .erp-apps,html[data-var="erp"][data-navdark] .erp-appname{color:#fff}
+html[data-var="erp"][data-navdark] .erp-apps:hover{background:rgba(255,255,255,.12);color:#fff}
+html[data-var="erp"][data-navdark] .erp-logo{background:#fff;border-radius:5px;padding:2px 6px;height:26px;box-sizing:border-box}
+html[data-var="erp"][data-navdark] .erp-menu button{color:rgba(255,255,255,.78)}
+html[data-var="erp"][data-navdark] .erp-menu button:hover{color:#fff;background:rgba(255,255,255,.1)}
+html[data-var="erp"][data-navdark] .erp-menu button.on{color:#fff;background:rgba(255,255,255,.14);border-bottom-color:#fff}
+html[data-var="erp"][data-navdark] .top-actions .btn,html[data-var="erp"][data-navdark] .top-actions .btn:not(.primary):not(.ghost){background:rgba(255,255,255,.12)!important;border-color:transparent!important;color:#fff!important}
+html[data-var="erp"][data-navdark] .top-actions .btn:hover{background:rgba(255,255,255,.22)!important}
+html[data-var="erp"][data-navdark] .top-actions .seg{background:rgba(255,255,255,.12)!important;border-color:transparent!important}
+html[data-var="erp"][data-navdark] .top-actions .seg button{color:rgba(255,255,255,.8)!important;background:transparent!important}
+html[data-var="erp"][data-navdark] .top-actions .seg button.on{background:#fff!important;color:var(--nav-bg)!important}
+html[data-var="erp"][data-navdark] .erp-user{background:#fff;color:var(--nav-bg)}
+html[data-var="erp"][data-navdark] .erp-dd .btn{color:var(--ink)!important;background:#e7e9ed!important}
+html[data-var="erp"][data-navdark] .erp-dd .btn.ghost{background:transparent!important}
+html[data-var="erp"][data-navdark] #btnMine .cnt{background:#fff;color:var(--nav-bg)}html[data-var="erp"][data-navdark] #btnMine .cnt.bad{background:#f04438;color:#fff}
+/* the accent shows on page elements too */
+html[data-var="erp"] .erp-kpi:hover{border-color:var(--accent)}
+html[data-var="erp"] .td-prog i{background:var(--accent)}
 /* Compact density: more rows on one screen */
 html[data-var="erp"][data-dens]{--nav-h:40px}
 html[data-var="erp"][data-dens] body{font-size:12.5px}
@@ -833,7 +857,7 @@ html[data-theme="dark"] .nt-card textarea{color:#1f2328}
     <div class="top-actions">
       <div class="mco"><b>Kh International</b><small>ISO 9001 · Know us, know the quality</small></div>
       <div class="seg notr" id="langSeg" role="group" aria-label="Language"><button data-lang="mn" title="Монгол">МН</button><button data-lang="en" title="English">EN</button></div>
-      <select id="skinSel" class="inp sm" aria-label="Загвар" title="Програмын загвар" style="width:auto;padding:5px 8px"><option value="kh">Загвар: Odoo 18 · KH улбар шар</option><option value="odoo">Загвар: Odoo 18 · нил ягаан</option><option value="kh-c">Загвар: Нягт · KH улбар шар</option><option value="odoo-c">Загвар: Нягт · нил ягаан</option></select>
+      <select id="skinSel" class="inp sm" aria-label="Өнгө" title="Өнгөний загвар" style="width:auto;padding:5px 8px"><option value="kh">Өнгө: KH улбар шар (цагаан навбар)</option><option value="odoo">Өнгө: Odoo нил ягаан</option><option value="steel">Өнгө: Ган цэнхэр</option><option value="graphite">Өнгө: Графит + улбар шар</option><option value="green">Өнгө: Ногоон</option></select><select id="densSel" class="inp sm" aria-label="Нягтрал" title="Мөр, товчны хэмжээ" style="width:auto;padding:5px 8px"><option value="">Хэмжээ: Энгийн</option><option value="c">Хэмжээ: Нягт (их мэдээлэл)</option></select>
       <button class="btn sm ghost" id="btnChat" type="button" title="Оффис, үйлдвэрийн дотоод чат — ерөнхий суваг, ажил бүрийн чат">💬 Чат</button>
       <button class="btn sm ghost" id="btnLink" type="button" title="Нөөц (OneDrive), оффис ↔ үйлдвэр синк, утаснаас бүртгэх">🔗 Холболт</button>
       <button class="btn sm savebtn" type="button" title="Бүх өгөгдлийг одоо хадгалах (Ctrl+S). Програм өөрөө ч автоматаар хадгалдаг.">💾 Хадгалах</button>
@@ -5417,10 +5441,13 @@ function i18nButtons() {
 }
 (() => {
   try { const t = localStorage.getItem(THEME_KEY); if (t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t); } catch (e) { }
-  { /* one look: Odoo 18-style ERP shell; themes only change colour and density */
-    const V = ['kh', 'odoo', 'kh-c', 'odoo-c'], h = document.documentElement, apply = k => { h.setAttribute('data-skin', 'modern'); h.setAttribute('data-var', 'erp'); h.setAttribute('data-erpt', k.startsWith('odoo') ? 'odoo' : 'kh'); h.toggleAttribute('data-dens', k.endsWith('-c')); if (h.dataset.forcedDark) { h.setAttribute('data-theme', 'light'); h.dataset.forcedDark = ''; } if (typeof i18nButtons === 'function') i18nButtons(); };
-    let k = 'kh'; try { k = localStorage.getItem('kh-erpt') || 'kh'; localStorage.removeItem('kh-skin2'); } catch (e) { } if (!V.includes(k)) k = 'kh'; apply(k);
-    const sel = document.getElementById('skinSel'); if (sel) { sel.value = k; sel.addEventListener('change', () => { try { localStorage.setItem('kh-erpt', sel.value); } catch (e) { } apply(sel.value); if (typeof rerenderAll === 'function') try { rerenderAll(); } catch (e) { } }); } }
+  { /* one look: Odoo 18-style ERP shell; themes change colours (incl. the navbar) and density */
+    const V = ['kh', 'odoo', 'steel', 'graphite', 'green'], h = document.documentElement;
+    const apply = (k, d) => { h.setAttribute('data-skin', 'modern'); h.setAttribute('data-var', 'erp'); h.setAttribute('data-erpt', k); h.toggleAttribute('data-navdark', k !== 'kh'); h.toggleAttribute('data-dens', d === 'c'); if (h.dataset.forcedDark) { h.setAttribute('data-theme', 'light'); h.dataset.forcedDark = ''; } if (typeof i18nButtons === 'function') i18nButtons(); };
+    let k = 'kh', d = ''; try { k = localStorage.getItem('kh-erpt') || 'kh'; d = localStorage.getItem('kh-dens') || ''; localStorage.removeItem('kh-skin2'); } catch (e) { }
+    if (k.endsWith('-c')) { d = 'c'; k = k.slice(0, -2); } if (!V.includes(k)) k = 'kh'; apply(k, d);
+    const sel = document.getElementById('skinSel'), ds = document.getElementById('densSel'), ch = () => { k = sel.value; d = ds ? ds.value : ''; try { localStorage.setItem('kh-erpt', k); localStorage.setItem('kh-dens', d); } catch (e) { } apply(k, d); if (typeof toast === 'function') toast('Загвар солигдлоо'); };
+    if (sel) { sel.value = k; sel.addEventListener('change', ch); } if (ds) { ds.value = d; ds.addEventListener('change', ch); } }
   document.documentElement.lang = LANG === 'en' ? 'en' : 'mn';
   trObs.observe(document.documentElement, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: TR_ATTRS });
   if (LANG === 'en') trWalk(document.body);
@@ -16708,7 +16735,7 @@ function erpBuild() {
   const more = document.createElement('div'); more.className = 'erp-more';
   more.innerHTML = `<button class="btn ghost" id="erpMoreBtn" title="Тохиргоо, өгөгдөл">⚙</button><div class="erp-dd" id="erpDD" hidden><div class="ddh">Харагдах байдал</div></div>`;
   const dd = more.querySelector('#erpDD');
-  ['#skinSel', '#btnTheme'].forEach(s => { const n = $(s); if (n) dd.appendChild(n); });
+  ['#skinSel', '#densSel', '#btnTheme'].forEach(s => { const n = $(s); if (n) dd.appendChild(n); });
   const h2 = document.createElement('div'); h2.className = 'ddh'; h2.textContent = 'Өгөгдөл, төсөл'; dd.appendChild(h2);
   ['#btnDataDir', '#jobName', '#btnOpenProj', '#btnSaveProj'].forEach(s => { const n = $(s); if (n) dd.appendChild(n); });
   const iso = document.createElement('button'); iso.className = 'btn ghost'; iso.textContent = 'ISO маягтын код, операторууд, лого'; iso.addEventListener('click', erpIsoDlg); dd.appendChild(iso);

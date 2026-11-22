@@ -95,10 +95,13 @@ function i18nButtons() {
 }
 (() => {
   try { const t = localStorage.getItem(THEME_KEY); if (t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t); } catch (e) { }
-  { /* one look: Odoo 18-style ERP shell; themes only change colour and density */
-    const V = ['kh', 'odoo', 'kh-c', 'odoo-c'], h = document.documentElement, apply = k => { h.setAttribute('data-skin', 'modern'); h.setAttribute('data-var', 'erp'); h.setAttribute('data-erpt', k.startsWith('odoo') ? 'odoo' : 'kh'); h.toggleAttribute('data-dens', k.endsWith('-c')); if (h.dataset.forcedDark) { h.setAttribute('data-theme', 'light'); h.dataset.forcedDark = ''; } if (typeof i18nButtons === 'function') i18nButtons(); };
-    let k = 'kh'; try { k = localStorage.getItem('kh-erpt') || 'kh'; localStorage.removeItem('kh-skin2'); } catch (e) { } if (!V.includes(k)) k = 'kh'; apply(k);
-    const sel = document.getElementById('skinSel'); if (sel) { sel.value = k; sel.addEventListener('change', () => { try { localStorage.setItem('kh-erpt', sel.value); } catch (e) { } apply(sel.value); if (typeof rerenderAll === 'function') try { rerenderAll(); } catch (e) { } }); } }
+  { /* one look: Odoo 18-style ERP shell; themes change colours (incl. the navbar) and density */
+    const V = ['kh', 'odoo', 'steel', 'graphite', 'green'], h = document.documentElement;
+    const apply = (k, d) => { h.setAttribute('data-skin', 'modern'); h.setAttribute('data-var', 'erp'); h.setAttribute('data-erpt', k); h.toggleAttribute('data-navdark', k !== 'kh'); h.toggleAttribute('data-dens', d === 'c'); if (h.dataset.forcedDark) { h.setAttribute('data-theme', 'light'); h.dataset.forcedDark = ''; } if (typeof i18nButtons === 'function') i18nButtons(); };
+    let k = 'kh', d = ''; try { k = localStorage.getItem('kh-erpt') || 'kh'; d = localStorage.getItem('kh-dens') || ''; localStorage.removeItem('kh-skin2'); } catch (e) { }
+    if (k.endsWith('-c')) { d = 'c'; k = k.slice(0, -2); } if (!V.includes(k)) k = 'kh'; apply(k, d);
+    const sel = document.getElementById('skinSel'), ds = document.getElementById('densSel'), ch = () => { k = sel.value; d = ds ? ds.value : ''; try { localStorage.setItem('kh-erpt', k); localStorage.setItem('kh-dens', d); } catch (e) { } apply(k, d); if (typeof toast === 'function') toast('Загвар солигдлоо'); };
+    if (sel) { sel.value = k; sel.addEventListener('change', ch); } if (ds) { ds.value = d; ds.addEventListener('change', ch); } }
   document.documentElement.lang = LANG === 'en' ? 'en' : 'mn';
   trObs.observe(document.documentElement, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: TR_ATTRS });
   if (LANG === 'en') trWalk(document.body);
